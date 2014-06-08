@@ -24,3 +24,4 @@ etc/ivy/ivy.jar
 
 # System files
 .DS_Store
+/.settings
