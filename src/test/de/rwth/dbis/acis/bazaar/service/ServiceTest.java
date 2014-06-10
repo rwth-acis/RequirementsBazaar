@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2014, RWTH Aachen University.
  * For a list of contributors see the AUTHORS file at the top-level directory
  * of this distribution.
