@@ -112,7 +112,6 @@ public class BazaarService extends Service {
 	@Produces("application/json")
 	public String getProject(@PathParam("projectId") int projectId) {
 		// TODO: check whether the current user may request this project
-
 		return "{}";
 	}
 
