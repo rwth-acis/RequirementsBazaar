@@ -8,5 +8,7 @@
 	<classpathentry kind="lib" path="lib/las2peer-web-connector-0.1.jar"/>
 	<classpathentry kind="lib" path="lib/las2peer-rest-mapper-0.1.jar"/>
 	<classpathentry kind="lib" path="lib/las2peer-0.1.jar"/>
+	<classpathentry kind="lib" path="lib/jooq-3.3.2.jar"/>
+	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.31.jar"/>
 	<classpathentry kind="output" path="tmp/classes"/>
 </classpath>
