@@ -152,6 +152,7 @@ public class BazaarService extends Service {
 	 */
 	@GET
 	@Path("projects/{projectId}/requirements")
+	@Produces("application/json")
 	public String getRequirements(@PathParam("projectId") int projectId,
 			@QueryParam(name = "page", defaultValue = "1") int page,
 			@QueryParam(name = "per_page", defaultValue = "10") int perPage) {
@@ -184,15 +185,48 @@ public class BazaarService extends Service {
 	 * This method returns a specific requirement within a project.
 	 * 
 	 * @param projectId
-	 *            the ID of the project to retrieve requirements for.
+	 *            the ID of the project of the requirement.
 	 * @param requirementId
 	 *            the ID of the requirement to retrieve.
-	 * @return a list of requirements
+	 * @return a specific requirement.
 	 */
 	@GET
 	@Path("projects/{projectId}/requirements/{requirementId}")
-	public String getRequirements(@PathParam("projectId") int projectId,
+	public String getRequirement(@PathParam("projectId") int projectId,
 			@PathParam("requirementId") int requirementId) {
+		return "[]";
+	}
+
+	/**
+	 * This method updates a specific requirement within a project.
+	 * 
+	 * @param projectId
+	 *            the ID of the project of the requirement.
+	 * @param requirementId
+	 *            the ID of the requirement to update.
+	 * @return the updated requirement.
+	 */
+	@PUT
+	@Path("projects/{projectId}/requirements/{requirementId}")
+	public String updateRequirement(@PathParam("projectId") int projectId,
+			@PathParam("requirementId") int requirementId) {
+		return "[]";
+	}
+
+	/**
+	 * This method deletes a specific requirement within a project.
+	 * 
+	 * @param projectId
+	 *            the ID of the project of the requirement.
+	 * @param requirementId
+	 *            the ID of the requirement to delete.
+	 * @return the updated requirement.
+	 */
+	@DELETE
+	@Path("projects/{projectId}/requirements/{requirementId}")
+	public String deleteRequirement(@PathParam("projectId") int projectId,
+			@PathParam("requirementId") int requirementId) {
+		// TODO: check if the user may delete this requirement.
 		return "[]";
 	}
 

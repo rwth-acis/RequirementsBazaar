@@ -1,6 +1,5 @@
 package de.rwth.dbis.acis.bazaar.dal.entities;
 
-import java.util.Date;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
