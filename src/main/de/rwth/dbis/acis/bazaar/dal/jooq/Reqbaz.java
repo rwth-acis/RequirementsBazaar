@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.dal.jooq;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Reqbaz extends org.jooq.impl.SchemaImpl {
 
-	private static final long serialVersionUID = 77061750;
+	private static final long serialVersionUID = -1714113175;
 
 	/**
 	 * The singleton instance of <code>reqbaz</code>
@@ -42,6 +42,7 @@ public class Reqbaz extends org.jooq.impl.SchemaImpl {
 			de.rwth.dbis.acis.bazaar.dal.jooq.tables.Followers.FOLLOWERS,
 			de.rwth.dbis.acis.bazaar.dal.jooq.tables.Projects.PROJECTS,
 			de.rwth.dbis.acis.bazaar.dal.jooq.tables.Requirements.REQUIREMENTS,
+			de.rwth.dbis.acis.bazaar.dal.jooq.tables.Tags.TAGS,
 			de.rwth.dbis.acis.bazaar.dal.jooq.tables.Users.USERS,
 			de.rwth.dbis.acis.bazaar.dal.jooq.tables.Votes.VOTES);
 	}

@@ -1,12 +1,12 @@
 <project name="LAS2peer-Template-Project" default="jar" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 	
     <property file="etc/ant_configuration/service.properties"/>
-    <property file="etc/ant_configuration/user.properties"/>
+    <property file="etc/ant_configuration/creator.properties"/>
 	
     <property name="startup" location="etc/startup" />
 	
     <property name="service_agent.path" value="${startup}/agent-service-${service.name}.xml" />
-    <property name="user_agent.path" value="${startup}/agent-user-${las2peer_user.name}.xml" />
+    <property name="user_agent.path" value="${startup}/agent-creator-${las2peer_user.name}.xml" />
 	<property name="passphrases.path" value="${startup}/passphrases.txt" />
 	
     <presetdef name="javac">
@@ -227,7 +227,7 @@
 	
     <target name="generate_configs" depends="generate_service_agent, generate_user_agent">
 <echo file="${passphrases.path}" append="false">agent-service-${service.name}.xml;${service.password}
-agent-user-${las2peer_user.name}.xml;${las2peer_user.password}
+agent-creator-${las2peer_user.name}.xml;${las2peer_user.password}
 </echo>
     </target>
 	

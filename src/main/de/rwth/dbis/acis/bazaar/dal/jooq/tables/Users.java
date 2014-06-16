@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Users extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UsersRecord> {
 
-	private static final long serialVersionUID = 1690874703;
+	private static final long serialVersionUID = 613150789;
 
 	/**
 	 * The singleton instance of <code>reqbaz.users</code>
@@ -47,9 +47,24 @@ public class Users extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.dal.
 	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UsersRecord, java.lang.String> EMAIL = createField("email", org.jooq.impl.SQLDataType.VARCHAR.length(255).nullable(false), this, "");
 
 	/**
+	 * The column <code>reqbaz.users.admin</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UsersRecord, java.lang.Byte> ADMIN = createField("admin", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "");
+
+	/**
 	 * The column <code>reqbaz.users.User_Id</code>.
 	 */
 	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UsersRecord, java.lang.Integer> USER_ID = createField("User_Id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
+
+	/**
+	 * The column <code>reqbaz.users.user_name</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UsersRecord, java.lang.String> USER_NAME = createField("user_name", org.jooq.impl.SQLDataType.VARCHAR.length(255).nullable(false), this, "");
+
+	/**
+	 * The column <code>reqbaz.users.openId_identifier</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UsersRecord, java.lang.String> OPENID_IDENTIFIER = createField("openId_identifier", org.jooq.impl.SQLDataType.VARCHAR.length(300).nullable(false), this, "");
 
 	/**
 	 * Create a <code>reqbaz.users</code> table reference

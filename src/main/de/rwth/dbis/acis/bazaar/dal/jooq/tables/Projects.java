@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Projects extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectsRecord> {
 
-	private static final long serialVersionUID = -1869484644;
+	private static final long serialVersionUID = -2077052736;
 
 	/**
 	 * The singleton instance of <code>reqbaz.projects</code>
@@ -40,6 +40,16 @@ public class Projects extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.d
 	 * The column <code>reqbaz.projects.description</code>.
 	 */
 	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectsRecord, java.lang.String> DESCRIPTION = createField("description", org.jooq.impl.SQLDataType.VARCHAR.length(255).nullable(false), this, "");
+
+	/**
+	 * The column <code>reqbaz.projects.visibility</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectsRecord, java.lang.String> VISIBILITY = createField("visibility", org.jooq.impl.SQLDataType.CHAR.length(1).nullable(false), this, "");
+
+	/**
+	 * The column <code>reqbaz.projects.Leader_Id</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectsRecord, java.lang.Integer> LEADER_ID = createField("Leader_Id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
 
 	/**
 	 * Create a <code>reqbaz.projects</code> table reference

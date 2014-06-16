@@ -25,3 +25,9 @@ etc/ivy/ivy.jar
 # System files
 .DS_Store
 /.settings
+
+# IntelliJ
+/idea/workspace.xml
+
+# Eclipse metadata
+/metadata

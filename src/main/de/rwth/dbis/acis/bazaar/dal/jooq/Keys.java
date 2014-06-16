@@ -26,6 +26,7 @@ public class Keys {
 	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.FollowersRecord, java.lang.Integer> IDENTITY_FOLLOWERS = Identities0.IDENTITY_FOLLOWERS;
 	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectsRecord, java.lang.Integer> IDENTITY_PROJECTS = Identities0.IDENTITY_PROJECTS;
 	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementsRecord, java.lang.Integer> IDENTITY_REQUIREMENTS = Identities0.IDENTITY_REQUIREMENTS;
+	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.TagsRecord, java.lang.Integer> IDENTITY_TAGS = Identities0.IDENTITY_TAGS;
 	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UsersRecord, java.lang.Integer> IDENTITY_USERS = Identities0.IDENTITY_USERS;
 	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.VotesRecord, java.lang.Integer> IDENTITY_VOTES = Identities0.IDENTITY_VOTES;
 
@@ -41,6 +42,7 @@ public class Keys {
 	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.FollowersRecord> KEY_FOLLOWERS_PRIMARY = UniqueKeys0.KEY_FOLLOWERS_PRIMARY;
 	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectsRecord> KEY_PROJECTS_PRIMARY = UniqueKeys0.KEY_PROJECTS_PRIMARY;
 	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementsRecord> KEY_REQUIREMENTS_PRIMARY = UniqueKeys0.KEY_REQUIREMENTS_PRIMARY;
+	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.TagsRecord> KEY_TAGS_PRIMARY = UniqueKeys0.KEY_TAGS_PRIMARY;
 	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UsersRecord> KEY_USERS_PRIMARY = UniqueKeys0.KEY_USERS_PRIMARY;
 	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.VotesRecord> KEY_VOTES_PRIMARY = UniqueKeys0.KEY_VOTES_PRIMARY;
 
@@ -62,6 +64,7 @@ public class Keys {
 		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.FollowersRecord, java.lang.Integer> IDENTITY_FOLLOWERS = createIdentity(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Followers.FOLLOWERS, de.rwth.dbis.acis.bazaar.dal.jooq.tables.Followers.FOLLOWERS.ID);
 		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectsRecord, java.lang.Integer> IDENTITY_PROJECTS = createIdentity(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Projects.PROJECTS, de.rwth.dbis.acis.bazaar.dal.jooq.tables.Projects.PROJECTS.ID);
 		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementsRecord, java.lang.Integer> IDENTITY_REQUIREMENTS = createIdentity(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Requirements.REQUIREMENTS, de.rwth.dbis.acis.bazaar.dal.jooq.tables.Requirements.REQUIREMENTS.ID);
+		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.TagsRecord, java.lang.Integer> IDENTITY_TAGS = createIdentity(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Tags.TAGS, de.rwth.dbis.acis.bazaar.dal.jooq.tables.Tags.TAGS.ID);
 		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UsersRecord, java.lang.Integer> IDENTITY_USERS = createIdentity(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Users.USERS, de.rwth.dbis.acis.bazaar.dal.jooq.tables.Users.USERS.ID);
 		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.VotesRecord, java.lang.Integer> IDENTITY_VOTES = createIdentity(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Votes.VOTES, de.rwth.dbis.acis.bazaar.dal.jooq.tables.Votes.VOTES.ID);
 	}
@@ -75,6 +78,7 @@ public class Keys {
 		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.FollowersRecord> KEY_FOLLOWERS_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Followers.FOLLOWERS, de.rwth.dbis.acis.bazaar.dal.jooq.tables.Followers.FOLLOWERS.ID);
 		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectsRecord> KEY_PROJECTS_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Projects.PROJECTS, de.rwth.dbis.acis.bazaar.dal.jooq.tables.Projects.PROJECTS.ID);
 		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementsRecord> KEY_REQUIREMENTS_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Requirements.REQUIREMENTS, de.rwth.dbis.acis.bazaar.dal.jooq.tables.Requirements.REQUIREMENTS.ID);
+		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.TagsRecord> KEY_TAGS_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Tags.TAGS, de.rwth.dbis.acis.bazaar.dal.jooq.tables.Tags.TAGS.ID);
 		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UsersRecord> KEY_USERS_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Users.USERS, de.rwth.dbis.acis.bazaar.dal.jooq.tables.Users.USERS.ID);
 		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.VotesRecord> KEY_VOTES_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Votes.VOTES, de.rwth.dbis.acis.bazaar.dal.jooq.tables.Votes.VOTES.ID);
 	}

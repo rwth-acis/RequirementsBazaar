@@ -54,6 +54,11 @@ public class Tables {
 	public static final de.rwth.dbis.acis.bazaar.dal.jooq.tables.Requirements REQUIREMENTS = de.rwth.dbis.acis.bazaar.dal.jooq.tables.Requirements.REQUIREMENTS;
 
 	/**
+	 * The table reqbaz.tags
+	 */
+	public static final de.rwth.dbis.acis.bazaar.dal.jooq.tables.Tags TAGS = de.rwth.dbis.acis.bazaar.dal.jooq.tables.Tags.TAGS;
+
+	/**
 	 * The table reqbaz.users
 	 */
 	public static final de.rwth.dbis.acis.bazaar.dal.jooq.tables.Users USERS = de.rwth.dbis.acis.bazaar.dal.jooq.tables.Users.USERS;

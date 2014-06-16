@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Components extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ComponentsRecord> {
 
-	private static final long serialVersionUID = 1806351343;
+	private static final long serialVersionUID = 298928845;
 
 	/**
 	 * The singleton instance of <code>reqbaz.components</code>
@@ -45,6 +45,11 @@ public class Components extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar
 	 * The column <code>reqbaz.components.Project_Id</code>.
 	 */
 	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ComponentsRecord, java.lang.Integer> PROJECT_ID = createField("Project_Id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
+
+	/**
+	 * The column <code>reqbaz.components.Leader_Id</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ComponentsRecord, java.lang.Integer> LEADER_ID = createField("Leader_Id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
 
 	/**
 	 * Create a <code>reqbaz.components</code> table reference

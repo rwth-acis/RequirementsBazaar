@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Attachements extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.AttachementsRecord> {
 
-	private static final long serialVersionUID = -2113000652;
+	private static final long serialVersionUID = -112891696;
 
 	/**
 	 * The singleton instance of <code>reqbaz.attachements</code>
@@ -45,6 +45,46 @@ public class Attachements extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.baza
 	 * The column <code>reqbaz.attachements.User_Id</code>.
 	 */
 	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.AttachementsRecord, java.lang.Integer> USER_ID = createField("User_Id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
+
+	/**
+	 * The column <code>reqbaz.attachements.title</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.AttachementsRecord, java.lang.String> TITLE = createField("title", org.jooq.impl.SQLDataType.VARCHAR.length(255).nullable(false), this, "");
+
+	/**
+	 * The column <code>reqbaz.attachements.discriminator</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.AttachementsRecord, java.lang.String> DISCRIMINATOR = createField("discriminator", org.jooq.impl.SQLDataType.CHAR.length(1).nullable(false), this, "");
+
+	/**
+	 * The column <code>reqbaz.attachements.file_path</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.AttachementsRecord, java.lang.String> FILE_PATH = createField("file_path", org.jooq.impl.SQLDataType.VARCHAR.length(500).nullable(false), this, "");
+
+	/**
+	 * The column <code>reqbaz.attachements.description</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.AttachementsRecord, java.lang.String> DESCRIPTION = createField("description", org.jooq.impl.SQLDataType.CLOB.length(65535).nullable(false), this, "");
+
+	/**
+	 * The column <code>reqbaz.attachements.story</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.AttachementsRecord, java.lang.String> STORY = createField("story", org.jooq.impl.SQLDataType.CLOB.length(65535).nullable(false), this, "");
+
+	/**
+	 * The column <code>reqbaz.attachements.subject</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.AttachementsRecord, java.lang.String> SUBJECT = createField("subject", org.jooq.impl.SQLDataType.VARCHAR.length(255).nullable(false), this, "");
+
+	/**
+	 * The column <code>reqbaz.attachements.object</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.AttachementsRecord, java.lang.String> OBJECT = createField("object", org.jooq.impl.SQLDataType.VARCHAR.length(255).nullable(false), this, "");
+
+	/**
+	 * The column <code>reqbaz.attachements.object_desc</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.AttachementsRecord, java.lang.String> OBJECT_DESC = createField("object_desc", org.jooq.impl.SQLDataType.VARCHAR.length(255).nullable(false), this, "");
 
 	/**
 	 * Create a <code>reqbaz.attachements</code> table reference
