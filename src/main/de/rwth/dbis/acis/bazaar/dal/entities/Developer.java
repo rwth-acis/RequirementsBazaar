@@ -25,11 +25,9 @@ package de.rwth.dbis.acis.bazaar.dal.entities;
  * @since 6/11/2014
  */
 public class Developer {
-    private int Id;
-
-    private int RequirementId;
-
-    private int UserId;
+    private final int Id;
+    private final int RequirementId;
+    private final int UserId;
 
     public Developer(Builder builder) {
         Id = builder.id;
@@ -41,24 +39,12 @@ public class Developer {
         return Id;
     }
 
-    public void setId(int id) {
-        Id = id;
-    }
-
     public int getRequirementId() {
         return RequirementId;
     }
 
-    public void setRequirementId(int requirementId) {
-        RequirementId = requirementId;
-    }
-
     public int getUserId() {
         return UserId;
-    }
-
-    public void setUserId(int userId) {
-        UserId = userId;
     }
 
     public static Builder getBuilder(){

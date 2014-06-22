@@ -26,11 +26,9 @@ package de.rwth.dbis.acis.bazaar.dal.entities;
  */
 public class Tag implements IdentifiedById {
 
-    private int id;
-
-    private int componentId;
-
-    private int requirementId;
+    private final int id;
+    private final int componentId;
+    private final int requirementId;
 
     public Tag(Builder builder) {
         this.id = builder.id;
@@ -42,24 +40,12 @@ public class Tag implements IdentifiedById {
         return id;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public int getComponentId() {
         return componentId;
     }
 
-    public void setComponentId(int componentId) {
-        this.componentId = componentId;
-    }
-
     public int getRequirementId() {
         return requirementId;
-    }
-
-    public void setRequirementId(int requirementId) {
-        this.requirementId = requirementId;
     }
 
     public static Builder getBuilder(int component_id) {

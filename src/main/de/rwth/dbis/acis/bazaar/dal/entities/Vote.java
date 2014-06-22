@@ -25,13 +25,10 @@ package de.rwth.dbis.acis.bazaar.dal.entities;
  * @since 6/11/2014
  */
 public class Vote {
-    private int Id;
-
-    private boolean isUpvote;
-
-    private int RequirementId;
-
-    private int UserId;
+    private final int Id;
+    private final boolean isUpvote;
+    private final int RequirementId;
+    private final int UserId;
 
     public Vote(Builder builder) {
         Id =            builder.id;
@@ -44,32 +41,16 @@ public class Vote {
         return Id;
     }
 
-    public void setId(int id) {
-        Id = id;
-    }
-
     public boolean isUpvote() {
         return isUpvote;
-    }
-
-    public void setUpvote(boolean isUpvote) {
-        this.isUpvote = isUpvote;
     }
 
     public int getRequirementId() {
         return RequirementId;
     }
 
-    public void setRequirementId(int requirementId) {
-        RequirementId = requirementId;
-    }
-
     public int getUserId() {
         return UserId;
-    }
-
-    public void setUserId(int userId) {
-        UserId = userId;
     }
 
     public static Builder getBuilder(){

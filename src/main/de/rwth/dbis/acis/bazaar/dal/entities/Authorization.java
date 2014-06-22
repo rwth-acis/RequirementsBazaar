@@ -25,10 +25,10 @@ package de.rwth.dbis.acis.bazaar.dal.entities;
  * @since 6/11/2014
  */
 public class Authorization {
-    private int Id;
-    private int accessRight;
-    private int ProjectId;
-    private int UserId;
+    private final int Id;
+    private final int accessRight;
+    private final int ProjectId;
+    private final int UserId;
 
     public Authorization(Builder builder) {
         Id = builder.id;
@@ -41,32 +41,16 @@ public class Authorization {
         return Id;
     }
 
-    public void setId(int id) {
-        Id = id;
-    }
-
     public int getAccessRight() {
         return accessRight;
-    }
-
-    public void setAccessRight(int accessRight) {
-        this.accessRight = accessRight;
     }
 
     public int getProjectId() {
         return ProjectId;
     }
 
-    public void setProjectId(int projectId) {
-        ProjectId = projectId;
-    }
-
     public int getUserId() {
         return UserId;
-    }
-
-    public void setUserId(int userId) {
-        UserId = userId;
     }
 
     public static Builder getBuilder(){
