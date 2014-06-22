@@ -20,6 +20,8 @@
 
 package de.rwth.dbis.acis.bazaar.dal.entities;
 
+import java.util.Date;
+
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
@@ -28,9 +30,9 @@ public class Project implements IdentifiedById {
     private final int id;
 
     private final String description;
-
     private final String name;
     private final ProjectVisibility visibility;
+    private final Date creation_time;
 
     public int getLeaderId() {
         return leaderId;
@@ -56,6 +58,8 @@ public class Project implements IdentifiedById {
         this.visibility = builder.visibility;
 
         this.leaderId = builder.leaderId;
+
+        this.creation_time = builder.creation_time;
     }
 
     /**
@@ -89,6 +93,7 @@ public class Project implements IdentifiedById {
         private String name;
         private ProjectVisibility visibility;
         private int leaderId;
+        private Date creation_time;
 
         public Builder(String title) {
             this.name = title;
@@ -127,6 +132,11 @@ public class Project implements IdentifiedById {
 
         public Builder leaderId(int userId) {
             this.leaderId = userId;
+            return this;
+        }
+
+        public Builder creationTime(Date creationTime) {
+            this.creation_time = creationTime;
             return this;
         }
     }

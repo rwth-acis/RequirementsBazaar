@@ -20,19 +20,18 @@
 
 package de.rwth.dbis.acis.bazaar.dal.entities;
 
+import java.util.Date;
+
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/11/2014
  */
 public class Comment {
     private final int requirementId;
-
     private final int Id;
-
     private final String message;
-
     private final int creatorId;
-
+    private final Date creation_time;
 
 
     public Comment(Builder builder) {
@@ -40,6 +39,7 @@ public class Comment {
         this.message = builder.message;
         this.creatorId = builder.userId;
         this.requirementId = builder.requirementId;
+        this.creation_time = builder.creation_time;
     }
 
     public int getRequirementId() {
@@ -49,7 +49,6 @@ public class Comment {
     public int getId() {
         return Id;
     }
-
 
     public String getMessage() {
         return message;
@@ -68,6 +67,7 @@ public class Comment {
         private String message;
         private int userId;
         private int requirementId;
+        private Date creation_time;
 
         public Builder(String message) {
             message(message);
@@ -94,6 +94,11 @@ public class Comment {
 
         public Builder requirementId(int requirementId) {
             this.requirementId = requirementId;
+            return this;
+        }
+
+        public Builder creationTime(Date creationTime) {
+            this.creation_time = creationTime;
             return this;
         }
     }

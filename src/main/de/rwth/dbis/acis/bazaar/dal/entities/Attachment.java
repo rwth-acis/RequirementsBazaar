@@ -20,6 +20,8 @@
 
 package de.rwth.dbis.acis.bazaar.dal.entities;
 
+import java.util.Date;
+
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/11/2014
@@ -29,12 +31,14 @@ public abstract class Attachment {
     private final int creatorId;
     private final int requirementId;
     private final String title;
+    private final Date creation_time;
 
     public Attachment(Builder builder) {
         this.Id = builder.id;
         this.creatorId = builder.creatorId;
         this.requirementId = builder.requirementId;
         this.title = builder.title;
+        this.creation_time = builder.creation_time;
     }
 
     public int getId() {
@@ -55,6 +59,7 @@ public abstract class Attachment {
         private int creatorId;
         private int requirementId;
         private String title;
+        public Date creation_time;
 
         public Builder id(int id) {
             this.id = id;
@@ -73,6 +78,11 @@ public abstract class Attachment {
 
         public Builder title(String title) {
             this.title = title;
+            return this;
+        }
+
+        public Builder creationTime(Date creationTime) {
+            this.creation_time = creationTime;
             return this;
         }
 

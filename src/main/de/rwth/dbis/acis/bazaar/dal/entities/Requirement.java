@@ -1,6 +1,8 @@
 package de.rwth.dbis.acis.bazaar.dal.entities;
 
 
+import java.util.Date;
+
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
@@ -14,12 +16,11 @@ public class Requirement implements IdentifiedById {
     private final int projectId;
     private final int leadDeveloperId;
     private final int creatorId;
+    private final Date creation_time;
 
-//    private final Date creation_time;
-
-//    public Date getCreation_time() {
-//        return creation_time;
-//    }
+    public Date getCreation_time() {
+        return creation_time;
+    }
 
     public String getDescription() {
         return description;
@@ -55,6 +56,7 @@ public class Requirement implements IdentifiedById {
         this.projectId = builder.leadDeveloperId;
         this.leadDeveloperId = builder.creatorId;
         this.creatorId = builder.projectId;
+        this.creation_time = builder.creation_time;
 
     }
 
@@ -78,6 +80,7 @@ public class Requirement implements IdentifiedById {
         private int projectId;
         private int leadDeveloperId;
         private int creatorId;
+        private Date creation_time;
 
         public Builder(String title) {
             this.title = title;
@@ -122,6 +125,11 @@ public class Requirement implements IdentifiedById {
 
         public Builder creatorId(int userId) {
             this.creatorId = userId;
+            return this;
+        }
+
+        public Builder creationTime(Date creationTime) {
+            this.creation_time = creationTime;
             return this;
         }
     }

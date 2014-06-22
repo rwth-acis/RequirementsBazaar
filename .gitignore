@@ -31,3 +31,4 @@ etc/ivy/ivy.jar
 
 # Eclipse metadata
 /metadata
+.idea/workspace.xml

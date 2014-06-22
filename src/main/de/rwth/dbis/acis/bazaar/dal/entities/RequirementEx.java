@@ -20,6 +20,7 @@
 
 package de.rwth.dbis.acis.bazaar.dal.entities;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -133,6 +134,12 @@ public class RequirementEx extends Requirement {
             return this;
         }
 
+        @Override
+        public BuilderEx creationTime(Date creationTime) {
+            super.creationTime(creationTime);
+            return this;
+        }
+
         public BuilderEx leadDeveloper(User leadDeveloper) {
             this.leadDeveloper = leadDeveloper;
             return this;
@@ -162,7 +169,5 @@ public class RequirementEx extends Requirement {
             this.components = components;
             return this;
         }
-
-
     }
 }
