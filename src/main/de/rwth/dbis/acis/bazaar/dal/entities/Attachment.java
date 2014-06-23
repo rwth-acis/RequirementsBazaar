@@ -26,7 +26,7 @@ import java.util.Date;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/11/2014
  */
-public abstract class Attachment {
+public abstract class Attachment implements IdentifiedById {
     private final int Id;
     private final int creatorId;
     private final int requirementId;
@@ -54,12 +54,20 @@ public abstract class Attachment {
         return requirementId;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public Date getCreation_time() {
+        return creation_time;
+    }
+
     public static abstract class Builder {
         private int id;
         private int creatorId;
         private int requirementId;
         private String title;
-        public Date creation_time;
+        private Date creation_time;
 
         public Builder id(int id) {
             this.id = id;

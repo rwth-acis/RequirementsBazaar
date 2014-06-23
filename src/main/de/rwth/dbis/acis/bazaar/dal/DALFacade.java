@@ -43,7 +43,7 @@ public interface DALFacade {
      * It does NOT update any relations of the object, just only the direct fields!
      * @param modifiedUser, which holds the data of the modification for the user in the database identified by the Id field.
      */
-    public void modifyUser(User modifiedUser);
+    public void modifyUser(User modifiedUser) throws Exception;
 
      /* TODO delete? Should it delete its projects? What should happen after deletion? */
 
@@ -51,7 +51,7 @@ public interface DALFacade {
      * @param userId the identifier of the user, which should be retreived
      * @return the user with its data from the database
      */
-    public User getUserById(int userId);
+    public User getUserById(int userId) throws Exception;
 
     //endregion
 

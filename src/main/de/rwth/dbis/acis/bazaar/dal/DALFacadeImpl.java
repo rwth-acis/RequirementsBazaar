@@ -22,7 +22,14 @@ package de.rwth.dbis.acis.bazaar.dal;
 
 import de.rwth.dbis.acis.bazaar.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.dal.repositories.*;
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -30,19 +37,60 @@ import java.util.List;
  * @since 6/14/2014
  */
 public class DALFacadeImpl implements DALFacade {
+
+    private final DSLContext dslContext;
+
+    private AttachmentRepository attachmentRepository;
+    private AuthorizationRepository authorizationRepository;
+    private CommentRepository commentRepository;
+    private ComponentRepository componentRepository;
+    private DeveloperRepository developerRepository;
+    private FollowerRepository followerRepository;
+    private ProjectRepository projectRepository;
+    private RequirementRepository requirementRepository;
+    private TagRepository tagRepository;
+    private UserRepository userRepository;
+    private VoteRepostitory voteRepostitory;
+
+    public DALFacadeImpl() throws Exception {
+        Connection conn = null;
+
+        String userName = "root";
+        String password = "";
+        String url = "jdbc:mysql://localhost:3306/library";
+
+        Class.forName("com.mysql.jdbc.Driver").newInstance();
+        conn = DriverManager.getConnection(url, userName, password);
+        dslContext = DSL.using(conn, SQLDialect.MYSQL);
+
+        attachmentRepository = new AttachmentRepositoryImpl(dslContext);
+        authorizationRepository = new AuthorizationRepositoryImpl(dslContext);
+        commentRepository = new CommentRepositoryImpl(dslContext);
+        componentRepository = new ComponentRepositoryImpl(dslContext);
+        developerRepository = new DeveloperRepositoryImpl(dslContext);
+        followerRepository = new FollowerRepositoryImpl(dslContext);
+        projectRepository = new ProjectRepositoryImpl(dslContext);
+        requirementRepository = new RequirementRepositoryImpl(dslContext);
+        tagRepository = new TagRepositoryImpl(dslContext);
+        userRepository = new UserRepositoryImpl(dslContext);
+        voteRepostitory = new VoteRepostitoryImpl(dslContext);
+
+    }
+
+
     @Override
     public void createUser(User user) {
-
+        userRepository.add(user);
     }
 
     @Override
-    public void modifyUser(User modifiedUser) {
-
+    public void modifyUser(User modifiedUser) throws Exception {
+        userRepository.update(modifiedUser);
     }
 
     @Override
-    public User getUserById(int userId) {
-        return null;
+    public User getUserById(int userId) throws Exception {
+        return userRepository.findById(userId);
     }
 
     @Override

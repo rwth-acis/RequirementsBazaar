@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.dal;
 
 import de.rwth.dbis.acis.bazaar.dal.entities.Project;
+import de.rwth.dbis.acis.bazaar.dal.helpers.PropertiesReader;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectsRecord;
 import de.rwth.dbis.acis.bazaar.dal.repositories.ProjectRepository;
 import de.rwth.dbis.acis.bazaar.dal.repositories.ProjectRepositoryImpl;
@@ -37,10 +38,13 @@ import org.jooq.tools.jdbc.MockExecuteContext;
 import org.jooq.tools.jdbc.MockResult;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
 * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -67,6 +71,16 @@ public class RepositoryTest {
         Connection connection = new MockConnection(mockedProjectDataProvider);
         DSLContext context = DSL.using(connection, SQLDialect.MYSQL);
         repo = new ProjectRepositoryImpl(context);
+    }
+
+    @Test
+    public void testPropReading() throws IOException {
+        PropertiesReader propertiesReader = new PropertiesReader();
+        Properties props = propertiesReader.read(".");
+        assertEquals("root", props.getProperty("user"));
+        assertEquals("",props.getProperty("pass",""));
+        assertEquals("jdbc:mysql://localhost:3306/library",props.getProperty("connString"));
+        assertEquals("com.mysql.jdbc.Driver",props.getProperty("driver"));
     }
 
     @Test

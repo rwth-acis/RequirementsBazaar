@@ -24,7 +24,7 @@ package de.rwth.dbis.acis.bazaar.dal.entities;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/11/2014
  */
-public class User {
+public class User implements IdentifiedById {
     private final int Id;
 
     private final String firstName;
@@ -86,6 +86,14 @@ public class User {
 
     public static Builder geBuilder(String eMail){
         return new Builder(eMail);
+    }
+
+    public boolean getAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
     }
 
     public static class Builder {

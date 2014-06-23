@@ -34,6 +34,14 @@ public class Log extends Attachment {
         this.description = builder.description;
     }
 
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
     public static Builder getBuilder(){return new Builder();}
 
     public static class Builder extends Attachment.Builder {

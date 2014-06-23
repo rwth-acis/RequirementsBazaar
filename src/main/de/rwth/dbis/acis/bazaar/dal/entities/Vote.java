@@ -24,7 +24,7 @@ package de.rwth.dbis.acis.bazaar.dal.entities;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/11/2014
  */
-public class Vote {
+public class Vote implements IdentifiedById {
     private final int Id;
     private final boolean isUpvote;
     private final int RequirementId;
