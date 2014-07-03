@@ -26,6 +26,8 @@ import de.rwth.dbis.acis.bazaar.dal.transform.FollowerTransformator;
 import de.rwth.dbis.acis.bazaar.dal.transform.Transformator;
 import org.jooq.DSLContext;
 
+import static de.rwth.dbis.acis.bazaar.dal.jooq.tables.Followers.FOLLOWERS;
+
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
@@ -36,5 +38,13 @@ public class FollowerRepositoryImpl extends RepositoryImpl<Follower,FollowersRec
      */
     public FollowerRepositoryImpl(DSLContext jooq) {
         super(jooq, new FollowerTransformator());
+    }
+
+    //TODO transaction
+    @Override
+    public void delete(int userId, int requirementId) {
+        jooq.delete(FOLLOWERS)
+                .where(FOLLOWERS.USER_ID.equal(userId).and(FOLLOWERS.REQUIREMENT_ID.equal(requirementId)))
+                .execute();
     }
 }

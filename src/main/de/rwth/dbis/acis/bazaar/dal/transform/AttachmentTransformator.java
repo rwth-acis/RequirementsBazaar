@@ -21,15 +21,12 @@
 package de.rwth.dbis.acis.bazaar.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.AttachementsRecord;
-import org.jooq.Field;
-import org.jooq.Table;
-import org.jooq.TableField;
+import org.jooq.*;
 
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.tables.Attachements.ATTACHEMENTS;
 /**
@@ -185,6 +182,30 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
             put(ATTACHEMENTS.TITLE, entity.getTitle());
             put(ATTACHEMENTS.REQUIREMENT_ID, entity.getRequirementId());
         }};
+    }
+
+    @Override
+    public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
+        switch (sortDirection) {
+            case DEFAULT:
+                return Arrays.asList(ATTACHEMENTS.CREATION_TIME.desc());
+            case ASC:
+                return Arrays.asList(ATTACHEMENTS.CREATION_TIME.asc());
+            case DESC:
+                return Arrays.asList(ATTACHEMENTS.CREATION_TIME.desc());
+        }
+        return null;
+    }
+
+    @Override
+    public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
+        return Arrays.asList(
+                    ATTACHEMENTS.TITLE.likeIgnoreCase(likeExpression)
+                .or(ATTACHEMENTS.DESCRIPTION.likeIgnoreCase(likeExpression))
+                .or(ATTACHEMENTS.OBJECT_DESC.likeIgnoreCase(likeExpression))
+                .or(ATTACHEMENTS.STORY.likeIgnoreCase(likeExpression))
+                .or(ATTACHEMENTS.SUBJECT.likeIgnoreCase(likeExpression))
+        );
     }
 }
 

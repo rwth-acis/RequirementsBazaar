@@ -27,4 +27,5 @@ import de.rwth.dbis.acis.bazaar.dal.entities.Tag;
  * @since 6/22/2014
  */
 public interface TagRepository extends Repository<Tag> {
+    void delete(int requirementId, int componentId);
 }

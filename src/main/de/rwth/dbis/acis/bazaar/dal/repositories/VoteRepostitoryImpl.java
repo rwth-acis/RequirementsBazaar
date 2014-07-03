@@ -21,9 +21,12 @@
 package de.rwth.dbis.acis.bazaar.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.dal.entities.Vote;
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.Votes;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.VotesRecord;
 import de.rwth.dbis.acis.bazaar.dal.transform.VoteTransformator;
 import org.jooq.DSLContext;
+
+import static de.rwth.dbis.acis.bazaar.dal.jooq.tables.Votes.VOTES;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -35,5 +38,20 @@ public class VoteRepostitoryImpl extends RepositoryImpl<Vote,VotesRecord> implem
      */
     public VoteRepostitoryImpl(DSLContext jooq) {
         super(jooq, new VoteTransformator());
+    }
+
+    @Override
+    public void delete(int userId, int requirementId) {
+        jooq.delete(VOTES)
+            .where(VOTES.USER_ID.equal(userId).and(VOTES.REQUIREMENT_ID.equal(requirementId)))
+            .execute();
+    }
+
+    @Override
+    public boolean hasUserVotedForRequirement(int userId, int requirementId) {
+        int execute = jooq.selectFrom(VOTES)
+                .where(VOTES.USER_ID.equal(userId).and(VOTES.REQUIREMENT_ID.equal(requirementId)))
+                .execute();
+        return execute>0;
     }
 }

@@ -21,10 +21,13 @@
 package de.rwth.dbis.acis.bazaar.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.dal.entities.Developer;
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.Developers;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.DevelopersRecord;
 import de.rwth.dbis.acis.bazaar.dal.transform.DeveloperTransformator;
 import de.rwth.dbis.acis.bazaar.dal.transform.Transformator;
 import org.jooq.DSLContext;
+
+import static de.rwth.dbis.acis.bazaar.dal.jooq.tables.Developers.DEVELOPERS;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -36,5 +39,12 @@ public class DeveloperRepositoryImpl extends RepositoryImpl<Developer,Developers
      */
     public DeveloperRepositoryImpl(DSLContext jooq) {
         super(jooq, new DeveloperTransformator());
+    }
+
+    @Override
+    public void delete(int userId, int requirementId) {
+        jooq.delete(DEVELOPERS)
+                .where(DEVELOPERS.USER_ID.equal(userId).and(DEVELOPERS.REQUIREMENT_ID.equal(requirementId)))
+                .execute();
     }
 }

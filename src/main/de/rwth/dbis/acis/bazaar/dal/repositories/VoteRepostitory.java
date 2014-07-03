@@ -27,4 +27,7 @@ import de.rwth.dbis.acis.bazaar.dal.entities.Vote;
  * @since 6/22/2014
  */
 public interface VoteRepostitory extends Repository<Vote> {
+    void delete(int userId, int requirementId);
+
+    boolean hasUserVotedForRequirement(int userId, int requirementId);
 }

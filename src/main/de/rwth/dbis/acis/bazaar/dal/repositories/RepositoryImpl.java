@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.dal.transform.Transformator;
 import org.jooq.*;
 
@@ -85,6 +86,44 @@ public  class RepositoryImpl<E extends IdentifiedById,R extends Record> implemen
         List<E> entries = new ArrayList<E>();
 
         List<R> queryResults = jooq.selectFrom(transformator.getTable()).fetchInto(transformator.getRecordClass());
+
+        for (R queryResult: queryResults) {
+            E entry = transformator.mapToEntity(queryResult);
+            entries.add(entry);
+        }
+
+        return entries;
+    }
+
+    @Override
+    public List<E> findAll(Pageable pageable) {
+        List<E> entries = new ArrayList<E>();
+
+        List<R> queryResults = jooq.selectFrom(transformator.getTable())
+                .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .fetchInto(transformator.getRecordClass());
+
+        for (R queryResult: queryResults) {
+            E entry = transformator.mapToEntity(queryResult);
+            entries.add(entry);
+        }
+
+        return entries;
+    }
+
+    @Override
+    public List<E> searchAll(String searchTerm, Pageable pageable) throws Exception {
+        List<E> entries = new ArrayList<E>();
+        String likeExpression = "%" + searchTerm + "%";
+
+        List<R> queryResults = jooq.selectFrom(transformator.getTable())
+                .where(transformator.getSearchFields(likeExpression))
+                .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .fetchInto(transformator.getRecordClass());
 
         for (R queryResult: queryResults) {
             E entry = transformator.mapToEntity(queryResult);

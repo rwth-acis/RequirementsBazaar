@@ -27,4 +27,5 @@ import de.rwth.dbis.acis.bazaar.dal.entities.Follower;
  * @since 6/22/2014
  */
 public interface FollowerRepository extends Repository<Follower> {
+    public void delete(int userId, int requirementId);
 }

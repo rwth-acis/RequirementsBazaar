@@ -69,13 +69,13 @@ public interface DALFacade {
      * @param pageable pagination information
      * @return the found projects from the database based on the given parameters
      */
-    public List<Project> searchProjects(String searchTerm,Pageable pageable);
+    public List<Project> searchProjects(String searchTerm,Pageable pageable) throws Exception;
 
     /**
      * @param projectId identifier of the project should be returned
      * @return the project and all of its data with the given id.
      */
-    public Project getProjectById(int projectId);
+    public Project getProjectById(int projectId) throws Exception;
 
     /**
      * @param project data to be created.
@@ -89,7 +89,7 @@ public interface DALFacade {
      * It does NOT update any relations of the object, just only the direct fields!
      * @param modifiedProject holds the modified data of the project identified by its id. Just only direct project data will be modified, relations not!
      */
-    public void modifyProject(Project modifiedProject);
+    public void modifyProject(Project modifiedProject) throws Exception;
 
     //endregion
 
@@ -120,13 +120,13 @@ public interface DALFacade {
      * @param pageable pagination information
      * @return the found requirements with the given parameters filled up with only the direct data.
      */
-    public List<Requirement> searchRequirements(String searchTerm,Pageable pageable);
+    public List<Requirement> searchRequirements(String searchTerm,Pageable pageable) throws Exception;
 
     /**
      * @param requirementId the identifier of the requirement should be returned
      * @return the requirement identified by the given id and all of its assets: comments,attachements,followers,developers,creator
      */
-    public RequirementEx getRequirementById(int requirementId);
+    public RequirementEx getRequirementById(int requirementId) throws Exception;
 
 
     /**
@@ -139,13 +139,13 @@ public interface DALFacade {
      * It does NOT update any relations of the object, just only the direct fields!
      * @param modifiedRequirement hold the modified data
      */
-    public void modifyRequirement(Requirement modifiedRequirement);
+    public void modifyRequirement(Requirement modifiedRequirement) throws Exception;
 
     /**
      * This method deletes a requirement with its assets: All of its comments and attachements and connections to users, projects or components.
      * @param requirementId which identifies the requirement to delete.
      */
-    public void deleteRequirementById(int requirementId);
+    public void deleteRequirementById(int requirementId) throws Exception;
 
     //endregion
 
@@ -168,14 +168,14 @@ public interface DALFacade {
      * It does NOT update any relations of the object, just only the direct fields!
      * @param component hold the modified data
      */
-    public void modifyComponent(Component component);
+    public void modifyComponent(Component component) throws Exception;
 
 
     /**
      * It deletes a component from the database with the tags to requirements
      * @param componentId for the component to be deleted
      */
-    public void deleteComponentById(int componentId);
+    public void deleteComponentById(int componentId) throws Exception;
 
     //endregion
 
@@ -189,7 +189,7 @@ public interface DALFacade {
     /**
      * @param attachmentId id of the attachment should be deleted
      */
-    public void deleteAttachmentById(int attachmentId);
+    public void deleteAttachmentById(int attachmentId) throws Exception;
 
     //endregion
 
@@ -210,7 +210,7 @@ public interface DALFacade {
     /**
      * @param commentId to identify the comment to be deleted
      */
-    public void deleteCommentById(int commentId);
+    public void deleteCommentById(int commentId) throws Exception;
 
     //endregion
 

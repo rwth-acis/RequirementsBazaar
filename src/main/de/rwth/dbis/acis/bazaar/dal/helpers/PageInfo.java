@@ -25,17 +25,15 @@ package de.rwth.dbis.acis.bazaar.dal.helpers;
  * @since 6/15/2014
  */
 public class PageInfo implements Pageable {
-    private final int offset;
     private final int pageNumber;
     private final int pageSize;
     private final SortDirection sortDirection;
 
-    public PageInfo(int offset, int pageNumber, int pageSize) {
-        this(offset,pageNumber,pageSize,SortDirection.DEFAULT);
+    public PageInfo(int pageNumber, int pageSize) {
+        this(pageNumber,pageSize,SortDirection.DEFAULT);
     }
 
-    public PageInfo(int offset, int pageNumber, int pageSize, SortDirection sortDirection) {
-        this.offset = offset;
+    public PageInfo(int pageNumber, int pageSize, SortDirection sortDirection) {
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
         this.sortDirection = sortDirection;
@@ -43,7 +41,7 @@ public class PageInfo implements Pageable {
 
     @Override
     public int getOffset() {
-        return offset;
+        return pageNumber * pageSize;
     }
 
     @Override

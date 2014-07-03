@@ -21,10 +21,13 @@
 package de.rwth.dbis.acis.bazaar.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.dal.entities.Tag;
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.Tags;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.TagsRecord;
 import de.rwth.dbis.acis.bazaar.dal.transform.TagTransformator;
 import de.rwth.dbis.acis.bazaar.dal.transform.Transformator;
 import org.jooq.DSLContext;
+
+import static de.rwth.dbis.acis.bazaar.dal.jooq.tables.Tags.TAGS;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -36,5 +39,12 @@ public class TagRepositoryImpl extends RepositoryImpl<Tag,TagsRecord> implements
      */
     public TagRepositoryImpl(DSLContext jooq) {
         super(jooq, new TagTransformator());
+    }
+
+    @Override
+    public void delete(int requirementId, int componentId) {
+        jooq.delete(TAGS)
+                .where(TAGS.REQUIREMENTS_ID.equal(requirementId).and(TAGS.COMPONENTS_ID.equal(componentId)))
+                .execute();
     }
 }

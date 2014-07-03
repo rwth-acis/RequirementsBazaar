@@ -21,10 +21,21 @@
 package de.rwth.dbis.acis.bazaar.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.dal.entities.Requirement;
+import de.rwth.dbis.acis.bazaar.dal.entities.RequirementEx;
+import de.rwth.dbis.acis.bazaar.dal.helpers.Pageable;
+
+import java.util.List;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
  */
 public interface RequirementRepository extends Repository<Requirement> {
+
+    List<Requirement> findAllByProject(int projectId, Pageable pageable);
+
+    List<Requirement> findAllByComponent(int componentId, Pageable pageable);
+
+    @Override
+    RequirementEx findById(int id) throws Exception;
 }

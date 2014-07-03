@@ -21,14 +21,16 @@
 package de.rwth.dbis.acis.bazaar.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.dal.entities.Requirement;
+import de.rwth.dbis.acis.bazaar.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementsRecord;
-import org.jooq.Field;
-import org.jooq.Table;
-import org.jooq.TableField;
+import org.jooq.*;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.tables.Requirements.REQUIREMENTS;
 
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -77,5 +79,26 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
             put(REQUIREMENTS.DESCRIPTION, entry.getDescription());
             put(REQUIREMENTS.TITLE, entry.getTitle());
         }};
+    }
+
+    @Override
+    public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
+        switch (sortDirection) {
+            case DEFAULT:
+                return Arrays.asList(REQUIREMENTS.CREATION_TIME.desc());
+            case ASC:
+                return Arrays.asList(REQUIREMENTS.CREATION_TIME.asc());
+            case DESC:
+                return Arrays.asList(REQUIREMENTS.CREATION_TIME.desc());
+        }
+        return null;
+    }
+
+    @Override
+    public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
+        return Arrays.asList(
+                    REQUIREMENTS.TITLE.likeIgnoreCase(likeExpression)
+                .or(REQUIREMENTS.DESCRIPTION.likeIgnoreCase(likeExpression))
+        );
     }
 }

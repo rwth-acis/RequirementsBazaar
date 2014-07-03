@@ -21,13 +21,14 @@
 package de.rwth.dbis.acis.bazaar.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.dal.entities.Developer;
+import de.rwth.dbis.acis.bazaar.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.DevelopersRecord;
-import org.jooq.Field;
-import org.jooq.Table;
-import org.jooq.TableField;
+import org.jooq.*;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.tables.Developers.DEVELOPERS;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,5 +76,23 @@ public class DeveloperTransformator implements Transformator<de.rwth.dbis.acis.b
             put(DEVELOPERS.REQUIREMENT_ID, entity.getRequirementId());
             put(DEVELOPERS.USER_ID, entity.getUserId());
         }};
+    }
+
+    @Override
+    public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
+        switch (sortDirection){
+            case DEFAULT:
+                return Arrays.asList(DEVELOPERS.ID.asc());
+            case ASC:
+                return Arrays.asList(DEVELOPERS.ID.asc());
+            case DESC:
+                return Arrays.asList(DEVELOPERS.ID.desc());
+        }
+        return null;
+    }
+
+    @Override
+    public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
+        throw new Exception("Search is not supported!");
     }
 }

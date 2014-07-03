@@ -21,13 +21,15 @@
 package de.rwth.dbis.acis.bazaar.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.dal.entities.Comment;
+import de.rwth.dbis.acis.bazaar.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.CommentsRecord;
-import org.jooq.Field;
-import org.jooq.Table;
-import org.jooq.TableField;
+import org.jooq.*;
+
 import static de.rwth.dbis.acis.bazaar.dal.jooq.tables.Comments.COMMENTS;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -77,5 +79,23 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
             put(COMMENTS.USER_ID, entity.getCreatorId());
             put(COMMENTS.MESSAGE, entity.getMessage());
         }};
+    }
+
+    @Override
+    public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
+        switch (sortDirection) {
+            case DEFAULT:
+                return Arrays.asList(COMMENTS.CREATION_TIME.desc());
+            case ASC:
+                return Arrays.asList(COMMENTS.CREATION_TIME.asc());
+            case DESC:
+                return Arrays.asList(COMMENTS.CREATION_TIME.desc());
+        }
+        return null;
+    }
+
+    @Override
+    public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
+        return null;
     }
 }

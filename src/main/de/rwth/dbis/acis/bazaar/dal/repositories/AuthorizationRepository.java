@@ -27,4 +27,7 @@ import de.rwth.dbis.acis.bazaar.dal.entities.Authorization;
  * @since 6/22/2014
  */
 public interface AuthorizationRepository extends Repository<Authorization> {
+    void delete(int userId, int projectId);
+
+    boolean isAuthorized(int userId, int projectId);
 }

@@ -21,12 +21,14 @@
 package de.rwth.dbis.acis.bazaar.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.dal.entities.User;
+import de.rwth.dbis.acis.bazaar.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UsersRecord;
-import org.jooq.Field;
-import org.jooq.Table;
-import org.jooq.TableField;
+import org.jooq.*;
+
 import static de.rwth.dbis.acis.bazaar.dal.jooq.tables.Users.USERS;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -88,5 +90,28 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
             put(USERS.USER_ID,entity.getUserId());
             put(USERS.USER_NAME,entity.getUserName());
         }};
+    }
+
+    @Override
+    public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
+        switch (sortDirection) {
+            case DEFAULT:
+                return Arrays.asList(USERS.USER_NAME.asc());
+            case ASC:
+                return Arrays.asList(USERS.USER_NAME.asc());
+            case DESC:
+                return Arrays.asList(USERS.USER_NAME.desc());
+        }
+        return null;
+    }
+
+    @Override
+    public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
+        return Arrays.asList(
+                USERS.USER_NAME.likeIgnoreCase(likeExpression)
+                .or(USERS.EMAIL.likeIgnoreCase(likeExpression))
+                .or(USERS.FRIST_NAME.likeIgnoreCase(likeExpression))
+                .or(USERS.LAST_NAME.likeIgnoreCase(likeExpression))
+        );
     }
 }

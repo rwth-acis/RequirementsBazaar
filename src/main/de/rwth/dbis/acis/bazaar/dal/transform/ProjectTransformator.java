@@ -21,12 +21,14 @@
 package de.rwth.dbis.acis.bazaar.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.dal.entities.Project;
+import de.rwth.dbis.acis.bazaar.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectsRecord;
 import static de.rwth.dbis.acis.bazaar.dal.jooq.tables.Projects.PROJECTS;
-import org.jooq.Field;
-import org.jooq.Table;
-import org.jooq.TableField;
 
+import org.jooq.*;
+
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,5 +76,26 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
             put(PROJECTS.NAME, entry.getName());
         }};
 
+    }
+
+    @Override
+    public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
+        switch (sortDirection) {
+            case DEFAULT:
+                return Arrays.asList(PROJECTS.NAME.asc());
+            case ASC:
+                return Arrays.asList(PROJECTS.NAME.asc());
+            case DESC:
+                return Arrays.asList(PROJECTS.NAME.desc());
+        }
+        return null;
+    }
+
+    @Override
+    public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
+        return Arrays.asList(
+                    PROJECTS.NAME.likeIgnoreCase(likeExpression)
+                .or(PROJECTS.DESCRIPTION.likeIgnoreCase(likeExpression))
+        );
     }
 }

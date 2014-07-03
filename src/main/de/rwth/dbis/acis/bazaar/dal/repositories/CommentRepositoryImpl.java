@@ -20,11 +20,17 @@
 
 package de.rwth.dbis.acis.bazaar.dal.repositories;
 
+import com.sun.corba.se.impl.corba.CORBAObjectImpl;
 import de.rwth.dbis.acis.bazaar.dal.entities.Comment;
+import de.rwth.dbis.acis.bazaar.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.CommentsRecord;
 import de.rwth.dbis.acis.bazaar.dal.transform.CommentTransformator;
 import de.rwth.dbis.acis.bazaar.dal.transform.Transformator;
 import org.jooq.DSLContext;
+
+import java.util.ArrayList;
+import java.util.List;
+import static de.rwth.dbis.acis.bazaar.dal.jooq.tables.Comments.COMMENTS;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -37,5 +43,24 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment,CommentsRecord
      */
     public CommentRepositoryImpl(DSLContext jooq) {
         super(jooq, new CommentTransformator());
+    }
+
+    @Override
+    public List<Comment> findAllByRequirementId(int requirementId, Pageable pageable) {
+        List<Comment> entries = new ArrayList<Comment>();
+
+        List<CommentsRecord> queryResults = jooq.selectFrom(transformator.getTable())
+                .where(COMMENTS.REQUIREMENT_ID.equal(requirementId))
+                .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .fetchInto(transformator.getRecordClass());
+
+        for (CommentsRecord queryResult: queryResults) {
+            Comment entry = transformator.mapToEntity(queryResult);
+            entries.add(entry);
+        }
+
+        return entries;
     }
 }

@@ -95,171 +95,192 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public List<Project> listProjects(Pageable pageable) {
-        return null;
+        return projectRepository.findAll(pageable);
     }
 
     @Override
-    public List<Project> searchProjects(String searchTerm, Pageable pageable) {
-        return null;
+    public List<Project> searchProjects(String searchTerm, Pageable pageable) throws Exception {
+        return projectRepository.searchAll(searchTerm,pageable);
     }
 
     @Override
-    public Project getProjectById(int projectId) {
-        return null;
+    public Project getProjectById(int projectId) throws Exception {
+        return projectRepository.findById(projectId);
     }
 
     @Override
     public void createProject(Project project) {
-
+        projectRepository.add(project);
     }
 
     @Override
-    public void modifyProject(Project modifiedProject) {
-
+    public void modifyProject(Project modifiedProject) throws Exception {
+        projectRepository.update(modifiedProject);
     }
 
     @Override
     public List<Requirement> listRequirements(Pageable pageable) {
-        return null;
+
+        return requirementRepository.findAll(pageable);
     }
 
     @Override
     public List<Requirement> listRequirementsByProject(int projectId, Pageable pageable) {
-        return null;
+        return requirementRepository.findAllByProject(projectId, pageable);
     }
 
     @Override
     public List<Requirement> listRequirementsByComponent(int componentId, Pageable pageable) {
-        return null;
+        return requirementRepository.findAllByComponent(componentId,pageable);
     }
 
     @Override
-    public List<Requirement> searchRequirements(String searchTerm, Pageable pageable) {
-        return null;
+    public List<Requirement> searchRequirements(String searchTerm, Pageable pageable) throws Exception {
+        return requirementRepository.searchAll(searchTerm,pageable);
     }
 
     @Override
-    public RequirementEx getRequirementById(int requirementId) {
-        return null;
+    public RequirementEx getRequirementById(int requirementId) throws Exception {
+       return requirementRepository.findById(requirementId);
     }
 
     @Override
     public void createRequirement(Requirement requirement) {
-
+        requirementRepository.add(requirement);
     }
 
     @Override
-    public void modifyRequirement(Requirement modifiedRequirement) {
-
+    public void modifyRequirement(Requirement modifiedRequirement) throws Exception {
+        requirementRepository.update(modifiedRequirement);
     }
 
     @Override
-    public void deleteRequirementById(int requirementId) {
-
+    public void deleteRequirementById(int requirementId) throws Exception {
+        requirementRepository.delete(requirementId);
     }
 
     @Override
     public List<Component> listComponentsByProjectId(int projectId, Pageable pageable) {
-        return null;
+        return componentRepository.findByProjectId(projectId,pageable);
     }
 
     @Override
     public void createComponent(Component component) {
-
+        componentRepository.add(component);
     }
 
     @Override
-    public void modifyComponent(Component component) {
-
+    public void modifyComponent(Component component) throws Exception {
+        componentRepository.update(component);
     }
 
     @Override
-    public void deleteComponentById(int componentId) {
-
+    public void deleteComponentById(int componentId) throws Exception {
+        componentRepository.delete(componentId);
     }
 
     @Override
     public void createAttachment(Attachment attachment) {
-
+        attachmentRepository.add(attachment);
     }
 
     @Override
-    public void deleteAttachmentById(int attachmentId) {
-
+    public void deleteAttachmentById(int attachmentId) throws Exception {
+        attachmentRepository.delete(attachmentId);
     }
 
     @Override
     public List<Comment> listCommentsByRequirementId(int requirementId, Pageable pageable) {
-        return null;
+        return commentRepository.findAllByRequirementId(requirementId,pageable);
     }
 
     @Override
     public void createComment(Comment comment) {
-
+        commentRepository.add(comment);
     }
 
     @Override
-    public void deleteCommentById(int commentId) {
-
+    public void deleteCommentById(int commentId) throws Exception {
+        commentRepository.delete(commentId);
     }
 
     @Override
     public void follow(int userId, int requirementId) {
-
+        followerRepository.add(Follower.getBuilder()
+                                .requirementId(requirementId)
+                                .userId(userId)
+                                .build()
+        );
     }
 
     @Override
     public void unFollow(int userId, int requirementId) {
-
+        followerRepository.delete(userId,requirementId);
     }
 
     @Override
     public void wantToDevelop(int userId, int requirementId) {
-
+        developerRepository.add(Developer.getBuilder()
+                        .requirementId(requirementId)
+                        .userId(userId)
+                        .build()
+        );
     }
 
     @Override
     public void notWantToDevelop(int userId, int requirementId) {
-
+        developerRepository.delete(userId,requirementId);
     }
 
     @Override
     public void giveAuthorization(int userId, int projectId) {
-
+        authorizationRepository.add(Authorization.getBuilder()
+                        .projectId(projectId)
+                        .userId(userId)
+                        .build()
+        );
     }
 
     @Override
     public void removeAuthorization(int userId, int projectId) {
-
+        authorizationRepository.delete(userId,projectId);
     }
 
     @Override
     public boolean isAuthorized(int userId, int projectId) {
-        return false;
+        return authorizationRepository.isAuthorized(userId, projectId);
     }
 
     @Override
     public void addComponentTag(int requirementId, int componentId) {
-
+        tagRepository.add(Tag.getBuilder(componentId)
+                        .requirementId(requirementId)
+                        .build()
+        );
     }
 
     @Override
     public void removeComponentTag(int requirementId, int componentId) {
-
+        tagRepository.delete(requirementId, componentId);
     }
 
     @Override
     public void vote(int userId, int requirementId, boolean isUpVote) {
-
+        voteRepostitory.add(Vote.getBuilder()
+                        .requirementId(requirementId)
+                        .userId(userId)
+                        .isUpvote(isUpVote)
+                        .build()
+        );
     }
 
     @Override
     public void unVote(int userId, int requirementId) {
-
+        voteRepostitory.delete(userId,requirementId);
     }
 
     @Override
     public boolean hasUserVotedForRequirement(int userId, int requirementId) {
-        return false;
+        return voteRepostitory.hasUserVotedForRequirement(userId, requirementId);
     }
 }

@@ -21,11 +21,12 @@
 package de.rwth.dbis.acis.bazaar.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.dal.entities.Authorization;
+import de.rwth.dbis.acis.bazaar.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.AuthorizationsRecord;
-import org.jooq.Field;
-import org.jooq.Table;
-import org.jooq.TableField;
+import org.jooq.*;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import static de.rwth.dbis.acis.bazaar.dal.jooq.tables.Authorizations.AUTHORIZATIONS;
@@ -76,5 +77,23 @@ public class AuthorizationTransformator implements Transformator<de.rwth.dbis.ac
             put(AUTHORIZATIONS.USER_ID, entity.getUserId());
             put(AUTHORIZATIONS.PROJECT_ID, entity.getProjectId());
         }};
+    }
+
+    @Override
+    public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
+        switch (sortDirection){
+            case DEFAULT:
+                return Arrays.asList(AUTHORIZATIONS.ID.asc());
+            case ASC:
+                return Arrays.asList(AUTHORIZATIONS.ID.asc());
+            case DESC:
+                return Arrays.asList(AUTHORIZATIONS.ID.desc());
+        }
+        return null;
+    }
+
+    @Override
+    public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
+        throw new Exception("Search is not supported!");
     }
 }

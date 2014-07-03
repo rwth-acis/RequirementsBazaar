@@ -21,10 +21,14 @@
 package de.rwth.dbis.acis.bazaar.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.dal.entities.Comment;
+import de.rwth.dbis.acis.bazaar.dal.helpers.Pageable;
+
+import java.util.List;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/22/2014
  */
 public interface CommentRepository extends Repository<Comment> {
+    List<Comment> findAllByRequirementId(int requirementId, Pageable pageable);
 }

@@ -20,8 +20,10 @@
 
 package de.rwth.dbis.acis.bazaar.dal.transform;
 
+import de.rwth.dbis.acis.bazaar.dal.helpers.Pageable;
 import org.jooq.*;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,4 +69,13 @@ public interface Transformator<E, R extends Record> {
      * @return a map with the fields from the table and the values from the entity. These fields will be updated.
      */
     Map<Field,Object> getUpdateMap(final E entity);
+
+
+    /**
+     * @return a collection of the fields, should be used for sorting. SortField also contains information about the sort direction.
+     * @param sortDirection
+     */
+    Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection);
+
+    Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception;
 }

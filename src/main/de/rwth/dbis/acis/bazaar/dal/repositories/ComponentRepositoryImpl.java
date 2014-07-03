@@ -21,9 +21,15 @@
 package de.rwth.dbis.acis.bazaar.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.dal.entities.Component;
+import de.rwth.dbis.acis.bazaar.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ComponentsRecord;
 import de.rwth.dbis.acis.bazaar.dal.transform.ComponentTransformator;
 import org.jooq.DSLContext;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static de.rwth.dbis.acis.bazaar.dal.jooq.tables.Components.COMPONENTS;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -35,5 +41,24 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component,Components
      */
     public ComponentRepositoryImpl(DSLContext jooq) {
         super(jooq, new ComponentTransformator());
+    }
+
+    @Override
+    public List<Component> findByProjectId(int projectId, Pageable pageable) {
+        List<Component> entries = new ArrayList<Component>();
+
+        List<ComponentsRecord> queryResults = jooq.selectFrom(transformator.getTable())
+                .where(COMPONENTS.PROJECT_ID.equal(projectId))
+                .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
+                .fetchInto(transformator.getRecordClass());
+
+        for (ComponentsRecord queryResult: queryResults) {
+            Component entry = transformator.mapToEntity(queryResult);
+            entries.add(entry);
+        }
+
+        return entries;
     }
 }

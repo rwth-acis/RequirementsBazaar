@@ -27,4 +27,5 @@ import de.rwth.dbis.acis.bazaar.dal.entities.Developer;
  * @since 6/22/2014
  */
 public interface DeveloperRepository extends Repository<Developer> {
+    void delete(int userId, int requirementId);
 }

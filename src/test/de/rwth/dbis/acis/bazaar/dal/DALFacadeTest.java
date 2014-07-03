@@ -30,7 +30,7 @@ import java.util.List;
 //TODO Pagination testing
 public class DALFacadeTest extends TestCase {
 
-    public static final PageInfo ALL_IN_ONE_PAGE = new PageInfo(0, 0, 100);
+    public static final PageInfo ALL_IN_ONE_PAGE = new PageInfo(0, 100);
     DALFacadeMockImpl mock = new DALFacadeMockImpl();
 
     //TODO Change mock to implementation
@@ -109,7 +109,7 @@ public class DALFacadeTest extends TestCase {
     }
 
     public void testListProjects() throws Exception {
-        List<Project> projects = facade.listProjects(new PageInfo(0, 0, 1));
+        List<Project> projects = facade.listProjects(new PageInfo(0, 1));
 
         assertNotNull(projects);
         assertEquals(1,projects.size());
@@ -137,7 +137,7 @@ public class DALFacadeTest extends TestCase {
         assertEquals(1,project.getLeaderId());
         assertEquals(Project.ProjectVisibility.PRIVATE, project.getVisibility());
 
-        projects = facade.searchProjects("ProjD", new PageInfo(0, 0, 100));
+        projects = facade.searchProjects("ProjD", new PageInfo(0, 100));
 
         assertNotNull(projects);
         assertEquals(2,projects.size());
@@ -201,13 +201,13 @@ public class DALFacadeTest extends TestCase {
         assertEquals("Req3",requirement.getTitle());
         assertEquals("ReqDesc3",requirement.getDescription());
 
-        requirements = facade.listRequirements(new PageInfo(0, 1, 2));
+        requirements = facade.listRequirements(new PageInfo(1, 2));
 
         assertNotNull(requirements);
         assertEquals(1, requirements.size());
         assertEquals(3,requirements.get(0).getId());
 
-        requirements = facade.listRequirements(new PageInfo(1, 0, 1));
+        requirements = facade.listRequirements(new PageInfo( 0, 1));
 
         assertNotNull(requirements);
         assertEquals(1, requirements.size());

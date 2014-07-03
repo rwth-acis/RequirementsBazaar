@@ -21,10 +21,13 @@
 package de.rwth.dbis.acis.bazaar.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.dal.entities.Authorization;
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.Authorizations;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.AuthorizationsRecord;
 import de.rwth.dbis.acis.bazaar.dal.transform.AuthorizationTransformator;
 import de.rwth.dbis.acis.bazaar.dal.transform.Transformator;
 import org.jooq.DSLContext;
+
+import static de.rwth.dbis.acis.bazaar.dal.jooq.tables.Authorizations.AUTHORIZATIONS;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -36,5 +39,20 @@ public class AuthorizationRepositoryImpl extends RepositoryImpl<Authorization,Au
      */
     public AuthorizationRepositoryImpl(DSLContext jooq) {
         super(jooq, new AuthorizationTransformator());
+    }
+
+    @Override
+    public void delete(int userId, int projectId) {
+        jooq.delete(AUTHORIZATIONS)
+                .where(AUTHORIZATIONS.USER_ID.equal(userId).and(AUTHORIZATIONS.PROJECT_ID.equal(projectId)))
+                .execute();
+    }
+
+    @Override
+    public boolean isAuthorized(int userId, int projectId) {
+        int execute = jooq.selectFrom(AUTHORIZATIONS)
+                .where(AUTHORIZATIONS.USER_ID.equal(userId).and(AUTHORIZATIONS.PROJECT_ID.equal(projectId)))
+                .execute();
+        return execute>0;
     }
 }

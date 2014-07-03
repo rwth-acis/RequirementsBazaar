@@ -22,6 +22,7 @@ package de.rwth.dbis.acis.bazaar.dal.repositories;
 
 
 import de.rwth.dbis.acis.bazaar.dal.entities.IdentifiedById;
+import de.rwth.dbis.acis.bazaar.dal.helpers.Pageable;
 
 import java.util.List;
 
@@ -51,6 +52,19 @@ public interface Repository<E extends IdentifiedById> {
          */
         public List<E> findAll();
 
+
+        /**
+         * @param pageable
+         * @return
+         */
+        public List<E> findAll(Pageable pageable);
+
+        /**
+         * @param searchTerm
+         * @param pageable
+         * @return
+         */
+        public List<E> searchAll(String searchTerm, Pageable pageable) throws Exception;
 
         /**
          * @param id of the entity we are looking for
