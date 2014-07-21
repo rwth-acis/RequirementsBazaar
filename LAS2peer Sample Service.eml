@@ -5,22 +5,27 @@
 	<lib name="hamcrest-core-1.3.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/hamcrest-core-1.3.jar!/"/>
 	</lib>
-	<lib name="junit-4.11.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/junit-4.11.jar!/"/>
-	</lib>
-	<lib name="las2peer-web-connector-0.1.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/las2peer-web-connector-0.1.jar!/"/>
-	</lib>
-	<lib name="las2peer-rest-mapper-0.1.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/las2peer-rest-mapper-0.1.jar!/"/>
+	<lib name="jooq-3.3.2.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jooq-3.3.2.jar!/"/>
 	</lib>
 	<lib name="las2peer-0.1.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/las2peer-0.1.jar!/"/>
 	</lib>
-	<lib name="jooq-3.3.2.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jooq-3.3.2.jar!/"/>
+	<lib name="las2peer-rest-mapper-0.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/las2peer-rest-mapper-0.1.jar!/"/>
+	</lib>
+	<lib name="las2peer-web-connector-0.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/las2peer-web-connector-0.1.jar!/"/>
+	</lib>
+	<lib name="junit-4.11.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/junit-4.11.jar!/"/>
 	</lib>
 	<lib name="mysql-connector-java-5.1.31.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/mysql-connector-java-5.1.31.jar!/"/>
+	</lib>
+	<lib name="sqlite-jdbc-3.7.2.jar" scope="COMPILE">
+		<srcroot url="jar://$MODULE_DIR$/lib/sqlite-jdbc-3.7.2.jar!/"/>
+		<relative-module-src project-related="jar://$PROJECT_DIR$/lib/sqlite-jdbc-3.7.2.jar!/"/>
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/sqlite-jdbc-3.7.2.jar!/"/>
 	</lib>
 </component>

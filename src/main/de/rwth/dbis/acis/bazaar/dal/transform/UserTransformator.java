@@ -47,7 +47,8 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
         record.setFristName(entity.getFirstName());
         record.setLastName(entity.getLastName());
         record.setUserName(entity.getUserName());
-        record.setOpenidIdentifier(entity.getOpenIdIdentifier());
+        record.setOpenidIss(entity.getOpenId_ISS());
+        record.setOpenidSub(entity.getOpenId_SUB());
         return record;
     }
 
@@ -58,9 +59,9 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
                 .admin(record.getAdmin() !=0 )
                 .firstName(record.getFristName())
                 .lastName(record.getLastName())
-                .openIdIdentifier(record.getOpenidIdentifier())
                 .userId(record.getUserId())
-                .openIdIdentifier(record.getOpenidIdentifier())
+                .openId_ISS(record.getOpenidIss())
+                .openId_SUB(record.getOpenidSub())
                 .build();
     }
 
@@ -84,7 +85,8 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
         return new HashMap<Field, Object>() {{
             put(USERS.ADMIN,entity.getAdmin());
             put(USERS.EMAIL,entity.geteMail());
-            put(USERS.OPENID_IDENTIFIER,entity.getOpenIdIdentifier());
+            put(USERS.OPENID_ISS,entity.getOpenId_ISS());
+            put(USERS.OPENID_SUB,entity.getOpenId_SUB());
             put(USERS.FRIST_NAME,entity.getFirstName());
             put(USERS.LAST_NAME,entity.getLastName());
             put(USERS.USER_ID,entity.getUserId());

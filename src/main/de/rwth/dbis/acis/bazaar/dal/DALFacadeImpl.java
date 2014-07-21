@@ -52,16 +52,9 @@ public class DALFacadeImpl implements DALFacade {
     private UserRepository userRepository;
     private VoteRepostitory voteRepostitory;
 
-    public DALFacadeImpl() throws Exception {
-        Connection conn = null;
+    public DALFacadeImpl(Connection connection, SQLDialect dialect) throws Exception {
 
-        String userName = "root";
-        String password = "";
-        String url = "jdbc:mysql://localhost:3306/library";
-
-        Class.forName("com.mysql.jdbc.Driver").newInstance();
-        conn = DriverManager.getConnection(url, userName, password);
-        dslContext = DSL.using(conn, SQLDialect.MYSQL);
+        dslContext = DSL.using(connection, dialect);
 
         attachmentRepository = new AttachmentRepositoryImpl(dslContext);
         authorizationRepository = new AuthorizationRepositoryImpl(dslContext);
@@ -77,6 +70,9 @@ public class DALFacadeImpl implements DALFacade {
 
     }
 
+    public DSLContext getDslContext() {
+        return dslContext;
+    }
 
     @Override
     public void createUser(User user) {

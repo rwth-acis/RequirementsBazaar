@@ -39,7 +39,8 @@ public class User implements IdentifiedById {
 
     private final String userName;
 
-    private final String openIdIdentifier;
+    private final String openId_ISS;
+    private final String openId_SUB;
 
     public User(Builder builder) {
         Id =                builder.id;
@@ -49,7 +50,8 @@ public class User implements IdentifiedById {
         this.admin =        builder.admin;
         UserId =            builder.userId;
         this.userName = builder.userName;
-        this.openIdIdentifier = builder.openIdIdentifier;
+        this.openId_ISS = builder.openId_ISS;
+        this.openId_SUB = builder.openId_SUB;
     }
 
     public int getId() {
@@ -80,8 +82,12 @@ public class User implements IdentifiedById {
         return userName;
     }
 
-    public String getOpenIdIdentifier() {
-        return openIdIdentifier;
+    public String getOpenId_ISS() {
+        return openId_ISS;
+    }
+
+    public String getOpenId_SUB() {
+        return openId_SUB;
     }
 
     public static Builder geBuilder(String eMail){
@@ -92,10 +98,6 @@ public class User implements IdentifiedById {
         return admin;
     }
 
-    public void setAdmin(boolean admin) {
-        this.admin = admin;
-    }
-
     public static class Builder {
         private int id;
         private String firstName;
@@ -104,7 +106,9 @@ public class User implements IdentifiedById {
         private boolean admin;
         private int userId;
         private String userName;
-        private String openIdIdentifier;
+        private String openId_ISS;
+        private String openId_SUB;
+
 
         public Builder(String eMail) {
             this.eMail = eMail;
@@ -145,8 +149,13 @@ public class User implements IdentifiedById {
             return this;
         }
 
-        public Builder openIdIdentifier(String openIdIdentifier) {
-            this.openIdIdentifier = openIdIdentifier;
+        public Builder openId_ISS(String openId_ISS) {
+            this.openId_ISS = openId_ISS;
+            return this;
+        }
+
+        public Builder openId_SUB(String openId_SUB) {
+            this.openId_SUB = openId_SUB;
             return this;
         }
 

@@ -22,62 +22,142 @@ package de.rwth.dbis.acis.bazaar.dal;
 
 import de.rwth.dbis.acis.bazaar.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.dal.helpers.PageInfo;
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.*;
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.*;
+import junit.framework.Test;
 import junit.framework.TestCase;
+import org.jooq.*;
+import org.jooq.impl.DSL;
+import org.jooq.impl.DefaultExecuteListener;
 import org.junit.BeforeClass;
 
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.Timestamp;
 import java.util.List;
+
+import static de.rwth.dbis.acis.bazaar.dal.jooq.tables.Users.USERS;
+import static org.jooq.impl.DSL.count;
 
 //TODO Pagination testing
 public class DALFacadeTest extends TestCase {
 
     public static final PageInfo ALL_IN_ONE_PAGE = new PageInfo(0, 100);
-    DALFacadeMockImpl mock = new DALFacadeMockImpl();
 
-    //TODO Change mock to implementation
-    DALFacade facade = mock;
+    DALFacade facade;
+    private DALFacadeImpl dalImpl;
+    DSLContext jooq;
 
     @BeforeClass
-    public void setUp() {
-        //TODO change mock
-        //Init DB directly
-        mock.userList.add(getInitUser());
-        mock.userList.add(User.geBuilder("test@test.hu").id(2).firstName("Alma").lastName("Barack").admin(true).userId(2222).build());
-        mock.userList.add(User.geBuilder("test@test.hu").id(3).firstName("Citrom").lastName("Datolya").admin(false).userId(3333).build());
+    public void setUp() throws Exception {
+        Connection conn = null;
 
-        mock.projectList.add(Project.getBuilder("Project1").description("ProjDesc1").leaderId(1).id(1).visibility(Project.ProjectVisibility.PRIVATE).build());
-        mock.projectList.add(Project.getBuilder("Project2").description("ProjDesc2").leaderId(1).id(2).visibility(Project.ProjectVisibility.PRIVATE).build());
+        String userName = "root";
+        String password = "";
+        URL db = DALFacadeTest.class.getResource("reqbaz.db");
+        String url = "jdbc:sqlite:" + db.getPath();
 
-        mock.requirementList.add(Requirement.getBuilder("Req1").id(1).description("ReqDesc1").creatorId(1).leadDeveloperId(1).projectId(1).build());
-        mock.requirementList.add(Requirement.getBuilder("Req2").id(2).description("ReqDesc2").creatorId(1).leadDeveloperId(1).projectId(2).build());
-        mock.requirementList.add(Requirement.getBuilder("Req3").id(3).description("ReqDesc3").creatorId(1).leadDeveloperId(1).projectId(1).build());
 
-        mock.componentList.add(Component.getBuilder("Comp1").id(1).description("CompDesc1").projectId(2).build());
+        Class.forName("org.sqlite.JDBC").newInstance();
+        conn = DriverManager.getConnection(url, userName, password);
 
-        mock.tagList.add(Tag.getBuilder(1).id(1).requirementId(2).build());
 
-        mock.developerList.add(Developer.getBuilder().id(1).requirementId(2).userId(2).build());
-        mock.developerList.add(Developer.getBuilder().id(2).requirementId(2).userId(3).build());
+        dalImpl = new DALFacadeImpl(conn, SQLDialect.SQLITE);
+        facade = dalImpl;
+        jooq = dalImpl.getDslContext();
 
-        mock.followerList.add(Follower.getBuilder().id(1).requirementId(2).userId(2).build());
-        mock.followerList.add(Follower.getBuilder().id(2).requirementId(2).userId(3).build());
+        jooq.configuration().set(new ExecuteListenerProvider() {
+            @Override
+            public ExecuteListener provide() {
+                return new DefaultExecuteListener() {
+                    @Override
+                    public void renderEnd(ExecuteContext ctx) {
+                        String sql = ctx.sql();
+                        String replace = sql.replace("reqbaz.", "main.");
+                        ctx.sql(replace);
+                    }
+                };
+            }
+        });
 
-        mock.voteList.add(Vote.getBuilder().id(1).requirementId(2).userId(1).isUpvote(true).build());
-        mock.voteList.add(Vote.getBuilder().requirementId(2).userId(3).isUpvote(false).build());
+        Field<Integer> f = count();
 
-        mock.attachmentList.add(FreeStory.getBuilder().story("RequirementStory").id(1).requirementId(2).creator(2).build());
+        User initUser = getInitUser();
+        if (jooq.selectCount().from(USERS).where(USERS.ID.equal(initUser.getId())).fetchOne(f) != 1)
+            jooq.insertInto(USERS).set(new UsersRecord(initUser.getId(), initUser.getFirstName(), initUser.getLastName(), initUser.geteMail(), (byte) (initUser.getAdmin() ? 1 : 0), initUser.getUserId(), initUser.getUserName(), initUser.getOpenId_ISS(), initUser.getOpenId_SUB())).execute();
+        
+        if (jooq.selectCount().from(USERS).where(USERS.ID.equal(2)).fetchOne(f) != 1)
+            jooq.insertInto(USERS).set(new UsersRecord(2, "Alma", "Barack", "test@test.hu", (byte) 1, 2222, "AlmBar","https://openid.las2peer.de" ,"oId_2222")).execute();
 
-        mock.commentList.add(Comment.getBuilder("Lorem ipsum dolor sit amet").id(1).requirementId(2).creatorId(2).build());
-        mock.commentList.add(Comment.getBuilder("Test message payload").id(2).requirementId(2).creatorId(3).build());
+        if (jooq.selectCount().from(USERS).where(USERS.ID.equal(3)).fetchOne(f) != 1)
+            jooq.insertInto(USERS).set(new UsersRecord(3, "Citrom", "Datolya", "test@test.hu", (byte) 0, 3333, "CitrDat","https://openid.las2peer.de" ,"oId_3333")).execute();
+
+        if (jooq.selectCount().from(Projects.PROJECTS).where(Projects.PROJECTS.ID.equal(1)).fetchOne(f) != 1)
+            jooq.insertInto(Projects.PROJECTS).set(new ProjectsRecord(1, "Project1", "ProjDesc1", "PRIVATE", 1)).execute();
+
+        if (jooq.selectCount().from(Projects.PROJECTS).where(Projects.PROJECTS.ID.equal(2)).fetchOne(f) != 1)
+            jooq.insertInto(Projects.PROJECTS).set(new ProjectsRecord(2, "Project2", "ProjDesc2", "PRIVATE", 1)).execute();
+
+        if (jooq.selectCount().from(Requirements.REQUIREMENTS).where(Requirements.REQUIREMENTS.ID.equal(1)).fetchOne(f) != 1)
+            jooq.insertInto(Requirements.REQUIREMENTS).set(new RequirementsRecord(1, "Req1", "ReqDesc1", Timestamp.valueOf("2005-04-06 09:01:10"), 1, 1, 1)).execute();
+        
+        if (jooq.selectCount().from(Requirements.REQUIREMENTS).where(Requirements.REQUIREMENTS.ID.equal(2)).fetchOne(f) != 1)
+            jooq.insertInto(Requirements.REQUIREMENTS).set(new RequirementsRecord(2, "Req2", "ReqDesc2", Timestamp.valueOf("2005-04-06 09:01:10"), 1, 1, 2)).execute();
+        
+        if (jooq.selectCount().from(Requirements.REQUIREMENTS).where(Requirements.REQUIREMENTS.ID.equal(3)).fetchOne(f) != 1)
+            jooq.insertInto(Requirements.REQUIREMENTS).set(new RequirementsRecord(3, "Req3", "ReqDesc3", Timestamp.valueOf("2005-04-06 09:01:10"), 1, 1, 1)).execute();
+
+        if (jooq.selectCount().from(Components.COMPONENTS).where(Components.COMPONENTS.ID.equal(1)).fetchOne(f) != 1)
+            jooq.insertInto(Components.COMPONENTS).set(new ComponentsRecord(1, "Comp1", "CompDesc1", 2, 1)).execute();
+
+        if (jooq.selectCount().from(Tags.TAGS).where(Tags.TAGS.ID.equal(1)).fetchOne(f) != 1)
+            jooq.insertInto(Tags.TAGS).set(new TagsRecord(1, 1, 2)).execute();
+
+        if (jooq.selectCount().from(Developers.DEVELOPERS).where(Developers.DEVELOPERS.ID.equal(1)).fetchOne(f) != 1)
+            jooq.insertInto(Developers.DEVELOPERS).set(new DevelopersRecord(1, 2, 2)).execute();
+        
+        if (jooq.selectCount().from(Developers.DEVELOPERS).where(Developers.DEVELOPERS.ID.equal(2)).fetchOne(f) != 1)
+            jooq.insertInto(Developers.DEVELOPERS).set(new DevelopersRecord(2, 2, 3)).execute();
+
+        if (jooq.selectCount().from(Followers.FOLLOWERS).where(Followers.FOLLOWERS.ID.equal(1)).fetchOne(f) != 1)
+            jooq.insertInto(Followers.FOLLOWERS).set(new FollowersRecord(1, 2, 2)).execute();
+        if (jooq.selectCount().from(Followers.FOLLOWERS).where(Followers.FOLLOWERS.ID.equal(2)).fetchOne(f) != 1)
+            jooq.insertInto(Followers.FOLLOWERS).set(new FollowersRecord(2, 2, 3)).execute();
+
+        if (jooq.selectCount().from(Votes.VOTES).where(Votes.VOTES.ID.equal(1)).fetchOne(f) != 1)
+            jooq.insertInto(Votes.VOTES).set(new VotesRecord(1, (byte) 1, 2, 1)).execute();
+        if (jooq.selectCount().from(Votes.VOTES).where(Votes.VOTES.ID.equal(2)).fetchOne(f) != 1)
+            jooq.insertInto(Votes.VOTES).set(new VotesRecord(2, (byte) 0, 2, 3)).execute();
+
+        if (jooq.selectCount().from(Attachements.ATTACHEMENTS).where(Attachements.ATTACHEMENTS.ID.equal(1)).fetchOne(f) != 1)
+            jooq.insertInto(Attachements.ATTACHEMENTS).set(new AttachementsRecord(1, Timestamp.valueOf("2005-04-06 09:01:10"), 2, 2, "StoryAttachement", "S", null, null, "RequirementStory", null, null, null)).execute();
+
+
+        if (jooq.selectCount().from(Comments.COMMENTS).where(Comments.COMMENTS.ID.equal(1)).fetchOne(f) != 1)
+            jooq.insertInto(Comments.COMMENTS).set(new CommentsRecord(1, "Lorem ipsum dolor sit amet", Timestamp.valueOf("2005-04-06 09:01:10"), 2, 2)).execute();
+        if (jooq.selectCount().from(Comments.COMMENTS).where(Comments.COMMENTS.ID.equal(2)).fetchOne(f) != 1)
+            jooq.insertInto(Comments.COMMENTS).set(new CommentsRecord(2, "Test message payload", Timestamp.valueOf("2005-04-06 10:01:10"), 2, 3)).execute();
 
 
     }
 
     private User getInitUser() {
-        return User.geBuilder("test@test.hu").id(1).firstName("Elek").lastName("Test").admin(true).userId(1111).build();
+        return User.geBuilder("test@test.hu")
+                .id(1)
+                .firstName("Elek")
+                .lastName("Test")
+                .userName("TestElek")
+                .openId_ISS("https://openid.las2peer.de")
+                .openId_SUB("oId_1111")
+                .admin(true)
+                .userId(1111)
+                .build();
     }
 
     public void testCreateUser() throws Exception {
-        facade.createUser(User.geBuilder("unittest@test.hu").id(9).firstName("Max").lastName("Zimmermann").admin(false).userId(9999).build());
+        facade.createUser(User.geBuilder("unittest@test.hu").id(9).firstName("Max").lastName("Zimmermann").admin(false).userId(9999).userName("MaxZim").build());
 
         User user = facade.getUserById(9);
 
@@ -89,8 +169,8 @@ public class DALFacadeTest extends TestCase {
         assertEquals(9999, user.getUserId());
 
 
-        //TODO How to do this with not mocked stuff??
-        mock.userList.remove(user);
+        //Clean
+        jooq.delete(USERS).where(USERS.ID.equal(9)).execute();
     }
 
     public void testModifyUser() throws Exception {
@@ -166,11 +246,12 @@ public class DALFacadeTest extends TestCase {
     }
 
     public void testCreateProject() throws Exception {
-        Project project = Project.getBuilder("Project3").description("ProjDesc3").leaderId(1).id(3).visibility(Project.ProjectVisibility.PUBLIC).build();
+        int createdProjId = 3;
+        Project project = Project.getBuilder("Project3").description("ProjDesc3").leaderId(1).id(createdProjId).visibility(Project.ProjectVisibility.PUBLIC).build();
 
         facade.createProject(project);
 
-        Project projectById = facade.getProjectById(3);
+        Project projectById = facade.getProjectById(createdProjId);
 
         assertEquals(project.getId(),         projectById.getId()             );
         assertEquals(project.getName(),       projectById.getName()           );
@@ -178,8 +259,8 @@ public class DALFacadeTest extends TestCase {
         assertEquals(project.getLeaderId(),   projectById.getLeaderId()      );
         assertEquals(project.getVisibility(), projectById.getVisibility()      );
 
-        //TODO NO DELETE PROJECTS ON FACADE?
-        mock.userList.remove(project);
+        //Clean
+        jooq.delete(Projects.PROJECTS).where(Projects.PROJECTS.ID.equal(createdProjId)).execute();
     }
 
     public void testModifyProject() throws Exception {
@@ -314,11 +395,12 @@ public class DALFacadeTest extends TestCase {
     }
 
     public void testCreateRequirement() throws Exception {
-        Requirement requirement = Requirement.getBuilder("AddedReq1").id(9).description("Test addition").creatorId(2).leadDeveloperId(2).projectId(3).build();
+        int createdRequirementId = 9;
+        Requirement requirement = Requirement.getBuilder("AddedReq1").id(createdRequirementId).description("Test addition").creatorId(2).leadDeveloperId(2).projectId(3).creationTime(Timestamp.valueOf("2005-04-06 09:01:10")).build();
 
         facade.createRequirement(requirement);
 
-        RequirementEx requirementById = facade.getRequirementById(9);
+        RequirementEx requirementById = facade.getRequirementById(createdRequirementId);
 
         assertEquals(requirement.getId(),requirementById.getId());
         assertEquals(requirement.getTitle(),requirementById.getTitle());
@@ -328,7 +410,7 @@ public class DALFacadeTest extends TestCase {
         assertEquals(requirement.getProjectId(),requirementById.getProjectId());
 
         //TODO
-        mock.requirementList.remove(requirement);
+        jooq.delete(Requirements.REQUIREMENTS).where(Requirements.REQUIREMENTS.ID.equal(createdRequirementId)).execute();
     }
 
     public void testModifyRequirement() throws Exception {
@@ -355,7 +437,8 @@ public class DALFacadeTest extends TestCase {
     }
 
     public void testCreateComponent() throws Exception {
-        Component testComp9 = Component.getBuilder("TestComp9").description("Very testing").id(9).projectId(1).build();
+        int createdComponentId = 9;
+        Component testComp9 = Component.getBuilder("TestComp9").description("Very testing").id(createdComponentId).projectId(1).build();
 
         facade.createComponent(testComp9);
 
@@ -363,10 +446,11 @@ public class DALFacadeTest extends TestCase {
 
         assertNotNull(components);
         assertEquals(1,components.size());
-        assertEquals(9,components.get(0).getId());
+        assertEquals(createdComponentId,components.get(0).getId());
 
-        //TODO
-        mock.componentList.remove(testComp9);
+        //Clean
+        jooq.delete(Components.COMPONENTS).where(Components.COMPONENTS.ID.equal(createdComponentId)).execute();
+
     }
 
     public void testModifyComponent() throws Exception {
@@ -387,7 +471,8 @@ public class DALFacadeTest extends TestCase {
     }
 
     public void testCreateComment() throws Exception {
-        Comment testComment = Comment.getBuilder("TestComment").id(9).creatorId(1).requirementId(1).build();
+        int createdCommentId = 9;
+        Comment testComment = Comment.getBuilder("TestComment").id(createdCommentId).creatorId(1).requirementId(1).build();
 
         facade.createComment(testComment);
 
@@ -395,10 +480,10 @@ public class DALFacadeTest extends TestCase {
 
         assertNotNull(comments);
         assertEquals(1,comments.size());
-        assertEquals(9,comments.get(0).getId());
+        assertEquals(createdCommentId,comments.get(0).getId());
 
-        //TODO
-        mock.commentList.remove(testComment);
+        //CLEAN
+        jooq.delete(Comments.COMMENTS).where(Comments.COMMENTS.ID.equal(createdCommentId)).execute();
     }
 
     public void testDeleteCommentById() throws Exception {

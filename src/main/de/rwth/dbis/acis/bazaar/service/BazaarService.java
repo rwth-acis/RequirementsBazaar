@@ -42,11 +42,21 @@ import i5.las2peer.security.UserAgent;
  * This is the main service class of the Requirements Bazaar
  * 
  * @author István Koren
- * 
+ *
  */
 @Path("bazaar")
 @Version("0.1")
 public class BazaarService extends Service {
+
+    //CONFIG PROPERTIES
+    public static final String DEFAULT_DB_USERNAME = "root";
+    protected String dbUserName = DEFAULT_DB_USERNAME;
+
+    public static final String DEFAULT_DB_PASSWORD = "";
+    protected String dbPassword = DEFAULT_DB_PASSWORD;
+
+    public static final String DEFAULT_DB_URL = "jdbc:mysql://localhost:3306/req";
+    protected String dbUrl = DEFAULT_DB_URL;
 
 	/**
 	 * This method is needed for every RESTful application in LAS2peer.
@@ -86,8 +96,6 @@ public class BazaarService extends Service {
 	/**
 	 * This method allows to create a new project.
 	 * 
-	 * @param String
-	 *            project a JSON string containing all the parameters.
 	 * @return
 	 */
 	@POST
@@ -166,8 +174,6 @@ public class BazaarService extends Service {
 	 * 
 	 * @param projectId
 	 *            the ID of the project to create the requirement in.
-	 * @param String
-	 *            requirement a JSON string containing all the parameters.
 	 * @return
 	 */
 	@POST

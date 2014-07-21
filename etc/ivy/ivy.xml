@@ -9,5 +9,6 @@
         <dependency org="i5" name="las2peer-web-connector" rev="0.1"/>
         <dependency org="org.jooq" name="jooq" rev="3.3.2" />
         <dependency org="mysql" name="mysql-connector-java" rev="5.1.31" />
+        <dependency org="org.xerial" name="sqlite-jdbc" rev="3.7.2"/>
     </dependencies>
 </ivy-module>

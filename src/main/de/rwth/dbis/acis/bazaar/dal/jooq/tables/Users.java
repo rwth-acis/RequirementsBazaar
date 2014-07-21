@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Users extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UsersRecord> {
 
-	private static final long serialVersionUID = 613150789;
+	private static final long serialVersionUID = -1846285850;
 
 	/**
 	 * The singleton instance of <code>reqbaz.users</code>
@@ -62,9 +62,14 @@ public class Users extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.dal.
 	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UsersRecord, java.lang.String> USER_NAME = createField("user_name", org.jooq.impl.SQLDataType.VARCHAR.length(255).nullable(false), this, "");
 
 	/**
-	 * The column <code>reqbaz.users.openId_identifier</code>.
+	 * The column <code>reqbaz.users.openId_iss</code>.
 	 */
-	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UsersRecord, java.lang.String> OPENID_IDENTIFIER = createField("openId_identifier", org.jooq.impl.SQLDataType.VARCHAR.length(300).nullable(false), this, "");
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UsersRecord, java.lang.String> OPENID_ISS = createField("openId_iss", org.jooq.impl.SQLDataType.VARCHAR.length(300).nullable(false), this, "");
+
+	/**
+	 * The column <code>reqbaz.users.openId_sub</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UsersRecord, java.lang.String> OPENID_SUB = createField("openId_sub", org.jooq.impl.SQLDataType.VARCHAR.length(300).nullable(false), this, "");
 
 	/**
 	 * Create a <code>reqbaz.users</code> table reference
