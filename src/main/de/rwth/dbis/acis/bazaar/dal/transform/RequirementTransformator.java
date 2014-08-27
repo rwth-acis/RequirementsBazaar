@@ -29,10 +29,7 @@ import static de.rwth.dbis.acis.bazaar.dal.jooq.tables.Requirements.REQUIREMENTS
 
 
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -44,8 +41,11 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
         RequirementsRecord record = new RequirementsRecord();
         record.setDescription(entry.getDescription());
         record.setTitle(entry.getTitle());
+        record.setCreationTime(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
 
-        //TODO connections
+        record.setLeadDeveloperId(entry.getLeadDeveloperId());
+        record.setCreatorId(entry.getCreatorId());
+        record.setProjectId(entry.getProjectId());
 
         return record;
     }

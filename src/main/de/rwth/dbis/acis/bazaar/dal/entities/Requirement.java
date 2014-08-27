@@ -11,12 +11,12 @@ public class Requirement implements IdentifiedById {
     private final int id;
 
     private final String title;
-
+    private final Date creation_time;
     private final String description;
+
     private final int projectId;
     private final int leadDeveloperId;
     private final int creatorId;
-    private final Date creation_time;
 
     public Date getCreation_time() {
         return creation_time;
@@ -53,9 +53,9 @@ public class Requirement implements IdentifiedById {
 
         this.title = builder.title;
 
-        this.projectId = builder.leadDeveloperId;
-        this.leadDeveloperId = builder.creatorId;
-        this.creatorId = builder.projectId;
+        this.projectId = builder.projectId;
+        this.leadDeveloperId = builder.leadDeveloperId;
+        this.creatorId = builder.creatorId;
         this.creation_time = builder.creation_time;
 
     }
