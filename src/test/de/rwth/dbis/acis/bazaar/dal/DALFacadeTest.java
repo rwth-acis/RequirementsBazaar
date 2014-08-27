@@ -36,6 +36,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.tables.Users.USERS;
@@ -438,7 +440,7 @@ public class DALFacadeTest extends TestCase {
 
     public void testCreateComponent() throws Exception {
         int createdComponentId = 9;
-        Component testComp9 = Component.getBuilder("TestComp9").description("Very testing").id(createdComponentId).projectId(1).build();
+        Component testComp9 = Component.getBuilder("TestComp9").description("Very testing").id(createdComponentId).projectId(1).leaderId(1).build();
 
         facade.createComponent(testComp9);
 

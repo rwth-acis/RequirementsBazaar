@@ -141,7 +141,26 @@ public class Project implements IdentifiedById {
         }
     }
 
-    public enum ProjectVisibility{
-        PUBLIC,PRIVATE
+    public enum ProjectVisibility {
+        PUBLIC("+"),PRIVATE("-");
+
+        public String asChar() {
+            return asChar;
+        }
+
+        private final String asChar;
+
+        private ProjectVisibility(String visibility) {
+            this.asChar = visibility;
+        }
+
+        public static ProjectVisibility getVisibility(final String visibilityChar)
+        {
+            for (ProjectVisibility vis : ProjectVisibility.values())
+                if (vis.asChar == visibilityChar)
+                    return vis;
+
+            return null;
+        }
     }
 }

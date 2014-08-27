@@ -42,7 +42,9 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
         ComponentsRecord record = new ComponentsRecord();
         record.setDescription(entry.getDescription());
         record.setName(entry.getName());
-
+        record.setProjectId(entry.getProjectId());
+        record.setId(entry.getId());
+        record.setLeaderId(entry.getLeaderId());
         return record;
     }
 
@@ -50,7 +52,9 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
     public Component mapToEntity(ComponentsRecord record) {
         return Component.getBuilder(record.getName())
                 .description(record.getDescription())
+                .projectId(record.getProjectId())
                 .id(record.getId())
+                .leaderId(record.getLeaderId())
                 .build();
     }
 

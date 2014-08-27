@@ -31,7 +31,7 @@ public class Comment implements IdentifiedById {
     private final int Id;
     private final String message;
     private final int creatorId;
-    private final Date creation_time;
+
 
 
     public Comment(Builder builder) {
@@ -39,7 +39,7 @@ public class Comment implements IdentifiedById {
         this.message = builder.message;
         this.creatorId = builder.userId;
         this.requirementId = builder.requirementId;
-        this.creation_time = builder.creation_time;
+
     }
 
     public int getRequirementId() {
@@ -67,7 +67,7 @@ public class Comment implements IdentifiedById {
         private String message;
         private int userId;
         private int requirementId;
-        private Date creation_time;
+
 
         public Builder(String message) {
             message(message);
@@ -97,9 +97,5 @@ public class Comment implements IdentifiedById {
             return this;
         }
 
-        public Builder creationTime(Date creationTime) {
-            this.creation_time = creationTime;
-            return this;
-        }
     }
 }

@@ -28,10 +28,7 @@ import org.jooq.*;
 import static de.rwth.dbis.acis.bazaar.dal.jooq.tables.Comments.COMMENTS;
 
 import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -45,6 +42,7 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
         record.setUserId(entity.getCreatorId());
         record.setMessage(entity.getMessage());
         record.setRequirementId(entity.getRequirementId());
+        record.setCreationTime(new Timestamp(Calendar.getInstance().getTime().getTime()));
         return record;
     }
 

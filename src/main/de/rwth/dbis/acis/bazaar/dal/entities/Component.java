@@ -32,12 +32,12 @@ public class Component implements IdentifiedById {
     private final String description;
 
     private final String name;
+    private final int leaderId;
+    private final int projectId;
 
     public int getProjectId() {
         return projectId;
     }
-
-    private final int projectId;
 
     public int getId() {
         return id;
@@ -51,6 +51,8 @@ public class Component implements IdentifiedById {
         return name;
     }
 
+    public int getLeaderId() { return leaderId; }
+
     /**
      * Private constructor, should be called from its builder only.
      * @param builder
@@ -63,6 +65,8 @@ public class Component implements IdentifiedById {
         this.name = builder.name;
 
         this.projectId = builder.projectId;
+
+        this.leaderId = builder.leaderId;
     }
 
 
@@ -83,6 +87,7 @@ public class Component implements IdentifiedById {
 
         private String name;
         private int projectId;
+        public int leaderId;
 
         public Builder(String title) {
             this.name = title;
@@ -98,6 +103,10 @@ public class Component implements IdentifiedById {
             return this;
         }
 
+        public Builder leaderId(int leaderId) {
+            this.leaderId = leaderId;
+            return this;
+        }
 
         /**
          * Call this to create a Component object with the values previously set in the builder.
