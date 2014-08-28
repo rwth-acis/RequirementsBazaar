@@ -40,6 +40,7 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
     @Override
     public ProjectsRecord createRecord(Project entry) {
         ProjectsRecord record = new ProjectsRecord();
+        record.setId(entry.getId());
         record.setDescription(entry.getDescription());
         record.setName(entry.getName());
         record.setLeaderId(entry.getLeaderId());

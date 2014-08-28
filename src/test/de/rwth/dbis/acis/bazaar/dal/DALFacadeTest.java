@@ -66,10 +66,10 @@ public class DALFacadeTest extends TestCase {
         conn = DriverManager.getConnection(url, userName, password);
 
 
+
         dalImpl = new DALFacadeImpl(conn, SQLDialect.SQLITE);
         facade = dalImpl;
         jooq = dalImpl.getDslContext();
-
         jooq.configuration().set(new ExecuteListenerProvider() {
             @Override
             public ExecuteListener provide() {
@@ -84,6 +84,18 @@ public class DALFacadeTest extends TestCase {
             }
         });
 
+        jooq.execute("DELETE FROM main.Attachements");
+        jooq.execute("DELETE FROM main.Authorizations");
+        jooq.execute("DELETE FROM main.Comments");
+        jooq.execute("DELETE FROM main.Developers");
+        jooq.execute("DELETE FROM main.Followers");
+        jooq.execute("DELETE FROM main.Votes");
+        jooq.execute("DELETE FROM main.Tags");
+        jooq.execute("DELETE FROM main.Components");
+        jooq.execute("DELETE FROM main.Requirements");
+        jooq.execute("DELETE FROM main.Projects");
+        jooq.execute("DELETE FROM main.Users");
+
         Field<Integer> f = count();
 
         User initUser = getInitUser();
@@ -97,10 +109,10 @@ public class DALFacadeTest extends TestCase {
             jooq.insertInto(USERS).set(new UsersRecord(3, "Citrom", "Datolya", "test@test.hu", (byte) 0, 3333, "CitrDat","https://openid.las2peer.de" ,"oId_3333")).execute();
 
         if (jooq.selectCount().from(Projects.PROJECTS).where(Projects.PROJECTS.ID.equal(1)).fetchOne(f) != 1)
-            jooq.insertInto(Projects.PROJECTS).set(new ProjectsRecord(1, "Project1", "ProjDesc1", "PRIVATE", 1)).execute();
+            jooq.insertInto(Projects.PROJECTS).set(new ProjectsRecord(1, "Project1", "ProjDesc1", "-", 1)).execute();
 
         if (jooq.selectCount().from(Projects.PROJECTS).where(Projects.PROJECTS.ID.equal(2)).fetchOne(f) != 1)
-            jooq.insertInto(Projects.PROJECTS).set(new ProjectsRecord(2, "Project2", "ProjDesc2", "PRIVATE", 1)).execute();
+            jooq.insertInto(Projects.PROJECTS).set(new ProjectsRecord(2, "Project2", "ProjDesc2", "-", 1)).execute();
 
         if (jooq.selectCount().from(Requirements.REQUIREMENTS).where(Requirements.REQUIREMENTS.ID.equal(1)).fetchOne(f) != 1)
             jooq.insertInto(Requirements.REQUIREMENTS).set(new RequirementsRecord(1, "Req1", "ReqDesc1", Timestamp.valueOf("2005-04-06 09:01:10"), 1, 1, 1)).execute();
@@ -398,21 +410,25 @@ public class DALFacadeTest extends TestCase {
 
     public void testCreateRequirement() throws Exception {
         int createdRequirementId = 9;
-        Requirement requirement = Requirement.getBuilder("AddedReq1").id(createdRequirementId).description("Test addition").creatorId(2).leadDeveloperId(2).projectId(3).creationTime(Timestamp.valueOf("2005-04-06 09:01:10")).build();
+        try {
+            Requirement requirement = Requirement.getBuilder("AddedReq1").id(createdRequirementId).description("Test addition").creatorId(2).leadDeveloperId(2).projectId(3).creationTime(Timestamp.valueOf("2005-04-06 09:01:10")).build();
 
-        facade.createRequirement(requirement);
+            facade.createRequirement(requirement);
 
-        RequirementEx requirementById = facade.getRequirementById(createdRequirementId);
+            RequirementEx requirementById = facade.getRequirementById(createdRequirementId);
 
-        assertEquals(requirement.getId(),requirementById.getId());
-        assertEquals(requirement.getTitle(),requirementById.getTitle());
-        assertEquals(requirement.getDescription(),requirementById.getDescription());
-        assertEquals(requirement.getCreatorId(),requirementById.getCreatorId());
-        assertEquals(requirement.getLeadDeveloperId(),requirementById.getLeadDeveloperId());
-        assertEquals(requirement.getProjectId(),requirementById.getProjectId());
+            assertEquals(requirement.getId(), requirementById.getId());
+            assertEquals(requirement.getTitle(), requirementById.getTitle());
+            assertEquals(requirement.getDescription(), requirementById.getDescription());
+            assertEquals(requirement.getCreatorId(), requirementById.getCreatorId());
+            assertEquals(requirement.getLeadDeveloperId(), requirementById.getLeadDeveloperId());
+            assertEquals(requirement.getProjectId(), requirementById.getProjectId());
+        }
+        finally {
+            //TODO
+            jooq.delete(Requirements.REQUIREMENTS).where(Requirements.REQUIREMENTS.ID.equal(createdRequirementId)).execute();
+        }
 
-        //TODO
-        jooq.delete(Requirements.REQUIREMENTS).where(Requirements.REQUIREMENTS.ID.equal(createdRequirementId)).execute();
     }
 
     public void testModifyRequirement() throws Exception {
@@ -426,8 +442,12 @@ public class DALFacadeTest extends TestCase {
 
         facade.deleteRequirementById(9);
 
-        RequirementEx requirementById = facade.getRequirementById(9);
-        assertNull(requirementById);
+        try {
+            RequirementEx requirementById = facade.getRequirementById(9);
+        }
+        catch (Exception ex){
+            assertEquals("No class de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementsRecord found with id: 9", ex.getMessage());
+        }
     }
 
     public void testListComponentsByProjectId() throws Exception {
@@ -468,8 +488,8 @@ public class DALFacadeTest extends TestCase {
 
         assertNotNull(comments);
         assertEquals(2,comments.size());
-        assertEquals(1,comments.get(0).getId());
-        assertEquals(2,comments.get(1).getId());
+        assertTrue(comments.get(0).getId() == 1 || comments.get(0).getId() == 2);
+        assertTrue(comments.get(1).getId() == 1 || comments.get(1).getId() == 2);
     }
 
     public void testCreateComment() throws Exception {

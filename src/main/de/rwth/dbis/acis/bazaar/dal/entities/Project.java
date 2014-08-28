@@ -157,7 +157,7 @@ public class Project implements IdentifiedById {
         public static ProjectVisibility getVisibility(final String visibilityChar)
         {
             for (ProjectVisibility vis : ProjectVisibility.values())
-                if (vis.asChar == visibilityChar)
+                if (vis.asChar.equals(visibilityChar))
                     return vis;
 
             return null;

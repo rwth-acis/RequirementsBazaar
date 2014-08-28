@@ -100,22 +100,22 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement,Requir
         Users contributorUsers = Users.USERS.as("contributorUsers");
         Result<Record> queryResult = jooq.selectFrom(
                 REQUIREMENTS
-                        .join(Comments.COMMENTS).on(Comments.COMMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
-                        .join(Attachements.ATTACHEMENTS).on(Attachements.ATTACHEMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                        .leftOuterJoin(Comments.COMMENTS).on(Comments.COMMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                        .leftOuterJoin(Attachements.ATTACHEMENTS).on(Attachements.ATTACHEMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
 
-                        .join(Followers.FOLLOWERS).on(Followers.FOLLOWERS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
-                        .join(followerUsers).on(Followers.FOLLOWERS.USER_ID.equal(followerUsers.ID))
+                        .leftOuterJoin(Followers.FOLLOWERS).on(Followers.FOLLOWERS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                        .leftOuterJoin(followerUsers).on(Followers.FOLLOWERS.USER_ID.equal(followerUsers.ID))
 
-                        .join(Developers.DEVELOPERS).on(Developers.DEVELOPERS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
-                        .join(developerUsers).on(Developers.DEVELOPERS.USER_ID.equal(developerUsers.ID))
+                        .leftOuterJoin(Developers.DEVELOPERS).on(Developers.DEVELOPERS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                        .leftOuterJoin(developerUsers).on(Developers.DEVELOPERS.USER_ID.equal(developerUsers.ID))
 
                         .join(creatorUser).on(creatorUser.ID.equal(REQUIREMENTS.CREATOR_ID))
                         .join(leadDeveloperUser).on(leadDeveloperUser.ID.equal(REQUIREMENTS.LEAD_DEVELOPER_ID))
 
-                        .join(contributorUsers).on(Attachements.ATTACHEMENTS.USER_ID.equal(contributorUsers.ID))
+                        .leftOuterJoin(contributorUsers).on(Attachements.ATTACHEMENTS.USER_ID.equal(contributorUsers.ID))
 
-                        .join(Tags.TAGS).on(Tags.TAGS.REQUIREMENTS_ID.equal(REQUIREMENTS.ID))
-                        .join(Components.COMPONENTS).on(Components.COMPONENTS.ID.equal(Tags.TAGS.COMPONENTS_ID))
+                        .leftOuterJoin(Tags.TAGS).on(Tags.TAGS.REQUIREMENTS_ID.equal(REQUIREMENTS.ID))
+                        .leftOuterJoin(Components.COMPONENTS).on(Components.COMPONENTS.ID.equal(Tags.TAGS.COMPONENTS_ID))
         )
                 .where(transformator.getTableId().equal(id))
                 .fetch();
@@ -165,6 +165,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement,Requir
         List<User> devList = new ArrayList<User>();
         for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(developerUsers.ID).entrySet())
         {
+            if (entry.getKey() == null) continue;
             Result<Record> records = entry.getValue();
             devList.add(
                     User.geBuilder(records.getValues(developerUsers.EMAIL).get(0))
@@ -185,6 +186,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement,Requir
         List<User> followers = new ArrayList<User>();
         for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(followerUsers.ID).entrySet())
         {
+            if (entry.getKey() == null) continue;
             Result<Record> records = entry.getValue();
             followers.add(
                     User.geBuilder(records.getValues(followerUsers.EMAIL).get(0))
@@ -206,6 +208,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement,Requir
         List<User> contributorList = new ArrayList<User>();
 
         for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(contributorUsers.ID).entrySet()) {
+            if (entry.getKey() == null) continue;
             Result<Record> records = entry.getValue();
             contributorList.add(
                     User.geBuilder(records.getValues(contributorUsers.EMAIL).get(0))
@@ -227,6 +230,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement,Requir
         List<Component> components = new ArrayList<Component>();
 
         for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(Components.COMPONENTS.ID).entrySet()) {
+            if (entry.getKey() == null) continue;
             Result<Record> records = entry.getValue();
             components.add(
                     Component.getBuilder(records.getValues(Components.COMPONENTS.NAME).get(0))
@@ -245,6 +249,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement,Requir
         AttachmentTransformator attachmentTransform = new AttachmentTransformator();
 
         for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(Attachements.ATTACHEMENTS.ID).entrySet()) {
+            if (entry.getKey() == null) continue;
             Result<Record> records = entry.getValue();
             AttachementsRecord record = new AttachementsRecord(
                     records.getValues(Attachements.ATTACHEMENTS.ID).get(0),
