@@ -52,7 +52,6 @@ public  class RepositoryImpl<E extends IdentifiedById,R extends Record> implemen
      * @param entity to add
      * @return the persisted entity
      */
-    //TODO Transaction
     public E add(E entity) {
         R persisted;
         persisted = jooq.insertInto(transformator.getTable())
@@ -69,6 +68,7 @@ public  class RepositoryImpl<E extends IdentifiedById,R extends Record> implemen
      * @return the deleted entity. It is not anymore in the database!
      * @throws Exception
      */
+    //TODO transaction (findById,delete)
     public E delete(int id) throws Exception {
         E deleted = this.findById(id);
 
@@ -155,6 +155,7 @@ public  class RepositoryImpl<E extends IdentifiedById,R extends Record> implemen
      * @return the entity after the database
      * @throws Exception
      */
+    //TODO transaction(update,findById)
     @Override
     public E update(E entity) throws Exception {
         UpdateSetFirstStep<R> update = jooq.update(transformator.getTable());

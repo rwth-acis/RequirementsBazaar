@@ -118,10 +118,10 @@ public class DALFacadeTest extends TestCase {
             jooq.insertInto(Requirements.REQUIREMENTS).set(new RequirementsRecord(1, "Req1", "ReqDesc1", Timestamp.valueOf("2005-04-06 09:01:10"), 1, 1, 1)).execute();
         
         if (jooq.selectCount().from(Requirements.REQUIREMENTS).where(Requirements.REQUIREMENTS.ID.equal(2)).fetchOne(f) != 1)
-            jooq.insertInto(Requirements.REQUIREMENTS).set(new RequirementsRecord(2, "Req2", "ReqDesc2", Timestamp.valueOf("2005-04-06 09:01:10"), 1, 1, 2)).execute();
+            jooq.insertInto(Requirements.REQUIREMENTS).set(new RequirementsRecord(2, "Req2", "ReqDesc2", Timestamp.valueOf("2005-05-06 09:01:10"), 1, 1, 2)).execute();
         
         if (jooq.selectCount().from(Requirements.REQUIREMENTS).where(Requirements.REQUIREMENTS.ID.equal(3)).fetchOne(f) != 1)
-            jooq.insertInto(Requirements.REQUIREMENTS).set(new RequirementsRecord(3, "Req3", "ReqDesc3", Timestamp.valueOf("2005-04-06 09:01:10"), 1, 1, 1)).execute();
+            jooq.insertInto(Requirements.REQUIREMENTS).set(new RequirementsRecord(3, "Req3", "ReqDesc3", Timestamp.valueOf("2005-06-06 09:01:10"), 1, 1, 1)).execute();
 
         if (jooq.selectCount().from(Components.COMPONENTS).where(Components.COMPONENTS.ID.equal(1)).fetchOne(f) != 1)
             jooq.insertInto(Components.COMPONENTS).set(new ComponentsRecord(1, "Comp1", "CompDesc1", 2, 1)).execute();
@@ -289,20 +289,20 @@ public class DALFacadeTest extends TestCase {
 
         Requirement requirement = requirements.get(2);
 
-        assertEquals(3,requirement.getId());
+        assertEquals(1,requirement.getId());
         assertEquals(1,requirement.getCreatorId());
         assertEquals(1,requirement.getLeadDeveloperId());
         assertEquals(1,requirement.getProjectId());
-        assertEquals("Req3",requirement.getTitle());
-        assertEquals("ReqDesc3",requirement.getDescription());
+        assertEquals("Req1",requirement.getTitle());
+        assertEquals("ReqDesc1",requirement.getDescription());
 
         requirements = facade.listRequirements(new PageInfo(1, 2));
 
         assertNotNull(requirements);
         assertEquals(1, requirements.size());
-        assertEquals(3,requirements.get(0).getId());
+        assertEquals(1,requirements.get(0).getId());
 
-        requirements = facade.listRequirements(new PageInfo( 0, 1));
+        requirements = facade.listRequirements(new PageInfo(0, 1));
 
         assertNotNull(requirements);
         assertEquals(1, requirements.size());
@@ -425,7 +425,6 @@ public class DALFacadeTest extends TestCase {
             assertEquals(requirement.getProjectId(), requirementById.getProjectId());
         }
         finally {
-            //TODO
             jooq.delete(Requirements.REQUIREMENTS).where(Requirements.REQUIREMENTS.ID.equal(createdRequirementId)).execute();
         }
 

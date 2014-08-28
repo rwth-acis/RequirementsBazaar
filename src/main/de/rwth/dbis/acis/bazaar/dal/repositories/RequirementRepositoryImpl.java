@@ -123,7 +123,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement,Requir
         if (queryResult == null || queryResult.size() == 0) {
             throw new Exception("No "+ transformator.getRecordClass() +" found with id: " + id);
         }
-        //TODO
+
         //Filling up Requirement fields
         RequirementEx.BuilderEx builder = RequirementEx.getBuilder(queryResult.getValues(REQUIREMENTS.TITLE).get(0));
         builder.id(queryResult.getValues(REQUIREMENTS.ID).get(0))

@@ -40,7 +40,6 @@ public class FollowerRepositoryImpl extends RepositoryImpl<Follower,FollowersRec
         super(jooq, new FollowerTransformator());
     }
 
-    //TODO transaction
     @Override
     public void delete(int userId, int requirementId) {
         jooq.delete(FOLLOWERS)
