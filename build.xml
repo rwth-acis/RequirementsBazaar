@@ -1,12 +1,12 @@
 <project name="LAS2peer-Template-Project" default="jar" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 	
     <property file="etc/ant_configuration/service.properties"/>
-    <property file="etc/ant_configuration/creator.properties"/>
+    <property file="etc/ant_configuration/user.properties"/>
 	
     <property name="startup" location="etc/startup" />
 	
     <property name="service_agent.path" value="${startup}/agent-service-${service.name}.xml" />
-    <property name="user_agent.path" value="${startup}/agent-creator-${las2peer_user.name}.xml" />
+    <property name="user_agent.path" value="${startup}/agent-user-${las2peer_user.name}.xml" />
 	<property name="passphrases.path" value="${startup}/passphrases.txt" />
 	
     <presetdef name="javac">
@@ -165,7 +165,7 @@
             classpathref="libraries"
             >
             <packageset dir="${src.main}" defaultexcludes="yes">
-                <include name="de/rwth/dbis/acis/bazaar/**" />
+                <include name="i5/las2peer/**" />
             </packageset>
         </javadoc>
     </target>
@@ -201,7 +201,10 @@
 	
 	
     <!-- XML Agent Generation (Builds Jar first so that Generator is available)-->
-    <target name="generate_service_agent" depends="jar">
+	<available file="${service_agent.path}" property="service_agent_exists"/>
+	<available file="${user_agent.path}" property="user_agent_exists"/>
+	
+    <target name="generate_service_agent" depends="jar" unless="service_agent_exists">
         <echo message="Writing Service Agent xml to ${service_agent.path}"/>
         <java classname="i5.las2peer.tools.ServiceAgentGenerator"
             classpathref="libraries"
@@ -213,7 +216,7 @@
         </java>
     </target>
 	
-    <target name="generate_user_agent" depends="jar">
+    <target name="generate_user_agent" depends="jar" unless="user_agent_exists">
         <echo message="Writing User Agent xml to ${user_agent.path}"/>
         <java classname="i5.las2peer.tools.UserAgentGenerator"
             classpathref="libraries"
@@ -227,7 +230,7 @@
 	
     <target name="generate_configs" depends="generate_service_agent, generate_user_agent">
 <echo file="${passphrases.path}" append="false">agent-service-${service.name}.xml;${service.password}
-agent-creator-${las2peer_user.name}.xml;${las2peer_user.password}
+agent-user-${las2peer_user.name}.xml;${las2peer_user.password}
 </echo>
     </target>
 	
