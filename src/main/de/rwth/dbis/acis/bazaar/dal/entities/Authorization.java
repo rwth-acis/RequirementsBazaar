@@ -24,7 +24,7 @@ package de.rwth.dbis.acis.bazaar.dal.entities;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/11/2014
  */
-public class Authorization implements IdentifiedById {
+public class Authorization extends EntityBase {
     private final int Id;
     private final int accessRight;
     private final int ProjectId;

@@ -26,7 +26,7 @@ import java.util.Date;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/11/2014
  */
-public class Comment implements IdentifiedById {
+public class Comment extends EntityBase {
     private final int requirementId;
     private final int Id;
     private final String message;

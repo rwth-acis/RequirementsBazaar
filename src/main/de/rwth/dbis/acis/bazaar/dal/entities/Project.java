@@ -26,7 +26,7 @@ import java.util.Date;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
  */
-public class Project implements IdentifiedById {
+public class Project extends EntityBase {
     private final int id;
 
     private final String description;

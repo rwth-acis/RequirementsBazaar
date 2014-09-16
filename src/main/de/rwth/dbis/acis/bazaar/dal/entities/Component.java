@@ -24,7 +24,7 @@ package de.rwth.dbis.acis.bazaar.dal.entities;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
  */
-public class Component implements IdentifiedById {
+public class Component extends EntityBase {
 
 
     private final int id;

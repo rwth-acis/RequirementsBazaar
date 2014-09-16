@@ -26,7 +26,7 @@ import java.util.Date;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/11/2014
  */
-public abstract class Attachment implements IdentifiedById {
+public abstract class Attachment extends EntityBase {
     private final int Id;
     private final int creatorId;
     private final int requirementId;

@@ -7,7 +7,7 @@ import java.util.Date;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
  */
-public class Requirement implements IdentifiedById {
+public class Requirement extends EntityBase {
     private final int id;
 
     private final String title;

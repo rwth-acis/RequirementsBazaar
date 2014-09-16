@@ -24,7 +24,7 @@ package de.rwth.dbis.acis.bazaar.dal.entities;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/11/2014
  */
-public class Follower implements IdentifiedById {
+public class Follower extends EntityBase {
     private final int Id;
     private final int RequirementId;
     private final int UserId;

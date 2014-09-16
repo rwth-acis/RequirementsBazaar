@@ -24,7 +24,7 @@ package de.rwth.dbis.acis.bazaar.dal.entities;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/11/2014
  */
-public class User implements IdentifiedById {
+public class User extends EntityBase {
     private final int Id;
 
     private final String firstName;
