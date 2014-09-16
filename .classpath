@@ -4,12 +4,13 @@
 	<classpathentry kind="src" output="tmp/test" path="src/test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/hamcrest-core-1.3.jar"/>
-	<classpathentry kind="lib" path="lib/jooq-3.3.2.jar"/>
 	<classpathentry kind="lib" path="lib/las2peer-0.1.jar"/>
 	<classpathentry kind="lib" path="lib/las2peer-rest-mapper-0.1.jar"/>
 	<classpathentry kind="lib" path="lib/las2peer-web-connector-0.1.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.11.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.31.jar"/>
 	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.7.2.jar" sourcepath="lib/sqlite-jdbc-3.7.2.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/jooq-3.4.2"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/gson-2.3"/>
 	<classpathentry kind="output" path="tmp/classes"/>
 </classpath>
