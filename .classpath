@@ -10,7 +10,7 @@
 	<classpathentry kind="lib" path="lib/junit-4.11.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.31.jar"/>
 	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.7.2.jar" sourcepath="lib/sqlite-jdbc-3.7.2.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/jooq-3.4.2"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/gson-2.3"/>
+	<classpathentry kind="lib" path="lib/gson-2.3.jar"/>
+	<classpathentry kind="lib" path="lib/jooq-3.4.2.jar"/>
 	<classpathentry kind="output" path="tmp/classes"/>
 </classpath>

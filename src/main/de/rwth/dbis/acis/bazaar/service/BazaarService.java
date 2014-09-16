@@ -20,6 +20,19 @@
 
 package de.rwth.dbis.acis.bazaar.service;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.List;
+
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
+import org.jooq.impl.DSL;
+
+import de.rwth.dbis.acis.bazaar.dal.entities.Project;
+import de.rwth.dbis.acis.bazaar.dal.repositories.ProjectRepository;
+import de.rwth.dbis.acis.bazaar.dal.repositories.ProjectRepositoryImpl;
+
 import i5.las2peer.api.Service;
 import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.Consumes;
@@ -55,8 +68,11 @@ public class BazaarService extends Service {
     public static final String DEFAULT_DB_PASSWORD = "";
     protected String dbPassword = DEFAULT_DB_PASSWORD;
 
-    public static final String DEFAULT_DB_URL = "jdbc:mysql://localhost:3306/req";
+    public static final String DEFAULT_DB_URL = "jdbc:mysql://localhost:3306/reqbaz";
     protected String dbUrl = DEFAULT_DB_URL;
+
+    private Connection dbConnection;
+    private DSLContext context;
 
 	/**
 	 * This method is needed for every RESTful application in LAS2peer.
@@ -74,6 +90,25 @@ public class BazaarService extends Service {
 		return result;
 	}
 
+    public BazaarService() {
+        try {
+            Class.forName("com.mysql.jdbc.Driver").newInstance();
+            dbConnection = DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
+
+            context = DSL.using(dbConnection, SQLDialect.MYSQL);
+        } catch (Exception e) {
+            // For the sake of this tutorial, let's keep exception handling simple
+            e.printStackTrace();
+        } finally {
+            if (dbConnection != null) {
+                try {
+                    dbConnection.close();
+                } catch (SQLException ignore) {
+                }
+            }
+        }
+    }
+
 	/**********************************
 	 * PROJECTS
 	 **********************************/
@@ -89,6 +124,9 @@ public class BazaarService extends Service {
 			@QueryParam(name = "page", defaultValue = "1") int page,
 			@QueryParam(name = "per_page", defaultValue = "10") int perPage) {
 		// TODO: if the user is not logged in, return all the public projects.
+        ProjectRepository repo = new ProjectRepositoryImpl(context);
+        List<Project> projects = repo.findAll();
+
 		// Otherwise return all the user can see.
 		return "[]";
 	}

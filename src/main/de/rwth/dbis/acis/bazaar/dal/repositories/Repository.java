@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.dal.repositories;
 
 
+import de.rwth.dbis.acis.bazaar.dal.entities.EntityBase;
 import de.rwth.dbis.acis.bazaar.dal.entities.IdentifiedById;
 import de.rwth.dbis.acis.bazaar.dal.helpers.Pageable;
 
@@ -31,7 +32,7 @@ import java.util.List;
  * @since 6/9/2014
  * @param <E>   Type of the Entity, which should be added, deleted, updated, getted using the repo.
  */
-public interface Repository<E extends IdentifiedById> {
+public interface Repository<E extends EntityBase> {
         /**
          * @param entity to add
          * @return the persisted entity
