@@ -72,6 +72,7 @@ public class BazaarService extends Service {
     protected String dbUrl = DEFAULT_DB_URL;
 
     private DALFacade dalFacade;
+    private Connection dbConnection;
 
 	/**
 	 * This method is needed for every RESTful application in LAS2peer.
@@ -89,28 +90,24 @@ public class BazaarService extends Service {
 		return result;
 	}
 
-    public BazaarService() {
+    public BazaarService() throws Exception {
+        Class.forName("com.mysql.jdbc.Driver").newInstance();
+    }
 
-        Connection dbConnection = null;
-
-        try {
-            Class.forName("com.mysql.jdbc.Driver").newInstance();
+    private void createConnection() throws Exception {
             dbConnection = DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
-
             dalFacade = new DALFacadeImpl(dbConnection,SQLDialect.MYSQL);
-        } catch (Exception e) {
-            // For the sake of this tutorial, let's keep exception handling simple
-            System.out.println(e.toString());
-        }
-//        finally {
-//            if (dbConnection != null) {
-//                try {
-//                    dbConnection.close();
-//                    System.out.println("Database connection closed!");
-//                } catch (SQLException ignore) {
-//                }
-//            }
-//        }
+    }
+
+    private void closeConnection() {
+        if (dbConnection != null) {
+                try {
+                    dbConnection.close();
+                    System.out.println("Database connection closed!");
+                } catch (SQLException ignore) {
+                    System.out.println("Could not close db connection!");
+                }
+            }
     }
 
 	/**********************************
@@ -128,11 +125,23 @@ public class BazaarService extends Service {
 			@QueryParam(name = "page", defaultValue = "1") int page,
 			@QueryParam(name = "per_page", defaultValue = "10") int perPage) {
 		// TODO: if the user is not logged in, return all the public projects.
-        List<Project> projects = dalFacade.listProjects(new PageInfo(page, perPage));
 
-        return new Gson().toJson(projects);
-        // Otherwise return all the user can see.
-		//return "[]";
+        String result = null;
+            Gson gson = new Gson();
+        try {
+            createConnection();
+
+            List<Project> projects = dalFacade.listProjects(new PageInfo(page, perPage));
+
+            result = gson.toJson(projects);
+
+        } catch (Exception ex){
+            result = gson.toJson(ex.toString());
+        } finally {
+            close();
+        }
+        return result;
+
 	}
 
 	/**
