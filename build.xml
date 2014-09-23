@@ -253,7 +253,27 @@ agent-user-${las2peer_user.name}.xml;${las2peer_user.password}
     <target name="clean_all" depends="clean_after_build, clean_before_build, clean_deps">
 		<delete dir="${log}"/>
     </target>
-	
+    
+    
+    <!-- Run -->
+	<target name="run" depends="jar">
+		<java classname="i5.las2peer.tools.L2pNodeLauncher"
+			classpathref="libraries"
+			failonerror="true"
+			fork="true">
+			<jvmarg value="-Xdebug" />
+			<jvmarg
+				value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5432" />
+			<arg value='-s'/>
+			<arg value='9011'/>
+			<arg value='-'/>
+			<arg value='uploadStartupDirectory(\"etc/startup\")'/>
+			<arg
+				value='startService(\"de.rwth.dbis.acis.bazaar.service.BazaarService\",\"SampleServicePass\")'/>
+			<arg value='startWebConnector'/>
+		</java>
+	</target>
+
     <target name="all" depends="clean_before_build, generate_configs, junit, java_doc, clean_after_build" />
 	
 </project>

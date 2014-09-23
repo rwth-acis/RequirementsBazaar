@@ -127,7 +127,7 @@ public class BazaarService extends Service {
 		// TODO: if the user is not logged in, return all the public projects.
 
         String result = null;
-            Gson gson = new Gson();
+        Gson gson = new Gson();
         try {
             createConnection();
 
@@ -138,7 +138,7 @@ public class BazaarService extends Service {
         } catch (Exception ex){
             result = gson.toJson(ex.toString());
         } finally {
-            close();
+            closeConnection();
         }
         return result;
 
