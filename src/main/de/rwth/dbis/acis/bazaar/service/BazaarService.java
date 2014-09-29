@@ -40,9 +40,12 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
 
+import org.jooq.SQLDialect;
+
 import com.google.gson.Gson;
 
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
+import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 
@@ -94,7 +97,7 @@ public class BazaarService extends Service {
 
     private void createConnection() throws Exception {
             dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reqbaz", "root", "");
-            //dalFacade = new DALFacadeImpl(dbConnection,SQLDialect.MYSQL);
+            dalFacade = new DALFacadeImpl(dbConnection, SQLDialect.MYSQL);
     }
 
     private void closeConnection() {
