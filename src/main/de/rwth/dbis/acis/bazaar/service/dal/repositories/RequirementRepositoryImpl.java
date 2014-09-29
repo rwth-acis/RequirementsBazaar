@@ -23,7 +23,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.*;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachementsRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.AttachmentTransformator;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementTransformator;
@@ -99,7 +99,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement,Requir
         Result<Record> queryResult = jooq.selectFrom(
                 REQUIREMENTS
                         .leftOuterJoin(Comments.COMMENTS).on(Comments.COMMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
-                        .leftOuterJoin(Attachements.ATTACHEMENTS).on(Attachements.ATTACHEMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                        .leftOuterJoin(Attachments.ATTACHMENTS).on(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
 
                         .leftOuterJoin(Followers.FOLLOWERS).on(Followers.FOLLOWERS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
                         .leftOuterJoin(followerUsers).on(Followers.FOLLOWERS.USER_ID.equal(followerUsers.ID))
@@ -110,7 +110,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement,Requir
                         .join(creatorUser).on(creatorUser.ID.equal(REQUIREMENTS.CREATOR_ID))
                         .join(leadDeveloperUser).on(leadDeveloperUser.ID.equal(REQUIREMENTS.LEAD_DEVELOPER_ID))
 
-                        .leftOuterJoin(contributorUsers).on(Attachements.ATTACHEMENTS.USER_ID.equal(contributorUsers.ID))
+                        .leftOuterJoin(contributorUsers).on(Attachments.ATTACHMENTS.USER_ID.equal(contributorUsers.ID))
 
                         .leftOuterJoin(Tags.TAGS).on(Tags.TAGS.REQUIREMENTS_ID.equal(REQUIREMENTS.ID))
                         .leftOuterJoin(Components.COMPONENTS).on(Components.COMPONENTS.ID.equal(Tags.TAGS.COMPONENTS_ID))
@@ -241,34 +241,34 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement,Requir
 
         builder.components(components);
 
-        //Filling up attachements
-        List<Attachment> attachements = new ArrayList<Attachment>();
+        //Filling up attachments
+        List<Attachment> attachments = new ArrayList<Attachment>();
 
         AttachmentTransformator attachmentTransform = new AttachmentTransformator();
 
-        for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(Attachements.ATTACHEMENTS.ID).entrySet()) {
+        for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(Attachments.ATTACHMENTS.ID).entrySet()) {
             if (entry.getKey() == null) continue;
             Result<Record> records = entry.getValue();
-            AttachementsRecord record = new AttachementsRecord(
-                    records.getValues(Attachements.ATTACHEMENTS.ID).get(0),
-                    records.getValues(Attachements.ATTACHEMENTS.CREATION_TIME).get(0),
-                    records.getValues(Attachements.ATTACHEMENTS.REQUIREMENT_ID).get(0),
-                    records.getValues(Attachements.ATTACHEMENTS.USER_ID).get(0),
-                    records.getValues(Attachements.ATTACHEMENTS.TITLE).get(0),
-                    records.getValues(Attachements.ATTACHEMENTS.DISCRIMINATOR).get(0),
-                    records.getValues(Attachements.ATTACHEMENTS.FILE_PATH).get(0),
-                    records.getValues(Attachements.ATTACHEMENTS.DESCRIPTION).get(0),
-                    records.getValues(Attachements.ATTACHEMENTS.STORY).get(0),
-                    records.getValues(Attachements.ATTACHEMENTS.SUBJECT).get(0),
-                    records.getValues(Attachements.ATTACHEMENTS.OBJECT).get(0),
-                    records.getValues(Attachements.ATTACHEMENTS.OBJECT_DESC).get(0)
+            AttachmentsRecord record = new AttachmentsRecord(
+                    records.getValues(Attachments.ATTACHMENTS.ID).get(0),
+                    records.getValues(Attachments.ATTACHMENTS.CREATION_TIME).get(0),
+                    records.getValues(Attachments.ATTACHMENTS.REQUIREMENT_ID).get(0),
+                    records.getValues(Attachments.ATTACHMENTS.USER_ID).get(0),
+                    records.getValues(Attachments.ATTACHMENTS.TITLE).get(0),
+                    records.getValues(Attachments.ATTACHMENTS.DISCRIMINATOR).get(0),
+                    records.getValues(Attachments.ATTACHMENTS.FILE_PATH).get(0),
+                    records.getValues(Attachments.ATTACHMENTS.DESCRIPTION).get(0),
+                    records.getValues(Attachments.ATTACHMENTS.STORY).get(0),
+                    records.getValues(Attachments.ATTACHMENTS.SUBJECT).get(0),
+                    records.getValues(Attachments.ATTACHMENTS.OBJECT).get(0),
+                    records.getValues(Attachments.ATTACHMENTS.OBJECT_DESC).get(0)
                     );
-            attachements.add(
+            attachments.add(
                     attachmentTransform.mapToEntity(record)
             );
         }
 
-        builder.attachements(attachements);
+        builder.attachments(attachments);
 
         return builder.build();
     }

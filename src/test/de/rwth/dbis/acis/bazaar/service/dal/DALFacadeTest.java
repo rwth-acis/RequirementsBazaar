@@ -79,7 +79,7 @@ public class DALFacadeTest extends TestCase {
             }
         });
 
-        jooq.execute("DELETE FROM main.Attachements");
+        jooq.execute("DELETE FROM main.Attachments");
         jooq.execute("DELETE FROM main.Authorizations");
         jooq.execute("DELETE FROM main.Comments");
         jooq.execute("DELETE FROM main.Developers");
@@ -140,8 +140,8 @@ public class DALFacadeTest extends TestCase {
         if (jooq.selectCount().from(Votes.VOTES).where(Votes.VOTES.ID.equal(2)).fetchOne(f) != 1)
             jooq.insertInto(Votes.VOTES).set(new VotesRecord(2, (byte) 0, 2, 3)).execute();
 
-        if (jooq.selectCount().from(Attachements.ATTACHEMENTS).where(Attachements.ATTACHEMENTS.ID.equal(1)).fetchOne(f) != 1)
-            jooq.insertInto(Attachements.ATTACHEMENTS).set(new AttachementsRecord(1, Timestamp.valueOf("2005-04-06 09:01:10"), 2, 2, "StoryAttachement", "S", null, null, "RequirementStory", null, null, null)).execute();
+        if (jooq.selectCount().from(Attachments.ATTACHMENTS).where(Attachments.ATTACHMENTS.ID.equal(1)).fetchOne(f) != 1)
+            jooq.insertInto(Attachments.ATTACHMENTS).set(new AttachmentsRecord(1, Timestamp.valueOf("2005-04-06 09:01:10"), 2, 2, "StoryAttachment", "S", null, null, "RequirementStory", null, null, null)).execute();
 
 
         if (jooq.selectCount().from(Comments.COMMENTS).where(Comments.COMMENTS.ID.equal(1)).fetchOne(f) != 1)

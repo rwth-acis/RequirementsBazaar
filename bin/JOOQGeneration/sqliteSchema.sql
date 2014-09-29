@@ -4,8 +4,8 @@
 -- Generated at Mon Jul 21 11:23:13 UTC 2014
 
 -- tables
--- Table Attachements
-CREATE TABLE Attachements (
+-- Table Attachments
+CREATE TABLE Attachments (
     Id integer primary key autoincrement not null,
     creation_time timestamp  NOT NULL,
     Requirement_Id int  NOT NULL,
@@ -117,7 +117,7 @@ CREATE TABLE Tags (
 -- Table Users
 CREATE TABLE Users (
     Id integer primary key autoincrement not null,
-    frist_name varchar(150)  NOT NULL,
+    first_name varchar(150)  NOT NULL,
     last_name varchar(150)  NOT NULL,
     email varchar(255)  NOT NULL,
     admin BOOLEAN  NOT NULL,

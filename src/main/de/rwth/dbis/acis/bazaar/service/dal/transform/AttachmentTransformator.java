@@ -22,44 +22,44 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachementsRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord;
 import org.jooq.*;
 
 import java.sql.Timestamp;
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachements.ATTACHEMENTS;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachments.ATTACHMENTS;
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/22/2014
  */
-public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachementsRecord> {
+public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord> {
 
     @Override
-    public AttachementsRecord createRecord(Attachment entity) {
-        AttachementsRecord attachementsRecord = new AttachementsRecord();
+    public AttachmentsRecord createRecord(Attachment entity) {
+        AttachmentsRecord attachmentsRecord = new AttachmentsRecord();
 
-        attachementsRecord.setId(entity.getId());
-        attachementsRecord.setCreationTime(new Timestamp(entity.getCreation_time().getTime()));
-        attachementsRecord.setRequirementId(entity.getRequirementId());
-        attachementsRecord.setUserId(entity.getCreatorId());
-        attachementsRecord.setTitle(entity.getTitle());
+        attachmentsRecord.setId(entity.getId());
+        attachmentsRecord.setCreationTime(new Timestamp(entity.getCreation_time().getTime()));
+        attachmentsRecord.setRequirementId(entity.getRequirementId());
+        attachmentsRecord.setUserId(entity.getCreatorId());
+        attachmentsRecord.setTitle(entity.getTitle());
 
         if(entity instanceof File)
-            fillFile(attachementsRecord, (File) entity);
+            fillFile(attachmentsRecord, (File) entity);
         else if(entity instanceof FreeStory)
-            fillFreeStory(attachementsRecord, (FreeStory) entity);
+            fillFreeStory(attachmentsRecord, (FreeStory) entity);
         else if(entity instanceof Image)
-            fillImage(attachementsRecord, (Image) entity);
+            fillImage(attachmentsRecord, (Image) entity);
         else if(entity instanceof Log)
-            fillLog(attachementsRecord, (Log) entity);
+            fillLog(attachmentsRecord, (Log) entity);
         else if(entity instanceof UserStory)
-            fillUserStory(attachementsRecord, (UserStory) entity);
+            fillUserStory(attachmentsRecord, (UserStory) entity);
 
-        return attachementsRecord;
+        return attachmentsRecord;
     }
 
-    private void fillUserStory(AttachementsRecord record, UserStory entity) {
+    private void fillUserStory(AttachmentsRecord record, UserStory entity) {
         record.setObject(entity.getObject());
         record.setObjectDesc(entity.getObjectDescription());
         record.setSubject(entity.getSubject());
@@ -67,27 +67,27 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
         record.setDiscriminator(AttachmentType.UserStory.toString());
     }
 
-    private void fillLog(AttachementsRecord record, Log entity) {
+    private void fillLog(AttachmentsRecord record, Log entity) {
         record.setDescription(entity.getDescription());
         record.setFilePath(entity.getFilePath());
 
         record.setDiscriminator(AttachmentType.Log.toString());
     }
 
-    private void fillImage(AttachementsRecord record, Image entity) {
+    private void fillImage(AttachmentsRecord record, Image entity) {
         record.setDescription(entity.getDescription());
         record.setFilePath(entity.getFilePath());
 
         record.setDiscriminator(AttachmentType.Image.toString());
     }
 
-    private void fillFreeStory(AttachementsRecord record, FreeStory entity) {
+    private void fillFreeStory(AttachmentsRecord record, FreeStory entity) {
         record.setStory(entity.getStory());
 
         record.setDiscriminator(AttachmentType.FreeStory.toString());
     }
 
-    private void fillFile(AttachementsRecord record, File entity) {
+    private void fillFile(AttachmentsRecord record, File entity) {
         record.setDescription(entity.getDescription());
         record.setFilePath(entity.getFilePath());
 
@@ -95,7 +95,7 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
     }
 
     @Override
-    public Attachment mapToEntity(AttachementsRecord record) {
+    public Attachment mapToEntity(AttachmentsRecord record) {
         Attachment entity = null;
         AttachmentType type = AttachmentType.getEnum(record.getDiscriminator());
 
@@ -161,26 +161,26 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
     }
 
     @Override
-    public Table<AttachementsRecord> getTable() {
-        return ATTACHEMENTS;
+    public Table<AttachmentsRecord> getTable() {
+        return ATTACHMENTS;
     }
 
     @Override
-    public TableField<AttachementsRecord, Integer> getTableId() {
-        return ATTACHEMENTS.ID;
+    public TableField<AttachmentsRecord, Integer> getTableId() {
+        return ATTACHMENTS.ID;
     }
 
     @Override
-    public Class<? extends AttachementsRecord> getRecordClass() {
-        return AttachementsRecord.class;
+    public Class<? extends AttachmentsRecord> getRecordClass() {
+        return AttachmentsRecord.class;
     }
 
     @Override
     public Map<Field, Object> getUpdateMap(final Attachment entity) {
         return new HashMap<Field, Object>(){{
-            put(ATTACHEMENTS.USER_ID, entity.getCreatorId());
-            put(ATTACHEMENTS.TITLE, entity.getTitle());
-            put(ATTACHEMENTS.REQUIREMENT_ID, entity.getRequirementId());
+            put(ATTACHMENTS.USER_ID, entity.getCreatorId());
+            put(ATTACHMENTS.TITLE, entity.getTitle());
+            put(ATTACHMENTS.REQUIREMENT_ID, entity.getRequirementId());
         }};
     }
 
@@ -188,11 +188,11 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
     public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
         switch (sortDirection) {
             case DEFAULT:
-                return Arrays.asList(ATTACHEMENTS.CREATION_TIME.desc());
+                return Arrays.asList(ATTACHMENTS.CREATION_TIME.desc());
             case ASC:
-                return Arrays.asList(ATTACHEMENTS.CREATION_TIME.asc());
+                return Arrays.asList(ATTACHMENTS.CREATION_TIME.asc());
             case DESC:
-                return Arrays.asList(ATTACHEMENTS.CREATION_TIME.desc());
+                return Arrays.asList(ATTACHMENTS.CREATION_TIME.desc());
         }
         return null;
     }
@@ -200,11 +200,11 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
     @Override
     public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
         return Arrays.asList(
-                    ATTACHEMENTS.TITLE.likeIgnoreCase(likeExpression)
-                .or(ATTACHEMENTS.DESCRIPTION.likeIgnoreCase(likeExpression))
-                .or(ATTACHEMENTS.OBJECT_DESC.likeIgnoreCase(likeExpression))
-                .or(ATTACHEMENTS.STORY.likeIgnoreCase(likeExpression))
-                .or(ATTACHEMENTS.SUBJECT.likeIgnoreCase(likeExpression))
+                    ATTACHMENTS.TITLE.likeIgnoreCase(likeExpression)
+                .or(ATTACHMENTS.DESCRIPTION.likeIgnoreCase(likeExpression))
+                .or(ATTACHMENTS.OBJECT_DESC.likeIgnoreCase(likeExpression))
+                .or(ATTACHMENTS.STORY.likeIgnoreCase(likeExpression))
+                .or(ATTACHMENTS.SUBJECT.likeIgnoreCase(likeExpression))
         );
     }
 }

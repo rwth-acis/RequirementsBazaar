@@ -8,9 +8,11 @@
 	<classpathentry kind="lib" path="lib/las2peer-rest-mapper-0.1.jar"/>
 	<classpathentry kind="lib" path="lib/las2peer-web-connector-0.1.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.11.jar"/>
-	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.31.jar"/>
 	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.7.2.jar" sourcepath="lib/sqlite-jdbc-3.7.2.jar"/>
 	<classpathentry kind="lib" path="lib/gson-2.3.jar"/>
-	<classpathentry kind="lib" path="lib/jooq-3.4.2.jar"/>
+	<classpathentry kind="lib" path="lib/jooq-3.4.2.jar" sourcepath="C:/Users/koren/.m2/repository/org/jooq/jooq/3.4.2/jooq-3.4.2-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jooq-codegen-3.4.2.jar"/>
+	<classpathentry kind="lib" path="lib/jooq-meta-3.4.2.jar"/>
+	<classpathentry kind="lib" path="E:/developer/workspaceEclipse/RequirementsBazaar/lib/mysql-connector-java-5.1.33.jar"/>
 	<classpathentry kind="output" path="tmp/classes"/>
 </classpath>

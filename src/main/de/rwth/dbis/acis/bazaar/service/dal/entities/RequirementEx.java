@@ -160,7 +160,7 @@ public class RequirementEx extends Requirement {
             return this;
         }
 
-        public BuilderEx attachements(List<Attachment> attachments) {
+        public BuilderEx attachments(List<Attachment> attachments) {
             this.attachments = attachments;
             return this;
         }

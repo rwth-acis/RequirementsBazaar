@@ -21,7 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachementsRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.AttachmentTransformator;
 import org.jooq.DSLContext;
 
@@ -29,7 +29,7 @@ import org.jooq.DSLContext;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/22/2014
  */
-public class AttachmentRepositoryImpl extends RepositoryImpl<Attachment,AttachementsRecord> implements AttachmentRepository {
+public class AttachmentRepositoryImpl extends RepositoryImpl<Attachment,AttachmentsRecord> implements AttachmentRepository {
 
     /**
      * @param jooq          DSLContext for JOOQ connection

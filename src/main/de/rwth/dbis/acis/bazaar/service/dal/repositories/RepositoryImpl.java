@@ -124,7 +124,7 @@ public  class RepositoryImpl<E extends EntityBase,R extends Record> implements R
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
                 .fetchInto(transformator.getRecordClass());
-
+        
         for (R queryResult: queryResults) {
             E entry = transformator.mapToEntity(queryResult);
             entries.add(entry);

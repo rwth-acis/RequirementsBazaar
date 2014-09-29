@@ -124,7 +124,7 @@ public class DALFacadeMockImpl implements DALFacade {
 
     }
 
-    private List<Attachment> getAttachements(int requirementId) {
+    private List<Attachment> getAttachments(int requirementId) {
         List<Attachment> attachments = new ArrayList<Attachment>();
 
         for (Attachment attachment : attachmentList) {
@@ -266,7 +266,7 @@ public class DALFacadeMockImpl implements DALFacade {
         }
 
         if (requirement != null) {
-            List<Attachment> attachments = getAttachements(requirementId);
+            List<Attachment> attachments = getAttachments(requirementId);
             List<User> developers = getDevelopers(requirementId);
             List<User> followers = getFollowers(requirementId);
             List<User> contributors = getContributors(attachments);
@@ -283,7 +283,7 @@ public class DALFacadeMockImpl implements DALFacade {
                     .developers(developers)
                     .followers(followers)
                     .contributors(contributors)
-                    .attachements(attachments)
+                    .attachments(attachments)
                     .components(components)
                     .build();
         }

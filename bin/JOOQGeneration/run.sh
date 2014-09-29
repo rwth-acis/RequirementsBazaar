@@ -1,1 +1,1 @@
-java -classpath jooq-3.3.2.jar:jooq-meta-3.3.2.jar:jooq-codegen-3.3.2.jar:mysql-connector-java-5.1.31-bin.jar:. org.jooq.util.GenerationTool /reqbaz_generation_info.xml
+java -classpath ../../lib/jooq-3.4.2.jar:../../lib/jooq-meta-3.4.2.jar:../../lib/jooq-codegen-3.4.2.jar:../../lib/mysql-connector-java-5.1.33.jar:. org.jooq.util.GenerationTool /reqbaz_generation_info.xml

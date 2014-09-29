@@ -20,19 +20,6 @@
 
 package de.rwth.dbis.acis.bazaar.service;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.List;
-
-import com.google.gson.Gson;
-import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
-import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
-import org.jooq.SQLDialect;
-
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
-
 import i5.las2peer.api.Service;
 import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.Consumes;
@@ -47,6 +34,17 @@ import i5.las2peer.restMapper.annotations.Produces;
 import i5.las2peer.restMapper.annotations.QueryParam;
 import i5.las2peer.restMapper.annotations.Version;
 import i5.las2peer.security.UserAgent;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.List;
+
+import com.google.gson.Gson;
+
+import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 
 /**
  * 
@@ -95,8 +93,8 @@ public class BazaarService extends Service {
     }
 
     private void createConnection() throws Exception {
-            dbConnection = DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
-            dalFacade = new DALFacadeImpl(dbConnection,SQLDialect.MYSQL);
+            dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reqbaz", "root", "");
+            //dalFacade = new DALFacadeImpl(dbConnection,SQLDialect.MYSQL);
     }
 
     private void closeConnection() {
@@ -126,21 +124,23 @@ public class BazaarService extends Service {
 			@QueryParam(name = "per_page", defaultValue = "10") int perPage) {
 		// TODO: if the user is not logged in, return all the public projects.
 
-        String result = null;
+        String resultString = "hey";
+        
         Gson gson = new Gson();
         try {
             createConnection();
 
             List<Project> projects = dalFacade.listProjects(new PageInfo(page, perPage));
 
-            result = gson.toJson(projects);
+            resultString = gson.toJson(projects);
 
         } catch (Exception ex){
-            result = gson.toJson(ex.toString());
+            resultString = gson.toJson(ex.toString());
         } finally {
             closeConnection();
         }
-        return result;
+        
+        return resultString;
 
 	}
 

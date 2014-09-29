@@ -124,7 +124,7 @@ public interface DALFacade {
 
     /**
      * @param requirementId the identifier of the requirement should be returned
-     * @return the requirement identified by the given id and all of its assets: comments,attachements,followers,developers,creator
+     * @return the requirement identified by the given id and all of its assets: comments,attachments,followers,developers,creator
      */
     public RequirementEx getRequirementById(int requirementId) throws Exception;
 
@@ -142,7 +142,7 @@ public interface DALFacade {
     public void modifyRequirement(Requirement modifiedRequirement) throws Exception;
 
     /**
-     * This method deletes a requirement with its assets: All of its comments and attachements and connections to users, projects or components.
+     * This method deletes a requirement with its assets: All of its comments and attachments and connections to users, projects or components.
      * @param requirementId which identifies the requirement to delete.
      */
     public void deleteRequirementById(int requirementId) throws Exception;

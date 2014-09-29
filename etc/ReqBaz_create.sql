@@ -3,12 +3,12 @@
 -- Scope: [tables, references, sequences, views, procedures]
 -- Generated at Mon Jun 16 13:42:58 UTC 2014
 
-
+USE reqbaz;
 
 
 -- tables
--- Table Attachements
-CREATE TABLE Attachements (
+-- Table Attachments
+CREATE TABLE Attachments (
     Id int  NOT NULL AUTO_INCREMENT,
     creation_time timestamp  NOT NULL,
     Requirement_Id int  NOT NULL,
@@ -21,7 +21,7 @@ CREATE TABLE Attachements (
     subject varchar(255)  NOT NULL,
     object varchar(255)  NOT NULL,
     object_desc varchar(255)  NOT NULL,
-    CONSTRAINT Attachements_pk PRIMARY KEY (Id)
+    CONSTRAINT Attachments_pk PRIMARY KEY (Id)
 );
 
 -- Table Authorizations
@@ -102,13 +102,14 @@ CREATE TABLE Tags (
 -- Table Users
 CREATE TABLE Users (
     Id int  NOT NULL AUTO_INCREMENT,
-    frist_name varchar(150)  NOT NULL,
+    first_name varchar(150)  NOT NULL,
     last_name varchar(150)  NOT NULL,
     email varchar(255)  NOT NULL,
     admin tinyint(1)  NOT NULL,
     User_Id int  NOT NULL,
     user_name varchar(255)  NOT NULL,
-    openId_identifier varchar(300)  NOT NULL,
+    openId_iss varchar(300)  NOT NULL,
+    openId_sub varchar(300)  NOT NULL,
     CONSTRAINT Users_pk PRIMARY KEY (Id)
 );
 
@@ -126,15 +127,15 @@ CREATE TABLE Votes (
 
 
 -- foreign keys
--- Reference:  Attachement_Requirement (table: Attachements)
+-- Reference:  Attachment_Requirement (table: Attachments)
 
 
-ALTER TABLE Attachements ADD CONSTRAINT Attachement_Requirement FOREIGN KEY Attachement_Requirement (Requirement_Id)
+ALTER TABLE Attachments ADD CONSTRAINT Attachment_Requirement FOREIGN KEY Attachment_Requirement (Requirement_Id)
     REFERENCES Requirements (Id);
--- Reference:  Attachement_User (table: Attachements)
+-- Reference:  Attachment_User (table: Attachments)
 
 
-ALTER TABLE Attachements ADD CONSTRAINT Attachement_User FOREIGN KEY Attachement_User (User_Id)
+ALTER TABLE Attachments ADD CONSTRAINT Attachment_User FOREIGN KEY Attachment_User (User_Id)
     REFERENCES Users (Id);
 -- Reference:  Authorization_Project (table: Authorizations)
 
