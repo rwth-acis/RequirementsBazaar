@@ -127,7 +127,7 @@ public class BazaarService extends Service {
 			@QueryParam(name = "per_page", defaultValue = "10") int perPage) {
 		// TODO: if the user is not logged in, return all the public projects.
 
-        String resultString = "hey";
+        String resultJSON = "[]";
         
         Gson gson = new Gson();
         try {
@@ -135,16 +135,15 @@ public class BazaarService extends Service {
 
             List<Project> projects = dalFacade.listProjects(new PageInfo(page, perPage));
 
-            resultString = gson.toJson(projects);
+            resultJSON = gson.toJson(projects);
 
         } catch (Exception ex){
-            resultString = gson.toJson(ex.toString());
+            resultJSON = gson.toJson(ex.toString());
         } finally {
             closeConnection();
         }
         
-        return resultString;
-
+        return resultJSON;
 	}
 
 	/**
