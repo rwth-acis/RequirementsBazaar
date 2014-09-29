@@ -123,7 +123,7 @@ public class BazaarService extends Service {
 	@GET
 	@Path("projects")
 	public String getProjects(
-			@QueryParam(name = "page", defaultValue = "1") int page,
+			@QueryParam(name = "page", defaultValue = "0") int page,
 			@QueryParam(name = "per_page", defaultValue = "10") int perPage) {
 		// TODO: if the user is not logged in, return all the public projects.
 
