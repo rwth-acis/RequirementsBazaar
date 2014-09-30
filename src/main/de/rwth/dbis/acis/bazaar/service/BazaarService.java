@@ -33,6 +33,7 @@ import i5.las2peer.restMapper.annotations.PathParam;
 import i5.las2peer.restMapper.annotations.Produces;
 import i5.las2peer.restMapper.annotations.QueryParam;
 import i5.las2peer.restMapper.annotations.Version;
+import i5.las2peer.security.Agent;
 import i5.las2peer.security.UserAgent;
 
 import java.sql.Connection;
@@ -125,7 +126,15 @@ public class BazaarService extends Service {
 	public String getProjects(
 			@QueryParam(name = "page", defaultValue = "0") int page,
 			@QueryParam(name = "per_page", defaultValue = "10") int perPage) {
-		// TODO: if the user is not logged in, return all the public projects.
+		// if the user is not logged in, return all the public projects.
+		UserAgent agent = (UserAgent) getActiveAgent();
+		if (agent.getLoginName().equals("anonymous")) {
+			// return only public projects
+		} else {
+			// return public projects and the ones the user belongs to
+			long userId = agent.getId();
+
+		}
 
         String resultJSON = "[]";
         
