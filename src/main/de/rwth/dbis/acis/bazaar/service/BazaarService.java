@@ -224,7 +224,7 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components")
     public String getComponents(
             @PathParam("projectId") int projectId,
-            @QueryParam(name = "page", defaultValue = "1") int page,
+            @QueryParam(name = "page", defaultValue = "0") int page,
             @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
         // TODO: if the user is not logged in, return all the public projects.
         // Otherwise return all the user can see.
@@ -308,7 +308,7 @@ public class BazaarService extends Service {
 	@Path("projects/{projectId}/components/{componentId}/requirements")
 	@Produces("application/json")
 	public String getRequirements(@PathParam("projectId") int projectId,@PathParam("componentId") int componentId,
-			@QueryParam(name = "page", defaultValue = "1") int page,
+			@QueryParam(name = "page", defaultValue = "0") int page,
 			@QueryParam(name = "per_page", defaultValue = "10") int perPage) {
 		return "The requirements for project " + projectId + ".";
 	}
@@ -643,7 +643,7 @@ public class BazaarService extends Service {
     public String getComments(@PathParam("projectId") int projectId,
                                   @PathParam("componentId") int componentId,
                                   @PathParam("requirementId") int requirementId,
-                                  @QueryParam(name = "page", defaultValue = "1") int page,
+                                  @QueryParam(name = "page", defaultValue = "0") int page,
                                   @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
         return "The comments for requirement " + projectId + ".";
     }
@@ -762,7 +762,7 @@ public class BazaarService extends Service {
     public String getAttachments(@PathParam("projectId") int projectId,
                               @PathParam("componentId") int componentId,
                               @PathParam("requirementId") int requirementId,
-                              @QueryParam(name = "page", defaultValue = "1") int page,
+                              @QueryParam(name = "page", defaultValue = "0") int page,
                               @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
         return "The attachments for requirement " + projectId + ".";
     }
