@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Users extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord> {
 
-	private static final long serialVersionUID = -288222071;
+	private static final long serialVersionUID = -1211885883;
 
 	/**
 	 * The singleton instance of <code>reqbaz.users</code>
@@ -32,9 +32,9 @@ public class Users extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.serv
 	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord, java.lang.Integer> ID = createField("Id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
 
 	/**
-	 * The column <code>reqbaz.users.frist_name</code>.
+	 * The column <code>reqbaz.users.first_name</code>.
 	 */
-	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord, java.lang.String> FRIST_NAME = createField("frist_name", org.jooq.impl.SQLDataType.VARCHAR.length(150).nullable(false), this, "");
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord, java.lang.String> FIRST_NAME = createField("first_name", org.jooq.impl.SQLDataType.VARCHAR.length(150).nullable(false), this, "");
 
 	/**
 	 * The column <code>reqbaz.users.last_name</code>.
@@ -52,24 +52,14 @@ public class Users extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.serv
 	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord, java.lang.Byte> ADMIN = createField("admin", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "");
 
 	/**
-	 * The column <code>reqbaz.users.User_Id</code>.
+	 * The column <code>reqbaz.users.Las2peer_Id</code>.
 	 */
-	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord, java.lang.Integer> USER_ID = createField("User_Id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord, java.lang.Integer> LAS2PEER_ID = createField("Las2peer_Id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
 
 	/**
 	 * The column <code>reqbaz.users.user_name</code>.
 	 */
 	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord, java.lang.String> USER_NAME = createField("user_name", org.jooq.impl.SQLDataType.VARCHAR.length(255).nullable(false), this, "");
-
-	/**
-	 * The column <code>reqbaz.users.openId_iss</code>.
-	 */
-	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord, java.lang.String> OPENID_ISS = createField("openId_iss", org.jooq.impl.SQLDataType.VARCHAR.length(300).nullable(false), this, "");
-
-	/**
-	 * The column <code>reqbaz.users.openId_sub</code>.
-	 */
-	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord, java.lang.String> OPENID_SUB = createField("openId_sub", org.jooq.impl.SQLDataType.VARCHAR.length(300).nullable(false), this, "");
 
 	/**
 	 * Create a <code>reqbaz.users</code> table reference

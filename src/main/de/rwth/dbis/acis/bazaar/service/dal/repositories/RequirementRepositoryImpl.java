@@ -136,12 +136,10 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement,Requir
                 User.geBuilder(queryResult.getValues(creatorUser.EMAIL).get(0))
                         .id(queryResult.getValues(creatorUser.ID).get(0))
                         .admin(queryResult.getValues(creatorUser.ADMIN).get(0) != 0)
-                        .firstName(queryResult.getValues(creatorUser.FRIST_NAME).get(0))
+                        .firstName(queryResult.getValues(creatorUser.FIRST_NAME).get(0))
                         .lastName(queryResult.getValues(creatorUser.LAST_NAME).get(0))
-                        .userId(queryResult.getValues(creatorUser.USER_ID).get(0))
+                        .las2peerId(queryResult.getValues(creatorUser.LAS2PEER_ID).get(0))
                         .userName(queryResult.getValues(creatorUser.USER_NAME).get(0))
-                        .openId_ISS(queryResult.getValues(creatorUser.OPENID_ISS).get(0))
-                        .openId_SUB(queryResult.getValues(creatorUser.OPENID_SUB).get(0))
                         .build()
         );
 
@@ -150,12 +148,10 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement,Requir
                 User.geBuilder(queryResult.getValues(leadDeveloperUser.EMAIL).get(0))
                         .id(queryResult.getValues(leadDeveloperUser.ID).get(0))
                         .admin(queryResult.getValues(leadDeveloperUser.ADMIN).get(0) != 0)
-                        .firstName(queryResult.getValues(leadDeveloperUser.FRIST_NAME).get(0))
+                        .firstName(queryResult.getValues(leadDeveloperUser.FIRST_NAME).get(0))
                         .lastName(queryResult.getValues(leadDeveloperUser.LAST_NAME).get(0))
-                        .userId(queryResult.getValues(leadDeveloperUser.USER_ID).get(0))
+                        .las2peerId(queryResult.getValues(leadDeveloperUser.LAS2PEER_ID).get(0))
                         .userName(queryResult.getValues(leadDeveloperUser.USER_NAME).get(0))
-                        .openId_ISS(queryResult.getValues(leadDeveloperUser.OPENID_ISS).get(0))
-                        .openId_SUB(queryResult.getValues(leadDeveloperUser.OPENID_SUB).get(0))
                         .build()
         );
 
@@ -169,12 +165,10 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement,Requir
                     User.geBuilder(records.getValues(developerUsers.EMAIL).get(0))
                             .id(records.getValues(developerUsers.ID).get(0))
                             .admin(records.getValues(developerUsers.ADMIN).get(0) != 0)
-                            .firstName(records.getValues(developerUsers.FRIST_NAME).get(0))
+                            .firstName(records.getValues(developerUsers.FIRST_NAME).get(0))
                             .lastName(records.getValues(developerUsers.LAST_NAME).get(0))
-                            .userId(records.getValues(developerUsers.USER_ID).get(0))
+                            .las2peerId(records.getValues(developerUsers.LAS2PEER_ID).get(0))
                             .userName(records.getValues(developerUsers.USER_NAME).get(0))
-                            .openId_ISS(records.getValues(developerUsers.OPENID_ISS).get(0))
-                            .openId_SUB(records.getValues(developerUsers.OPENID_SUB).get(0))
                             .build()
             );
         }
@@ -190,12 +184,10 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement,Requir
                     User.geBuilder(records.getValues(followerUsers.EMAIL).get(0))
                             .id(records.getValues(followerUsers.ID).get(0))
                             .admin(records.getValues(followerUsers.ADMIN).get(0) != 0)
-                            .firstName(records.getValues(followerUsers.FRIST_NAME).get(0))
+                            .firstName(records.getValues(followerUsers.FIRST_NAME).get(0))
                             .lastName(records.getValues(followerUsers.LAST_NAME).get(0))
-                            .userId(records.getValues(followerUsers.USER_ID).get(0))
+                            .las2peerId(records.getValues(followerUsers.LAS2PEER_ID).get(0))
                             .userName(records.getValues(followerUsers.USER_NAME).get(0))
-                            .openId_ISS(records.getValues(followerUsers.OPENID_ISS).get(0))
-                            .openId_SUB(records.getValues(followerUsers.OPENID_SUB).get(0))
                             .build()
             );
         }
@@ -212,12 +204,10 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement,Requir
                     User.geBuilder(records.getValues(contributorUsers.EMAIL).get(0))
                             .id(records.getValues(contributorUsers.ID).get(0))
                             .admin(records.getValues(contributorUsers.ADMIN).get(0) != 0)
-                            .firstName(records.getValues(contributorUsers.FRIST_NAME).get(0))
+                            .firstName(records.getValues(contributorUsers.FIRST_NAME).get(0))
                             .lastName(records.getValues(contributorUsers.LAST_NAME).get(0))
-                            .userId(records.getValues(contributorUsers.USER_ID).get(0))
+                            .las2peerId(records.getValues(contributorUsers.LAS2PEER_ID).get(0))
                             .userName(records.getValues(contributorUsers.USER_NAME).get(0))
-                            .openId_ISS(records.getValues(contributorUsers.OPENID_ISS).get(0))
-                            .openId_SUB(records.getValues(contributorUsers.OPENID_SUB).get(0))
                             .build()
             );
         }

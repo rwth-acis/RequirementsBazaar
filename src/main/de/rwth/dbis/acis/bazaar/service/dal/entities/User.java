@@ -35,12 +35,10 @@ public class User extends EntityBase {
 
     private final boolean admin;
 
-    private final int UserId;
+    private final int Las2peerId;
 
     private final String userName;
 
-    private final String openId_ISS;
-    private final String openId_SUB;
 
     public User(Builder builder) {
         Id =                builder.id;
@@ -48,10 +46,9 @@ public class User extends EntityBase {
         this.lastName =     builder.lastName;
         this.eMail =        builder.eMail;
         this.admin =        builder.admin;
-        UserId =            builder.userId;
+        Las2peerId =        builder.las2peerId;
         this.userName = builder.userName;
-        this.openId_ISS = builder.openId_ISS;
-        this.openId_SUB = builder.openId_SUB;
+
     }
 
     public int getId() {
@@ -74,21 +71,15 @@ public class User extends EntityBase {
         return admin;
     }
 
-    public int getUserId() {
-        return UserId;
+    public int getLas2peerId() {
+        return Las2peerId;
     }
 
     public String getUserName() {
         return userName;
     }
 
-    public String getOpenId_ISS() {
-        return openId_ISS;
-    }
 
-    public String getOpenId_SUB() {
-        return openId_SUB;
-    }
 
     public static Builder geBuilder(String eMail){
         return new Builder(eMail);
@@ -104,10 +95,9 @@ public class User extends EntityBase {
         private String lastName;
         private String eMail;
         private boolean admin;
-        private int userId;
+        private int las2peerId;
         private String userName;
-        private String openId_ISS;
-        private String openId_SUB;
+
 
 
         public Builder(String eMail) {
@@ -139,23 +129,13 @@ public class User extends EntityBase {
             return this;
         }
 
-        public Builder userId(int userId) {
-            this.userId = userId;
+        public Builder las2peerId(int userId) {
+            this.las2peerId = userId;
             return this;
         }
 
         public Builder userName(String userName) {
             this.userName = userName;
-            return this;
-        }
-
-        public Builder openId_ISS(String openId_ISS) {
-            this.openId_ISS = openId_ISS;
-            return this;
-        }
-
-        public Builder openId_SUB(String openId_SUB) {
-            this.openId_SUB = openId_SUB;
             return this;
         }
 

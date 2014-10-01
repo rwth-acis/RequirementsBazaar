@@ -95,13 +95,13 @@ public class DALFacadeTest extends TestCase {
 
         User initUser = getInitUser();
         if (jooq.selectCount().from(USERS).where(USERS.ID.equal(initUser.getId())).fetchOne(f) != 1)
-            jooq.insertInto(USERS).set(new UsersRecord(initUser.getId(), initUser.getFirstName(), initUser.getLastName(), initUser.geteMail(), (byte) (initUser.getAdmin() ? 1 : 0), initUser.getUserId(), initUser.getUserName(), initUser.getOpenId_ISS(), initUser.getOpenId_SUB())).execute();
+            jooq.insertInto(USERS).set(new UsersRecord(initUser.getId(), initUser.getFirstName(), initUser.getLastName(), initUser.geteMail(), (byte) (initUser.getAdmin() ? 1 : 0), initUser.getLas2peerId(), initUser.getUserName())).execute();
         
         if (jooq.selectCount().from(USERS).where(USERS.ID.equal(2)).fetchOne(f) != 1)
-            jooq.insertInto(USERS).set(new UsersRecord(2, "Alma", "Barack", "test@test.hu", (byte) 1, 2222, "AlmBar","https://openid.las2peer.de" ,"oId_2222")).execute();
+            jooq.insertInto(USERS).set(new UsersRecord(2, "Alma", "Barack", "test@test.hu", (byte) 1, 2222, "AlmBar")).execute();
 
         if (jooq.selectCount().from(USERS).where(USERS.ID.equal(3)).fetchOne(f) != 1)
-            jooq.insertInto(USERS).set(new UsersRecord(3, "Citrom", "Datolya", "test@test.hu", (byte) 0, 3333, "CitrDat","https://openid.las2peer.de" ,"oId_3333")).execute();
+            jooq.insertInto(USERS).set(new UsersRecord(3, "Citrom", "Datolya", "test@test.hu", (byte) 0, 3333, "CitrDat")).execute();
 
         if (jooq.selectCount().from(Projects.PROJECTS).where(Projects.PROJECTS.ID.equal(1)).fetchOne(f) != 1)
             jooq.insertInto(Projects.PROJECTS).set(new ProjectsRecord(1, "Project1", "ProjDesc1", "-", 1)).execute();
@@ -158,15 +158,13 @@ public class DALFacadeTest extends TestCase {
                 .firstName("Elek")
                 .lastName("Test")
                 .userName("TestElek")
-                .openId_ISS("https://openid.las2peer.de")
-                .openId_SUB("oId_1111")
                 .admin(true)
-                .userId(1111)
+                .las2peerId(1111)
                 .build();
     }
 
     public void testCreateUser() throws Exception {
-        facade.createUser(User.geBuilder("unittest@test.hu").id(9).firstName("Max").lastName("Zimmermann").admin(false).userId(9999).userName("MaxZim").build());
+        facade.createUser(User.geBuilder("unittest@test.hu").id(9).firstName("Max").lastName("Zimmermann").admin(false).las2peerId(9999).userName("MaxZim").build());
 
         User user = facade.getUserById(9);
 
@@ -175,7 +173,7 @@ public class DALFacadeTest extends TestCase {
         assertEquals("Max", user.getFirstName());
         assertEquals("Zimmermann", user.getLastName());
         assertEquals(false, user.isAdmin());
-        assertEquals(9999, user.getUserId());
+        assertEquals(9999, user.getLas2peerId());
 
 
         //Clean
@@ -194,7 +192,7 @@ public class DALFacadeTest extends TestCase {
         assertEquals("Elek", user.getFirstName());
         assertEquals("Test", user.getLastName());
         assertEquals(true, user.isAdmin());
-        assertEquals(1111, user.getUserId());
+        assertEquals(1111, user.getLas2peerId());
     }
 
     public void testListProjects() throws Exception {

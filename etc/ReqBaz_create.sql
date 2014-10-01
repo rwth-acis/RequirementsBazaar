@@ -1,124 +1,122 @@
 -- Created by Vertabelo (http://vertabelo.com)
 -- Script type: create
 -- Scope: [tables, references, sequences, views, procedures]
--- Generated at Mon Jun 16 13:42:58 UTC 2014
+-- Generated at Wed Oct 01 11:41:54 UTC 2014
 
-USE reqbaz;
+
 
 
 -- tables
--- Table Attachments
+-- Table: Attachments
 CREATE TABLE Attachments (
-    Id int  NOT NULL AUTO_INCREMENT,
-    creation_time timestamp  NOT NULL,
-    Requirement_Id int  NOT NULL,
-    User_Id int  NOT NULL,
-    title varchar(255)  NOT NULL,
-    discriminator char(1)  NOT NULL,
-    file_path varchar(500)  NOT NULL,
-    description text  NOT NULL,
-    story text  NOT NULL,
-    subject varchar(255)  NOT NULL,
-    object varchar(255)  NOT NULL,
-    object_desc varchar(255)  NOT NULL,
+    Id int    NOT NULL  AUTO_INCREMENT,
+    creation_time timestamp    NOT NULL ,
+    Requirement_Id int    NOT NULL ,
+    User_Id int    NOT NULL ,
+    title varchar(255)    NOT NULL ,
+    discriminator char(1)    NOT NULL ,
+    file_path varchar(500)    NULL ,
+    description text    NULL ,
+    story text    NULL ,
+    subject varchar(255)    NULL ,
+    object varchar(255)    NULL ,
+    object_desc varchar(255)    NULL ,
     CONSTRAINT Attachments_pk PRIMARY KEY (Id)
 );
 
--- Table Authorizations
+-- Table: Authorizations
 CREATE TABLE Authorizations (
-    Id int  NOT NULL AUTO_INCREMENT,
-    access_right int  NOT NULL,
-    Project_Id int  NOT NULL,
-    User_Id int  NOT NULL,
+    Id int    NOT NULL  AUTO_INCREMENT,
+    access_right int    NOT NULL ,
+    Project_Id int    NOT NULL ,
+    User_Id int    NOT NULL ,
     CONSTRAINT Authorizations_pk PRIMARY KEY (Id)
 );
 
--- Table Comments
+-- Table: Comments
 CREATE TABLE Comments (
-    Id int  NOT NULL AUTO_INCREMENT,
-    message text  NOT NULL,
-    creation_time timestamp  NOT NULL,
-    Requirement_Id int  NOT NULL,
-    User_Id int  NOT NULL,
+    Id int    NOT NULL  AUTO_INCREMENT,
+    message text    NOT NULL ,
+    creation_time timestamp    NOT NULL ,
+    Requirement_Id int    NOT NULL ,
+    User_Id int    NOT NULL ,
     CONSTRAINT Comments_pk PRIMARY KEY (Id)
 );
 
--- Table Components
+-- Table: Components
 CREATE TABLE Components (
-    Id int  NOT NULL AUTO_INCREMENT,
-    name varchar(255)  NOT NULL,
-    description text  NOT NULL,
-    Project_Id int  NOT NULL,
-    Leader_Id int  NOT NULL,
+    Id int    NOT NULL  AUTO_INCREMENT,
+    name varchar(255)    NOT NULL ,
+    description text    NOT NULL ,
+    Project_Id int    NOT NULL ,
+    Leader_Id int    NOT NULL ,
     CONSTRAINT Components_pk PRIMARY KEY (Id)
 );
 
--- Table Developers
+-- Table: Developers
 CREATE TABLE Developers (
-    Id int  NOT NULL AUTO_INCREMENT,
-    Requirement_Id int  NOT NULL,
-    User_Id int  NOT NULL,
+    Id int    NOT NULL  AUTO_INCREMENT,
+    Requirement_Id int    NOT NULL ,
+    User_Id int    NOT NULL ,
     CONSTRAINT Developers_pk PRIMARY KEY (Id)
 );
 
--- Table Followers
+-- Table: Followers
 CREATE TABLE Followers (
-    Id int  NOT NULL AUTO_INCREMENT,
-    Requirement_Id int  NOT NULL,
-    User_Id int  NOT NULL,
+    Id int    NOT NULL  AUTO_INCREMENT,
+    Requirement_Id int    NOT NULL ,
+    User_Id int    NOT NULL ,
     CONSTRAINT Followers_pk PRIMARY KEY (Id)
 );
 
--- Table Projects
+-- Table: Projects
 CREATE TABLE Projects (
-    Id int  NOT NULL AUTO_INCREMENT,
-    name varchar(255)  NOT NULL,
-    description varchar(255)  NOT NULL,
-    visibility char(1)  NOT NULL,
-    Leader_Id int  NOT NULL,
+    Id int    NOT NULL  AUTO_INCREMENT,
+    name varchar(255)    NOT NULL ,
+    description varchar(255)    NOT NULL ,
+    visibility char(1)    NOT NULL ,
+    Leader_Id int    NOT NULL ,
     CONSTRAINT Projects_pk PRIMARY KEY (Id)
 );
 
--- Table Requirements
+-- Table: Requirements
 CREATE TABLE Requirements (
-    Id int  NOT NULL AUTO_INCREMENT,
-    title varchar(255)  NOT NULL,
-    description text  NOT NULL,
-    creation_time timestamp  NOT NULL,
-    Lead_developer_Id int  NOT NULL,
-    Creator_Id int  NOT NULL,
-    Project_Id int  NOT NULL,
+    Id int    NOT NULL  AUTO_INCREMENT,
+    title varchar(255)    NOT NULL ,
+    description text    NOT NULL ,
+    creation_time timestamp    NOT NULL ,
+    Lead_developer_Id int    NOT NULL ,
+    Creator_Id int    NOT NULL ,
+    Project_Id int    NOT NULL ,
     CONSTRAINT Requirements_pk PRIMARY KEY (Id)
 );
 
--- Table Tags
+-- Table: Tags
 CREATE TABLE Tags (
-    Id int  NOT NULL AUTO_INCREMENT,
-    Components_Id int  NOT NULL,
-    Requirements_Id int  NOT NULL,
+    Id int    NOT NULL  AUTO_INCREMENT,
+    Components_Id int    NOT NULL ,
+    Requirements_Id int    NOT NULL ,
     CONSTRAINT Tags_pk PRIMARY KEY (Id)
 );
 
--- Table Users
+-- Table: Users
 CREATE TABLE Users (
-    Id int  NOT NULL AUTO_INCREMENT,
-    first_name varchar(150)  NOT NULL,
-    last_name varchar(150)  NOT NULL,
-    email varchar(255)  NOT NULL,
-    admin tinyint(1)  NOT NULL,
-    User_Id int  NOT NULL,
-    user_name varchar(255)  NOT NULL,
-    openId_iss varchar(300)  NOT NULL,
-    openId_sub varchar(300)  NOT NULL,
+    Id int    NOT NULL  AUTO_INCREMENT,
+    first_name varchar(150)    NOT NULL ,
+    last_name varchar(150)    NOT NULL ,
+    email varchar(255)    NOT NULL ,
+    admin BOOLEAN    NOT NULL ,
+    Las2peer_Id int    NOT NULL ,
+    user_name varchar(255)    NOT NULL ,
     CONSTRAINT Users_pk PRIMARY KEY (Id)
 );
 
--- Table Votes
+-- Table: Votes
 CREATE TABLE Votes (
-    Id int  NOT NULL AUTO_INCREMENT,
-    is_upvote tinyint(1)  NOT NULL,
-    Requirement_Id int  NOT NULL,
-    User_Id int  NOT NULL,
+    Id int    NOT NULL  AUTO_INCREMENT,
+    is_upvote BOOLEAN    NOT NULL ,
+    Requirement_Id int    NOT NULL ,
+    User_Id int    NOT NULL ,
     CONSTRAINT Votes_pk PRIMARY KEY (Id)
 );
 
@@ -127,15 +125,15 @@ CREATE TABLE Votes (
 
 
 -- foreign keys
--- Reference:  Attachment_Requirement (table: Attachments)
+-- Reference:  Attachement_Requirement (table: Attachments)
 
 
-ALTER TABLE Attachments ADD CONSTRAINT Attachment_Requirement FOREIGN KEY Attachment_Requirement (Requirement_Id)
+ALTER TABLE Attachments ADD CONSTRAINT Attachement_Requirement FOREIGN KEY Attachement_Requirement (Requirement_Id)
     REFERENCES Requirements (Id);
--- Reference:  Attachment_User (table: Attachments)
+-- Reference:  Attachement_User (table: Attachments)
 
 
-ALTER TABLE Attachments ADD CONSTRAINT Attachment_User FOREIGN KEY Attachment_User (User_Id)
+ALTER TABLE Attachments ADD CONSTRAINT Attachement_User FOREIGN KEY Attachement_User (User_Id)
     REFERENCES Users (Id);
 -- Reference:  Authorization_Project (table: Authorizations)
 
@@ -231,4 +229,3 @@ ALTER TABLE Votes ADD CONSTRAINT Votes_User FOREIGN KEY Votes_User (User_Id)
 
 
 -- End of file.
-

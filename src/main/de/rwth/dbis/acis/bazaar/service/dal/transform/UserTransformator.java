@@ -41,14 +41,12 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
     public UsersRecord createRecord(User entity) {
         UsersRecord record = new UsersRecord();
         record.setId(entity.getId());
-        record.setUserId(entity.getUserId());
+        record.setLas2peerId(entity.getLas2peerId());
         record.setAdmin((byte)(entity.getAdmin()? 1:0));
         record.setEmail(entity.geteMail());
-        record.setFristName(entity.getFirstName());
+        record.setFirstName(entity.getFirstName());
         record.setLastName(entity.getLastName());
         record.setUserName(entity.getUserName());
-        record.setOpenidIss(entity.getOpenId_ISS());
-        record.setOpenidSub(entity.getOpenId_SUB());
         return record;
     }
 
@@ -57,11 +55,9 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
         return User.geBuilder(record.getEmail())
                 .id(record.getId())
                 .admin(record.getAdmin() !=0 )
-                .firstName(record.getFristName())
+                .firstName(record.getFirstName())
                 .lastName(record.getLastName())
-                .userId(record.getUserId())
-                .openId_ISS(record.getOpenidIss())
-                .openId_SUB(record.getOpenidSub())
+                .las2peerId(record.getLas2peerId())
                 .build();
     }
 
@@ -85,11 +81,9 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
         return new HashMap<Field, Object>() {{
             put(USERS.ADMIN,entity.getAdmin());
             put(USERS.EMAIL,entity.geteMail());
-            put(USERS.OPENID_ISS,entity.getOpenId_ISS());
-            put(USERS.OPENID_SUB,entity.getOpenId_SUB());
-            put(USERS.FRIST_NAME,entity.getFirstName());
+            put(USERS.FIRST_NAME,entity.getFirstName());
             put(USERS.LAST_NAME,entity.getLastName());
-            put(USERS.USER_ID,entity.getUserId());
+            put(USERS.LAS2PEER_ID,entity.getLas2peerId());
             put(USERS.USER_NAME,entity.getUserName());
         }};
     }
@@ -112,7 +106,7 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
         return Arrays.asList(
                 USERS.USER_NAME.likeIgnoreCase(likeExpression)
                 .or(USERS.EMAIL.likeIgnoreCase(likeExpression))
-                .or(USERS.FRIST_NAME.likeIgnoreCase(likeExpression))
+                .or(USERS.FIRST_NAME.likeIgnoreCase(likeExpression))
                 .or(USERS.LAST_NAME.likeIgnoreCase(likeExpression))
         );
     }
