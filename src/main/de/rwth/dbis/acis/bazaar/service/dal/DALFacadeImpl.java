@@ -51,21 +51,7 @@ public class DALFacadeImpl implements DALFacade {
     private VoteRepostitory voteRepostitory;
 
     public DALFacadeImpl(Connection connection, SQLDialect dialect) throws Exception {
-
         dslContext = DSL.using(connection, dialect);
-
-        attachmentRepository = new AttachmentRepositoryImpl(dslContext);
-        authorizationRepository = new AuthorizationRepositoryImpl(dslContext);
-        commentRepository = new CommentRepositoryImpl(dslContext);
-        componentRepository = new ComponentRepositoryImpl(dslContext);
-        developerRepository = new DeveloperRepositoryImpl(dslContext);
-        followerRepository = new FollowerRepositoryImpl(dslContext);
-        projectRepository = new ProjectRepositoryImpl(dslContext);
-        requirementRepository = new RequirementRepositoryImpl(dslContext);
-        tagRepository = new TagRepositoryImpl(dslContext);
-        userRepository = new UserRepositoryImpl(dslContext);
-        voteRepostitory = new VoteRepostitoryImpl(dslContext);
-
     }
 
     public DSLContext getDslContext() {
@@ -74,132 +60,157 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public void createUser(User user) {
+        userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
         userRepository.add(user);
     }
 
     @Override
     public void modifyUser(User modifiedUser) throws Exception {
+        userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
         userRepository.update(modifiedUser);
     }
 
     @Override
     public User getUserById(int userId) throws Exception {
+        userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
         return userRepository.findById(userId);
     }
 
     @Override
     public List<Project> listProjects(Pageable pageable) {
+        projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         return projectRepository.findAll(pageable);
     }
 
     @Override
     public List<Project> searchProjects(String searchTerm, Pageable pageable) throws Exception {
+        projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         return projectRepository.searchAll(searchTerm,pageable);
     }
 
     @Override
     public Project getProjectById(int projectId) throws Exception {
+        projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         return projectRepository.findById(projectId);
     }
 
     @Override
     public void createProject(Project project) {
+        projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         projectRepository.add(project);
     }
 
     @Override
     public void modifyProject(Project modifiedProject) throws Exception {
+        projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         projectRepository.update(modifiedProject);
     }
 
     @Override
     public List<Requirement> listRequirements(Pageable pageable) {
-
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         return requirementRepository.findAll(pageable);
     }
 
     @Override
     public List<Requirement> listRequirementsByProject(int projectId, Pageable pageable) {
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         return requirementRepository.findAllByProject(projectId, pageable);
     }
 
     @Override
     public List<Requirement> listRequirementsByComponent(int componentId, Pageable pageable) {
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         return requirementRepository.findAllByComponent(componentId,pageable);
     }
 
     @Override
     public List<Requirement> searchRequirements(String searchTerm, Pageable pageable) throws Exception {
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         return requirementRepository.searchAll(searchTerm,pageable);
     }
 
     @Override
     public RequirementEx getRequirementById(int requirementId) throws Exception {
-       return requirementRepository.findById(requirementId);
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        return requirementRepository.findById(requirementId);
     }
 
     @Override
     public void createRequirement(Requirement requirement) {
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         requirementRepository.add(requirement);
     }
 
     @Override
     public void modifyRequirement(Requirement modifiedRequirement) throws Exception {
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         requirementRepository.update(modifiedRequirement);
     }
 
     @Override
     public void deleteRequirementById(int requirementId) throws Exception {
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         requirementRepository.delete(requirementId);
     }
 
     @Override
     public List<Component> listComponentsByProjectId(int projectId, Pageable pageable) {
+        componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
         return componentRepository.findByProjectId(projectId,pageable);
     }
 
     @Override
     public void createComponent(Component component) {
+        componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
         componentRepository.add(component);
     }
 
     @Override
     public void modifyComponent(Component component) throws Exception {
+        componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
         componentRepository.update(component);
     }
 
     @Override
     public void deleteComponentById(int componentId) throws Exception {
+        componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
         componentRepository.delete(componentId);
     }
 
     @Override
     public void createAttachment(Attachment attachment) {
+        attachmentRepository = (attachmentRepository != null) ? attachmentRepository : new AttachmentRepositoryImpl(dslContext);
         attachmentRepository.add(attachment);
     }
 
     @Override
     public void deleteAttachmentById(int attachmentId) throws Exception {
+        attachmentRepository = (attachmentRepository != null) ? attachmentRepository : new AttachmentRepositoryImpl(dslContext);
         attachmentRepository.delete(attachmentId);
     }
 
     @Override
     public List<Comment> listCommentsByRequirementId(int requirementId, Pageable pageable) {
+        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
         return commentRepository.findAllByRequirementId(requirementId,pageable);
     }
 
     @Override
     public void createComment(Comment comment) {
+        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
         commentRepository.add(comment);
     }
 
     @Override
     public void deleteCommentById(int commentId) throws Exception {
+        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
         commentRepository.delete(commentId);
     }
 
     @Override
     public void follow(int userId, int requirementId) {
+        followerRepository = (followerRepository != null) ? followerRepository : new FollowerRepositoryImpl(dslContext);
         followerRepository.add(Follower.getBuilder()
                                 .requirementId(requirementId)
                                 .userId(userId)
@@ -209,11 +220,13 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public void unFollow(int userId, int requirementId) {
+        followerRepository = (followerRepository != null) ? followerRepository : new FollowerRepositoryImpl(dslContext);
         followerRepository.delete(userId,requirementId);
     }
 
     @Override
     public void wantToDevelop(int userId, int requirementId) {
+        developerRepository = (developerRepository != null) ? developerRepository : new DeveloperRepositoryImpl(dslContext);
         developerRepository.add(Developer.getBuilder()
                         .requirementId(requirementId)
                         .userId(userId)
@@ -223,11 +236,13 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public void notWantToDevelop(int userId, int requirementId) {
+        developerRepository = (developerRepository != null) ? developerRepository : new DeveloperRepositoryImpl(dslContext);
         developerRepository.delete(userId,requirementId);
     }
 
     @Override
     public void giveAuthorization(int userId, int projectId) {
+        authorizationRepository = (authorizationRepository != null) ? authorizationRepository : new AuthorizationRepositoryImpl(dslContext);
         authorizationRepository.add(Authorization.getBuilder()
                         .projectId(projectId)
                         .userId(userId)
@@ -237,16 +252,19 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public void removeAuthorization(int userId, int projectId) {
+        authorizationRepository = (authorizationRepository != null) ? authorizationRepository : new AuthorizationRepositoryImpl(dslContext);
         authorizationRepository.delete(userId,projectId);
     }
 
     @Override
     public boolean isAuthorized(int userId, int projectId) {
+        authorizationRepository = (authorizationRepository != null) ? authorizationRepository : new AuthorizationRepositoryImpl(dslContext);
         return authorizationRepository.isAuthorized(userId, projectId);
     }
 
     @Override
     public void addComponentTag(int requirementId, int componentId) {
+        tagRepository = (tagRepository != null) ? tagRepository : new TagRepositoryImpl(dslContext);
         tagRepository.add(Tag.getBuilder(componentId)
                         .requirementId(requirementId)
                         .build()
@@ -255,11 +273,13 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public void removeComponentTag(int requirementId, int componentId) {
+        tagRepository = (tagRepository != null) ? tagRepository : new TagRepositoryImpl(dslContext);
         tagRepository.delete(requirementId, componentId);
     }
 
     @Override
     public void vote(int userId, int requirementId, boolean isUpVote) {
+        voteRepostitory = (voteRepostitory != null) ? voteRepostitory : new VoteRepostitoryImpl(dslContext);
         voteRepostitory.add(Vote.getBuilder()
                         .requirementId(requirementId)
                         .userId(userId)
@@ -270,11 +290,13 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public void unVote(int userId, int requirementId) {
+        voteRepostitory = (voteRepostitory != null) ? voteRepostitory : new VoteRepostitoryImpl(dslContext);
         voteRepostitory.delete(userId,requirementId);
     }
 
     @Override
     public boolean hasUserVotedForRequirement(int userId, int requirementId) {
+        voteRepostitory = (voteRepostitory != null) ? voteRepostitory : new VoteRepostitoryImpl(dslContext);
         return voteRepostitory.hasUserVotedForRequirement(userId, requirementId);
     }
 }
