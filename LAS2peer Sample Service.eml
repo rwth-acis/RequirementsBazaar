@@ -17,9 +17,6 @@
 	<lib name="junit-4.11.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/junit-4.11.jar!/"/>
 	</lib>
-	<lib name="mysql-connector-java-5.1.31.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/mysql-connector-java-5.1.31.jar!/"/>
-	</lib>
 	<lib name="sqlite-jdbc-3.7.2.jar" scope="COMPILE">
 		<srcroot url="jar://$MODULE_DIR$/lib/sqlite-jdbc-3.7.2.jar!/"/>
 		<relative-module-src project-related="jar://$PROJECT_DIR$/lib/sqlite-jdbc-3.7.2.jar!/"/>
@@ -29,6 +26,10 @@
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/gson-2.3.jar!/"/>
 	</lib>
 	<lib name="jooq-3.4.2.jar" scope="COMPILE">
+		<srcroot url="file://C:/Users/koren/.m2/repository/org/jooq/jooq/3.4.2/jooq-3.4.2-sources.jar"/>
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jooq-3.4.2.jar!/"/>
+	</lib>
+	<lib name="mysql-connector-java-5.1.33.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/mysql-connector-java-5.1.33.jar!/"/>
 	</lib>
 </component>
