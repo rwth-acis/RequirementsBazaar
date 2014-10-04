@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 
 import java.util.ArrayList;
@@ -164,13 +165,18 @@ public class DALFacadeMockImpl implements DALFacade {
     }
 
     @Override
-    public List<Project> listProjects(Pageable pageable) {
+    public List<Project> listPublicProjects(Pageable pageable) {
         return projectList.subList(calcPaginationFrom(pageable),calcPaginationTo(pageable,projectList.size()));
 //        return Arrays.asList(
 //                Project.getBuilder("Proj1").description("Test project 1").id(1).visibility(Project.ProjectVisibility.PRIVATE).leaderId(1).build(),
 //                Project.getBuilder("Proj2").description("Test project 2 + SEARCHSTR").visibility(Project.ProjectVisibility.PRIVATE).leaderId(1).id(2).build(),
 //                Project.getBuilder("Proj3").description("Test project 3 + SEARCHSTR").visibility(Project.ProjectVisibility.PRIVATE).leaderId(1).id(2).build()
 //        );
+    }
+
+    @Override
+    public List<Project> listPublicAndAuthorizedProjects(PageInfo pageable, int userId) {
+        return null;
     }
 
     @Override

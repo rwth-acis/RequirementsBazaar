@@ -21,6 +21,10 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+
+import java.util.List;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -28,4 +32,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
  */
 public interface ProjectRepository extends Repository<Project>{
 
+    List<Project> findAllPublic(Pageable pageable);
+
+    List<Project> findAllPublicAndAuthorized(PageInfo pageable, int userId);
 }

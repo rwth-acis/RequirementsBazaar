@@ -107,7 +107,7 @@ public class DALFacadeTest extends TestCase {
             jooq.insertInto(Projects.PROJECTS).set(new ProjectsRecord(1, "Project1", "ProjDesc1", "-", 1)).execute();
 
         if (jooq.selectCount().from(Projects.PROJECTS).where(Projects.PROJECTS.ID.equal(2)).fetchOne(f) != 1)
-            jooq.insertInto(Projects.PROJECTS).set(new ProjectsRecord(2, "Project2", "ProjDesc2", "-", 1)).execute();
+            jooq.insertInto(Projects.PROJECTS).set(new ProjectsRecord(2, "Project2", "ProjDesc2", "+", 1)).execute();
 
         if (jooq.selectCount().from(Requirements.REQUIREMENTS).where(Requirements.REQUIREMENTS.ID.equal(1)).fetchOne(f) != 1)
             jooq.insertInto(Requirements.REQUIREMENTS).set(new RequirementsRecord(1, "Req1", "ReqDesc1", Timestamp.valueOf("2005-04-06 09:01:10"), 1, 1, 1)).execute();
@@ -195,19 +195,23 @@ public class DALFacadeTest extends TestCase {
         assertEquals(1111, user.getLas2peerId());
     }
 
-    public void testListProjects() throws Exception {
-        List<Project> projects = facade.listProjects(new PageInfo(0, 1));
+    public void testListPublicProjects() throws Exception {
+        List<Project> projects = facade.listPublicProjects(new PageInfo(0, 1));
 
         assertNotNull(projects);
         assertEquals(1,projects.size());
 
+        for (Project project : projects) {
+            assertEquals(Project.ProjectVisibility.PUBLIC,project.getVisibility());
+        }
+
         Project project = projects.get(0);
 
-        assertEquals(1, project.getId());
-        assertEquals("Project1",project.getName());
-        assertEquals("ProjDesc1",project.getDescription());
+        assertEquals(2, project.getId());
+        assertEquals("Project2",project.getName());
+        assertEquals("ProjDesc2",project.getDescription());
         assertEquals(1,project.getLeaderId());
-        assertEquals(Project.ProjectVisibility.PRIVATE, project.getVisibility());
+        assertEquals(Project.ProjectVisibility.PUBLIC, project.getVisibility());
     }
 
 
@@ -222,7 +226,7 @@ public class DALFacadeTest extends TestCase {
         assertEquals("Project2",project.getName());
         assertEquals("ProjDesc2",project.getDescription());
         assertEquals(1,project.getLeaderId());
-        assertEquals(Project.ProjectVisibility.PRIVATE, project.getVisibility());
+        assertEquals(Project.ProjectVisibility.PUBLIC, project.getVisibility());
 
         projects = facade.searchProjects("ProjD", new PageInfo(0, 100));
 

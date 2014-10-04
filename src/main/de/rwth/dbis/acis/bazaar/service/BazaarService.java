@@ -51,11 +51,11 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 
 /**
- * 
+ *
  * Requirements Bazaar LAS2peer Service
- * 
+ *
  * This is the main service class of the Requirements Bazaar
- * 
+ *
  * @author István Koren
  *
  */
@@ -76,140 +76,139 @@ public class BazaarService extends Service {
     private DALFacade dalFacade;
     private Connection dbConnection;
 
-	/**
-	 * This method is needed for every RESTful application in LAS2peer.
-	 * 
-	 * @return the mapping to the REST interface.
-	 */
-	public String getRESTMapping() {
-		String result = "";
-		try {
-			result = RESTMapper.getMethodsAsXML(this.getClass());
-		} catch (Exception e) {
+    /**
+     * This method is needed for every RESTful application in LAS2peer.
+     *
+     * @return the mapping to the REST interface.
+     */
+    public String getRESTMapping() {
+        String result = "";
+        try {
+            result = RESTMapper.getMethodsAsXML(this.getClass());
+        } catch (Exception e) {
 
-			e.printStackTrace();
-		}
-		return result;
-	}
+            e.printStackTrace();
+        }
+        return result;
+    }
 
     public BazaarService() throws Exception {
         Class.forName("com.mysql.jdbc.Driver").newInstance();
     }
 
     private void createConnection() throws Exception {
-            dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reqbaz", "root", "");
-            dalFacade = new DALFacadeImpl(dbConnection, SQLDialect.MYSQL);
+        dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reqbaz", "root", "");
+        dalFacade = new DALFacadeImpl(dbConnection, SQLDialect.MYSQL);
     }
 
     private void closeConnection() {
         if (dbConnection != null) {
-                try {
-                    dbConnection.close();
-                    System.out.println("Database connection closed!");
-                } catch (SQLException ignore) {
-                    System.out.println("Could not close db connection!");
-                }
+            try {
+                dbConnection.close();
+                System.out.println("Database connection closed!");
+            } catch (SQLException ignore) {
+                System.out.println("Could not close db connection!");
             }
+        }
     }
 
-	/**********************************
-	 * PROJECTS
-	 **********************************/
+    /**********************************
+     * PROJECTS
+     **********************************/
 
-	/**
-	 * This method returns the list of projects on the server.
-	 * 
-	 * @return a list of projects.
-	 */
-	@GET
-	@Path("projects")
-	public String getProjects(
-			@QueryParam(name = "page", defaultValue = "0") int page,
-			@QueryParam(name = "per_page", defaultValue = "10") int perPage) {
-		// if the user is not logged in, return all the public projects.
-		UserAgent agent = (UserAgent) getActiveAgent();
-		if (agent.getLoginName().equals("anonymous")) {
-			// return only public projects
-		} else {
-			// return public projects and the ones the user belongs to
-			long userId = agent.getId();
-
-		}
+    /**
+     * This method returns the list of projects on the server.
+     *
+     * @return a list of projects.
+     */
+    @GET
+    @Path("projects")
+    public String getProjects(
+            @QueryParam(name = "page", defaultValue = "0") int page,
+            @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
+        // if the user is not logged in, return all the public projects.
+        UserAgent agent = (UserAgent) getActiveAgent();
 
         String resultJSON = "[]";
-        
+
         Gson gson = new Gson();
         try {
             createConnection();
+            List<Project> projects = null;
+            PageInfo pageInfo = new PageInfo(page, perPage);
+            if (agent.getLoginName().equals("anonymous")) {
+                projects = dalFacade.listPublicProjects(pageInfo);
+            } else {
+                // return public projects and the ones the user belongs to
+                long userId = agent.getId();
+                projects = dalFacade.listPublicAndAuthorizedProjects(pageInfo, (int) userId);
+            }
 
-            List<Project> projects = dalFacade.listProjects(new PageInfo(page, perPage));
-
-            resultJSON = gson.toJson(projects);
-
+            resultJSON = gson.toJson(projects);// return only public projects
         } catch (Exception ex){
             resultJSON = gson.toJson(ex.toString());
         } finally {
             closeConnection();
         }
-        
+
         return resultJSON;
-	}
+    }
 
-	/**
-	 * This method allows to create a new project.
-	 * 
-	 * @return
-	 */
-	@POST
-	@Path("projects")
-	@Consumes("application/json")
-	@Produces("application/json")
-	public String createProject(@ContentParam String project) {
-		long userId = ((UserAgent) getActiveAgent()).getId();
-		// TODO: check whether the current user may create a new project
-		// TODO: check whether all required parameters are entered
+    /**
+     * This method allows to create a new project.
+     *
+     * @return
+     */
+    @POST
+    @Path("projects")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public String createProject(@ContentParam String project) {
+        long userId = ((UserAgent) getActiveAgent()).getId();
+        // TODO: check whether the current user may create a new project
+        // TODO: check whether all required parameters are entered
 
-		return ("{success=false}");
-	}
+        return ("{success=false}");
+    }
 
-	/**
-	 * This method allows to retrieve a certain project.
-	 * 
-	 * @param projectId
-	 *            the id of the project to retrieve
-	 * @return the details of a certain project.
-	 */
-	@GET
-	@Path("projects/{projectId}")
-	@Produces("application/json")
-	public String getProject(@PathParam("projectId") int projectId) {
-		// TODO: check whether the current user may request this project
-		return "{}";
-	}
+    /**
+     * This method allows to retrieve a certain project.
+     *
+     * @param projectId
+     *            the id of the project to retrieve
+     * @return the details of a certain project.
+     */
+    @GET
+    @Path("projects/{projectId}")
+    @Produces("application/json")
+    public String getProject(@PathParam("projectId") int projectId) {
+        // TODO: check whether the current user may request this project
+        return "{}";
+    }
 
-	/**
-	 * Allows to update a certain project.
-	 * 
-	 * @param projectId
-	 *            the id of the project to update.
-	 * @return a JSON string containing whether the operation was successful or
-	 *         not.
-	 */
-	@PUT
-	@Path("projects/{projectId}")
-	@Produces("application/json")
-	public String updateProject(@PathParam("projectId") int projectId) {
-		// TODO: check if user can change this project
-		return "{success=false}";
-	}
+    /**
+     * Allows to update a certain project.
+     *
+     * @param projectId
+     *            the id of the project to update.
+     * @return a JSON string containing whether the operation was successful or
+     *         not.
+     */
+    @PUT
+    @Path("projects/{projectId}")
+    @Produces("application/json")
+    public String updateProject(@PathParam("projectId") int projectId) {
+        // TODO: check if user can change this project
+        return "{success=false}";
+    }
 
-	@DELETE
-	@Path("projects/{projectId}")
-	@Produces("application/json")
-	public String deleteProject(@PathParam("projectId") int projectId) {
-		// TODO: check if user can delete this project
-		return "{success=false}";
-	}
+    @DELETE
+    @Path("projects/{projectId}")
+    @Produces("application/json")
+    public String deleteProject(@PathParam("projectId") int projectId) {
+        // TODO: check if user can delete this project
+        return "{success=false}";
+    }
 
     /**********************************
      * COMPONENTS
@@ -291,105 +290,105 @@ public class BazaarService extends Service {
         return "{success=false}";
     }
 
-	/**********************************
-	 * REQUIREMENTS
-	 **********************************/
+    /**********************************
+     * REQUIREMENTS
+     **********************************/
 
-	/**
-	 * This method returns the list of requirements for a specific project and component.
-	 * 
-	 * @param projectId
-	 *            the ID of the project to retrieve requirements for.
+    /**
+     * This method returns the list of requirements for a specific project and component.
+     *
+     * @param projectId
+     *            the ID of the project to retrieve requirements for.
      * @param componentId
      *            the id of the component under a given project
-	 * @return a list of requirements
-	 */
-	@GET
-	@Path("projects/{projectId}/components/{componentId}/requirements")
-	@Produces("application/json")
-	public String getRequirements(@PathParam("projectId") int projectId,@PathParam("componentId") int componentId,
-			@QueryParam(name = "page", defaultValue = "0") int page,
-			@QueryParam(name = "per_page", defaultValue = "10") int perPage) {
-		return "The requirements for project " + projectId + ".";
-	}
+     * @return a list of requirements
+     */
+    @GET
+    @Path("projects/{projectId}/components/{componentId}/requirements")
+    @Produces("application/json")
+    public String getRequirements(@PathParam("projectId") int projectId,@PathParam("componentId") int componentId,
+                                  @QueryParam(name = "page", defaultValue = "0") int page,
+                                  @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
+        return "The requirements for project " + projectId + ".";
+    }
 
-	/**
-	 * This method allows to create a new requirement.
-	 * 
-	 * @param projectId
-	 *            the ID of the project to create the requirement in.
+    /**
+     * This method allows to create a new requirement.
+     *
+     * @param projectId
+     *            the ID of the project to create the requirement in.
      * @param componentId
      *            the id of the component under a given project
-	 * @return
+     * @return
      *            true if the creation was successful, otherwise false
-	 */
-	@POST
-	@Path("projects/{projectId}/components/{componentId}/requirements")
-	@Consumes("application/json")
-	@Produces("application/json")
-	public String createRequirement(@PathParam("projectId") int projectId,@PathParam("componentId") int componentId,
-			@ContentParam String requirement) {
-		long userId = ((UserAgent) getActiveAgent()).getId();
-		// TODO: check whether the current user may create a new requirement
-		// TODO: check whether all required parameters are entered
+     */
+    @POST
+    @Path("projects/{projectId}/components/{componentId}/requirements")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public String createRequirement(@PathParam("projectId") int projectId,@PathParam("componentId") int componentId,
+                                    @ContentParam String requirement) {
+        long userId = ((UserAgent) getActiveAgent()).getId();
+        // TODO: check whether the current user may create a new requirement
+        // TODO: check whether all required parameters are entered
 
-		return ("{success=false}");
-	}
+        return ("{success=false}");
+    }
 
-	/**
-	 * This method returns a specific requirement within a project.
-	 * 
-	 * @param projectId
-	 *            the ID of the project of the requirement.
+    /**
+     * This method returns a specific requirement within a project.
+     *
+     * @param projectId
+     *            the ID of the project of the requirement.
      * @param componentId
      *            the id of the component under a given project
-	 * @param requirementId
-	 *            the ID of the requirement to retrieve.
-	 * @return a specific requirement.
-	 */
-	@GET
-	@Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
-	public String getRequirement(@PathParam("projectId") int projectId,@PathParam("componentId") int componentId,
-			@PathParam("requirementId") int requirementId) {
-		return "[]";
-	}
+     * @param requirementId
+     *            the ID of the requirement to retrieve.
+     * @return a specific requirement.
+     */
+    @GET
+    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
+    public String getRequirement(@PathParam("projectId") int projectId,@PathParam("componentId") int componentId,
+                                 @PathParam("requirementId") int requirementId) {
+        return "[]";
+    }
 
-	/**
-	 * This method updates a specific requirement within a project.
-	 * 
-	 * @param projectId
-	 *            the ID of the project of the requirement.
+    /**
+     * This method updates a specific requirement within a project.
+     *
+     * @param projectId
+     *            the ID of the project of the requirement.
      * @param componentId
      *            the id of the component under a given project
-	 * @param requirementId
-	 *            the ID of the requirement to update.
-	 * @return the updated requirement.
-	 */
-	@PUT
-	@Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
-	public String updateRequirement(@PathParam("projectId") int projectId,@PathParam("componentId") int componentId,
-			@PathParam("requirementId") int requirementId) {
-		return "[]";
-	}
+     * @param requirementId
+     *            the ID of the requirement to update.
+     * @return the updated requirement.
+     */
+    @PUT
+    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
+    public String updateRequirement(@PathParam("projectId") int projectId,@PathParam("componentId") int componentId,
+                                    @PathParam("requirementId") int requirementId) {
+        return "[]";
+    }
 
-	/**
-	 * This method deletes a specific requirement within a project.
-	 * 
-	 * @param projectId
-	 *            the ID of the project of the requirement.
+    /**
+     * This method deletes a specific requirement within a project.
+     *
+     * @param projectId
+     *            the ID of the project of the requirement.
      * @param componentId
      *            the id of the component under a given project
-	 * @param requirementId
-	 *            the ID of the requirement to delete.
-	 * @return the updated requirement.
-	 */
-	@DELETE
-	@Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
-	public String deleteRequirement(@PathParam("projectId") int projectId,@PathParam("componentId") int componentId,
-			@PathParam("requirementId") int requirementId) {
-		// TODO: check if the user may delete this requirement.
-		return "[]";
-	}
+     * @param requirementId
+     *            the ID of the requirement to delete.
+     * @return the updated requirement.
+     */
+    @DELETE
+    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
+    public String deleteRequirement(@PathParam("projectId") int projectId,@PathParam("componentId") int componentId,
+                                    @PathParam("requirementId") int requirementId) {
+        // TODO: check if the user may delete this requirement.
+        return "[]";
+    }
 
 
     /**
@@ -406,8 +405,8 @@ public class BazaarService extends Service {
     @POST
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/lead_developer")
     public String setLeadDeveloper(@PathParam("projectId") int projectId,
-                                @PathParam("componentId") int componentId,
-                                @PathParam("requirementId") int requirementId) {
+                                   @PathParam("componentId") int componentId,
+                                   @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
@@ -431,8 +430,8 @@ public class BazaarService extends Service {
     @Consumes("application/json")
     @Produces("application/json")
     public String removeLeadDeveloper(@PathParam("projectId") int projectId,
-                                   @PathParam("componentId") int componentId,
-                                   @PathParam("requirementId") int requirementId) {
+                                      @PathParam("componentId") int componentId,
+                                      @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
@@ -473,8 +472,8 @@ public class BazaarService extends Service {
     @POST
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/developers")
     public String addUserToDevelopers(@PathParam("projectId") int projectId,
-                                   @PathParam("componentId") int componentId,
-                                   @PathParam("requirementId") int requirementId) {
+                                      @PathParam("componentId") int componentId,
+                                      @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
@@ -498,8 +497,8 @@ public class BazaarService extends Service {
     @Consumes("application/json")
     @Produces("application/json")
     public String removeUserFromDevelopers(@PathParam("projectId") int projectId,
-                                      @PathParam("componentId") int componentId,
-                                      @PathParam("requirementId") int requirementId) {
+                                           @PathParam("componentId") int componentId,
+                                           @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
@@ -521,8 +520,8 @@ public class BazaarService extends Service {
     @GET
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/followers")
     public String getFollowers(@PathParam("projectId") int projectId,
-                                @PathParam("componentId") int componentId,
-                                @PathParam("requirementId") int requirementId) {
+                               @PathParam("componentId") int componentId,
+                               @PathParam("requirementId") int requirementId) {
         return "[]";
     }
 
@@ -540,8 +539,8 @@ public class BazaarService extends Service {
     @POST
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/followers")
     public String addUserToFollowers(@PathParam("projectId") int projectId,
-                                      @PathParam("componentId") int componentId,
-                                      @PathParam("requirementId") int requirementId) {
+                                     @PathParam("componentId") int componentId,
+                                     @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
@@ -565,8 +564,8 @@ public class BazaarService extends Service {
     @Consumes("application/json")
     @Produces("application/json")
     public String removeUserFromFollowers(@PathParam("projectId") int projectId,
-                                           @PathParam("componentId") int componentId,
-                                           @PathParam("requirementId") int requirementId) {
+                                          @PathParam("componentId") int componentId,
+                                          @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
@@ -590,9 +589,9 @@ public class BazaarService extends Service {
     @Produces("application/json")
     @Consumes("application/json")
     public String addVote(@PathParam("projectId") int projectId,
-                                  @PathParam("componentId") int componentId,
-                                  @PathParam("requirementId") int requirementId,
-                                  @QueryParam(name = "direction", defaultValue = "up") String direction) {
+                          @PathParam("componentId") int componentId,
+                          @PathParam("requirementId") int requirementId,
+                          @QueryParam(name = "direction", defaultValue = "up") String direction) {
         return "The requirements for project " + projectId + ".";
     }
 
@@ -641,10 +640,10 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments")
     @Produces("application/json")
     public String getComments(@PathParam("projectId") int projectId,
-                                  @PathParam("componentId") int componentId,
-                                  @PathParam("requirementId") int requirementId,
-                                  @QueryParam(name = "page", defaultValue = "0") int page,
-                                  @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
+                              @PathParam("componentId") int componentId,
+                              @PathParam("requirementId") int requirementId,
+                              @QueryParam(name = "page", defaultValue = "0") int page,
+                              @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
         return "The comments for requirement " + projectId + ".";
     }
 
@@ -665,9 +664,9 @@ public class BazaarService extends Service {
     @Consumes("application/json")
     @Produces("application/json")
     public String createComment(@PathParam("projectId") int projectId,
-                                    @PathParam("componentId") int componentId,
-                                    @PathParam("requirementId") int requirementId,
-                                    @ContentParam String comment) {
+                                @PathParam("componentId") int componentId,
+                                @PathParam("requirementId") int requirementId,
+                                @ContentParam String comment) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
@@ -691,9 +690,9 @@ public class BazaarService extends Service {
     @GET
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments/{commentId}")
     public String getComment(@PathParam("projectId") int projectId,
-                                 @PathParam("componentId") int componentId,
-                                 @PathParam("requirementId") int requirementId,
-                                 @PathParam("commentId") int commentId) {
+                             @PathParam("componentId") int componentId,
+                             @PathParam("requirementId") int requirementId,
+                             @PathParam("commentId") int commentId) {
         return "[]";
     }
 
@@ -760,10 +759,10 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments")
     @Produces("application/json")
     public String getAttachments(@PathParam("projectId") int projectId,
-                              @PathParam("componentId") int componentId,
-                              @PathParam("requirementId") int requirementId,
-                              @QueryParam(name = "page", defaultValue = "0") int page,
-                              @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
+                                 @PathParam("componentId") int componentId,
+                                 @PathParam("requirementId") int requirementId,
+                                 @QueryParam(name = "page", defaultValue = "0") int page,
+                                 @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
         return "The attachments for requirement " + projectId + ".";
     }
 
@@ -784,9 +783,9 @@ public class BazaarService extends Service {
     @Consumes("application/json")
     @Produces("application/json")
     public String createAttachment(@PathParam("projectId") int projectId,
-                                @PathParam("componentId") int componentId,
-                                @PathParam("requirementId") int requirementId,
-                                @ContentParam String attachment) {
+                                   @PathParam("componentId") int componentId,
+                                   @PathParam("requirementId") int requirementId,
+                                   @ContentParam String attachment) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
@@ -810,9 +809,9 @@ public class BazaarService extends Service {
     @GET
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments/{attachmentId}")
     public String getAttachment(@PathParam("projectId") int projectId,
-                             @PathParam("componentId") int componentId,
-                             @PathParam("requirementId") int requirementId,
-                             @PathParam("attachmentId") int attachmentId) {
+                                @PathParam("componentId") int componentId,
+                                @PathParam("requirementId") int requirementId,
+                                @PathParam("attachmentId") int attachmentId) {
         return "[]";
     }
 
@@ -832,9 +831,9 @@ public class BazaarService extends Service {
     @PUT
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments/{attachmentId}")
     public String updateAttachment(@PathParam("projectId") int projectId,
-                                @PathParam("componentId") int componentId,
-                                @PathParam("requirementId") int requirementId,
-                                @PathParam("attachmentId") int attachmentId) {
+                                   @PathParam("componentId") int componentId,
+                                   @PathParam("requirementId") int requirementId,
+                                   @PathParam("attachmentId") int attachmentId) {
         return "[]";
     }
 
@@ -854,29 +853,29 @@ public class BazaarService extends Service {
     @DELETE
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments/{attachmentId}")
     public String deleteAttachment(@PathParam("projectId") int projectId,
-                                    @PathParam("componentId") int componentId,
-                                    @PathParam("requirementId") int requirementId,
-                                    @PathParam("attachmentId") int attachmentId) {
+                                   @PathParam("componentId") int componentId,
+                                   @PathParam("requirementId") int requirementId,
+                                   @PathParam("attachmentId") int attachmentId) {
         // TODO: check if the user may delete this requirement.
         return "[]";
     }
 
-	/**********************************
-	 * USERS
-	 **********************************/
+    /**********************************
+     * USERS
+     **********************************/
 
-	/**
-	 * Retrieves a list of all users.
-	 * 
-	 * @return a JSON encoded list of all users.
-	 */
-	@GET
-	@Path("users")
-	@Produces("application/json")
-	public String getUsers() {
-		// TODO: check if the admin user wants to retrieve all users.
-		return "[]";
-	}
+    /**
+     * Retrieves a list of all users.
+     *
+     * @return a JSON encoded list of all users.
+     */
+    @GET
+    @Path("users")
+    @Produces("application/json")
+    public String getUsers() {
+        // TODO: check if the admin user wants to retrieve all users.
+        return "[]";
+    }
 
     /**
      * Allows to update a certain project.

@@ -21,15 +21,17 @@
 package de.rwth.dbis.acis.bazaar.service.dal;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.repositories.*;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 
 import java.sql.Connection;
+import java.sql.Timestamp;
 import java.util.List;
-
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/14/2014
@@ -77,9 +79,15 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public List<Project> listProjects(Pageable pageable) {
+    public List<Project> listPublicProjects(Pageable pageable) {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
-        return projectRepository.findAll(pageable);
+        return projectRepository.findAllPublic(pageable);
+    }
+
+    @Override
+    public List<Project> listPublicAndAuthorizedProjects(PageInfo pageable, int userId) {
+        projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
+        return projectRepository.findAllPublicAndAuthorized(pageable, userId);
     }
 
     @Override

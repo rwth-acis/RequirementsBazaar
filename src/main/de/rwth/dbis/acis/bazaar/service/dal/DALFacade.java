@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 
 import java.util.List;
@@ -60,9 +61,17 @@ public interface DALFacade {
     /**
      *
      * @param pageable pagination information
-     * @return the paginated list of the projects, just only the necessary fields will be filled out.
+     * @return the paginated list of the public projects, just only the necessary fields will be filled out.
      */
-    public List<Project> listProjects(Pageable pageable);
+    public List<Project> listPublicProjects(Pageable pageable);
+
+
+    /**
+     * @param pageable pagination information
+     * @param userId the identifier of the user, whose projects should be returned as well
+     * @return all the public projects and all the projects, which the user is authorized to see
+     */
+    public List<Project> listPublicAndAuthorizedProjects(PageInfo pageable, int userId);
 
     /**
      * @param searchTerm the text, which is used to search. Search is case insensitive.
@@ -321,5 +330,7 @@ public interface DALFacade {
      * @return true if the user has voted for the requirement, false otherwise
      */
     public boolean hasUserVotedForRequirement(int userId, int requirementId);
+
+
     //endregion
 }
