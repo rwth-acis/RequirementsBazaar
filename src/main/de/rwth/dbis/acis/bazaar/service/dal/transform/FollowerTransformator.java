@@ -72,15 +72,15 @@ public class FollowerTransformator implements Transformator<de.rwth.dbis.acis.ba
 
     @Override
     public Map<Field, Object> getUpdateMap(final Follower entity) {
-        return new HashMap<Field, Object>(){{
-            put(FOLLOWERS.REQUIREMENT_ID,entity.getRequirementId());
-            put(FOLLOWERS.USER_ID,entity.getUserId());
+        return new HashMap<Field, Object>() {{
+            put(FOLLOWERS.REQUIREMENT_ID, entity.getRequirementId());
+            put(FOLLOWERS.USER_ID, entity.getUserId());
         }};
     }
 
     @Override
     public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
-        switch (sortDirection){
+        switch (sortDirection) {
             case DEFAULT:
                 return Arrays.asList(FOLLOWERS.ID.asc());
             case ASC:

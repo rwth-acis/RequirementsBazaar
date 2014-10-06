@@ -31,10 +31,10 @@ public class Vote extends EntityBase {
     private final int UserId;
 
     public Vote(Builder builder) {
-        Id =            builder.id;
+        Id = builder.id;
         this.isUpvote = builder.isUpvote;
         RequirementId = builder.requirementId;
-        UserId =        builder.userId;
+        UserId = builder.userId;
     }
 
     public int getId() {
@@ -53,7 +53,7 @@ public class Vote extends EntityBase {
         return UserId;
     }
 
-    public static Builder getBuilder(){
+    public static Builder getBuilder() {
         return new Builder();
     }
 

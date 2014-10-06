@@ -18,22 +18,31 @@
  * /
  */
 
-package de.rwth.dbis.acis.bazaar.service.dal.helpers;
+package de.rwth.dbis.acis.bazaar.service.exception;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/12/2014
+ * @since 10/6/2014
  */
-public interface Pageable {
-    int getOffset();
+public enum ExceptionLocation {
+    REPOSITORY("01", "Repository"),
+    TRANSFORMATOR("02", "Transformators"),
+    DALFACADE("03", "DAL facade implementation"),
+    BAZAARSERVICE("04", "Bazaar service");
 
-    int getPageNumber();
+    private final String code;
+    private final String message;
 
-    int getPageSize();
+    public String asCode() {
+        return code;
+    }
 
-    SortDirection getSortDirection();
+    public String getMessage() {
+        return message;
+    }
 
-    public enum SortDirection {
-        DEFAULT, ASC, DESC
+    private ExceptionLocation(String code, String message) {
+        this.code = code;
+        this.message = message;
     }
 }

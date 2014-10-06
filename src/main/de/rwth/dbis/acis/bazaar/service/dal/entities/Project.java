@@ -46,6 +46,7 @@ public class Project extends EntityBase {
 
     /**
      * Private constructor, should be called from its builder only.
+     *
      * @param builder
      */
     private Project(Builder builder) {
@@ -64,6 +65,7 @@ public class Project extends EntityBase {
 
     /**
      * Builder to easily build Component objects
+     *
      * @param title Title field will be initialized using the passed value
      * @return a builder with title returned
      */
@@ -111,6 +113,7 @@ public class Project extends EntityBase {
 
         /**
          * Call this to create a Project object with the values previously set in the builder.
+         *
          * @return initialized Project object
          */
         public Project build() {
@@ -142,7 +145,7 @@ public class Project extends EntityBase {
     }
 
     public enum ProjectVisibility {
-        PUBLIC("+"),PRIVATE("-");
+        PUBLIC("+"), PRIVATE("-");
 
         public String asChar() {
             return asChar;
@@ -154,8 +157,7 @@ public class Project extends EntityBase {
             this.asChar = visibility;
         }
 
-        public static ProjectVisibility getVisibility(final String visibilityChar)
-        {
+        public static ProjectVisibility getVisibility(final String visibilityChar) {
             for (ProjectVisibility vis : ProjectVisibility.values())
                 if (vis.asChar.equals(visibilityChar))
                     return vis;

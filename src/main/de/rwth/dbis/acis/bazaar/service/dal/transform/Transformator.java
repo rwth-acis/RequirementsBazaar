@@ -27,10 +27,10 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/9/2014
  * @param <E> type parameter for the entity
  * @param <R> type parameter for the record
+ * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
+ * @since 6/9/2014
  */
 public interface Transformator<E, R extends Record> {
     /**
@@ -56,7 +56,7 @@ public interface Transformator<E, R extends Record> {
     /**
      * @return identifier field for the table
      */
-    TableField<R,Integer> getTableId();
+    TableField<R, Integer> getTableId();
 
     /**
      * @return the class object of the record
@@ -67,12 +67,12 @@ public interface Transformator<E, R extends Record> {
      * @param entity object, which holds the prototype values for the database update
      * @return a map with the fields from the table and the values from the entity. These fields will be updated.
      */
-    Map<Field,Object> getUpdateMap(final E entity);
+    Map<Field, Object> getUpdateMap(final E entity);
 
 
     /**
-     * @return a collection of the fields, should be used for sorting. SortField also contains information about the sort direction.
      * @param sortDirection
+     * @return a collection of the fields, should be used for sorting. SortField also contains information about the sort direction.
      */
     Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection);
 

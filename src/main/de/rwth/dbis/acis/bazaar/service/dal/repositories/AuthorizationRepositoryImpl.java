@@ -23,7 +23,12 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Authorization;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AuthorizationsRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.AuthorizationTransformator;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.exception.DataAccessException;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Authorizations.AUTHORIZATIONS;
 
@@ -31,26 +36,35 @@ import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Authorizations.AU
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
-public class AuthorizationRepositoryImpl extends RepositoryImpl<Authorization,AuthorizationsRecord> implements AuthorizationRepository {
+public class AuthorizationRepositoryImpl extends RepositoryImpl<Authorization, AuthorizationsRecord> implements AuthorizationRepository {
     /**
-     * @param jooq          DSLContext for JOOQ connection
+     * @param jooq DSLContext for JOOQ connection
      */
     public AuthorizationRepositoryImpl(DSLContext jooq) {
         super(jooq, new AuthorizationTransformator());
     }
 
     @Override
-    public void delete(int userId, int projectId) {
-        jooq.delete(AUTHORIZATIONS)
-                .where(AUTHORIZATIONS.USER_ID.equal(userId).and(AUTHORIZATIONS.PROJECT_ID.equal(projectId)))
-                .execute();
+    public void delete(int userId, int projectId) throws BazaarException {
+        try {
+            jooq.delete(AUTHORIZATIONS)
+                    .where(AUTHORIZATIONS.USER_ID.equal(userId).and(AUTHORIZATIONS.PROJECT_ID.equal(projectId)))
+                    .execute();
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
     }
 
     @Override
-    public boolean isAuthorized(int userId, int projectId) {
-        int execute = jooq.selectFrom(AUTHORIZATIONS)
-                .where(AUTHORIZATIONS.USER_ID.equal(userId).and(AUTHORIZATIONS.PROJECT_ID.equal(projectId)))
-                .execute();
-        return execute>0;
+    public boolean isAuthorized(int userId, int projectId) throws BazaarException {
+        int execute = 0;
+        try {
+            execute = jooq.selectFrom(AUTHORIZATIONS)
+                    .where(AUTHORIZATIONS.USER_ID.equal(userId).and(AUTHORIZATIONS.PROJECT_ID.equal(projectId)))
+                    .execute();
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return execute > 0;
     }
 }

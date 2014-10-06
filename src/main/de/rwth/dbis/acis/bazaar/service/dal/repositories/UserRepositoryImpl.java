@@ -29,9 +29,9 @@ import org.jooq.DSLContext;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
-public class UserRepositoryImpl extends RepositoryImpl<User,UsersRecord> implements UserRepository {
+public class UserRepositoryImpl extends RepositoryImpl<User, UsersRecord> implements UserRepository {
     /**
-     * @param jooq          DSLContext for JOOQ connection
+     * @param jooq DSLContext for JOOQ connection
      */
     public UserRepositoryImpl(DSLContext jooq) {
         super(jooq, new UserTransformator());

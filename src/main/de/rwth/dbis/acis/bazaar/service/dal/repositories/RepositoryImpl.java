@@ -23,7 +23,12 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.Transformator;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.*;
+import org.jooq.exception.DataAccessException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,14 +38,14 @@ import java.util.Map;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
  */
-public  class RepositoryImpl<E extends EntityBase,R extends Record> implements Repository<E>{
+public class RepositoryImpl<E extends EntityBase, R extends Record> implements Repository<E> {
 
     protected final DSLContext jooq;
-    protected final Transformator<E,R> transformator;
+    protected final Transformator<E, R> transformator;
 
 
     /**
-     * @param jooq DSLContext for JOOQ connection
+     * @param jooq          DSLContext for JOOQ connection
      * @param transformator Transformator object to create mapping between JOOQ record and our entities
      */
     public RepositoryImpl(DSLContext jooq, Transformator<E, R> transformator) {
@@ -52,14 +57,20 @@ public  class RepositoryImpl<E extends EntityBase,R extends Record> implements R
      * @param entity to add
      * @return the persisted entity
      */
-    public E add(E entity) {
-        R persisted;
-        persisted = jooq.insertInto(transformator.getTable())
-                .set(transformator.createRecord(entity))
-                .returning()
-                .fetchOne();
+    public E add(E entity) throws BazaarException {
+        E transformedEntity = null;
+        try {
+            R persisted;
+            persisted = jooq.insertInto(transformator.getTable())
+                    .set(transformator.createRecord(entity))
+                    .returning()
+                    .fetchOne();
 
-        return transformator.mapToEntity(persisted);
+            transformedEntity = transformator.mapToEntity(persisted);
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN, e.getMessage());
+        }
+        return transformedEntity;
     }
 
 
@@ -70,11 +81,18 @@ public  class RepositoryImpl<E extends EntityBase,R extends Record> implements R
      */
     //TODO transaction (findById,delete)
     public E delete(int id) throws Exception {
-        E deleted = this.findById(id);
+        E deleted = null;
+        try {
+            deleted = this.findById(id);
 
-        int deletedRecordCount = jooq.delete(transformator.getTable())
-                .where(transformator.getTableId().equal(id))
-                .execute();
+            int deletedRecordCount = jooq.delete(transformator.getTable())
+                    .where(transformator.getTableId().equal(id))
+                    .execute();
+        } catch (BazaarException ex) {
+            ExceptionHandler.getInstance().convertAndThrowException(ex);
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
 
         return deleted;
     }
@@ -82,32 +100,42 @@ public  class RepositoryImpl<E extends EntityBase,R extends Record> implements R
     /**
      * @return all the entities currently in the database
      */
-    public List<E> findAll() {
-        List<E> entries = new ArrayList<E>();
+    public List<E> findAll() throws BazaarException {
+        List<E> entries = null;
+        try {
+            entries = new ArrayList<E>();
 
-        List<R> queryResults = jooq.selectFrom(transformator.getTable()).fetchInto(transformator.getRecordClass());
+            List<R> queryResults = jooq.selectFrom(transformator.getTable()).fetchInto(transformator.getRecordClass());
 
-        for (R queryResult: queryResults) {
-            E entry = transformator.mapToEntity(queryResult);
-            entries.add(entry);
+            for (R queryResult : queryResults) {
+                E entry = transformator.mapToEntity(queryResult);
+                entries.add(entry);
+            }
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN, e.getMessage());
         }
 
         return entries;
     }
 
     @Override
-    public List<E> findAll(Pageable pageable) {
-        List<E> entries = new ArrayList<E>();
+    public List<E> findAll(Pageable pageable) throws BazaarException {
+        List<E> entries = null;
+        try {
+            entries = new ArrayList<E>();
 
-        List<R> queryResults = jooq.selectFrom(transformator.getTable())
-                .orderBy(transformator.getSortFields(pageable.getSortDirection()))
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
-                .fetchInto(transformator.getRecordClass());
+            List<R> queryResults = jooq.selectFrom(transformator.getTable())
+                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                    .limit(pageable.getPageSize())
+                    .offset(pageable.getOffset())
+                    .fetchInto(transformator.getRecordClass());
 
-        for (R queryResult: queryResults) {
-            E entry = transformator.mapToEntity(queryResult);
-            entries.add(entry);
+            for (R queryResult : queryResults) {
+                E entry = transformator.mapToEntity(queryResult);
+                entries.add(entry);
+            }
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN, e.getMessage());
         }
 
         return entries;
@@ -115,19 +143,26 @@ public  class RepositoryImpl<E extends EntityBase,R extends Record> implements R
 
     @Override
     public List<E> searchAll(String searchTerm, Pageable pageable) throws Exception {
-        List<E> entries = new ArrayList<E>();
-        String likeExpression = "%" + searchTerm + "%";
+        List<E> entries = null;
+        try {
+            entries = new ArrayList<E>();
+            String likeExpression = "%" + searchTerm + "%";
 
-        List<R> queryResults = jooq.selectFrom(transformator.getTable())
-                .where(transformator.getSearchFields(likeExpression))
-                .orderBy(transformator.getSortFields(pageable.getSortDirection()))
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
-                .fetchInto(transformator.getRecordClass());
-        
-        for (R queryResult: queryResults) {
-            E entry = transformator.mapToEntity(queryResult);
-            entries.add(entry);
+            List<R> queryResults = jooq.selectFrom(transformator.getTable())
+                    .where(transformator.getSearchFields(likeExpression))
+                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                    .limit(pageable.getPageSize())
+                    .offset(pageable.getOffset())
+                    .fetchInto(transformator.getRecordClass());
+
+            for (R queryResult : queryResults) {
+                E entry = transformator.mapToEntity(queryResult);
+                entries.add(entry);
+            }
+        } catch (BazaarException ex) {
+            ExceptionHandler.getInstance().convertAndThrowException(ex);
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
 
         return entries;
@@ -139,12 +174,19 @@ public  class RepositoryImpl<E extends EntityBase,R extends Record> implements R
      * @throws Exception
      */
     public E findById(int id) throws Exception {
-        R queryResult = jooq.selectFrom(transformator.getTable())
-                .where(transformator.getTableId().equal(id))
-                .fetchOne();
+        R queryResult = null;
+        try {
+            queryResult = jooq.selectFrom(transformator.getTable())
+                    .where(transformator.getTableId().equal(id))
+                    .fetchOne();
 
-        if (queryResult == null) {
-            throw new Exception("No "+ transformator.getRecordClass() +" found with id: " + id);
+            if (queryResult == null) {
+                throw new Exception("No " + transformator.getRecordClass() + " found with id: " + id);
+            }
+        } catch (BazaarException ex) {
+            ExceptionHandler.getInstance().convertAndThrowException(ex);
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
 
         return transformator.mapToEntity(queryResult);
@@ -158,18 +200,26 @@ public  class RepositoryImpl<E extends EntityBase,R extends Record> implements R
     //TODO transaction(update,findById)
     @Override
     public E update(E entity) throws Exception {
-        UpdateSetFirstStep<R> update = jooq.update(transformator.getTable());
-        Map<Field,Object> map = transformator.getUpdateMap(entity);
-        UpdateSetMoreStep moreStep = null;
-        for (Map.Entry<Field, Object> item : map.entrySet()) {
-            Field key = item.getKey();
-            Object value = item.getValue();
-            moreStep = (moreStep==null)?
-                    update.set(key, value):
-                    moreStep.set(key,value);
+        E byId = null;
+        try {
+            UpdateSetFirstStep<R> update = jooq.update(transformator.getTable());
+            Map<Field, Object> map = transformator.getUpdateMap(entity);
+            UpdateSetMoreStep moreStep = null;
+            for (Map.Entry<Field, Object> item : map.entrySet()) {
+                Field key = item.getKey();
+                Object value = item.getValue();
+                moreStep = (moreStep == null) ?
+                        update.set(key, value) :
+                        moreStep.set(key, value);
+            }
+            assert moreStep != null;
+            moreStep.where(transformator.getTableId().equal(entity.getId())).execute();
+            byId = findById(entity.getId());
+        } catch (BazaarException ex) {
+            ExceptionHandler.getInstance().convertAndThrowException(ex);
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
-        assert moreStep != null;
-        moreStep.where(transformator.getTableId().equal(entity.getId())).execute();
-        return findById(entity.getId());
+        return byId;
     }
 }

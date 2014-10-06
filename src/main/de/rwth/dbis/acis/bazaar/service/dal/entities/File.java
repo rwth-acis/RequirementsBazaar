@@ -24,7 +24,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/16/2014
  */
-public class File extends Attachment{
+public class File extends Attachment {
     private final String filePath;
     private final String description;
 
@@ -42,7 +42,9 @@ public class File extends Attachment{
         return description;
     }
 
-    public static Builder getBuilder(){return new Builder();}
+    public static Builder getBuilder() {
+        return new Builder();
+    }
 
     public static class Builder extends Attachment.Builder {
         private String filePath;

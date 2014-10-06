@@ -23,7 +23,12 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Vote;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.VoteTransformator;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.exception.DataAccessException;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Votes.VOTES;
 
@@ -31,26 +36,35 @@ import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Votes.VOTES;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
-public class VoteRepostitoryImpl extends RepositoryImpl<Vote,VotesRecord> implements VoteRepostitory {
+public class VoteRepostitoryImpl extends RepositoryImpl<Vote, VotesRecord> implements VoteRepostitory {
     /**
-     * @param jooq          DSLContext for JOOQ connection
+     * @param jooq DSLContext for JOOQ connection
      */
     public VoteRepostitoryImpl(DSLContext jooq) {
         super(jooq, new VoteTransformator());
     }
 
     @Override
-    public void delete(int userId, int requirementId) {
-        jooq.delete(VOTES)
-            .where(VOTES.USER_ID.equal(userId).and(VOTES.REQUIREMENT_ID.equal(requirementId)))
-            .execute();
+    public void delete(int userId, int requirementId) throws BazaarException {
+        try {
+            jooq.delete(VOTES)
+                    .where(VOTES.USER_ID.equal(userId).and(VOTES.REQUIREMENT_ID.equal(requirementId)))
+                    .execute();
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
     }
 
     @Override
-    public boolean hasUserVotedForRequirement(int userId, int requirementId) {
-        int execute = jooq.selectFrom(VOTES)
-                .where(VOTES.USER_ID.equal(userId).and(VOTES.REQUIREMENT_ID.equal(requirementId)))
-                .execute();
-        return execute>0;
+    public boolean hasUserVotedForRequirement(int userId, int requirementId) throws BazaarException {
+        int execute = 0;
+        try {
+            execute = jooq.selectFrom(VOTES)
+                    .where(VOTES.USER_ID.equal(userId).and(VOTES.REQUIREMENT_ID.equal(requirementId)))
+                    .execute();
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return execute > 0;
     }
 }

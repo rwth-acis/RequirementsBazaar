@@ -37,11 +37,11 @@ public class FreeStory extends Attachment {
         return story;
     }
 
-    public static Builder getBuilder(){
+    public static Builder getBuilder() {
         return new Builder();
     }
 
-    public static class Builder extends Attachment.Builder{
+    public static class Builder extends Attachment.Builder {
 
         private String story;
 

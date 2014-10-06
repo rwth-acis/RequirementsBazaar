@@ -75,7 +75,7 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
 
     @Override
     public Map<Field, Object> getUpdateMap(final Component entry) {
-        return new HashMap<Field, Object>(){{
+        return new HashMap<Field, Object>() {{
             put(COMPONENTS.DESCRIPTION, entry.getDescription());
             put(COMPONENTS.NAME, entry.getName());
         }};
@@ -97,6 +97,6 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
     @Override
     public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
         return Arrays.asList(COMPONENTS.NAME.likeIgnoreCase(likeExpression)
-                         .or(COMPONENTS.DESCRIPTION.likeIgnoreCase(likeExpression)));
+                .or(COMPONENTS.DESCRIPTION.likeIgnoreCase(likeExpression)));
     }
 }

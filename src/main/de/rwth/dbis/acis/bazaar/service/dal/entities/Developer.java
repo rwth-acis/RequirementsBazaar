@@ -47,7 +47,7 @@ public class Developer extends EntityBase {
         return UserId;
     }
 
-    public static Builder getBuilder(){
+    public static Builder getBuilder() {
         return new Builder();
     }
 
@@ -56,7 +56,7 @@ public class Developer extends EntityBase {
         public int requirementId;
         public int id;
 
-        public Builder userId(int userId){
+        public Builder userId(int userId) {
             this.userId = userId;
             return this;
         }
@@ -71,7 +71,7 @@ public class Developer extends EntityBase {
             return this;
         }
 
-        public Developer build(){
+        public Developer build() {
             return new Developer(this);
         }
     }

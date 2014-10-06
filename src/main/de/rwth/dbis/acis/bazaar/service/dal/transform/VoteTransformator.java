@@ -43,7 +43,7 @@ public class VoteTransformator implements de.rwth.dbis.acis.bazaar.service.dal.t
         record.setId(entity.getId());
         record.setUserId(entity.getUserId());
         record.setRequirementId(entity.getRequirementId());
-        record.setIsUpvote((byte)(entity.isUpvote() ? 1:0));
+        record.setIsUpvote((byte) (entity.isUpvote() ? 1 : 0));
         return record;
     }
 
@@ -53,7 +53,7 @@ public class VoteTransformator implements de.rwth.dbis.acis.bazaar.service.dal.t
                 .id(record.getId())
                 .userId(record.getUserId())
                 .requirementId(record.getRequirementId())
-                .isUpvote(record.getIsUpvote() !=0)
+                .isUpvote(record.getIsUpvote() != 0)
                 .build();
     }
 
@@ -75,9 +75,9 @@ public class VoteTransformator implements de.rwth.dbis.acis.bazaar.service.dal.t
     @Override
     public Map<Field, Object> getUpdateMap(final Vote entity) {
         return new HashMap<Field, Object>() {{
-            put(VOTES.IS_UPVOTE,entity.isUpvote());
-            put(VOTES.REQUIREMENT_ID,entity.getRequirementId());
-            put(VOTES.USER_ID,entity.getUserId());
+            put(VOTES.IS_UPVOTE, entity.isUpvote());
+            put(VOTES.REQUIREMENT_ID, entity.getRequirementId());
+            put(VOTES.USER_ID, entity.getUserId());
         }};
     }
 

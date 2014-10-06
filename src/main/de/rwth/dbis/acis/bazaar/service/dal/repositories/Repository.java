@@ -23,61 +23,62 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.EntityBase;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.util.List;
 
 /**
+ * @param <E> Type of the Entity, which should be added, deleted, updated, getted using the repo.
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
- * @param <E>   Type of the Entity, which should be added, deleted, updated, getted using the repo.
  */
 public interface Repository<E extends EntityBase> {
-        /**
-         * @param entity to add
-         * @return the persisted entity
-         */
-        public E add(E entity);
+    /**
+     * @param entity to add
+     * @return the persisted entity
+     */
+    public E add(E entity) throws BazaarException;
 
 
-        /**
-         * @param id of an entity, which should be deleted
-         * @return the deleted entity. It is not anymore in the database!
-         * @throws Exception
-         */
-        public E delete(int id) throws Exception;
+    /**
+     * @param id of an entity, which should be deleted
+     * @return the deleted entity. It is not anymore in the database!
+     * @throws Exception
+     */
+    public E delete(int id) throws Exception;
 
 
-        /**
-         * @return all the entities currently in the database
-         */
-        public List<E> findAll();
+    /**
+     * @return all the entities currently in the database
+     */
+    public List<E> findAll() throws BazaarException;
 
 
-        /**
-         * @param pageable
-         * @return
-         */
-        public List<E> findAll(Pageable pageable);
+    /**
+     * @param pageable
+     * @return
+     */
+    public List<E> findAll(Pageable pageable) throws BazaarException;
 
-        /**
-         * @param searchTerm
-         * @param pageable
-         * @return
-         */
-        public List<E> searchAll(String searchTerm, Pageable pageable) throws Exception;
+    /**
+     * @param searchTerm
+     * @param pageable
+     * @return
+     */
+    public List<E> searchAll(String searchTerm, Pageable pageable) throws Exception;
 
-        /**
-         * @param id of the entity we are looking for
-         * @return the entity from the database with the given Id
-         * @throws Exception
-         */
-        public E findById(int id) throws Exception;
+    /**
+     * @param id of the entity we are looking for
+     * @return the entity from the database with the given Id
+     * @throws Exception
+     */
+    public E findById(int id) throws Exception;
 
 
-        /**
-         * @param entity object, which holds the new values of the database update
-         * @return the entity after the database
-         * @throws Exception
-         */
-        public E update(E entity) throws Exception;
+    /**
+     * @param entity object, which holds the new values of the database update
+     * @return the entity after the database
+     * @throws Exception
+     */
+    public E update(E entity) throws Exception;
 }

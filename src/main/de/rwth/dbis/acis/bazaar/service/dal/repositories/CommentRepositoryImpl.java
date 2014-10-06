@@ -24,39 +24,50 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.CommentTransformator;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.exception.DataAccessException;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments.COMMENTS;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
-public class CommentRepositoryImpl extends RepositoryImpl<Comment,CommentsRecord> implements CommentRepository {
+public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecord> implements CommentRepository {
 
     /**
-     * @param jooq          DSLContext for JOOQ connection
+     * @param jooq DSLContext for JOOQ connection
      */
     public CommentRepositoryImpl(DSLContext jooq) {
         super(jooq, new CommentTransformator());
     }
 
     @Override
-    public List<Comment> findAllByRequirementId(int requirementId, Pageable pageable) {
-        List<Comment> entries = new ArrayList<Comment>();
+    public List<Comment> findAllByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
+        List<Comment> entries = null;
+        try {
+            entries = new ArrayList<Comment>();
 
-        List<CommentsRecord> queryResults = jooq.selectFrom(transformator.getTable())
-                .where(COMMENTS.REQUIREMENT_ID.equal(requirementId))
-                .orderBy(transformator.getSortFields(pageable.getSortDirection()))
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
-                .fetchInto(transformator.getRecordClass());
+            List<CommentsRecord> queryResults = jooq.selectFrom(transformator.getTable())
+                    .where(COMMENTS.REQUIREMENT_ID.equal(requirementId))
+                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                    .limit(pageable.getPageSize())
+                    .offset(pageable.getOffset())
+                    .fetchInto(transformator.getRecordClass());
 
-        for (CommentsRecord queryResult: queryResults) {
-            Comment entry = transformator.mapToEntity(queryResult);
-            entries.add(entry);
+            for (CommentsRecord queryResult : queryResults) {
+                Comment entry = transformator.mapToEntity(queryResult);
+                entries.add(entry);
+            }
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
 
         return entries;

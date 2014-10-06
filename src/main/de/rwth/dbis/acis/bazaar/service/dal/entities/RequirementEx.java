@@ -80,7 +80,7 @@ public class RequirementEx extends Requirement {
         return new BuilderEx(title);
     }
 
-    public static class BuilderEx extends Builder{
+    public static class BuilderEx extends Builder {
 
         public User creator;
         public List<User> developers;
@@ -95,7 +95,7 @@ public class RequirementEx extends Requirement {
         }
 
         @Override
-        public RequirementEx build(){
+        public RequirementEx build() {
             return new RequirementEx(this);
         }
 

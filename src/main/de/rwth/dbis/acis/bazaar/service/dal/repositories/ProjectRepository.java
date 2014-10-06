@@ -23,6 +23,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.util.List;
 
@@ -30,9 +31,9 @@ import java.util.List;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
  */
-public interface ProjectRepository extends Repository<Project>{
+public interface ProjectRepository extends Repository<Project> {
 
-    List<Project> findAllPublic(Pageable pageable);
+    List<Project> findAllPublic(Pageable pageable) throws BazaarException;
 
-    List<Project> findAllPublicAndAuthorized(PageInfo pageable, int userId);
+    List<Project> findAllPublicAndAuthorized(PageInfo pageable, int userId) throws BazaarException;
 }

@@ -43,7 +43,9 @@ public class Image extends Attachment {
         return description;
     }
 
-    public static Builder getBuilder(){return new Builder();}
+    public static Builder getBuilder() {
+        return new Builder();
+    }
 
     public static class Builder extends Attachment.Builder {
         private String filePath;

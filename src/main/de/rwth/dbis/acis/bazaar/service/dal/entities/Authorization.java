@@ -53,7 +53,7 @@ public class Authorization extends EntityBase {
         return UserId;
     }
 
-    public static Builder getBuilder(){
+    public static Builder getBuilder() {
         return new Builder();
     }
 

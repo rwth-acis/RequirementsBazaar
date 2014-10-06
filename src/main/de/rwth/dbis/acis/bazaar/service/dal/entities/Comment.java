@@ -31,7 +31,6 @@ public class Comment extends EntityBase {
     private final int creatorId;
 
 
-
     public Comment(Builder builder) {
         Id = builder.id;
         this.message = builder.message;
@@ -56,7 +55,7 @@ public class Comment extends EntityBase {
         return creatorId;
     }
 
-    public static Builder getBuilder(String message){
+    public static Builder getBuilder(String message) {
         return new Builder(message);
     }
 

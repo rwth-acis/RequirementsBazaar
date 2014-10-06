@@ -23,6 +23,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementEx;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.util.List;
 
@@ -32,9 +33,9 @@ import java.util.List;
  */
 public interface RequirementRepository extends Repository<Requirement> {
 
-    List<Requirement> findAllByProject(int projectId, Pageable pageable);
+    List<Requirement> findAllByProject(int projectId, Pageable pageable) throws BazaarException;
 
-    List<Requirement> findAllByComponent(int componentId, Pageable pageable);
+    List<Requirement> findAllByComponent(int componentId, Pageable pageable) throws BazaarException;
 
     @Override
     RequirementEx findById(int id) throws Exception;

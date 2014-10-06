@@ -47,15 +47,16 @@ public class Follower extends EntityBase {
         return UserId;
     }
 
-    public static Builder getBuilder(){
+    public static Builder getBuilder() {
         return new Builder();
     }
+
     public static class Builder {
         public int userId;
         public int requirementId;
         public int id;
 
-        public Builder userId(int userId){
+        public Builder userId(int userId) {
             this.userId = userId;
             return this;
         }
@@ -70,7 +71,7 @@ public class Follower extends EntityBase {
             return this;
         }
 
-        public Follower build(){
+        public Follower build() {
             return new Follower(this);
         }
     }

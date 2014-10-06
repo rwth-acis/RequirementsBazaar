@@ -29,10 +29,10 @@ import org.jooq.DSLContext;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/22/2014
  */
-public class AttachmentRepositoryImpl extends RepositoryImpl<Attachment,AttachmentsRecord> implements AttachmentRepository {
+public class AttachmentRepositoryImpl extends RepositoryImpl<Attachment, AttachmentsRecord> implements AttachmentRepository {
 
     /**
-     * @param jooq          DSLContext for JOOQ connection
+     * @param jooq DSLContext for JOOQ connection
      */
     public AttachmentRepositoryImpl(DSLContext jooq) {
         super(jooq, new AttachmentTransformator());

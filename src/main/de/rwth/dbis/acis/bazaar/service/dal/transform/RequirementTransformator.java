@@ -79,7 +79,7 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
 
     @Override
     public Map<Field, Object> getUpdateMap(final Requirement entry) {
-        return new HashMap<Field, Object>(){{
+        return new HashMap<Field, Object>() {{
             put(REQUIREMENTS.DESCRIPTION, entry.getDescription());
             put(REQUIREMENTS.TITLE, entry.getTitle());
         }};
@@ -101,8 +101,8 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
     @Override
     public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
         return Arrays.asList(
-                    REQUIREMENTS.TITLE.likeIgnoreCase(likeExpression)
-                .or(REQUIREMENTS.DESCRIPTION.likeIgnoreCase(likeExpression))
+                REQUIREMENTS.TITLE.likeIgnoreCase(likeExpression)
+                        .or(REQUIREMENTS.DESCRIPTION.likeIgnoreCase(likeExpression))
         );
     }
 }

@@ -21,11 +21,12 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Developer;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/22/2014
  */
 public interface DeveloperRepository extends Repository<Developer> {
-    void delete(int userId, int requirementId);
+    void delete(int userId, int requirementId) throws BazaarException;
 }

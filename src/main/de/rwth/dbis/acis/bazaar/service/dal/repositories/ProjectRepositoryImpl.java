@@ -30,7 +30,12 @@ import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.ProjectTransformator;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.exception.DataAccessException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +48,7 @@ import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
  */
-public class ProjectRepositoryImpl extends RepositoryImpl<Project,ProjectsRecord> implements ProjectRepository {
+public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecord> implements ProjectRepository {
     /**
      * @param jooq DSLContext object to initialize JOOQ connection. For more see JOOQ documentation.
      */
@@ -52,40 +57,50 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project,ProjectsRecord
     }
 
     @Override
-    public List<Project> findAllPublic(Pageable pageable) {
-        List<Project> entries = new ArrayList<Project>();
+    public List<Project> findAllPublic(Pageable pageable) throws BazaarException {
+        List<Project> entries = null;
+        try {
+            entries = new ArrayList<Project>();
 
-        List<ProjectsRecord> queryResults = jooq.selectFrom(transformator.getTable())
-                .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar()))
-                .orderBy(transformator.getSortFields(pageable.getSortDirection()))
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
-                .fetchInto(transformator.getRecordClass());
+            List<ProjectsRecord> queryResults = jooq.selectFrom(transformator.getTable())
+                    .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar()))
+                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                    .limit(pageable.getPageSize())
+                    .offset(pageable.getOffset())
+                    .fetchInto(transformator.getRecordClass());
 
-        for (ProjectsRecord queryResult: queryResults) {
-            Project entry = transformator.mapToEntity(queryResult);
-            entries.add(entry);
+            for (ProjectsRecord queryResult : queryResults) {
+                Project entry = transformator.mapToEntity(queryResult);
+                entries.add(entry);
+            }
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
 
         return entries;
     }
 
     @Override
-    public List<Project> findAllPublicAndAuthorized(PageInfo pageable, int userId) {
-        List<Project> entries = new ArrayList<Project>();
+    public List<Project> findAllPublicAndAuthorized(PageInfo pageable, int userId) throws BazaarException {
+        List<Project> entries = null;
+        try {
+            entries = new ArrayList<Project>();
 
-        List<ProjectsRecord> queryResults = jooq.selectFrom(transformator.getTable()
-                .leftOuterJoin(AUTHORIZATIONS).on(AUTHORIZATIONS.PROJECT_ID.equal(PROJECTS.ID))
-                .join(USERS).on(AUTHORIZATIONS.USER_ID.equal(USERS.ID)))
-                .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar()).or(USERS.LAS2PEER_ID.equal(userId)))
-                .orderBy(transformator.getSortFields(pageable.getSortDirection()))
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
-                .fetchInto(transformator.getRecordClass());
+            List<ProjectsRecord> queryResults = jooq.selectFrom(transformator.getTable()
+                    .leftOuterJoin(AUTHORIZATIONS).on(AUTHORIZATIONS.PROJECT_ID.equal(PROJECTS.ID))
+                    .join(USERS).on(AUTHORIZATIONS.USER_ID.equal(USERS.ID)))
+                    .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar()).or(USERS.LAS2PEER_ID.equal(userId)))
+                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                    .limit(pageable.getPageSize())
+                    .offset(pageable.getOffset())
+                    .fetchInto(transformator.getRecordClass());
 
-        for (ProjectsRecord queryResult: queryResults) {
-            Project entry = transformator.mapToEntity(queryResult);
-            entries.add(entry);
+            for (ProjectsRecord queryResult : queryResults) {
+                Project entry = transformator.mapToEntity(queryResult);
+                entries.add(entry);
+            }
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
 
         return entries;

@@ -28,7 +28,7 @@ import com.google.gson.Gson;
  */
 public abstract class EntityBase implements IdentifiedById {
 
-    public String toJSON(){
+    public String toJSON() {
         return new Gson().toJson(this);
     }
 }

@@ -80,7 +80,7 @@ public class DeveloperTransformator implements Transformator<de.rwth.dbis.acis.b
 
     @Override
     public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
-        switch (sortDirection){
+        switch (sortDirection) {
             case DEFAULT:
                 return Arrays.asList(DEVELOPERS.ID.asc());
             case ASC:

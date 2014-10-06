@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Authorizations.AUTHORIZATIONS;
 
 /**
@@ -72,7 +73,7 @@ public class AuthorizationTransformator implements Transformator<de.rwth.dbis.ac
 
     @Override
     public Map<Field, Object> getUpdateMap(final Authorization entity) {
-        return new HashMap<Field, Object>(){{
+        return new HashMap<Field, Object>() {{
             put(AUTHORIZATIONS.ACCESS_RIGHT, entity.getAccessRight());
             put(AUTHORIZATIONS.USER_ID, entity.getUserId());
             put(AUTHORIZATIONS.PROJECT_ID, entity.getProjectId());
@@ -81,7 +82,7 @@ public class AuthorizationTransformator implements Transformator<de.rwth.dbis.ac
 
     @Override
     public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
-        switch (sortDirection){
+        switch (sortDirection) {
             case DEFAULT:
                 return Arrays.asList(AUTHORIZATIONS.ID.asc());
             case ASC:

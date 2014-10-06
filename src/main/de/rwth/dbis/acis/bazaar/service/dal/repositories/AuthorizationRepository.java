@@ -21,13 +21,14 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Authorization;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/22/2014
  */
 public interface AuthorizationRepository extends Repository<Authorization> {
-    void delete(int userId, int projectId);
+    void delete(int userId, int projectId) throws BazaarException;
 
-    boolean isAuthorized(int userId, int projectId);
+    boolean isAuthorized(int userId, int projectId) throws BazaarException;
 }

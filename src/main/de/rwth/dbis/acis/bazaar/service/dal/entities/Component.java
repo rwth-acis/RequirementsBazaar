@@ -51,10 +51,13 @@ public class Component extends EntityBase {
         return name;
     }
 
-    public int getLeaderId() { return leaderId; }
+    public int getLeaderId() {
+        return leaderId;
+    }
 
     /**
      * Private constructor, should be called from its builder only.
+     *
      * @param builder
      */
     private Component(Builder builder) {
@@ -72,6 +75,7 @@ public class Component extends EntityBase {
 
     /**
      * Builder to easily build Component objects
+     *
      * @param name Name field will be initialized using the passed value
      * @return a builder with name returned
      */
@@ -110,6 +114,7 @@ public class Component extends EntityBase {
 
         /**
          * Call this to create a Component object with the values previously set in the builder.
+         *
          * @return initialized Component object
          */
         public Component build() {

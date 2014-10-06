@@ -24,7 +24,12 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Component;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentsRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.ComponentTransformator;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.exception.DataAccessException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +40,7 @@ import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Components.COMPON
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
  */
-public class ComponentRepositoryImpl extends RepositoryImpl<Component,ComponentsRecord> implements ComponentRepository {
+public class ComponentRepositoryImpl extends RepositoryImpl<Component, ComponentsRecord> implements ComponentRepository {
     /**
      * @param jooq DSLContext object to initialize JOOQ connection. For more see JOOQ documentation.
      */
@@ -44,19 +49,24 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component,Components
     }
 
     @Override
-    public List<Component> findByProjectId(int projectId, Pageable pageable) {
-        List<Component> entries = new ArrayList<Component>();
+    public List<Component> findByProjectId(int projectId, Pageable pageable) throws BazaarException {
+        List<Component> entries = null;
+        try {
+            entries = new ArrayList<Component>();
 
-        List<ComponentsRecord> queryResults = jooq.selectFrom(transformator.getTable())
-                .where(COMPONENTS.PROJECT_ID.equal(projectId))
-                .orderBy(transformator.getSortFields(pageable.getSortDirection()))
-                .limit(pageable.getPageSize())
-                .offset(pageable.getOffset())
-                .fetchInto(transformator.getRecordClass());
+            List<ComponentsRecord> queryResults = jooq.selectFrom(transformator.getTable())
+                    .where(COMPONENTS.PROJECT_ID.equal(projectId))
+                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                    .limit(pageable.getPageSize())
+                    .offset(pageable.getOffset())
+                    .fetchInto(transformator.getRecordClass());
 
-        for (ComponentsRecord queryResult: queryResults) {
-            Component entry = transformator.mapToEntity(queryResult);
-            entries.add(entry);
+            for (ComponentsRecord queryResult : queryResults) {
+                Component entry = transformator.mapToEntity(queryResult);
+                entries.add(entry);
+            }
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
 
         return entries;

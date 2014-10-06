@@ -23,6 +23,7 @@ package de.rwth.dbis.acis.bazaar.service.dal;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.util.List;
 
@@ -37,11 +38,12 @@ public interface DALFacade {
     /**
      * @param user which holds the data of the user to be inserted. Id field will be omitted, a new one will be generated.
      */
-    public void createUser(User user);
+    public void createUser(User user) throws BazaarException;
 
     /**
      * Modifies the user in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
      * It does NOT update any relations of the object, just only the direct fields!
+     *
      * @param modifiedUser, which holds the data of the modification for the user in the database identified by the Id field.
      */
     public void modifyUser(User modifiedUser) throws Exception;
@@ -59,26 +61,25 @@ public interface DALFacade {
     //region Project
 
     /**
-     *
      * @param pageable pagination information
      * @return the paginated list of the public projects, just only the necessary fields will be filled out.
      */
-    public List<Project> listPublicProjects(Pageable pageable);
+    public List<Project> listPublicProjects(Pageable pageable) throws BazaarException;
 
 
     /**
      * @param pageable pagination information
-     * @param userId the identifier of the user, whose projects should be returned as well
+     * @param userId   the identifier of the user, whose projects should be returned as well
      * @return all the public projects and all the projects, which the user is authorized to see
      */
-    public List<Project> listPublicAndAuthorizedProjects(PageInfo pageable, int userId);
+    public List<Project> listPublicAndAuthorizedProjects(PageInfo pageable, int userId) throws BazaarException;
 
     /**
      * @param searchTerm the text, which is used to search. Search is case insensitive.
-     * @param pageable pagination information
+     * @param pageable   pagination information
      * @return the found projects from the database based on the given parameters
      */
-    public List<Project> searchProjects(String searchTerm,Pageable pageable) throws Exception;
+    public List<Project> searchProjects(String searchTerm, Pageable pageable) throws Exception;
 
     /**
      * @param projectId identifier of the project should be returned
@@ -89,13 +90,14 @@ public interface DALFacade {
     /**
      * @param project data to be created.
      */
-    public void createProject(Project project);
+    public void createProject(Project project) throws BazaarException;
 
     //TODO delete? Should it delete its components and reqs? What should happen after deletion?
 
     /**
      * Modifies the project in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
      * It does NOT update any relations of the object, just only the direct fields!
+     *
      * @param modifiedProject holds the modified data of the project identified by its id. Just only direct project data will be modified, relations not!
      */
     public void modifyProject(Project modifiedProject) throws Exception;
@@ -108,28 +110,28 @@ public interface DALFacade {
      * @param pageable pagination information
      * @return the requirements in a paginated way
      */
-    public List<Requirement> listRequirements(Pageable pageable);
+    public List<Requirement> listRequirements(Pageable pageable) throws BazaarException;
 
     /**
      * @param projectId the id of the project we are looking in
-     * @param pageable pagination information
+     * @param pageable  pagination information
      * @return the requirements under the given project in a paginated way
      */
-    public List<Requirement> listRequirementsByProject(int projectId, Pageable pageable);
+    public List<Requirement> listRequirementsByProject(int projectId, Pageable pageable) throws BazaarException;
 
     /**
      * @param componentId the id of the component we are looking in
-     * @param pageable pagination information
+     * @param pageable    pagination information
      * @return the requirements under the given component in a paginated way
      */
-    public List<Requirement> listRequirementsByComponent(int componentId,Pageable pageable);
+    public List<Requirement> listRequirementsByComponent(int componentId, Pageable pageable) throws BazaarException;
 
     /**
      * @param searchTerm the text, which is used to search. Search is case insensitive.
-     * @param pageable pagination information
+     * @param pageable   pagination information
      * @return the found requirements with the given parameters filled up with only the direct data.
      */
-    public List<Requirement> searchRequirements(String searchTerm,Pageable pageable) throws Exception;
+    public List<Requirement> searchRequirements(String searchTerm, Pageable pageable) throws Exception;
 
     /**
      * @param requirementId the identifier of the requirement should be returned
@@ -141,17 +143,19 @@ public interface DALFacade {
     /**
      * @param requirement to be added to the database.
      */
-    public void createRequirement(Requirement requirement);
+    public void createRequirement(Requirement requirement) throws BazaarException;
 
     /**
      * Modifies the requirement in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
      * It does NOT update any relations of the object, just only the direct fields!
+     *
      * @param modifiedRequirement hold the modified data
      */
     public void modifyRequirement(Requirement modifiedRequirement) throws Exception;
 
     /**
      * This method deletes a requirement with its assets: All of its comments and attachments and connections to users, projects or components.
+     *
      * @param requirementId which identifies the requirement to delete.
      */
     public void deleteRequirementById(int requirementId) throws Exception;
@@ -162,19 +166,20 @@ public interface DALFacade {
 
     /**
      * @param projectId the id of the project we are looking in
-     * @param pageable pagination information
+     * @param pageable  pagination information
      * @return the components under the given project in a paginated way
      */
-    public List<Component> listComponentsByProjectId(int projectId,Pageable pageable);
+    public List<Component> listComponentsByProjectId(int projectId, Pageable pageable) throws BazaarException;
 
     /**
      * @param component to be added to the database.
      */
-    public void createComponent(Component component);
+    public void createComponent(Component component) throws BazaarException;
 
     /**
      * Modifies the component in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
      * It does NOT update any relations of the object, just only the direct fields!
+     *
      * @param component hold the modified data
      */
     public void modifyComponent(Component component) throws Exception;
@@ -182,6 +187,7 @@ public interface DALFacade {
 
     /**
      * It deletes a component from the database with the tags to requirements
+     *
      * @param componentId for the component to be deleted
      */
     public void deleteComponentById(int componentId) throws Exception;
@@ -193,7 +199,7 @@ public interface DALFacade {
     /**
      * @param attachment object, which holds the data should be persisted
      */
-    public void createAttachment(Attachment attachment);
+    public void createAttachment(Attachment attachment) throws BazaarException;
 
     /**
      * @param attachmentId id of the attachment should be deleted
@@ -206,15 +212,15 @@ public interface DALFacade {
 
     /**
      * @param requirementId the identifier of the requirement we are looking in
-     * @param pageable pagination information
+     * @param pageable      pagination information
      * @return the comments for a given requirement
      */
-    public List<Comment> listCommentsByRequirementId(int requirementId, Pageable pageable);
+    public List<Comment> listCommentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
 
     /**
      * @param comment which holds the data for the new comment.
      */
-    public void createComment(Comment comment);
+    public void createComment(Comment comment) throws BazaarException;
 
     /**
      * @param commentId to identify the comment to be deleted
@@ -227,17 +233,19 @@ public interface DALFacade {
 
     /**
      * This method create a new follow relation between a user and a requirement
-     * @param userId the identifier of the user, who wants to follow the requirement
+     *
+     * @param userId        the identifier of the user, who wants to follow the requirement
      * @param requirementId the the identifier of the requirement we want to follow
      */
-    public void follow(int userId, int requirementId);
+    public void follow(int userId, int requirementId) throws BazaarException;
 
     /**
      * This method deleted the follow relationship between the given user and requirement.
-     * @param userId the identifier of the user, who wants not to follow the requirement
+     *
+     * @param userId        the identifier of the user, who wants not to follow the requirement
      * @param requirementId the the identifier of the requirement we don't want to follow anymore
      */
-    public void unFollow(int userId, int requirementId);
+    public void unFollow(int userId, int requirementId) throws BazaarException;
 
     //endregion
 
@@ -245,17 +253,19 @@ public interface DALFacade {
 
     /**
      * This method create a develop relation between a given requirement and a given user
+     *
      * @param userId
      * @param requirementId
      */
-    public void wantToDevelop(int userId, int requirementId);
+    public void wantToDevelop(int userId, int requirementId) throws BazaarException;
 
     /**
      * This method deletes the develop relation between a given requirement and a given user
+     *
      * @param userId
      * @param requirementId
      */
-    public void notWantToDevelop(int userId, int requirementId);
+    public void notWantToDevelop(int userId, int requirementId) throws BazaarException;
 
     //endregion
 
@@ -263,45 +273,49 @@ public interface DALFacade {
 
     /**
      * This method gives authorization right for a given project to a given user
-     * @param userId the identifier of the user, whose access will be granted
+     *
+     * @param userId    the identifier of the user, whose access will be granted
      * @param projectId the id of the project, what the user can see/edit
      */
-    public void giveAuthorization(int userId, int projectId);
+    public void giveAuthorization(int userId, int projectId) throws BazaarException;
 
     /**
      * This method removes authorization right for a given project from a given user
-     * @param userId the identifier of the user, whose access will be removed
+     *
+     * @param userId    the identifier of the user, whose access will be removed
      * @param projectId the id of the project, what the user cannot see anymore
      */
-    public void removeAuthorization(int userId, int projectId);
-
+    public void removeAuthorization(int userId, int projectId) throws BazaarException;
 
 
     /**
      * This method checks if a user has right to access to the project
-     * @param userId the the identifier of the user, who wants to access a project
+     *
+     * @param userId    the the identifier of the user, who wants to access a project
      * @param projectId the id of the project we are looking in
      * @return if the user has authorization
      */
     //TODO not only boolean, but different right levels? Admin, viewer, editor, etc.?
-    public boolean isAuthorized(int userId, int projectId);
+    public boolean isAuthorized(int userId, int projectId) throws BazaarException;
     //endregion
 
     //region Tag (Component >-< Requirement)
 
     /**
      * This method creates a connection, that the given requirement belongs to the given component.
+     *
      * @param requirementId the identifier of the requirement
-     * @param componentId the id of the component
+     * @param componentId   the id of the component
      */
-    public void addComponentTag(int requirementId, int componentId);
+    public void addComponentTag(int requirementId, int componentId) throws BazaarException;
 
     /**
      * This method removes the connection, that the given requirement belongs to the given component.
+     *
      * @param requirementId the identifier of the requirement
-     * @param componentId the id of the component
+     * @param componentId   the id of the component
      */
-    public void removeComponentTag(int requirementId, int componentId);
+    public void removeComponentTag(int requirementId, int componentId) throws BazaarException;
 
     //endregion
 
@@ -309,27 +323,30 @@ public interface DALFacade {
 
     /**
      * This method creates or modifies a vote of a given user for the given project. A vote can be even positive or negative.
-     * @param userId the identifier of the user, who voted
+     *
+     * @param userId        the identifier of the user, who voted
      * @param requirementId the identifier of the requirement
-     * @param isUpVote true if the vote is positive, false if not.
+     * @param isUpVote      true if the vote is positive, false if not.
      */
-    public void vote(int userId, int requirementId, boolean isUpVote);
+    public void vote(int userId, int requirementId, boolean isUpVote) throws BazaarException;
 
     /**
      * This method deletes the vote of the given user for the given project
-     * @param userId the identifier of the user, who voted
+     *
+     * @param userId        the identifier of the user, who voted
      * @param requirementId the identifier of the requirement
      */
-    public void unVote(int userId, int requirementId);
+    public void unVote(int userId, int requirementId) throws BazaarException;
 
 
     /**
      * This method checks if a given user has a vote for the given requirement
-     * @param userId the identifier of the user, who voted
+     *
+     * @param userId        the identifier of the user, who voted
      * @param requirementId the identifier of the requirement
      * @return true if the user has voted for the requirement, false otherwise
      */
-    public boolean hasUserVotedForRequirement(int userId, int requirementId);
+    public boolean hasUserVotedForRequirement(int userId, int requirementId) throws BazaarException;
 
 
     //endregion

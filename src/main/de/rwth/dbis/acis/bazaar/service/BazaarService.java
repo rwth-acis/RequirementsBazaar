@@ -20,6 +20,10 @@
 
 package de.rwth.dbis.acis.bazaar.service;
 
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import i5.las2peer.api.Service;
 import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.Consumes;
@@ -51,13 +55,11 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 
 /**
- *
  * Requirements Bazaar LAS2peer Service
- *
+ * <p/>
  * This is the main service class of the Requirements Bazaar
  *
  * @author István Koren
- *
  */
 @Path("bazaar")
 @Version("0.1")
@@ -145,8 +147,12 @@ public class BazaarService extends Service {
             }
 
             resultJSON = gson.toJson(projects);// return only public projects
-        } catch (Exception ex){
-            resultJSON = gson.toJson(ex.toString());
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
         } finally {
             closeConnection();
         }
@@ -174,8 +180,7 @@ public class BazaarService extends Service {
     /**
      * This method allows to retrieve a certain project.
      *
-     * @param projectId
-     *            the id of the project to retrieve
+     * @param projectId the id of the project to retrieve
      * @return the details of a certain project.
      */
     @GET
@@ -189,10 +194,9 @@ public class BazaarService extends Service {
     /**
      * Allows to update a certain project.
      *
-     * @param projectId
-     *            the id of the project to update.
+     * @param projectId the id of the project to update.
      * @return a JSON string containing whether the operation was successful or
-     *         not.
+     * not.
      */
     @PUT
     @Path("projects/{projectId}")
@@ -250,10 +254,8 @@ public class BazaarService extends Service {
     /**
      * This method allows to retrieve a certain component under a project.
      *
-     * @param projectId
-     *            the id of the project
-     * @param componentId
-     *            the id of the component under a given project
+     * @param projectId   the id of the project
+     * @param componentId the id of the component under a given project
      * @return the details of a certain component.
      */
     @GET
@@ -267,12 +269,10 @@ public class BazaarService extends Service {
     /**
      * Allows to update a certain component under a project.
      *
-     * @param projectId
-     *            the id of the project
-     * @param componentId
-     *            the id of the component under a given project
+     * @param projectId   the id of the project
+     * @param componentId the id of the component under a given project
      * @return a JSON string containing whether the operation was successful or
-     *         not.
+     * not.
      */
     @PUT
     @Path("projects/{projectId}/components/{componentId}")
@@ -297,16 +297,14 @@ public class BazaarService extends Service {
     /**
      * This method returns the list of requirements for a specific project and component.
      *
-     * @param projectId
-     *            the ID of the project to retrieve requirements for.
-     * @param componentId
-     *            the id of the component under a given project
+     * @param projectId   the ID of the project to retrieve requirements for.
+     * @param componentId the id of the component under a given project
      * @return a list of requirements
      */
     @GET
     @Path("projects/{projectId}/components/{componentId}/requirements")
     @Produces("application/json")
-    public String getRequirements(@PathParam("projectId") int projectId,@PathParam("componentId") int componentId,
+    public String getRequirements(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
                                   @QueryParam(name = "page", defaultValue = "0") int page,
                                   @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
         return "The requirements for project " + projectId + ".";
@@ -315,18 +313,15 @@ public class BazaarService extends Service {
     /**
      * This method allows to create a new requirement.
      *
-     * @param projectId
-     *            the ID of the project to create the requirement in.
-     * @param componentId
-     *            the id of the component under a given project
-     * @return
-     *            true if the creation was successful, otherwise false
+     * @param projectId   the ID of the project to create the requirement in.
+     * @param componentId the id of the component under a given project
+     * @return true if the creation was successful, otherwise false
      */
     @POST
     @Path("projects/{projectId}/components/{componentId}/requirements")
     @Consumes("application/json")
     @Produces("application/json")
-    public String createRequirement(@PathParam("projectId") int projectId,@PathParam("componentId") int componentId,
+    public String createRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
                                     @ContentParam String requirement) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
@@ -338,17 +333,14 @@ public class BazaarService extends Service {
     /**
      * This method returns a specific requirement within a project.
      *
-     * @param projectId
-     *            the ID of the project of the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement to retrieve.
+     * @param projectId     the ID of the project of the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement to retrieve.
      * @return a specific requirement.
      */
     @GET
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
-    public String getRequirement(@PathParam("projectId") int projectId,@PathParam("componentId") int componentId,
+    public String getRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
                                  @PathParam("requirementId") int requirementId) {
         return "[]";
     }
@@ -356,17 +348,14 @@ public class BazaarService extends Service {
     /**
      * This method updates a specific requirement within a project.
      *
-     * @param projectId
-     *            the ID of the project of the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement to update.
+     * @param projectId     the ID of the project of the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement to update.
      * @return the updated requirement.
      */
     @PUT
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
-    public String updateRequirement(@PathParam("projectId") int projectId,@PathParam("componentId") int componentId,
+    public String updateRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
                                     @PathParam("requirementId") int requirementId) {
         return "[]";
     }
@@ -374,17 +363,14 @@ public class BazaarService extends Service {
     /**
      * This method deletes a specific requirement within a project.
      *
-     * @param projectId
-     *            the ID of the project of the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement to delete.
+     * @param projectId     the ID of the project of the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement to delete.
      * @return the updated requirement.
      */
     @DELETE
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
-    public String deleteRequirement(@PathParam("projectId") int projectId,@PathParam("componentId") int componentId,
+    public String deleteRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
                                     @PathParam("requirementId") int requirementId) {
         // TODO: check if the user may delete this requirement.
         return "[]";
@@ -394,12 +380,9 @@ public class BazaarService extends Service {
     /**
      * This method set the current user as a lead developer for a given requirement
      *
-     * @param projectId
-     *            the ID of the project of the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement.
+     * @param projectId     the ID of the project of the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement.
      * @return
      */
     @POST
@@ -417,12 +400,9 @@ public class BazaarService extends Service {
     /**
      * This method remove the current user as a lead developer for a given requirement
      *
-     * @param projectId
-     *            the ID of the project of the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement.
+     * @param projectId     the ID of the project of the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement.
      * @return
      */
     @DELETE
@@ -442,12 +422,9 @@ public class BazaarService extends Service {
     /**
      * This method returns the developers list of a given requirement.
      *
-     * @param projectId
-     *            the ID of the project of the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement to retrieve.
+     * @param projectId     the ID of the project of the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement to retrieve.
      * @return a list of the developers for the given requirement.
      */
     @GET
@@ -461,12 +438,9 @@ public class BazaarService extends Service {
     /**
      * This method add the current user to the developers list of a given requirement
      *
-     * @param projectId
-     *            the ID of the project of the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement.
+     * @param projectId     the ID of the project of the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement.
      * @return
      */
     @POST
@@ -484,12 +458,9 @@ public class BazaarService extends Service {
     /**
      * This method remove the current user from a developers list of a given requirement
      *
-     * @param projectId
-     *            the ID of the project of the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement.
+     * @param projectId     the ID of the project of the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement.
      * @return
      */
     @DELETE
@@ -509,12 +480,9 @@ public class BazaarService extends Service {
     /**
      * This method returns the followers list of a given requirement.
      *
-     * @param projectId
-     *            the ID of the project of the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement to retrieve.
+     * @param projectId     the ID of the project of the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement to retrieve.
      * @return a list of the followers for the given requirement.
      */
     @GET
@@ -528,12 +496,9 @@ public class BazaarService extends Service {
     /**
      * This method add the current user to the followers list of a given requirement
      *
-     * @param projectId
-     *            the ID of the project of the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement.
+     * @param projectId     the ID of the project of the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement.
      * @return
      */
     @POST
@@ -551,12 +516,9 @@ public class BazaarService extends Service {
     /**
      * This method removes the current user from a followers list of a given requirement
      *
-     * @param projectId
-     *            the ID of the project of the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement.
+     * @param projectId     the ID of the project of the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement.
      * @return
      */
     @DELETE
@@ -576,12 +538,9 @@ public class BazaarService extends Service {
     /**
      * This method creates a vote for the given requirement in the name of the current user.
      *
-     * @param projectId
-     *            the ID of the project of the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement.
+     * @param projectId     the ID of the project of the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement.
      * @return
      */
     @POST
@@ -599,12 +558,9 @@ public class BazaarService extends Service {
     /**
      * This method removes the vote of the given requirement made by the current user
      *
-     * @param projectId
-     *            the ID of the project of the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement.
+     * @param projectId     the ID of the project of the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement.
      * @return
      */
     @DELETE
@@ -628,12 +584,9 @@ public class BazaarService extends Service {
     /**
      * This method returns the list of comments for a specific requirement.
      *
-     * @param projectId
-     *            the ID of the project for the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement, which was commented.
+     * @param projectId     the ID of the project for the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement, which was commented.
      * @return a list of comments
      */
     @GET
@@ -650,14 +603,10 @@ public class BazaarService extends Service {
     /**
      * This method allows to create a new comment fro a requirement.
      *
-     * @param projectId
-     *            the ID of the project for the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement, which was commented.
-     * @return
-     *            true if the creation was successful, otherwise false
+     * @param projectId     the ID of the project for the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement, which was commented.
+     * @return true if the creation was successful, otherwise false
      */
     @POST
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments")
@@ -677,14 +626,10 @@ public class BazaarService extends Service {
     /**
      * This method returns a specific comment within a requirement.
      *
-     * @param projectId
-     *            the ID of the project for the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement, which was commented.
-     * @param commentId
-     *            the ID of the comment, which should be returned.
+     * @param projectId     the ID of the project for the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement, which was commented.
+     * @param commentId     the ID of the comment, which should be returned.
      * @return a specific comment.
      */
     @GET
@@ -721,14 +666,10 @@ public class BazaarService extends Service {
     /**
      * This method deletes a specific comment within a requirement.
      *
-     * @param projectId
-     *            the ID of the project for the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement, which was commented.
-     * @param commentId
-     *            the ID of the comment, which should be deleted.
+     * @param projectId     the ID of the project for the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement, which was commented.
+     * @param commentId     the ID of the comment, which should be deleted.
      * @return the updated requirement.
      */
     @DELETE
@@ -747,12 +688,9 @@ public class BazaarService extends Service {
     /**
      * This method returns the list of attachments for a specific requirement.
      *
-     * @param projectId
-     *            the ID of the project for the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement, whose attachments should be returned.
+     * @param projectId     the ID of the project for the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement, whose attachments should be returned.
      * @return a list of attachments
      */
     @GET
@@ -769,14 +707,10 @@ public class BazaarService extends Service {
     /**
      * This method allows to create a new attachment for a requirement.
      *
-     * @param projectId
-     *            the ID of the project for the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement, which is extended by the attachment.
-     * @return
-     *            true if the creation was successful, otherwise false
+     * @param projectId     the ID of the project for the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement, which is extended by the attachment.
+     * @return true if the creation was successful, otherwise false
      */
     @POST
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments")
@@ -796,14 +730,10 @@ public class BazaarService extends Service {
     /**
      * This method returns a specific attachment within a requirement.
      *
-     * @param projectId
-     *            the ID of the project for the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement, which was commented.
-     * @param attachmentId
-     *            the ID of the attachment, which should be returned.
+     * @param projectId     the ID of the project for the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement, which was commented.
+     * @param attachmentId  the ID of the attachment, which should be returned.
      * @return a specific attachment.
      */
     @GET
@@ -818,14 +748,10 @@ public class BazaarService extends Service {
     /**
      * This method updates a specific attachment within a requirement.
      *
-     * @param projectId
-     *            the ID of the project for the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement, which was commented.
-     * @param attachmentId
-     *            the ID of the attachment, which should be returned.
+     * @param projectId     the ID of the project for the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement, which was commented.
+     * @param attachmentId  the ID of the attachment, which should be returned.
      * @return ??.
      */
     @PUT
@@ -840,14 +766,10 @@ public class BazaarService extends Service {
     /**
      * This method deletes a specific attachment within a requirement.
      *
-     * @param projectId
-     *            the ID of the project for the requirement.
-     * @param componentId
-     *            the id of the component under a given project
-     * @param requirementId
-     *            the ID of the requirement, which was commented.
-     * @param attachmentId
-     *            the ID of the attachment, which should be deleted.
+     * @param projectId     the ID of the project for the requirement.
+     * @param componentId   the id of the component under a given project
+     * @param requirementId the ID of the requirement, which was commented.
+     * @param attachmentId  the ID of the attachment, which should be deleted.
      * @return the updated requirement.
      */
     @DELETE
@@ -880,8 +802,7 @@ public class BazaarService extends Service {
     /**
      * Allows to update a certain project.
      *
-     * @param userId
-     *            the id of the user to be returned.
+     * @param userId the id of the user to be returned.
      * @return a JSON string of the user data specified by the id.
      */
     @GET
@@ -895,10 +816,9 @@ public class BazaarService extends Service {
     /**
      * Allows to update a certain project.
      *
-     * @param userId
-     *            the id of the user to update.
+     * @param userId the id of the user to update.
      * @return a JSON string containing whether the operation was successful or
-     *         not.
+     * not.
      */
     @PUT
     @Path("users/{userId}")

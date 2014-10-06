@@ -18,22 +18,28 @@
  * /
  */
 
-package de.rwth.dbis.acis.bazaar.service.dal.helpers;
+package de.rwth.dbis.acis.bazaar.service.exception;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/12/2014
+ * @since 10/6/2014
  */
-public interface Pageable {
-    int getOffset();
+public enum ErrorCode {
+    UNKNOWN("000", "Unknown, unexpected exception occurred");
 
-    int getPageNumber();
+    private final String code;
+    private final String message;
 
-    int getPageSize();
+    public String asCode() {
+        return code;
+    }
 
-    SortDirection getSortDirection();
+    public String getMessage() {
+        return message;
+    }
 
-    public enum SortDirection {
-        DEFAULT, ASC, DESC
+    private ErrorCode(String code, String message) {
+        this.code = code;
+        this.message = message;
     }
 }

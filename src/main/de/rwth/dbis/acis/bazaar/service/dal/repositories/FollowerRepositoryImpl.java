@@ -23,7 +23,12 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Follower;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.FollowerTransformator;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.exception.DataAccessException;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Followers.FOLLOWERS;
 
@@ -31,18 +36,22 @@ import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Followers.FOLLOWE
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
-public class FollowerRepositoryImpl extends RepositoryImpl<Follower,FollowersRecord> implements FollowerRepository {
+public class FollowerRepositoryImpl extends RepositoryImpl<Follower, FollowersRecord> implements FollowerRepository {
     /**
-     * @param jooq          DSLContext for JOOQ connection
+     * @param jooq DSLContext for JOOQ connection
      */
     public FollowerRepositoryImpl(DSLContext jooq) {
         super(jooq, new FollowerTransformator());
     }
 
     @Override
-    public void delete(int userId, int requirementId) {
-        jooq.delete(FOLLOWERS)
-                .where(FOLLOWERS.USER_ID.equal(userId).and(FOLLOWERS.REQUIREMENT_ID.equal(requirementId)))
-                .execute();
+    public void delete(int userId, int requirementId) throws BazaarException {
+        try {
+            jooq.delete(FOLLOWERS)
+                    .where(FOLLOWERS.USER_ID.equal(userId).and(FOLLOWERS.REQUIREMENT_ID.equal(requirementId)))
+                    .execute();
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
     }
 }

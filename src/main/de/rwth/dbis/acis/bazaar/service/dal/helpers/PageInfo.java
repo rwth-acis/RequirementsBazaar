@@ -30,7 +30,7 @@ public class PageInfo implements Pageable {
     private final SortDirection sortDirection;
 
     public PageInfo(int pageNumber, int pageSize) {
-        this(pageNumber,pageSize,SortDirection.DEFAULT);
+        this(pageNumber, pageSize, SortDirection.DEFAULT);
     }
 
     public PageInfo(int pageNumber, int pageSize, SortDirection sortDirection) {

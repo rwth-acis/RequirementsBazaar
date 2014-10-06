@@ -71,15 +71,15 @@ public class TagTransformator implements Transformator<de.rwth.dbis.acis.bazaar.
 
     @Override
     public Map<Field, Object> getUpdateMap(final Tag entity) {
-        return new HashMap<Field, Object>(){{
-            put(TAGS.COMPONENTS_ID,entity.getComponentId());
-            put(TAGS.REQUIREMENTS_ID,entity.getRequirementId());
+        return new HashMap<Field, Object>() {{
+            put(TAGS.COMPONENTS_ID, entity.getComponentId());
+            put(TAGS.REQUIREMENTS_ID, entity.getRequirementId());
         }};
     }
 
     @Override
     public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
-        switch (sortDirection){
+        switch (sortDirection) {
             case DEFAULT:
                 return Arrays.asList(TAGS.ID.asc());
             case ASC:

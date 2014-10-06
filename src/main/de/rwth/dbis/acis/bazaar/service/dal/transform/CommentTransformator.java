@@ -72,7 +72,7 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
 
     @Override
     public Map<Field, Object> getUpdateMap(final Comment entity) {
-        return new HashMap<Field, Object>(){{
+        return new HashMap<Field, Object>() {{
             put(COMMENTS.REQUIREMENT_ID, entity.getRequirementId());
             put(COMMENTS.USER_ID, entity.getCreatorId());
             put(COMMENTS.MESSAGE, entity.getMessage());

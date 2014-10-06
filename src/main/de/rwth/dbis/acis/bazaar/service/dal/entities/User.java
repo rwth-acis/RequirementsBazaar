@@ -41,12 +41,12 @@ public class User extends EntityBase {
 
 
     public User(Builder builder) {
-        Id =                builder.id;
-        this.firstName =    builder.firstName;
-        this.lastName =     builder.lastName;
-        this.eMail =        builder.eMail;
-        this.admin =        builder.admin;
-        Las2peerId =        builder.las2peerId;
+        Id = builder.id;
+        this.firstName = builder.firstName;
+        this.lastName = builder.lastName;
+        this.eMail = builder.eMail;
+        this.admin = builder.admin;
+        Las2peerId = builder.las2peerId;
         this.userName = builder.userName;
 
     }
@@ -80,8 +80,7 @@ public class User extends EntityBase {
     }
 
 
-
-    public static Builder geBuilder(String eMail){
+    public static Builder geBuilder(String eMail) {
         return new Builder(eMail);
     }
 
@@ -97,7 +96,6 @@ public class User extends EntityBase {
         private boolean admin;
         private int las2peerId;
         private String userName;
-
 
 
         public Builder(String eMail) {

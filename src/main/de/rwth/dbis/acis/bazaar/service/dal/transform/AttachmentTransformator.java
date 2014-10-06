@@ -29,6 +29,7 @@ import java.sql.Timestamp;
 import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachments.ATTACHMENTS;
+
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/22/2014
@@ -45,15 +46,15 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
         attachmentsRecord.setUserId(entity.getCreatorId());
         attachmentsRecord.setTitle(entity.getTitle());
 
-        if(entity instanceof File)
+        if (entity instanceof File)
             fillFile(attachmentsRecord, (File) entity);
-        else if(entity instanceof FreeStory)
+        else if (entity instanceof FreeStory)
             fillFreeStory(attachmentsRecord, (FreeStory) entity);
-        else if(entity instanceof Image)
+        else if (entity instanceof Image)
             fillImage(attachmentsRecord, (Image) entity);
-        else if(entity instanceof Log)
+        else if (entity instanceof Log)
             fillLog(attachmentsRecord, (Log) entity);
-        else if(entity instanceof UserStory)
+        else if (entity instanceof UserStory)
             fillUserStory(attachmentsRecord, (UserStory) entity);
 
         return attachmentsRecord;
@@ -99,7 +100,7 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
         Attachment entity = null;
         AttachmentType type = AttachmentType.getEnum(record.getDiscriminator());
 
-        switch (type){
+        switch (type) {
             case UserStory:
                 entity = UserStory.getBuilder()
                         .object(record.getObject())
@@ -177,7 +178,7 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
 
     @Override
     public Map<Field, Object> getUpdateMap(final Attachment entity) {
-        return new HashMap<Field, Object>(){{
+        return new HashMap<Field, Object>() {{
             put(ATTACHMENTS.USER_ID, entity.getCreatorId());
             put(ATTACHMENTS.TITLE, entity.getTitle());
             put(ATTACHMENTS.REQUIREMENT_ID, entity.getRequirementId());
@@ -200,17 +201,16 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
     @Override
     public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
         return Arrays.asList(
-                    ATTACHMENTS.TITLE.likeIgnoreCase(likeExpression)
-                .or(ATTACHMENTS.DESCRIPTION.likeIgnoreCase(likeExpression))
-                .or(ATTACHMENTS.OBJECT_DESC.likeIgnoreCase(likeExpression))
-                .or(ATTACHMENTS.STORY.likeIgnoreCase(likeExpression))
-                .or(ATTACHMENTS.SUBJECT.likeIgnoreCase(likeExpression))
+                ATTACHMENTS.TITLE.likeIgnoreCase(likeExpression)
+                        .or(ATTACHMENTS.DESCRIPTION.likeIgnoreCase(likeExpression))
+                        .or(ATTACHMENTS.OBJECT_DESC.likeIgnoreCase(likeExpression))
+                        .or(ATTACHMENTS.STORY.likeIgnoreCase(likeExpression))
+                        .or(ATTACHMENTS.SUBJECT.likeIgnoreCase(likeExpression))
         );
     }
 }
 
-enum AttachmentType
-{
+enum AttachmentType {
     UserStory("U"), //UserStory
     Log("L"), //Log
     Image("I"), //Image
@@ -222,17 +222,19 @@ enum AttachmentType
     AttachmentType(String u) {
         this.value = u;
     }
+
     public String getValue() {
         return value;
     }
+
     @Override
     public String toString() {
         return this.getValue();
     }
 
     public static AttachmentType getEnum(String value) {
-        for(AttachmentType v : values())
-            if(v.getValue().equalsIgnoreCase(value)) return v;
+        for (AttachmentType v : values())
+            if (v.getValue().equalsIgnoreCase(value)) return v;
         throw new IllegalArgumentException();
     }
 }

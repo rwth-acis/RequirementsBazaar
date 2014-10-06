@@ -23,7 +23,12 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Developer;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.DevelopersRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.DeveloperTransformator;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.exception.DataAccessException;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Developers.DEVELOPERS;
 
@@ -31,18 +36,22 @@ import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Developers.DEVELO
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
-public class DeveloperRepositoryImpl extends RepositoryImpl<Developer,DevelopersRecord> implements DeveloperRepository {
+public class DeveloperRepositoryImpl extends RepositoryImpl<Developer, DevelopersRecord> implements DeveloperRepository {
     /**
-     * @param jooq          DSLContext for JOOQ connection
+     * @param jooq DSLContext for JOOQ connection
      */
     public DeveloperRepositoryImpl(DSLContext jooq) {
         super(jooq, new DeveloperTransformator());
     }
 
     @Override
-    public void delete(int userId, int requirementId) {
-        jooq.delete(DEVELOPERS)
-                .where(DEVELOPERS.USER_ID.equal(userId).and(DEVELOPERS.REQUIREMENT_ID.equal(requirementId)))
-                .execute();
+    public void delete(int userId, int requirementId) throws BazaarException {
+        try {
+            jooq.delete(DEVELOPERS)
+                    .where(DEVELOPERS.USER_ID.equal(userId).and(DEVELOPERS.REQUIREMENT_ID.equal(requirementId)))
+                    .execute();
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
     }
 }

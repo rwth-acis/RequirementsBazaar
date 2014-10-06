@@ -23,6 +23,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord;
+
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS;
 
 import org.jooq.*;
@@ -76,7 +77,7 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
 
     @Override
     public Map<Field, Object> getUpdateMap(final Project entry) {
-        return new HashMap<Field, Object>(){{
+        return new HashMap<Field, Object>() {{
             put(PROJECTS.DESCRIPTION, entry.getDescription());
             put(PROJECTS.NAME, entry.getName());
         }};
@@ -99,8 +100,8 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
     @Override
     public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
         return Arrays.asList(
-                    PROJECTS.NAME.likeIgnoreCase(likeExpression)
-                .or(PROJECTS.DESCRIPTION.likeIgnoreCase(likeExpression))
+                PROJECTS.NAME.likeIgnoreCase(likeExpression)
+                        .or(PROJECTS.DESCRIPTION.likeIgnoreCase(likeExpression))
         );
     }
 }

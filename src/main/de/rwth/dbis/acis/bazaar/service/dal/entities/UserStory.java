@@ -49,7 +49,7 @@ public class UserStory extends Attachment {
         return objectDescription;
     }
 
-    public static Builder getBuilder(){
+    public static Builder getBuilder() {
         return new Builder();
     }
 
