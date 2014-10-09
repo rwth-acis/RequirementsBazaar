@@ -56,6 +56,8 @@ public interface DALFacade {
      */
     public User getUserById(int userId) throws Exception;
 
+
+    public Integer getUserIdByLAS2PeerId(int las2PeerId) throws Exception;
     //endregion
 
     //region Project
@@ -182,6 +184,13 @@ public interface DALFacade {
      *
      * @param component hold the modified data
      */
+
+    /**
+     * @param componentId identifier of the component should be returned
+     * @return the component and all of its data with the given id.
+     */
+    public Component getComponentById(int componentId) throws Exception;
+
     public void modifyComponent(Component component) throws Exception;
 
 

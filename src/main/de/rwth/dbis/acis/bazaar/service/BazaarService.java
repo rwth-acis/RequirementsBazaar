@@ -20,6 +20,9 @@
 
 package de.rwth.dbis.acis.bazaar.service;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -51,7 +54,6 @@ import com.google.gson.Gson;
 
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 
 /**
@@ -173,8 +175,23 @@ public class BazaarService extends Service {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new project
         // TODO: check whether all required parameters are entered
+        String resultJSON = "{success = true}";
+        try {
+            Gson gson = new Gson();
+            createConnection();
+            Project projectToCreate = gson.fromJson(project, Project.class);
+            dalFacade.createProject(projectToCreate);
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
-        return ("{success=false}");
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
     /**
@@ -188,7 +205,22 @@ public class BazaarService extends Service {
     @Produces("application/json")
     public String getProject(@PathParam("projectId") int projectId) {
         // TODO: check whether the current user may request this project
-        return "{}";
+        String resultJSON = "{}";
+        try {
+            createConnection();
+            Project projectToReturn = dalFacade.getProjectById(projectId);
+            resultJSON = projectToReturn.toJSON();
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
     /**
@@ -198,21 +230,36 @@ public class BazaarService extends Service {
      * @return a JSON string containing whether the operation was successful or
      * not.
      */
-    @PUT
-    @Path("projects/{projectId}")
-    @Produces("application/json")
-    public String updateProject(@PathParam("projectId") int projectId) {
-        // TODO: check if user can change this project
-        return "{success=false}";
-    }
+    //TODO CORRECT PARAMETER, ID IS NOT ENOUGH TO UPDATE
+//    @PUT
+//    @Path("projects/{projectId}")
+//    @Produces("application/json")
+//    public String updateProject(@PathParam("projectId") int projectId) {
+//
+//    }
 
-    @DELETE
-    @Path("projects/{projectId}")
-    @Produces("application/json")
-    public String deleteProject(@PathParam("projectId") int projectId) {
-        // TODO: check if user can delete this project
-        return "{success=false}";
-    }
+    //TODO DELETE PROJECT, DID WE WANTED IT
+//    @DELETE
+//    @Path("projects/{projectId}")
+//    @Produces("application/json")
+//    public String deleteProject(@PathParam("projectId") int projectId) {
+//        // TODO: check if user can delete this project
+//        String resultJSON = "{success = true}";
+//        try {
+//            createConnection();
+//            dalFacade.delePR(projectToCreate);
+//        } catch (BazaarException bex) {
+//            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+//        } catch (Exception ex) {
+//            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+//            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+//
+//        } finally {
+//            closeConnection();
+//        }
+//
+//        return resultJSON;
+//    }
 
     /**********************************
      * COMPONENTS
@@ -231,7 +278,23 @@ public class BazaarService extends Service {
             @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
         // TODO: if the user is not logged in, return all the public projects.
         // Otherwise return all the user can see.
-        return "[]";
+        String resultJSON = "[]";
+        try {
+            Gson gson = new Gson();
+            createConnection();
+            List<Component> components = dalFacade.listComponentsByProjectId(projectId, new PageInfo(page,perPage));
+            resultJSON = gson.toJson(components);
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
     /**
@@ -248,7 +311,23 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new project
         // TODO: check whether all required parameters are entered
 
-        return ("{success=false}");
+        String resultJSON = "{success = true}";
+        try {
+            Gson gson = new Gson();
+            createConnection();
+            Component componentToCreate = gson.fromJson(component, Component.class);
+            dalFacade.createComponent(componentToCreate);
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
     /**
@@ -263,31 +342,59 @@ public class BazaarService extends Service {
     @Produces("application/json")
     public String getComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId) {
         // TODO: check whether the current user may request this project
-        return "{}";
+        String resultJSON = "{}";
+        try {
+            createConnection();
+            resultJSON = dalFacade.getComponentById(componentId).toJSON();
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
-    /**
-     * Allows to update a certain component under a project.
-     *
-     * @param projectId   the id of the project
-     * @param componentId the id of the component under a given project
-     * @return a JSON string containing whether the operation was successful or
-     * not.
-     */
-    @PUT
-    @Path("projects/{projectId}/components/{componentId}")
-    @Produces("application/json")
-    public String updateComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId) {
-        // TODO: check if user can change this project
-        return "{success=false}";
-    }
+//    /**
+//     * Allows to update a certain component under a project.
+//     *
+//     * @param projectId   the id of the project
+//     * @param componentId the id of the component under a given project
+//     * @return a JSON string containing whether the operation was successful or
+//     * not.
+//     */
+//    @PUT
+//    @Path("projects/{projectId}/components/{componentId}")
+//    @Produces("application/json")
+//    public String updateComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId) {
+//        // TODO: check if user can change this project
+//        return "{success=false}";
+//    }
 
     @DELETE
     @Path("projects/{projectId}/components/{componentId}")
     @Produces("application/json")
     public String deleteComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId) {
         // TODO: check if user can delete this project
-        return "{success=false}";
+        String resultJSON = "{success = true}";
+        try {
+            createConnection();
+            dalFacade.deleteComponentById(componentId);
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
     /**********************************
@@ -295,7 +402,7 @@ public class BazaarService extends Service {
      **********************************/
 
     /**
-     * This method returns the list of requirements for a specific project and component.
+     * This method returns the list of requirements for a specific project.
      *
      * @param projectId   the ID of the project to retrieve requirements for.
      * @param componentId the id of the component under a given project
@@ -304,10 +411,58 @@ public class BazaarService extends Service {
     @GET
     @Path("projects/{projectId}/components/{componentId}/requirements")
     @Produces("application/json")
-    public String getRequirements(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
+    public String getRequirementsByProject(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
                                   @QueryParam(name = "page", defaultValue = "0") int page,
                                   @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
-        return "The requirements for project " + projectId + ".";
+        String resultJSON = "[]";
+        try {
+            Gson gson = new Gson();
+            createConnection();
+            List<Requirement> requirements = dalFacade.listRequirementsByProject(projectId, new PageInfo(page, perPage));
+            resultJSON = gson.toJson(requirements);
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
+    }
+
+    /**
+     * This method returns the list of requirements for a specific component.
+     *
+     * @param projectId   the ID of the project to retrieve requirements for.
+     * @param componentId the id of the component under a given project
+     * @return a list of requirements
+     */
+    @GET
+    @Path("projects/{projectId}/components/{componentId}/requirements")
+    @Produces("application/json")
+    public String getRequirementsByComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
+                                           @QueryParam(name = "page", defaultValue = "0") int page,
+                                           @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
+        String resultJSON = "[]";
+        try {
+            Gson gson = new Gson();
+            createConnection();
+            List<Requirement> requirements = dalFacade.listRequirementsByComponent(componentId, new PageInfo(page, perPage));
+            resultJSON = gson.toJson(requirements);
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
     /**
@@ -327,7 +482,23 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        return ("{success=false}");
+        String resultJSON = "{success = true}";
+        try {
+            Gson gson = new Gson();
+            createConnection();
+            Requirement requirementToCreate = gson.fromJson(requirement, Requirement.class);
+            dalFacade.createRequirement(requirementToCreate);
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
     /**
@@ -342,23 +513,38 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
     public String getRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
                                  @PathParam("requirementId") int requirementId) {
-        return "[]";
+        String resultJSON = "{}";
+        try {
+            createConnection();
+            resultJSON = dalFacade.getRequirementById(requirementId).toJSON();
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
-    /**
-     * This method updates a specific requirement within a project.
-     *
-     * @param projectId     the ID of the project of the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement to update.
-     * @return the updated requirement.
-     */
-    @PUT
-    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
-    public String updateRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
-                                    @PathParam("requirementId") int requirementId) {
-        return "[]";
-    }
+    //TODO
+//    /**
+//     * This method updates a specific requirement within a project.
+//     *
+//     * @param projectId     the ID of the project of the requirement.
+//     * @param componentId   the id of the component under a given project
+//     * @param requirementId the ID of the requirement to update.
+//     * @return the updated requirement.
+//     */
+//    @PUT
+//    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
+//    public String updateRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
+//                                    @PathParam("requirementId") int requirementId) {
+//        return "[]";
+//    }
 
     /**
      * This method deletes a specific requirement within a project.
@@ -373,67 +559,99 @@ public class BazaarService extends Service {
     public String deleteRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
                                     @PathParam("requirementId") int requirementId) {
         // TODO: check if the user may delete this requirement.
-        return "[]";
+        String resultJSON = "{success = true}";
+        try {
+            createConnection();
+            dalFacade.deleteRequirementById(requirementId);
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
 
-    /**
-     * This method set the current user as a lead developer for a given requirement
-     *
-     * @param projectId     the ID of the project of the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement.
-     * @return
-     */
-    @POST
-    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/lead_developer")
-    public String setLeadDeveloper(@PathParam("projectId") int projectId,
-                                   @PathParam("componentId") int componentId,
-                                   @PathParam("requirementId") int requirementId) {
-        long userId = ((UserAgent) getActiveAgent()).getId();
-        // TODO: check whether the current user may create a new requirement
-        // TODO: check whether all required parameters are entered
+    //TODO IS IT NEEDED??? NOT A SIMPLE UPDATE?
+//    /**
+//     * This method set the current user as a lead developer for a given requirement
+//     *
+//     * @param projectId     the ID of the project of the requirement.
+//     * @param componentId   the id of the component under a given project
+//     * @param requirementId the ID of the requirement.
+//     * @return
+//     */
+//    @POST
+//    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/lead_developer")
+//    public String setLeadDeveloper(@PathParam("projectId") int projectId,
+//                                   @PathParam("componentId") int componentId,
+//                                   @PathParam("requirementId") int requirementId) {
+//        long userId = ((UserAgent) getActiveAgent()).getId();
+//        // TODO: check whether the current user may create a new requirement
+//        // TODO: check whether all required parameters are entered
+//
+//
+//        return resultJSON;
+//    }
 
-        return ("{success=false}");
-    }
+    // TODO NOT SIMPLY UPDATE??
+//    /**
+//     * This method remove the current user as a lead developer for a given requirement
+//     *
+//     * @param projectId     the ID of the project of the requirement.
+//     * @param componentId   the id of the component under a given project
+//     * @param requirementId the ID of the requirement.
+//     * @return
+//     */
+//    @DELETE
+//    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/lead_developer")
+//    @Consumes("application/json")
+//    @Produces("application/json")
+//    public String removeLeadDeveloper(@PathParam("projectId") int projectId,
+//                                      @PathParam("componentId") int componentId,
+//                                      @PathParam("requirementId") int requirementId) {
+//        long userId = ((UserAgent) getActiveAgent()).getId();
+//        // TODO: check whether the current user may create a new requirement
+//        // TODO: check whether all required parameters are entered
+//
+//        return ("{success=false}");
+//    }
 
-    /**
-     * This method remove the current user as a lead developer for a given requirement
-     *
-     * @param projectId     the ID of the project of the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement.
-     * @return
-     */
-    @DELETE
-    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/lead_developer")
-    @Consumes("application/json")
-    @Produces("application/json")
-    public String removeLeadDeveloper(@PathParam("projectId") int projectId,
-                                      @PathParam("componentId") int componentId,
-                                      @PathParam("requirementId") int requirementId) {
-        long userId = ((UserAgent) getActiveAgent()).getId();
-        // TODO: check whether the current user may create a new requirement
-        // TODO: check whether all required parameters are entered
-
-        return ("{success=false}");
-    }
-
-    /**
-     * This method returns the developers list of a given requirement.
-     *
-     * @param projectId     the ID of the project of the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement to retrieve.
-     * @return a list of the developers for the given requirement.
-     */
-    @GET
-    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/developers")
-    public String getDevelopers(@PathParam("projectId") int projectId,
-                                @PathParam("componentId") int componentId,
-                                @PathParam("requirementId") int requirementId) {
-        return "[]";
-    }
+    // TODO included in requirement.
+//    /**
+//     * This method returns the developers list of a given requirement.
+//     *
+//     * @param projectId     the ID of the project of the requirement.
+//     * @param componentId   the id of the component under a given project
+//     * @param requirementId the ID of the requirement to retrieve.
+//     * @return a list of the developers for the given requirement.
+//     */
+//    @GET
+//    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/developers")
+//    public String getDevelopers(@PathParam("projectId") int projectId,
+//                                @PathParam("componentId") int componentId,
+//                                @PathParam("requirementId") int requirementId) {
+//        String resultJSON = "[]";
+//        try {
+//            createConnection();
+//            dalFacade.list(requirementId);
+//        } catch (BazaarException bex) {
+//            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+//        } catch (Exception ex) {
+//            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+//            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+//
+//        } finally {
+//            closeConnection();
+//        }
+//
+//        return resultJSON;
+//    }
 
     /**
      * This method add the current user to the developers list of a given requirement
@@ -452,7 +670,26 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        return ("{success=false}");
+        String resultJSON = "{success = true}";
+        try {
+            createConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
+            if (internalUserId == null) {
+                resultJSON = "{success = false}";
+            } else {
+                dalFacade.wantToDevelop(internalUserId,requirementId);
+            }
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
     /**
@@ -474,24 +711,44 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        return ("{success=false}");
+        String resultJSON = "{success = true}";
+        try {
+            createConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
+            if (internalUserId == null) {
+                resultJSON = "{success = false}";
+            } else {
+                dalFacade.notWantToDevelop(internalUserId,requirementId);
+            }
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
-    /**
-     * This method returns the followers list of a given requirement.
-     *
-     * @param projectId     the ID of the project of the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement to retrieve.
-     * @return a list of the followers for the given requirement.
-     */
-    @GET
-    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/followers")
-    public String getFollowers(@PathParam("projectId") int projectId,
-                               @PathParam("componentId") int componentId,
-                               @PathParam("requirementId") int requirementId) {
-        return "[]";
-    }
+    // TODO included in requirement
+//    /**
+//     * This method returns the followers list of a given requirement.
+//     *
+//     * @param projectId     the ID of the project of the requirement.
+//     * @param componentId   the id of the component under a given project
+//     * @param requirementId the ID of the requirement to retrieve.
+//     * @return a list of the followers for the given requirement.
+//     */
+//    @GET
+//    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/followers")
+//    public String getFollowers(@PathParam("projectId") int projectId,
+//                               @PathParam("componentId") int componentId,
+//                               @PathParam("requirementId") int requirementId) {
+//        return "[]";
+//    }
 
     /**
      * This method add the current user to the followers list of a given requirement
@@ -510,7 +767,26 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        return ("{success=false}");
+        String resultJSON = "{success = true}";
+        try {
+            createConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
+            if (internalUserId == null) {
+                resultJSON = "{success = false}";
+            } else {
+                dalFacade.follow(internalUserId,requirementId);
+            }
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
     /**
@@ -532,7 +808,26 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        return ("{success=false}");
+        String resultJSON = "{success = true}";
+        try {
+            createConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
+            if (internalUserId == null) {
+                resultJSON = "{success = false}";
+            } else {
+                dalFacade.unFollow(internalUserId,requirementId);
+            }
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
     /**
@@ -544,14 +839,36 @@ public class BazaarService extends Service {
      * @return
      */
     @POST
-    @Path("projects/{projectId}/components/{componentId}/requirements")
+    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/vote")
     @Produces("application/json")
     @Consumes("application/json")
     public String addVote(@PathParam("projectId") int projectId,
                           @PathParam("componentId") int componentId,
                           @PathParam("requirementId") int requirementId,
                           @QueryParam(name = "direction", defaultValue = "up") String direction) {
-        return "The requirements for project " + projectId + ".";
+
+        long userId = ((UserAgent) getActiveAgent()).getId();
+
+        String resultJSON = "{success = true}";
+        try {
+            createConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
+            if (internalUserId == null) {
+                resultJSON = "{success = false}";
+            } else {
+                dalFacade.vote(internalUserId, requirementId, direction.equals("up"));
+            }
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
 
@@ -574,7 +891,26 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        return ("{success=false}");
+        String resultJSON = "{success = true}";
+        try {
+            createConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
+            if (internalUserId == null) {
+                resultJSON = "{success = false}";
+            } else {
+                dalFacade.unVote(internalUserId,requirementId);
+            }
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
     /**********************************
@@ -597,7 +933,25 @@ public class BazaarService extends Service {
                               @PathParam("requirementId") int requirementId,
                               @QueryParam(name = "page", defaultValue = "0") int page,
                               @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
-        return "The comments for requirement " + projectId + ".";
+        long userId = ((UserAgent) getActiveAgent()).getId();
+
+        String resultJSON = "[]";
+        try {
+            createConnection();
+            List<Comment> comments = dalFacade.listCommentsByRequirementId(requirementId, new PageInfo(page, perPage));
+            Gson gson = new Gson();
+            resultJSON = gson.toJson(comments);
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
     /**
@@ -620,26 +974,43 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        return ("{success=false}");
+        String resultJSON = "{success = true}";
+        try {
+            createConnection();
+            Gson gson = new Gson();
+            Comment commentToCreate = gson.fromJson(comment,Comment.class);
+            dalFacade.createComment(commentToCreate);
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
-    /**
-     * This method returns a specific comment within a requirement.
-     *
-     * @param projectId     the ID of the project for the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement, which was commented.
-     * @param commentId     the ID of the comment, which should be returned.
-     * @return a specific comment.
-     */
-    @GET
-    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments/{commentId}")
-    public String getComment(@PathParam("projectId") int projectId,
-                             @PathParam("componentId") int componentId,
-                             @PathParam("requirementId") int requirementId,
-                             @PathParam("commentId") int commentId) {
-        return "[]";
-    }
+        // TODO IS IT NEEDED?
+//    /**
+//     * This method returns a specific comment within a requirement.
+//     *
+//     * @param projectId     the ID of the project for the requirement.
+//     * @param componentId   the id of the component under a given project
+//     * @param requirementId the ID of the requirement, which was commented.
+//     * @param commentId     the ID of the comment, which should be returned.
+//     * @return a specific comment.
+//     */
+//    @GET
+//    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments/{commentId}")
+//    public String getComment(@PathParam("projectId") int projectId,
+//                             @PathParam("componentId") int componentId,
+//                             @PathParam("requirementId") int requirementId,
+//                             @PathParam("commentId") int commentId) {
+//        return "[]";
+//    }
 
 //    /**
 //     * This method updates a specific comment within a requirement.
@@ -679,30 +1050,47 @@ public class BazaarService extends Service {
                                     @PathParam("requirementId") int requirementId,
                                     @PathParam("commentId") int commentId) {
         // TODO: check if the user may delete this requirement.
-        return "[]";
+        long userId = ((UserAgent) getActiveAgent()).getId();
+        String resultJSON = "{success = true}";
+        try {
+            createConnection();
+            dalFacade.deleteCommentById(commentId);
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
     /**********************************
      * ATTACHMENTS
      **********************************/
-    /**
-     * This method returns the list of attachments for a specific requirement.
-     *
-     * @param projectId     the ID of the project for the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement, whose attachments should be returned.
-     * @return a list of attachments
-     */
-    @GET
-    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments")
-    @Produces("application/json")
-    public String getAttachments(@PathParam("projectId") int projectId,
-                                 @PathParam("componentId") int componentId,
-                                 @PathParam("requirementId") int requirementId,
-                                 @QueryParam(name = "page", defaultValue = "0") int page,
-                                 @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
-        return "The attachments for requirement " + projectId + ".";
-    }
+
+        // TODO INCLUDED IN REQUIREMENT?
+//    /**
+//     * This method returns the list of attachments for a specific requirement.
+//     *
+//     * @param projectId     the ID of the project for the requirement.
+//     * @param componentId   the id of the component under a given project
+//     * @param requirementId the ID of the requirement, whose attachments should be returned.
+//     * @return a list of attachments
+//     */
+//    @GET
+//    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments")
+//    @Produces("application/json")
+//    public String getAttachments(@PathParam("projectId") int projectId,
+//                                 @PathParam("componentId") int componentId,
+//                                 @PathParam("requirementId") int requirementId,
+//                                 @QueryParam(name = "page", defaultValue = "0") int page,
+//                                 @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
+//
+//    }
 
     /**
      * This method allows to create a new attachment for a requirement.
@@ -724,44 +1112,63 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        return ("{success=false}");
+        String resultJSON = "{success = true}";
+        try {
+            createConnection();
+            Gson gson = new Gson();
+            //TODO??? HOW DOES IT KNOW THE TYPE
+            Attachment attachmentToCreate = gson.fromJson(attachment,Attachment.class);
+            dalFacade.createAttachment(attachmentToCreate);
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
-    /**
-     * This method returns a specific attachment within a requirement.
-     *
-     * @param projectId     the ID of the project for the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement, which was commented.
-     * @param attachmentId  the ID of the attachment, which should be returned.
-     * @return a specific attachment.
-     */
-    @GET
-    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments/{attachmentId}")
-    public String getAttachment(@PathParam("projectId") int projectId,
-                                @PathParam("componentId") int componentId,
-                                @PathParam("requirementId") int requirementId,
-                                @PathParam("attachmentId") int attachmentId) {
-        return "[]";
-    }
+        // TODO INCLUDED IN REQUIREMENT? NEEDED?
+//    /**
+//     * This method returns a specific attachment within a requirement.
+//     *
+//     * @param projectId     the ID of the project for the requirement.
+//     * @param componentId   the id of the component under a given project
+//     * @param requirementId the ID of the requirement, which was commented.
+//     * @param attachmentId  the ID of the attachment, which should be returned.
+//     * @return a specific attachment.
+//     */
+//    @GET
+//    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments/{attachmentId}")
+//    public String getAttachment(@PathParam("projectId") int projectId,
+//                                @PathParam("componentId") int componentId,
+//                                @PathParam("requirementId") int requirementId,
+//                                @PathParam("attachmentId") int attachmentId) {
+//        return "[]";
+//    }
 
-    /**
-     * This method updates a specific attachment within a requirement.
-     *
-     * @param projectId     the ID of the project for the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement, which was commented.
-     * @param attachmentId  the ID of the attachment, which should be returned.
-     * @return ??.
-     */
-    @PUT
-    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments/{attachmentId}")
-    public String updateAttachment(@PathParam("projectId") int projectId,
-                                   @PathParam("componentId") int componentId,
-                                   @PathParam("requirementId") int requirementId,
-                                   @PathParam("attachmentId") int attachmentId) {
-        return "[]";
-    }
+        //TODO UPDATE?
+//    /**
+//     * This method updates a specific attachment within a requirement.
+//     *
+//     * @param projectId     the ID of the project for the requirement.
+//     * @param componentId   the id of the component under a given project
+//     * @param requirementId the ID of the requirement, which was commented.
+//     * @param attachmentId  the ID of the attachment, which should be returned.
+//     * @return ??.
+//     */
+//    @PUT
+//    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments/{attachmentId}")
+//    public String updateAttachment(@PathParam("projectId") int projectId,
+//                                   @PathParam("componentId") int componentId,
+//                                   @PathParam("requirementId") int requirementId,
+//                                   @PathParam("attachmentId") int attachmentId) {
+//        return "[]";
+//    }
 
     /**
      * This method deletes a specific attachment within a requirement.
@@ -779,25 +1186,40 @@ public class BazaarService extends Service {
                                    @PathParam("requirementId") int requirementId,
                                    @PathParam("attachmentId") int attachmentId) {
         // TODO: check if the user may delete this requirement.
-        return "[]";
+        String resultJSON = "{success = true}";
+        try {
+            createConnection();
+            dalFacade.deleteAttachmentById(attachmentId);
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
     /**********************************
      * USERS
      **********************************/
 
-    /**
-     * Retrieves a list of all users.
-     *
-     * @return a JSON encoded list of all users.
-     */
-    @GET
-    @Path("users")
-    @Produces("application/json")
-    public String getUsers() {
-        // TODO: check if the admin user wants to retrieve all users.
-        return "[]";
-    }
+    // TODO SHOULD IT EXISTS?
+//    /**
+//     * Retrieves a list of all users.
+//     *
+//     * @return a JSON encoded list of all users.
+//     */
+//    @GET
+//    @Path("users")
+//    @Produces("application/json")
+//    public String getUsers() {
+//        // TODO: check if the admin user wants to retrieve all users.
+//
+//    }
 
     /**
      * Allows to update a certain project.
@@ -810,21 +1232,36 @@ public class BazaarService extends Service {
     @Produces("application/json")
     public String getUser(@PathParam("userId") int userId) {
         // TODO: check whether the current user may request this project
-        return "{}";
+        String resultJSON = "{}";
+        try {
+            createConnection();
+            resultJSON = dalFacade.getUserById(userId).toJSON();
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection();
+        }
+
+        return resultJSON;
     }
 
-    /**
-     * Allows to update a certain project.
-     *
-     * @param userId the id of the user to update.
-     * @return a JSON string containing whether the operation was successful or
-     * not.
-     */
-    @PUT
-    @Path("users/{userId}")
-    @Produces("application/json")
-    public String updateUser(@PathParam("userId") int userId) {
-        // TODO: check if user can change this project
-        return "{success=false}";
-    }
+    //TODO UPDATE?
+//    /**
+//     * Allows to update a certain project.
+//     *
+//     * @param userId the id of the user to update.
+//     * @return a JSON string containing whether the operation was successful or
+//     * not.
+//     */
+//    @PUT
+//    @Path("users/{userId}")
+//    @Produces("application/json")
+//    public String updateUser(@PathParam("userId") int userId) {
+//        // TODO: check if user can change this project
+//        return "{success=false}";
+//    }
 }

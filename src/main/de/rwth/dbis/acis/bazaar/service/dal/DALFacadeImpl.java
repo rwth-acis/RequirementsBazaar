@@ -81,6 +81,12 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public Integer getUserIdByLAS2PeerId(int las2PeerId) throws Exception {
+        userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
+        return userRepository.getIdByLas2PeerId(las2PeerId);
+    }
+
+    @Override
     public List<Project> listPublicProjects(Pageable pageable) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         return projectRepository.findAllPublic(pageable);
@@ -174,6 +180,12 @@ public class DALFacadeImpl implements DALFacade {
     public void createComponent(Component component) throws BazaarException {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
         componentRepository.add(component);
+    }
+
+    @Override
+    public Component getComponentById(int componentId) throws Exception {
+        componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
+        return componentRepository.findById(componentId);
     }
 
     @Override
