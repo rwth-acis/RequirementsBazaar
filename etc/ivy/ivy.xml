@@ -13,5 +13,6 @@
         <dependency org="com.google.code.gson" name="gson" rev="2.3"/>
         <dependency org="mysql" name="mysql-connector-java" rev="5.1.33" />
         <dependency org="org.xerial" name="sqlite-jdbc" rev="3.7.2"/>
+        <dependency org="org.jodd" name="jodd-vtor" rev="3.6.1"/>
     </dependencies>
 </ivy-module>

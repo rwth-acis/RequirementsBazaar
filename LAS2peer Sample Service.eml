@@ -34,4 +34,13 @@
 	<lib name="mysql-connector-java-5.1.33.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/mysql-connector-java-5.1.33.jar!/"/>
 	</lib>
+	<lib name="jodd-bean-3.6.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jodd-bean-3.6.1.jar!/"/>
+	</lib>
+	<lib name="jodd-core-3.6.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jodd-core-3.6.1.jar!/"/>
+	</lib>
+	<lib name="jodd-vtor-3.6.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jodd-vtor-3.6.1.jar!/"/>
+	</lib>
 </component>

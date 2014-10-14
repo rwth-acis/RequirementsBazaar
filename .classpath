@@ -12,5 +12,8 @@
 	<classpathentry kind="lib" path="lib/gson-2.3.jar"/>
 	<classpathentry kind="lib" path="lib/jooq-3.4.2.jar" sourcepath="C:/Users/koren/.m2/repository/org/jooq/jooq/3.4.2/jooq-3.4.2-sources.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.33.jar"/>
+	<classpathentry kind="lib" path="lib/jodd-bean-3.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/jodd-core-3.6.1.jar"/>
+	<classpathentry kind="lib" path="lib/jodd-vtor-3.6.1.jar"/>
 	<classpathentry kind="output" path="tmp/classes"/>
 </classpath>

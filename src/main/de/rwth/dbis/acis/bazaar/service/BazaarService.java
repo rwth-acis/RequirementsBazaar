@@ -47,7 +47,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 
+import jodd.vtor.Violation;
+import jodd.vtor.Vtor;
+import jodd.vtor.constraint.*;
 import org.jooq.SQLDialect;
 
 import com.google.gson.Gson;
@@ -55,6 +59,7 @@ import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
+
 
 /**
  * Requirements Bazaar LAS2peer Service
@@ -77,8 +82,11 @@ public class BazaarService extends Service {
     public static final String DEFAULT_DB_URL = "jdbc:mysql://localhost:3306/reqbaz";
     protected String dbUrl = DEFAULT_DB_URL;
 
+    private Vtor vtor;
+
     private DALFacade dalFacade;
     private Connection dbConnection;
+
 
     /**
      * This method is needed for every RESTful application in LAS2peer.
@@ -97,7 +105,13 @@ public class BazaarService extends Service {
     }
 
     public BazaarService() throws Exception {
+
         Class.forName("com.mysql.jdbc.Driver").newInstance();
+
+    }
+
+    private void createValidators() {
+        vtor = new Vtor();
     }
 
     private void createConnection() throws Exception {
@@ -130,16 +144,18 @@ public class BazaarService extends Service {
     public String getProjects(
             @QueryParam(name = "page", defaultValue = "0") int page,
             @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
+        createValidators();
         // if the user is not logged in, return all the public projects.
         UserAgent agent = (UserAgent) getActiveAgent();
-
         String resultJSON = "[]";
-
         Gson gson = new Gson();
         try {
+            PageInfo pageInfo = new PageInfo(page, perPage);
+            vtor.validate(pageInfo);
+            if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+
             createConnection();
             List<Project> projects = null;
-            PageInfo pageInfo = new PageInfo(page, perPage);
             if (agent.getLoginName().equals("anonymous")) {
                 projects = dalFacade.listPublicProjects(pageInfo);
             } else {
@@ -150,7 +166,7 @@ public class BazaarService extends Service {
 
             resultJSON = gson.toJson(projects);// return only public projects
         } catch (BazaarException bex) {
-            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+            return ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
@@ -178,8 +194,10 @@ public class BazaarService extends Service {
         String resultJSON = "{success = true}";
         try {
             Gson gson = new Gson();
-            createConnection();
             Project projectToCreate = gson.fromJson(project, Project.class);
+            vtor.validate(projectToCreate);
+            if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+            createConnection();
             dalFacade.createProject(projectToCreate);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -203,7 +221,7 @@ public class BazaarService extends Service {
     @GET
     @Path("projects/{projectId}")
     @Produces("application/json")
-    public String getProject(@PathParam("projectId") int projectId) {
+    public String getProject(@PathParam("projectId")  int projectId) {
         // TODO: check whether the current user may request this project
         String resultJSON = "{}";
         try {
@@ -273,16 +291,19 @@ public class BazaarService extends Service {
     @GET
     @Path("projects/{projectId}/components")
     public String getComponents(
-            @PathParam("projectId") int projectId,
-            @QueryParam(name = "page", defaultValue = "0") int page,
-            @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
+            @PathParam("projectId")  int projectId,
+            @QueryParam(name = "page", defaultValue = "0")  int page,
+            @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
         // TODO: if the user is not logged in, return all the public projects.
         // Otherwise return all the user can see.
         String resultJSON = "[]";
         try {
             Gson gson = new Gson();
+            PageInfo pageInfo = new PageInfo(page, perPage);
+            vtor.validate(pageInfo);
+            if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             createConnection();
-            List<Component> components = dalFacade.listComponentsByProjectId(projectId, new PageInfo(page,perPage));
+            List<Component> components = dalFacade.listComponentsByProjectId(projectId, pageInfo);
             resultJSON = gson.toJson(components);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -306,7 +327,7 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components")
     @Consumes("application/json")
     @Produces("application/json")
-    public String createComponent(@PathParam("projectId") int projectId, @ContentParam String component) {
+    public String createComponent(@PathParam("projectId")  int projectId, @ContentParam String component) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new project
         // TODO: check whether all required parameters are entered
@@ -314,8 +335,10 @@ public class BazaarService extends Service {
         String resultJSON = "{success = true}";
         try {
             Gson gson = new Gson();
-            createConnection();
             Component componentToCreate = gson.fromJson(component, Component.class);
+            vtor.validate(componentToCreate);
+            if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+            createConnection();
             dalFacade.createComponent(componentToCreate);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -340,7 +363,7 @@ public class BazaarService extends Service {
     @GET
     @Path("projects/{projectId}/components/{componentId}")
     @Produces("application/json")
-    public String getComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId) {
+    public String getComponent(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId) {
         // TODO: check whether the current user may request this project
         String resultJSON = "{}";
         try {
@@ -378,7 +401,7 @@ public class BazaarService extends Service {
     @DELETE
     @Path("projects/{projectId}/components/{componentId}")
     @Produces("application/json")
-    public String deleteComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId) {
+    public String deleteComponent(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId) {
         // TODO: check if user can delete this project
         String resultJSON = "{success = true}";
         try {
@@ -411,14 +434,17 @@ public class BazaarService extends Service {
     @GET
     @Path("projects/{projectId}/components/{componentId}/requirements")
     @Produces("application/json")
-    public String getRequirementsByProject(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
-                                  @QueryParam(name = "page", defaultValue = "0") int page,
-                                  @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
+    public String getRequirementsByProject(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId,
+                                  @QueryParam(name = "page", defaultValue = "0")  int page,
+                                  @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
         String resultJSON = "[]";
         try {
             Gson gson = new Gson();
+            PageInfo pageInfo = new PageInfo(page, perPage);
+            vtor.validate(pageInfo);
+            if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             createConnection();
-            List<Requirement> requirements = dalFacade.listRequirementsByProject(projectId, new PageInfo(page, perPage));
+            List<Requirement> requirements = dalFacade.listRequirementsByProject(projectId, pageInfo);
             resultJSON = gson.toJson(requirements);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -443,14 +469,17 @@ public class BazaarService extends Service {
     @GET
     @Path("projects/{projectId}/components/{componentId}/requirements")
     @Produces("application/json")
-    public String getRequirementsByComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
-                                           @QueryParam(name = "page", defaultValue = "0") int page,
-                                           @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
+    public String getRequirementsByComponent(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId,
+                                           @QueryParam(name = "page", defaultValue = "0")  int page,
+                                           @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
         String resultJSON = "[]";
         try {
             Gson gson = new Gson();
+            PageInfo pageInfo = new PageInfo(page, perPage);
+            vtor.validate(pageInfo);
+            if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             createConnection();
-            List<Requirement> requirements = dalFacade.listRequirementsByComponent(componentId, new PageInfo(page, perPage));
+            List<Requirement> requirements = dalFacade.listRequirementsByComponent(componentId, pageInfo);
             resultJSON = gson.toJson(requirements);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -476,7 +505,7 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}/requirements")
     @Consumes("application/json")
     @Produces("application/json")
-    public String createRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
+    public String createRequirement(@PathParam("projectId")  int projectId, @PathParam("componentId") int componentId,
                                     @ContentParam String requirement) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
@@ -485,8 +514,10 @@ public class BazaarService extends Service {
         String resultJSON = "{success = true}";
         try {
             Gson gson = new Gson();
-            createConnection();
             Requirement requirementToCreate = gson.fromJson(requirement, Requirement.class);
+            vtor.validate(requirementToCreate);
+            if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+            createConnection();
             dalFacade.createRequirement(requirementToCreate);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -511,8 +542,8 @@ public class BazaarService extends Service {
      */
     @GET
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
-    public String getRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
-                                 @PathParam("requirementId") int requirementId) {
+    public String getRequirement(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId,
+                                 @PathParam("requirementId")  int requirementId) {
         String resultJSON = "{}";
         try {
             createConnection();
@@ -556,8 +587,8 @@ public class BazaarService extends Service {
      */
     @DELETE
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
-    public String deleteRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
-                                    @PathParam("requirementId") int requirementId) {
+    public String deleteRequirement(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId,
+                                    @PathParam("requirementId")  int requirementId) {
         // TODO: check if the user may delete this requirement.
         String resultJSON = "{success = true}";
         try {
@@ -663,9 +694,9 @@ public class BazaarService extends Service {
      */
     @POST
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/developers")
-    public String addUserToDevelopers(@PathParam("projectId") int projectId,
-                                      @PathParam("componentId") int componentId,
-                                      @PathParam("requirementId") int requirementId) {
+    public String addUserToDevelopers(@PathParam("projectId")  int projectId,
+                                      @PathParam("componentId")  int componentId,
+                                      @PathParam("requirementId")  int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
@@ -704,9 +735,9 @@ public class BazaarService extends Service {
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/developers")
     @Consumes("application/json")
     @Produces("application/json")
-    public String removeUserFromDevelopers(@PathParam("projectId") int projectId,
-                                           @PathParam("componentId") int componentId,
-                                           @PathParam("requirementId") int requirementId) {
+    public String removeUserFromDevelopers(@PathParam("projectId")  int projectId,
+                                           @PathParam("componentId")  int componentId,
+                                           @PathParam("requirementId")  int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
@@ -760,9 +791,9 @@ public class BazaarService extends Service {
      */
     @POST
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/followers")
-    public String addUserToFollowers(@PathParam("projectId") int projectId,
-                                     @PathParam("componentId") int componentId,
-                                     @PathParam("requirementId") int requirementId) {
+    public String addUserToFollowers(@PathParam("projectId")  int projectId,
+                                     @PathParam("componentId")  int componentId,
+                                     @PathParam("requirementId")  int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
@@ -801,9 +832,9 @@ public class BazaarService extends Service {
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/followers")
     @Consumes("application/json")
     @Produces("application/json")
-    public String removeUserFromFollowers(@PathParam("projectId") int projectId,
-                                          @PathParam("componentId") int componentId,
-                                          @PathParam("requirementId") int requirementId) {
+    public String removeUserFromFollowers(@PathParam("projectId")  int projectId,
+                                          @PathParam("componentId")  int componentId,
+                                          @PathParam("requirementId")  int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
@@ -842,15 +873,20 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/vote")
     @Produces("application/json")
     @Consumes("application/json")
-    public String addVote(@PathParam("projectId") int projectId,
-                          @PathParam("componentId") int componentId,
-                          @PathParam("requirementId") int requirementId,
+    public String addVote(@PathParam("projectId")  int projectId,
+                          @PathParam("componentId")  int componentId,
+                          @PathParam("requirementId")  int requirementId,
                           @QueryParam(name = "direction", defaultValue = "up") String direction) {
 
         long userId = ((UserAgent) getActiveAgent()).getId();
 
         String resultJSON = "{success = true}";
         try {
+            if (!(direction.equals("up") || direction.equals("down"))){
+                vtor.addViolation(new Violation("Direction can only be \"up\" or \"down\"",direction,direction));
+                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+            }
+
             createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
             if (internalUserId == null) {
@@ -884,9 +920,9 @@ public class BazaarService extends Service {
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/vote")
     @Consumes("application/json")
     @Produces("application/json")
-    public String removeVote(@PathParam("projectId") int projectId,
-                             @PathParam("componentId") int componentId,
-                             @PathParam("requirementId") int requirementId) {
+    public String removeVote(@PathParam("projectId")  int projectId,
+                             @PathParam("componentId")  int componentId,
+                             @PathParam("requirementId")  int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
@@ -928,17 +964,20 @@ public class BazaarService extends Service {
     @GET
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments")
     @Produces("application/json")
-    public String getComments(@PathParam("projectId") int projectId,
-                              @PathParam("componentId") int componentId,
-                              @PathParam("requirementId") int requirementId,
-                              @QueryParam(name = "page", defaultValue = "0") int page,
-                              @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
+    public String getComments(@PathParam("projectId")  int projectId,
+                              @PathParam("componentId")  int componentId,
+                              @PathParam("requirementId")  int requirementId,
+                              @QueryParam(name = "page", defaultValue = "0")  int page,
+                              @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
         long userId = ((UserAgent) getActiveAgent()).getId();
 
         String resultJSON = "[]";
         try {
+            PageInfo pageInfo = new PageInfo(page, perPage);
+            vtor.validate(pageInfo);
+            if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             createConnection();
-            List<Comment> comments = dalFacade.listCommentsByRequirementId(requirementId, new PageInfo(page, perPage));
+            List<Comment> comments = dalFacade.listCommentsByRequirementId(requirementId, pageInfo);
             Gson gson = new Gson();
             resultJSON = gson.toJson(comments);
         } catch (BazaarException bex) {
@@ -966,9 +1005,9 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments")
     @Consumes("application/json")
     @Produces("application/json")
-    public String createComment(@PathParam("projectId") int projectId,
-                                @PathParam("componentId") int componentId,
-                                @PathParam("requirementId") int requirementId,
+    public String createComment(@PathParam("projectId")  int projectId,
+                                @PathParam("componentId")  int componentId,
+                                @PathParam("requirementId")  int requirementId,
                                 @ContentParam String comment) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
@@ -976,9 +1015,11 @@ public class BazaarService extends Service {
 
         String resultJSON = "{success = true}";
         try {
-            createConnection();
             Gson gson = new Gson();
             Comment commentToCreate = gson.fromJson(comment,Comment.class);
+            vtor.validate(commentToCreate);
+            if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+            createConnection();
             dalFacade.createComment(commentToCreate);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -1045,10 +1086,10 @@ public class BazaarService extends Service {
      */
     @DELETE
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments/{commentId}")
-    public String deleteRequirement(@PathParam("projectId") int projectId,
-                                    @PathParam("componentId") int componentId,
-                                    @PathParam("requirementId") int requirementId,
-                                    @PathParam("commentId") int commentId) {
+    public String deleteRequirement(@PathParam("projectId")  int projectId,
+                                    @PathParam("componentId")  int componentId,
+                                    @PathParam("requirementId")  int requirementId,
+                                    @PathParam("commentId")  int commentId) {
         // TODO: check if the user may delete this requirement.
         long userId = ((UserAgent) getActiveAgent()).getId();
         String resultJSON = "{success = true}";
@@ -1087,8 +1128,8 @@ public class BazaarService extends Service {
 //    public String getAttachments(@PathParam("projectId") int projectId,
 //                                 @PathParam("componentId") int componentId,
 //                                 @PathParam("requirementId") int requirementId,
-//                                 @QueryParam(name = "page", defaultValue = "0") int page,
-//                                 @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
+//                                 @QueryParam(name = "page", defaultValue = "0")  int page,
+//                                 @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
 //
 //    }
 
@@ -1104,9 +1145,9 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments")
     @Consumes("application/json")
     @Produces("application/json")
-    public String createAttachment(@PathParam("projectId") int projectId,
-                                   @PathParam("componentId") int componentId,
-                                   @PathParam("requirementId") int requirementId,
+    public String createAttachment(@PathParam("projectId")  int projectId,
+                                   @PathParam("componentId")  int componentId,
+                                   @PathParam("requirementId")  int requirementId,
                                    @ContentParam String attachment) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
@@ -1114,10 +1155,12 @@ public class BazaarService extends Service {
 
         String resultJSON = "{success = true}";
         try {
-            createConnection();
             Gson gson = new Gson();
             //TODO??? HOW DOES IT KNOW THE TYPE
             Attachment attachmentToCreate = gson.fromJson(attachment,Attachment.class);
+            vtor.validate(attachmentToCreate);
+            if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+            createConnection();
             dalFacade.createAttachment(attachmentToCreate);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -1181,10 +1224,10 @@ public class BazaarService extends Service {
      */
     @DELETE
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments/{attachmentId}")
-    public String deleteAttachment(@PathParam("projectId") int projectId,
-                                   @PathParam("componentId") int componentId,
-                                   @PathParam("requirementId") int requirementId,
-                                   @PathParam("attachmentId") int attachmentId) {
+    public String deleteAttachment(@PathParam("projectId")  int projectId,
+                                   @PathParam("componentId")  int componentId,
+                                   @PathParam("requirementId")  int requirementId,
+                                   @PathParam("attachmentId")  int attachmentId) {
         // TODO: check if the user may delete this requirement.
         String resultJSON = "{success = true}";
         try {
@@ -1230,7 +1273,7 @@ public class BazaarService extends Service {
     @GET
     @Path("users/{userId}")
     @Produces("application/json")
-    public String getUser(@PathParam("userId") int userId) {
+    public String getUser(@PathParam("userId")  int userId) {
         // TODO: check whether the current user may request this project
         String resultJSON = "{}";
         try {

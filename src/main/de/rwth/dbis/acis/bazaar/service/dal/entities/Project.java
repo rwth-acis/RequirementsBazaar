@@ -20,6 +20,9 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
+import jodd.vtor.constraint.*;
+
+
 import java.util.Date;
 
 /**
@@ -27,11 +30,19 @@ import java.util.Date;
  * @since 6/9/2014
  */
 public class Project extends EntityBase {
+    @Min(-1)
     private final int id;
 
+    @Size(min=1, max=255)
     private final String description;
+
+    @NotNull
+    @Size(min=1, max=50)
     private final String name;
+
+    @NotNull
     private final ProjectVisibility visibility;
+
     private final Date creation_time;
 
     public int getLeaderId() {

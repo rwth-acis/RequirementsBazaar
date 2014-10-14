@@ -25,7 +25,8 @@ package de.rwth.dbis.acis.bazaar.service.exception;
  * @since 10/6/2014
  */
 public enum ErrorCode {
-    UNKNOWN("000", "Unknown, unexpected exception occurred");
+    UNKNOWN("000", "Unknown, unexpected exception occurred"),
+    VALIDATION("001", "Constraint validation failed.");
 
     private final String code;
     private final String message;

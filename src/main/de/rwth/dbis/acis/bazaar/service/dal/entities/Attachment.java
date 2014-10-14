@@ -20,6 +20,8 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
+import jodd.vtor.constraint.*;
+
 import java.util.Date;
 
 /**
@@ -27,10 +29,20 @@ import java.util.Date;
  * @since 6/11/2014
  */
 public abstract class Attachment extends EntityBase {
+    @Min(-1)
     private final int Id;
+
+    @Min(-1)
     private final int creatorId;
+
+    @Min(-1)
     private final int requirementId;
+
+    @NotNull
+    @Size(min=1, max=50)
     private final String title;
+
+
     private final Date creation_time;
 
     public Attachment(Builder builder) {

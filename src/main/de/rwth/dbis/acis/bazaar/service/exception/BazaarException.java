@@ -20,13 +20,18 @@
 
 package de.rwth.dbis.acis.bazaar.service.exception;
 
+import com.google.gson.annotations.Expose;
+
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 10/6/2014
  */
 public class BazaarException extends Exception {
+    @Expose
     private String message;
+    @Expose
     private ErrorCode errorCode;
+    @Expose
     private final ExceptionLocation location;
 
     protected BazaarException(ExceptionLocation location) {

@@ -20,12 +20,17 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.helpers;
 
+import jodd.vtor.constraint.Min;
+
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/15/2014
  */
 public class PageInfo implements Pageable {
+    @Min(-1)
     private final int pageNumber;
+
+    @Min(0)
     private final int pageSize;
     private final SortDirection sortDirection;
 

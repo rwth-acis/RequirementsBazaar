@@ -20,14 +20,24 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
+
+import jodd.vtor.constraint.*;
+
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/11/2014
  */
 public class Comment extends EntityBase {
+    @Min(-1)
     private final int requirementId;
+    @Min(-1)
     private final int Id;
+
+    @NotNull
+    @Size(min=1, max=255)
     private final String message;
+
+    @Min(-1)
     private final int creatorId;
 
 

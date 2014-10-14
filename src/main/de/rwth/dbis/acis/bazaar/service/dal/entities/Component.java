@@ -20,19 +20,29 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
+
+import jodd.vtor.constraint.*;
+
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
  */
 public class Component extends EntityBase {
 
-
+    @Min(-1)
     private final int id;
 
+    @Size(min=1, max=255)
     private final String description;
 
+    @NotNull
+    @Size(min=1, max=50)
     private final String name;
+
+    @Min(-1)
     private final int leaderId;
+
+    @Min(-1)
     private final int projectId;
 
     public int getProjectId() {

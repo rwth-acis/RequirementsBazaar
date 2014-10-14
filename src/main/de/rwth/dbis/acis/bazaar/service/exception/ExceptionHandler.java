@@ -21,6 +21,14 @@
 package de.rwth.dbis.acis.bazaar.service.exception;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import de.rwth.dbis.acis.bazaar.service.BazaarService;
+import jodd.vtor.Violation;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -54,6 +62,21 @@ public enum ExceptionHandler {
     }
 
     public String toJSON(BazaarException exception) {
-        return new Gson().toJson(exception);
+        GsonBuilder builder = new GsonBuilder();
+        builder.excludeFieldsWithoutExposeAnnotation();
+        final Gson gson = builder.create();
+        return gson.toJson(exception);
+    }
+
+    public <T> void handleViolations(List<Violation> violations) throws BazaarException {
+        BazaarException bazaarException = new BazaarException(ExceptionLocation.BAZAARSERVICE);
+        bazaarException.setErrorCode(ErrorCode.VALIDATION);
+        StringBuilder builder = new StringBuilder();
+        for (Violation violation : violations) {
+            builder.append("On " + violation.getName() + " constraint violation has been detected, because you sent " + violation.getInvalidValue() + " and the problem: " + violation.toString());
+        }
+
+        bazaarException.setMessage(builder.toString());
+        throw bazaarException;
     }
 }
