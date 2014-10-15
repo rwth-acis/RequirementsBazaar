@@ -210,33 +210,4 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
     }
 }
 
-enum AttachmentType {
-    UserStory("U"), //UserStory
-    Log("L"), //Log
-    Image("I"), //Image
-    FreeStory("S"), //FreeStory
-    File("F");  //File
-
-    private String value;
-
-    AttachmentType(String u) {
-        this.value = u;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    @Override
-    public String toString() {
-        return this.getValue();
-    }
-
-    public static AttachmentType getEnum(String value) {
-        for (AttachmentType v : values())
-            if (v.getValue().equalsIgnoreCase(value)) return v;
-        throw new IllegalArgumentException();
-    }
-}
-
 
