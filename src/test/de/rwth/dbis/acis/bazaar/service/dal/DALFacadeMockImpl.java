@@ -553,4 +553,14 @@ public class DALFacadeMockImpl implements DALFacade {
         }
         return false;
     }
+	@Override
+	public Integer getUserIdByLAS2PeerId(int las2PeerId) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public Component getComponentById(int componentId) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
