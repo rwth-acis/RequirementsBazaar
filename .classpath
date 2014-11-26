@@ -5,12 +5,12 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/hamcrest-core-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/las2peer-0.3-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="lib/las2peer-rest-mapper-0.2-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/las2peer-rest-mapper-0.3-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/las2peer-web-connector-0.3-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.11.jar"/>
 	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.7.2.jar" sourcepath="lib/sqlite-jdbc-3.7.2.jar"/>
 	<classpathentry kind="lib" path="lib/gson-2.3.jar"/>
-	<classpathentry kind="lib" path="lib/jooq-3.4.2.jar" />
+	<classpathentry kind="lib" path="lib/jooq-3.4.2.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.33.jar"/>
 	<classpathentry kind="lib" path="lib/jodd-bean-3.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/jodd-core-3.6.1.jar"/>
