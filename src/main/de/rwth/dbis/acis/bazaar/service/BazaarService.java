@@ -162,6 +162,7 @@ public class BazaarService extends Service {
      */
     @GET
     @Path("projects")
+    @ResourceListApi(description = "Requirement Bazaar API")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of projects on the server.")
     @ApiResponses(value={

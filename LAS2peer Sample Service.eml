@@ -10,7 +10,7 @@
 	<lib name="las2peer-0.3-SNAPSHOT.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/las2peer-0.3-SNAPSHOT.jar!/"/>
 	</lib>
-	<lib name="las2peer-rest-mapper-0.3-SNAPSHOT" scope="COMPILE">
+	<lib name="las2peer-rest-mapper-0.3-SNAPSHOT.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/las2peer-rest-mapper-0.3-SNAPSHOT.jar!/"/>
 	</lib>
 	<lib name="las2peer-web-connector-0.3-SNAPSHOT.jar" scope="COMPILE">
