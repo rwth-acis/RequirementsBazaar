@@ -1286,7 +1286,7 @@ public class BazaarService extends Service {
     public String createAttachment(@PathParam("projectId")  int projectId,
                                    @PathParam("componentId")  int componentId,
                                    @PathParam("requirementId")  int requirementId,
-                                   @PathParam("attachmentType") String attachmentType,
+                                   @QueryParam("attachmentType") String attachmentType,
                                    @ContentParam String attachment) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
