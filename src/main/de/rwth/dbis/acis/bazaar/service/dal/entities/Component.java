@@ -32,11 +32,12 @@ public class Component extends EntityBase {
     @Min(-1)
     private final int id;
 
-    @Size(min=1, max=255)
+    @NotBlank
+    @MaxLength(255)
     private final String description;
 
-    @NotNull
-    @Size(min=1, max=50)
+    @NotBlank
+    @MaxLength(50)
     private final String name;
 
     @Min(-1)

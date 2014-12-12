@@ -89,6 +89,7 @@ public class BazaarService extends Service {
     private Connection dbConnection;
 
 
+
     /**
      * This method is needed for every RESTful application in LAS2peer.
      *
@@ -166,7 +167,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of projects on the server.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "List of projects"),
+            @ApiResponse(code = 200, message = "List of projects")
 ////            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String getProjects(
@@ -217,7 +218,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new project.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns success=true if creation was successful"),
+            @ApiResponse(code = 200, message = "Returns success=true if creation was successful")
 ////            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String createProject(@ContentParam String project) {
@@ -256,10 +257,11 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to retrieve a certain project.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns the detailed view of a certain project."),
+            @ApiResponse(code = 200, message = "Returns the detailed view of a certain project.")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String getProject(@PathParam("projectId")  int projectId) {
+        createValidators();
         // TODO: check whether the current user may request this project
         String resultJSON = "{}";
         try {
@@ -331,7 +333,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of components under a given project.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns a list of components for a given project"),
+            @ApiResponse(code = 200, message = "Returns a list of components for a given project")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String getComponents(
@@ -339,6 +341,7 @@ public class BazaarService extends Service {
             @QueryParam(name = "page", defaultValue = "0")  int page,
             @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
         // TODO: if the user is not logged in, return all the public projects.
+        createValidators();
         // Otherwise return all the user can see.
         String resultJSON = "[]";
         try {
@@ -373,14 +376,14 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new component under a given a project.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful"),
+            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String createComponent(@PathParam("projectId")  int projectId, @ContentParam String component) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new project
         // TODO: check whether all required parameters are entered
-
+        createValidators();
         String resultJSON = "{success = true}";
         try {
             Gson gson = new Gson();
@@ -414,11 +417,12 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to retrieve a certain component under a project.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns the details of a certain component."),
+            @ApiResponse(code = 200, message = "Returns the details of a certain component.")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String getComponent(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId) {
         // TODO: check whether the current user may request this project
+        createValidators();
         String resultJSON = "{}";
         try {
             createConnection();
@@ -457,11 +461,12 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("Deletes a component under a project by id")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful"),
+            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String deleteComponent(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId) {
         // TODO: check if user can delete this project
+        createValidators();
         String resultJSON = "{success = true}";
         try {
             createConnection();
@@ -495,13 +500,14 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of requirements for a specific project.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns a list of requirements for a given project"),
+            @ApiResponse(code = 200, message = "Returns a list of requirements for a given project")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String getRequirementsByProject(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId,
                                   @QueryParam(name = "page", defaultValue = "0")  int page,
                                   @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
         String resultJSON = "[]";
+        createValidators();
         try {
             Gson gson = new Gson();
             PageInfo pageInfo = new PageInfo(page, perPage);
@@ -535,13 +541,14 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of requirements for a specific component.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns a list of requirements for a given component"),
+            @ApiResponse(code = 200, message = "Returns a list of requirements for a given component")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String getRequirementsByComponent(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId,
                                            @QueryParam(name = "page", defaultValue = "0")  int page,
                                            @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
         String resultJSON = "[]";
+        createValidators();
         try {
             Gson gson = new Gson();
             PageInfo pageInfo = new PageInfo(page, perPage);
@@ -576,12 +583,13 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new requirement.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful"),
+            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String createRequirement(@PathParam("projectId")  int projectId, @PathParam("componentId") int componentId,
                                     @ContentParam String requirement) {
         long userId = ((UserAgent) getActiveAgent()).getId();
+        createValidators();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
@@ -619,12 +627,13 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns a specific requirement within a project.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns a requirement"),
+            @ApiResponse(code = 200, message = "Returns a requirement")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String getRequirement(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId,
                                  @PathParam("requirementId")  int requirementId) {
         String resultJSON = "{}";
+        createValidators();
         try {
             createConnection();
             resultJSON = dalFacade.getRequirementById(requirementId).toJSON();
@@ -670,13 +679,14 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method deletes a specific requirement within a project.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful"),
+            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String deleteRequirement(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId,
                                     @PathParam("requirementId")  int requirementId) {
         // TODO: check if the user may delete this requirement.
         String resultJSON = "{success = true}";
+        createValidators();
         try {
             createConnection();
             dalFacade.deleteRequirementById(requirementId);
@@ -784,13 +794,14 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method add the current user to the developers list of a given requirement")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful"),
+            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String addUserToDevelopers(@PathParam("projectId")  int projectId,
                                       @PathParam("componentId")  int componentId,
                                       @PathParam("requirementId")  int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
+        createValidators();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
@@ -829,13 +840,14 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method remove the current user from a developers list of a given requirement")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful"),
+            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String removeUserFromDevelopers(@PathParam("projectId")  int projectId,
                                            @PathParam("componentId")  int componentId,
                                            @PathParam("requirementId")  int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
+        createValidators();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
@@ -892,13 +904,14 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method add the current user to the followers list of a given requirement")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful"),
+            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String addUserToFollowers(@PathParam("projectId")  int projectId,
                                      @PathParam("componentId")  int componentId,
                                      @PathParam("requirementId")  int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
+        createValidators();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
@@ -937,7 +950,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method removes the current user from a followers list of a given requirement")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful"),
+            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String removeUserFromFollowers(@PathParam("projectId")  int projectId,
@@ -948,6 +961,7 @@ public class BazaarService extends Service {
         // TODO: check whether all required parameters are entered
 
         String resultJSON = "{success = true}";
+        createValidators();
         try {
             createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
@@ -983,7 +997,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method creates a vote for the given requirement in the name of the current user.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful"),
+            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String addVote(@PathParam("projectId")  int projectId,
@@ -992,6 +1006,7 @@ public class BazaarService extends Service {
                           @QueryParam(name = "direction", defaultValue = "up") String direction) {
 
         long userId = ((UserAgent) getActiveAgent()).getId();
+        createValidators();
 
         String resultJSON = "{success = true}";
         try {
@@ -1034,7 +1049,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method removes the vote of the given requirement made by the current user")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful"),
+            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String removeVote(@PathParam("projectId")  int projectId,
@@ -1045,6 +1060,7 @@ public class BazaarService extends Service {
         // TODO: check whether all required parameters are entered
 
         String resultJSON = "{success = true}";
+        createValidators();
         try {
             createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
@@ -1083,7 +1099,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of comments for a specific requirement.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns list of comments for the given requirement"),
+            @ApiResponse(code = 200, message = "Returns list of comments for the given requirement")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String getComments(@PathParam("projectId")  int projectId,
@@ -1094,6 +1110,7 @@ public class BazaarService extends Service {
         long userId = ((UserAgent) getActiveAgent()).getId();
 
         String resultJSON = "[]";
+        createValidators();
         try {
             PageInfo pageInfo = new PageInfo(page, perPage);
             vtor.validate(pageInfo);
@@ -1129,7 +1146,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new comment for a requirement.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful"),
+            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String createComment(@PathParam("projectId")  int projectId,
@@ -1141,6 +1158,7 @@ public class BazaarService extends Service {
         // TODO: check whether all required parameters are entered
 
         String resultJSON = "{success = true}";
+        createValidators();
         try {
             Gson gson = new Gson();
             Comment commentToCreate = gson.fromJson(comment,Comment.class);
@@ -1216,7 +1234,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method deletes a specific comment within a requirement.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful"),
+            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String deleteComment(@PathParam("projectId")  int projectId,
@@ -1226,6 +1244,7 @@ public class BazaarService extends Service {
         // TODO: check if the user may delete this requirement.
         long userId = ((UserAgent) getActiveAgent()).getId();
         String resultJSON = "{success = true}";
+        createValidators();
         try {
             createConnection();
             dalFacade.deleteCommentById(commentId);
@@ -1280,19 +1299,20 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new attachment for a requirement.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful"),
+            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String createAttachment(@PathParam("projectId")  int projectId,
                                    @PathParam("componentId")  int componentId,
                                    @PathParam("requirementId")  int requirementId,
-                                   @QueryParam("attachmentType") String attachmentType,
+                                   @QueryParam(name = "attachmentType", defaultValue = "U") String attachmentType,
                                    @ContentParam String attachment) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
         String resultJSON = "{success = true}";
+        createValidators();
         try {
             Gson gson = new Gson();
             //TODO??? HOW DOES IT KNOW THE TYPE
@@ -1366,7 +1386,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method deletes a specific attachment within a requirement.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful"),
+            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String deleteAttachment(@PathParam("projectId")  int projectId,
@@ -1375,6 +1395,7 @@ public class BazaarService extends Service {
                                    @PathParam("attachmentId")  int attachmentId) {
         // TODO: check if the user may delete this requirement.
         String resultJSON = "{success = true}";
+        createValidators();
         try {
             createConnection();
             dalFacade.deleteAttachmentById(attachmentId);
@@ -1420,12 +1441,13 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("Returns user data by ID")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns user data by ID"),
+            @ApiResponse(code = 200, message = "Returns user data by ID")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String getUser(@PathParam("userId")  int userId) {
         // TODO: check whether the current user may request this project
         String resultJSON = "{}";
+        createValidators();
         try {
             createConnection();
             resultJSON = dalFacade.getUserById(userId).toJSON();
