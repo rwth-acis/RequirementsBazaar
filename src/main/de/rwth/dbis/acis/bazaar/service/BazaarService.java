@@ -225,7 +225,7 @@ public class BazaarService extends Service {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new project
         // TODO: check whether all required parameters are entered
-        String resultJSON = "{success = true}";
+        String resultJSON = "{\"success\" : \"true\"}";
         try {
             Gson gson = new Gson();
             Project projectToCreate = gson.fromJson(project, Project.class);
@@ -302,7 +302,7 @@ public class BazaarService extends Service {
 //    @Produces(MediaType.APPLICATION_JSON)
 //    public String deleteProject(@PathParam("projectId") int projectId) {
 //        // TODO: check if user can delete this project
-//        String resultJSON = "{success = true}";
+//        String resultJSON = "{\"success\" : \"true\"}";
 //        try {
 //            createConnection();
 //            dalFacade.delePR(projectToCreate);
@@ -384,7 +384,7 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new project
         // TODO: check whether all required parameters are entered
         createValidators();
-        String resultJSON = "{success = true}";
+        String resultJSON = "{\"success\" : \"true\"}";
         try {
             Gson gson = new Gson();
             Component componentToCreate = gson.fromJson(component, Component.class);
@@ -467,7 +467,7 @@ public class BazaarService extends Service {
     public String deleteComponent(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId) {
         // TODO: check if user can delete this project
         createValidators();
-        String resultJSON = "{success = true}";
+        String resultJSON = "{\"success\" : \"true\"}";
         try {
             createConnection();
             dalFacade.deleteComponentById(componentId);
@@ -593,7 +593,7 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        String resultJSON = "{success = true}";
+        String resultJSON = "{\"success\" : \"true\"}";
         try {
             Gson gson = new Gson();
             Requirement requirementToCreate = gson.fromJson(requirement, Requirement.class);
@@ -685,7 +685,7 @@ public class BazaarService extends Service {
     public String deleteRequirement(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId,
                                     @PathParam("requirementId")  int requirementId) {
         // TODO: check if the user may delete this requirement.
-        String resultJSON = "{success = true}";
+        String resultJSON = "{\"success\" : \"true\"}";
         createValidators();
         try {
             createConnection();
@@ -805,7 +805,7 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        String resultJSON = "{success = true}";
+        String resultJSON = "{\"success\" : \"true\"}";
         try {
             createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
@@ -851,7 +851,7 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        String resultJSON = "{success = true}";
+        String resultJSON = "{\"success\" : \"true\"}";
         try {
             createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
@@ -915,7 +915,7 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        String resultJSON = "{success = true}";
+        String resultJSON = "{\"success\" : \"true\"}";
         try {
             createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
@@ -960,7 +960,7 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        String resultJSON = "{success = true}";
+        String resultJSON = "{\"success\" : \"true\"}";
         createValidators();
         try {
             createConnection();
@@ -1008,7 +1008,7 @@ public class BazaarService extends Service {
         long userId = ((UserAgent) getActiveAgent()).getId();
         createValidators();
 
-        String resultJSON = "{success = true}";
+        String resultJSON = "{\"success\" : \"true\"}";
         try {
             if (!(direction.equals("up") || direction.equals("down"))){
                 vtor.addViolation(new Violation("Direction can only be \"up\" or \"down\"",direction,direction));
@@ -1059,7 +1059,7 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        String resultJSON = "{success = true}";
+        String resultJSON = "{\"success\" : \"true\"}";
         createValidators();
         try {
             createConnection();
@@ -1157,7 +1157,7 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        String resultJSON = "{success = true}";
+        String resultJSON = "{\"success\" : \"true\"}";
         createValidators();
         try {
             Gson gson = new Gson();
@@ -1243,7 +1243,7 @@ public class BazaarService extends Service {
                                     @PathParam("commentId")  int commentId) {
         // TODO: check if the user may delete this requirement.
         long userId = ((UserAgent) getActiveAgent()).getId();
-        String resultJSON = "{success = true}";
+        String resultJSON = "{\"success\" : \"true\"}";
         createValidators();
         try {
             createConnection();
@@ -1311,7 +1311,7 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        String resultJSON = "{success = true}";
+        String resultJSON = "{\"success\" : \"true\"}";
         createValidators();
         try {
             Gson gson = new Gson();
@@ -1394,7 +1394,7 @@ public class BazaarService extends Service {
                                    @PathParam("requirementId")  int requirementId,
                                    @PathParam("attachmentId")  int attachmentId) {
         // TODO: check if the user may delete this requirement.
-        String resultJSON = "{success = true}";
+        String resultJSON = "{\"success\" : \"true\"}";
         createValidators();
         try {
             createConnection();
