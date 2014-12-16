@@ -25,6 +25,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
+import java.sql.Connection;
 import java.util.List;
 
 /**
@@ -34,6 +35,8 @@ import java.util.List;
 public interface DALFacade {
 
     //region User
+
+    Connection getConnection();
 
     /**
      * @param user which holds the data of the user to be inserted. Id field will be omitted, a new one will be generated.

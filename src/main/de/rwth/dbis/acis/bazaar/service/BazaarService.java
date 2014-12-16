@@ -85,10 +85,6 @@ public class BazaarService extends Service {
 
     private Vtor vtor;
 
-    private DALFacade dalFacade;
-    private Connection dbConnection;
-
-
 
     /**
      * This method is needed for every RESTful application in LAS2peer.
@@ -116,12 +112,13 @@ public class BazaarService extends Service {
         vtor = new Vtor();
     }
 
-    private void createConnection() throws Exception {
-        dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reqbaz", "root", "");
-        dalFacade = new DALFacadeImpl(dbConnection, SQLDialect.MYSQL);
+    private DALFacade createConnection() throws Exception {
+        Connection dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reqbaz", "root", "");
+        return new DALFacadeImpl(dbConnection, SQLDialect.MYSQL);
     }
 
-    private void closeConnection() {
+    private void closeConnection(DALFacade dalFacade) {
+        Connection dbConnection = dalFacade.getConnection();
         if (dbConnection != null) {
             try {
                 dbConnection.close();
@@ -178,12 +175,13 @@ public class BazaarService extends Service {
         UserAgent agent = (UserAgent) getActiveAgent();
         String resultJSON = "[]";
         Gson gson = new Gson();
+        DALFacade dalFacade = null;
         try {
             PageInfo pageInfo = new PageInfo(page, perPage);
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
 
-            createConnection();
+            dalFacade = createConnection();
             List<Project> projects = null;
             if (agent.getLoginName().equals("anonymous")) {
                 projects = dalFacade.listPublicProjects(pageInfo);
@@ -201,7 +199,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -226,12 +224,13 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new project
         // TODO: check whether all required parameters are entered
         String resultJSON = "{\"success\" : \"true\"}";
+        DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
             Project projectToCreate = gson.fromJson(project, Project.class);
             vtor.validate(projectToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            createConnection();
+            dalFacade = createConnection();
             dalFacade.createProject(projectToCreate);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -240,7 +239,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -264,8 +263,9 @@ public class BazaarService extends Service {
         createValidators();
         // TODO: check whether the current user may request this project
         String resultJSON = "{}";
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             Project projectToReturn = dalFacade.getProjectById(projectId);
             resultJSON = projectToReturn.toJSON();
         } catch (BazaarException bex) {
@@ -275,7 +275,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -344,12 +344,13 @@ public class BazaarService extends Service {
         createValidators();
         // Otherwise return all the user can see.
         String resultJSON = "[]";
+        DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
             PageInfo pageInfo = new PageInfo(page, perPage);
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            createConnection();
+            dalFacade = createConnection();
             List<Component> components = dalFacade.listComponentsByProjectId(projectId, pageInfo);
             resultJSON = gson.toJson(components);
         } catch (BazaarException bex) {
@@ -359,7 +360,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -385,12 +386,13 @@ public class BazaarService extends Service {
         // TODO: check whether all required parameters are entered
         createValidators();
         String resultJSON = "{\"success\" : \"true\"}";
+        DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
             Component componentToCreate = gson.fromJson(component, Component.class);
             vtor.validate(componentToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            createConnection();
+            dalFacade = createConnection();
             dalFacade.createComponent(componentToCreate);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -399,7 +401,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -424,8 +426,9 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may request this project
         createValidators();
         String resultJSON = "{}";
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             resultJSON = dalFacade.getComponentById(componentId).toJSON();
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -434,7 +437,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -468,8 +471,9 @@ public class BazaarService extends Service {
         // TODO: check if user can delete this project
         createValidators();
         String resultJSON = "{\"success\" : \"true\"}";
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             dalFacade.deleteComponentById(componentId);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -478,7 +482,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -508,12 +512,13 @@ public class BazaarService extends Service {
                                   @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
         String resultJSON = "[]";
         createValidators();
+        DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
             PageInfo pageInfo = new PageInfo(page, perPage);
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            createConnection();
+            dalFacade = createConnection();
             List<Requirement> requirements = dalFacade.listRequirementsByProject(projectId, pageInfo);
             resultJSON = gson.toJson(requirements);
         } catch (BazaarException bex) {
@@ -523,7 +528,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -549,12 +554,13 @@ public class BazaarService extends Service {
                                            @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
         String resultJSON = "[]";
         createValidators();
+        DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
             PageInfo pageInfo = new PageInfo(page, perPage);
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            createConnection();
+            dalFacade = createConnection();
             List<Requirement> requirements = dalFacade.listRequirementsByComponent(componentId, pageInfo);
             resultJSON = gson.toJson(requirements);
         } catch (BazaarException bex) {
@@ -564,7 +570,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -594,12 +600,13 @@ public class BazaarService extends Service {
         // TODO: check whether all required parameters are entered
 
         String resultJSON = "{\"success\" : \"true\"}";
+        DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
             Requirement requirementToCreate = gson.fromJson(requirement, Requirement.class);
             vtor.validate(requirementToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            createConnection();
+            dalFacade = createConnection();
             dalFacade.createRequirement(requirementToCreate);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -608,7 +615,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -634,8 +641,9 @@ public class BazaarService extends Service {
                                  @PathParam("requirementId")  int requirementId) {
         String resultJSON = "{}";
         createValidators();
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             resultJSON = dalFacade.getRequirementById(requirementId).toJSON();
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -644,7 +652,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -687,8 +695,9 @@ public class BazaarService extends Service {
         // TODO: check if the user may delete this requirement.
         String resultJSON = "{\"success\" : \"true\"}";
         createValidators();
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             dalFacade.deleteRequirementById(requirementId);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -697,7 +706,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -806,8 +815,9 @@ public class BazaarService extends Service {
         // TODO: check whether all required parameters are entered
 
         String resultJSON = "{\"success\" : \"true\"}";
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
             if (internalUserId == null) {
                 resultJSON = "{success = false}";
@@ -821,7 +831,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -852,8 +862,9 @@ public class BazaarService extends Service {
         // TODO: check whether all required parameters are entered
 
         String resultJSON = "{\"success\" : \"true\"}";
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
             if (internalUserId == null) {
                 resultJSON = "{success = false}";
@@ -867,7 +878,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -916,8 +927,9 @@ public class BazaarService extends Service {
         // TODO: check whether all required parameters are entered
 
         String resultJSON = "{\"success\" : \"true\"}";
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
             if (internalUserId == null) {
                 resultJSON = "{success = false}";
@@ -931,7 +943,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -962,8 +974,9 @@ public class BazaarService extends Service {
 
         String resultJSON = "{\"success\" : \"true\"}";
         createValidators();
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
             if (internalUserId == null) {
                 resultJSON = "{success = false}";
@@ -977,7 +990,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -1007,7 +1020,7 @@ public class BazaarService extends Service {
 
         long userId = ((UserAgent) getActiveAgent()).getId();
         createValidators();
-
+        DALFacade dalFacade = null;
         String resultJSON = "{\"success\" : \"true\"}";
         try {
             if (!(direction.equals("up") || direction.equals("down"))){
@@ -1015,7 +1028,7 @@ public class BazaarService extends Service {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
 
-            createConnection();
+            dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
             if (internalUserId == null) {
                 resultJSON = "{success = false}";
@@ -1029,7 +1042,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -1061,8 +1074,9 @@ public class BazaarService extends Service {
 
         String resultJSON = "{\"success\" : \"true\"}";
         createValidators();
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
             if (internalUserId == null) {
                 resultJSON = "{success = false}";
@@ -1076,7 +1090,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -1111,11 +1125,12 @@ public class BazaarService extends Service {
 
         String resultJSON = "[]";
         createValidators();
+        DALFacade dalFacade = null;
         try {
             PageInfo pageInfo = new PageInfo(page, perPage);
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            createConnection();
+            dalFacade = createConnection();
             List<Comment> comments = dalFacade.listCommentsByRequirementId(requirementId, pageInfo);
             Gson gson = new Gson();
             resultJSON = gson.toJson(comments);
@@ -1126,7 +1141,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -1159,12 +1174,13 @@ public class BazaarService extends Service {
 
         String resultJSON = "{\"success\" : \"true\"}";
         createValidators();
+        DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
             Comment commentToCreate = gson.fromJson(comment,Comment.class);
             vtor.validate(commentToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            createConnection();
+            dalFacade = createConnection();
             dalFacade.createComment(commentToCreate);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -1173,7 +1189,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -1245,8 +1261,9 @@ public class BazaarService extends Service {
         long userId = ((UserAgent) getActiveAgent()).getId();
         String resultJSON = "{\"success\" : \"true\"}";
         createValidators();
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             dalFacade.deleteCommentById(commentId);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -1255,7 +1272,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -1313,13 +1330,14 @@ public class BazaarService extends Service {
 
         String resultJSON = "{\"success\" : \"true\"}";
         createValidators();
+        DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
             //TODO??? HOW DOES IT KNOW THE TYPE
             Attachment attachmentToCreate = gson.fromJson(attachment,Attachment.class);
             vtor.validate(attachmentToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            createConnection();
+            dalFacade = createConnection();
             dalFacade.createAttachment(attachmentToCreate);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -1328,7 +1346,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -1396,8 +1414,9 @@ public class BazaarService extends Service {
         // TODO: check if the user may delete this requirement.
         String resultJSON = "{\"success\" : \"true\"}";
         createValidators();
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             dalFacade.deleteAttachmentById(attachmentId);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -1406,7 +1425,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -1448,8 +1467,9 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may request this project
         String resultJSON = "{}";
         createValidators();
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             resultJSON = dalFacade.getUserById(userId).toJSON();
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -1458,7 +1478,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;

@@ -41,6 +41,7 @@ import java.util.List;
 public class DALFacadeImpl implements DALFacade {
 
     private final DSLContext dslContext;
+    private final Connection connection;
 
     private AttachmentRepository attachmentRepository;
     private AuthorizationRepository authorizationRepository;
@@ -55,11 +56,17 @@ public class DALFacadeImpl implements DALFacade {
     private VoteRepostitory voteRepostitory;
 
     public DALFacadeImpl(Connection connection, SQLDialect dialect) throws Exception {
+        this.connection = connection;
         dslContext = DSL.using(connection, dialect);
     }
 
     public DSLContext getDslContext() {
         return dslContext;
+    }
+
+    @Override
+    public Connection getConnection() {
+        return connection;
     }
 
     @Override
