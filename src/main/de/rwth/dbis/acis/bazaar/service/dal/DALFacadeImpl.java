@@ -26,12 +26,10 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.repositories.*;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import org.jooq.DSLContext;
-import org.jooq.Field;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 
 import java.sql.Connection;
-import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -70,9 +68,10 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public void createUser(User user) throws BazaarException {
+    public int createUser(User user) throws BazaarException {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
-        userRepository.add(user);
+        User newUser = userRepository.add(user);
+        return newUser.getId();
     }
 
     @Override
@@ -118,9 +117,10 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public void createProject(Project project) throws BazaarException {
+    public int createProject(Project project) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
-        projectRepository.add(project);
+        Project newProject = projectRepository.add(project);
+        return newProject.getId();
     }
 
     @Override
@@ -160,9 +160,10 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public void createRequirement(Requirement requirement) throws BazaarException {
+    public int createRequirement(Requirement requirement) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
-        requirementRepository.add(requirement);
+        Requirement newRequirement = requirementRepository.add(requirement);
+        return newRequirement.getId();
     }
 
     @Override
@@ -184,9 +185,10 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public void createComponent(Component component) throws BazaarException {
+    public int createComponent(Component component) throws BazaarException {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
-        componentRepository.add(component);
+        Component newComponent = componentRepository.add(component);
+        return newComponent.getId();
     }
 
     @Override
@@ -208,9 +210,10 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public void createAttachment(Attachment attachment) throws BazaarException {
+    public int createAttachment(Attachment attachment) throws BazaarException {
         attachmentRepository = (attachmentRepository != null) ? attachmentRepository : new AttachmentRepositoryImpl(dslContext);
-        attachmentRepository.add(attachment);
+        Attachment newAttachment = attachmentRepository.add(attachment);
+        return newAttachment.getId();
     }
 
     @Override
@@ -226,9 +229,10 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public void createComment(Comment comment) throws BazaarException {
+    public int createComment(Comment comment) throws BazaarException {
         commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
-        commentRepository.add(comment);
+        Comment newComment = commentRepository.add(comment);
+        return newComment.getId();
     }
 
     @Override

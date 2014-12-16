@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -216,7 +217,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new project.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns success=true if creation was successful")
+            @ApiResponse(code = 200, message = "Returns the id if creation was successful")
 ////            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String createProject(@ContentParam String project) {
@@ -231,7 +232,10 @@ public class BazaarService extends Service {
             vtor.validate(projectToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             dalFacade = createConnection();
-            dalFacade.createProject(projectToCreate);
+            int projectId = dalFacade.createProject(projectToCreate);
+            JsonObject idJson = new JsonObject();
+            idJson.addProperty("id", projectId);
+            resultJSON = new Gson().toJson(idJson);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -377,7 +381,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new component under a given a project.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
+            @ApiResponse(code = 200, message = "Returns the id if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String createComponent(@PathParam("projectId")  int projectId, @ContentParam String component) {
@@ -393,7 +397,10 @@ public class BazaarService extends Service {
             vtor.validate(componentToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             dalFacade = createConnection();
-            dalFacade.createComponent(componentToCreate);
+            int componentId = dalFacade.createComponent(componentToCreate);
+            JsonObject idJson = new JsonObject();
+            idJson.addProperty("id", componentId);
+            resultJSON = new Gson().toJson(idJson);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -589,7 +596,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new requirement.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
+            @ApiResponse(code = 200, message = "Returns id if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String createRequirement(@PathParam("projectId")  int projectId, @PathParam("componentId") int componentId,
@@ -607,7 +614,10 @@ public class BazaarService extends Service {
             vtor.validate(requirementToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             dalFacade = createConnection();
-            dalFacade.createRequirement(requirementToCreate);
+            int requirementId = dalFacade.createRequirement(requirementToCreate);
+            JsonObject idJson = new JsonObject();
+            idJson.addProperty("id", requirementId);
+            resultJSON = new Gson().toJson(idJson);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -1161,7 +1171,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new comment for a requirement.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
+            @ApiResponse(code = 200, message = "Returns the id if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String createComment(@PathParam("projectId")  int projectId,
@@ -1181,7 +1191,10 @@ public class BazaarService extends Service {
             vtor.validate(commentToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             dalFacade = createConnection();
-            dalFacade.createComment(commentToCreate);
+            int commentId = dalFacade.createComment(commentToCreate);
+            JsonObject idJson = new JsonObject();
+            idJson.addProperty("id", commentId);
+            resultJSON = new Gson().toJson(idJson);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -1316,7 +1329,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new attachment for a requirement.")
     @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
+            @ApiResponse(code = 200, message = "Returns the id if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String createAttachment(@PathParam("projectId")  int projectId,
@@ -1338,7 +1351,10 @@ public class BazaarService extends Service {
             vtor.validate(attachmentToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             dalFacade = createConnection();
-            dalFacade.createAttachment(attachmentToCreate);
+            int attachmentId = dalFacade.createAttachment(attachmentToCreate);
+            JsonObject idJson = new JsonObject();
+            idJson.addProperty("id", attachmentId);
+            resultJSON = new Gson().toJson(idJson);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
