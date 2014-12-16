@@ -503,18 +503,17 @@ public class BazaarService extends Service {
      * This method returns the list of requirements for a specific project.
      *
      * @param projectId   the ID of the project to retrieve requirements for.
-     * @param componentId the id of the component under a given project
      * @return a list of requirements
      */
     @GET
-    @Path("projects/{projectId}/components/{componentId}/requirements")
+    @Path("projects/{projectId}/requirements")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of requirements for a specific project.")
     @ApiResponses(value={
             @ApiResponse(code = 200, message = "Returns a list of requirements for a given project")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String getRequirementsByProject(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId,
+    public String getRequirementsByProject(@PathParam("projectId")  int projectId,
                                   @QueryParam(name = "page", defaultValue = "0")  int page,
                                   @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
         String resultJSON = "[]";
@@ -556,9 +555,10 @@ public class BazaarService extends Service {
             @ApiResponse(code = 200, message = "Returns a list of requirements for a given component")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String getRequirementsByComponent(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId,
-                                           @QueryParam(name = "page", defaultValue = "0")  int page,
-                                           @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
+    public String getRequirementsByComponent(@PathParam("projectId")  int projectId,
+                                             @PathParam("componentId")  int componentId,
+                                             @QueryParam(name = "page", defaultValue = "0")  int page,
+                                             @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
         String resultJSON = "[]";
         createValidators();
         DALFacade dalFacade = null;
