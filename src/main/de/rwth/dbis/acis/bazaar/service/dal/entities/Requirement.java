@@ -14,14 +14,16 @@ public class Requirement extends EntityBase {
     @Min(-1)
     private final int id;
 
-    @NotNull
-    @Size(min=1, max=50)
+
+    @NotBlank
+    @MaxLength(50)
     private final String title;
 
 
     private final Date creation_time;
 
-    @Size(min=1, max=255)
+    @NotBlank
+    @MaxLength(255)
     private final String description;
 
     @Min(-1)

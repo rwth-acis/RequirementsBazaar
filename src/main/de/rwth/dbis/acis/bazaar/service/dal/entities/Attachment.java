@@ -38,8 +38,8 @@ public abstract class Attachment extends EntityBase {
     @Min(-1)
     private final int requirementId;
 
-    @NotNull
-    @Size(min=1, max=50)
+    @NotBlank
+    @MaxLength(50)
     private final String title;
 
 

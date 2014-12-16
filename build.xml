@@ -264,7 +264,8 @@ agent-user-${las2peer_user.name}.xml;${las2peer_user.password}
 			<jvmarg value="-Xdebug" />
 			<jvmarg
 				value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5432" />
-			<arg value='-s'/>
+			<arg value='-w'/>
+			<arg value='-p'/>
 			<arg value='9011'/>
 			<arg value='-'/>
 			<arg value='uploadStartupDirectory(\"etc/startup\")'/>
