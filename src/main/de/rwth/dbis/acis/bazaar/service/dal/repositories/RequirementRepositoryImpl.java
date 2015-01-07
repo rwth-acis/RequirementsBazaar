@@ -86,12 +86,23 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             entries = new ArrayList<Requirement>();
 
             List<RequirementsRecord> queryResults;
-            queryResults = jooq.selectFrom(REQUIREMENTS.join(Tags.TAGS).on(Tags.TAGS.REQUIREMENTS_ID.equal(REQUIREMENTS.ID)))
-                    .where(Tags.TAGS.COMPONENTS_ID.equal(componentId))
-                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
-                    .limit(pageable.getPageSize())
-                    .offset(pageable.getOffset())
-                    .fetchInto(transformator.getRecordClass());
+
+
+            if (componentId != -1) {
+                queryResults = jooq.selectFrom(REQUIREMENTS.join(Tags.TAGS).on(Tags.TAGS.REQUIREMENTS_ID.equal(REQUIREMENTS.ID)))
+                        .where(Tags.TAGS.COMPONENTS_ID.equal(componentId))
+                        .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                        .limit(pageable.getPageSize())
+                        .offset(pageable.getOffset())
+                        .fetchInto(transformator.getRecordClass());
+            } else {
+                queryResults = jooq.selectFrom(REQUIREMENTS.leftOuterJoin(Tags.TAGS).on(Tags.TAGS.REQUIREMENTS_ID.equal(REQUIREMENTS.ID)))
+                        .where(Tags.TAGS.ID.isNull())
+                        .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                        .limit(pageable.getPageSize())
+                        .offset(pageable.getOffset())
+                        .fetchInto(transformator.getRecordClass());
+            }
 
             for (RequirementsRecord queryResult : queryResults) {
                 Requirement entry = transformator.mapToEntity(queryResult);
