@@ -56,6 +56,8 @@ public class Project extends EntityBase {
 
     private final int leaderId;
 
+    private final int defaultComponentId;
+
     /**
      * Private constructor, should be called from its builder only.
      *
@@ -71,6 +73,8 @@ public class Project extends EntityBase {
         this.visibility = builder.visibility;
 
         this.leaderId = builder.leaderId;
+
+        this.defaultComponentId = builder.defaultComponentId;
 
         this.creation_time = builder.creation_time;
     }
@@ -98,6 +102,10 @@ public class Project extends EntityBase {
         return name;
     }
 
+    public int getDefaultComponentId() {
+        return defaultComponentId;
+    }
+
     public static class Builder {
 
         private int id;
@@ -108,6 +116,7 @@ public class Project extends EntityBase {
         private ProjectVisibility visibility;
         private int leaderId;
         private Date creation_time;
+        private int defaultComponentId;
 
         public Builder(String title) {
             this.name = title;
@@ -147,6 +156,11 @@ public class Project extends EntityBase {
 
         public Builder leaderId(int userId) {
             this.leaderId = userId;
+            return this;
+        }
+
+        public Builder defaultComponentId(int defaultComponentId) {
+            this.defaultComponentId = defaultComponentId;
             return this;
         }
 

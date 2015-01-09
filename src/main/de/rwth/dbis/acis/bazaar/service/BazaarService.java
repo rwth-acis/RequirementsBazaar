@@ -65,12 +65,12 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 @Path("bazaar")
 @Version("0.1")
 @ApiInfo(
-        title="Requirements Bazaar",
-        description="Requirements Bazaar project",
-        termsOfServiceUrl="http://requirements-bazaar.org",
-        contact="info@requirements-bazaar.org",
-        license="Apache2",
-        licenseUrl="http://requirements-bazaar.org/license"
+        title = "Requirements Bazaar",
+        description = "Requirements Bazaar project",
+        termsOfServiceUrl = "http://requirements-bazaar.org",
+        contact = "info@requirements-bazaar.org",
+        license = "Apache2",
+        licenseUrl = "http://requirements-bazaar.org/license"
 )
 public class BazaarService extends Service {
 
@@ -130,24 +130,25 @@ public class BazaarService extends Service {
         }
     }
 
-    /**********************************
+    /**
+     * *******************************
      * SWAGGER
-     **********************************/
+     * ********************************
+     */
 
     @GET
     @Path("api-docs")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse getSwaggerResourceListing(){
+    public HttpResponse getSwaggerResourceListing() {
         return RESTMapper.getSwaggerResourceListing(this.getClass());
     }
 
     @GET
     @Path("api-docs/{tlr}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse getSwaggerApiDeclaration(@PathParam("tlr") String tlr){
-        return RESTMapper.getSwaggerApiDeclaration(this.getClass(),tlr, "http://localhost:8080/bazaar/");
+    public HttpResponse getSwaggerApiDeclaration(@PathParam("tlr") String tlr) {
+        return RESTMapper.getSwaggerApiDeclaration(this.getClass(), tlr, "http://localhost:8080/bazaar/");
     }
-
 
 
     /**********************************
@@ -164,7 +165,7 @@ public class BazaarService extends Service {
     @ResourceListApi(description = "Requirement Bazaar API")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of projects on the server.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "List of projects")
 ////            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
@@ -174,6 +175,7 @@ public class BazaarService extends Service {
         createValidators();
         // if the user is not logged in, return all the public projects.
         UserAgent agent = (UserAgent) getActiveAgent();
+
         String resultJSON = "[]";
         Gson gson = new Gson();
         DALFacade dalFacade = null;
@@ -216,7 +218,7 @@ public class BazaarService extends Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new project.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the id if creation was successful")
 ////            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
@@ -259,11 +261,11 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to retrieve a certain project.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the detailed view of a certain project.")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String getProject(@PathParam("projectId")  int projectId) {
+    public String getProject(@PathParam("projectId") int projectId) {
         createValidators();
         // TODO: check whether the current user may request this project
         String resultJSON = "{}";
@@ -336,14 +338,14 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of components under a given project.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a list of components for a given project")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String getComponents(
-            @PathParam("projectId")  int projectId,
-            @QueryParam(name = "page", defaultValue = "0")  int page,
-            @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
+            @PathParam("projectId") int projectId,
+            @QueryParam(name = "page", defaultValue = "0") int page,
+            @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
         // TODO: if the user is not logged in, return all the public projects.
         createValidators();
         // Otherwise return all the user can see.
@@ -380,11 +382,11 @@ public class BazaarService extends Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new component under a given a project.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the id if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String createComponent(@PathParam("projectId")  int projectId, @ContentParam String component) {
+    public String createComponent(@PathParam("projectId") int projectId, @ContentParam String component) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new project
         // TODO: check whether all required parameters are entered
@@ -425,11 +427,11 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to retrieve a certain component under a project.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the details of a certain component.")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String getComponent(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId) {
+    public String getComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId) {
         // TODO: check whether the current user may request this project
         createValidators();
         String resultJSON = "{}";
@@ -470,18 +472,30 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("Deletes a component under a project by id")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String deleteComponent(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId) {
+    public String deleteComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId) {
         // TODO: check if user can delete this project
         createValidators();
         String resultJSON = "{\"success\" : \"true\"}";
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
-            dalFacade.deleteComponentById(componentId);
+
+            Project projectById = dalFacade.getProjectById(projectId);
+            if (projectById.getDefaultComponentId() != componentId) {
+                dalFacade.deleteComponentById(componentId);
+            } else {
+                ExceptionHandler.getInstance().convertAndThrowException(
+                        new Exception(),
+                        ExceptionLocation.BAZAARSERVICE,
+                        ErrorCode.CANNOTDELETE,
+                        "This component item with id " +componentId + " cannot be deleted, because it is the defaut component for the project!"
+                        );
+            }
+
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -502,20 +516,20 @@ public class BazaarService extends Service {
     /**
      * This method returns the list of requirements for a specific project.
      *
-     * @param projectId   the ID of the project to retrieve requirements for.
+     * @param projectId the ID of the project to retrieve requirements for.
      * @return a list of requirements
      */
     @GET
     @Path("projects/{projectId}/requirements")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of requirements for a specific project.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a list of requirements for a given project")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String getRequirementsByProject(@PathParam("projectId")  int projectId,
-                                  @QueryParam(name = "page", defaultValue = "0")  int page,
-                                  @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
+    public String getRequirementsByProject(@PathParam("projectId") int projectId,
+                                           @QueryParam(name = "page", defaultValue = "0") int page,
+                                           @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
         String resultJSON = "[]";
         createValidators();
         DALFacade dalFacade = null;
@@ -551,14 +565,14 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}/requirements")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of requirements for a specific component.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a list of requirements for a given component")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String getRequirementsByComponent(@PathParam("projectId")  int projectId,
-                                             @PathParam("componentId")  int componentId,
-                                             @QueryParam(name = "page", defaultValue = "0")  int page,
-                                             @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
+    public String getRequirementsByComponent(@PathParam("projectId") int projectId,
+                                             @PathParam("componentId") int componentId,
+                                             @QueryParam(name = "page", defaultValue = "0") int page,
+                                             @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
         String resultJSON = "[]";
         createValidators();
         DALFacade dalFacade = null;
@@ -595,11 +609,11 @@ public class BazaarService extends Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new requirement.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns id if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String createRequirement(@PathParam("projectId")  int projectId, @PathParam("componentId") int componentId,
+    public String createRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
                                     @ContentParam String requirement) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         createValidators();
@@ -643,12 +657,12 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns a specific requirement within a project.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a requirement")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String getRequirement(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId,
-                                 @PathParam("requirementId")  int requirementId) {
+    public String getRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
+                                 @PathParam("requirementId") int requirementId) {
         String resultJSON = "{}";
         createValidators();
         DALFacade dalFacade = null;
@@ -696,12 +710,12 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method deletes a specific requirement within a project.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String deleteRequirement(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId,
-                                    @PathParam("requirementId")  int requirementId) {
+    public String deleteRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
+                                    @PathParam("requirementId") int requirementId) {
         // TODO: check if the user may delete this requirement.
         String resultJSON = "{\"success\" : \"true\"}";
         createValidators();
@@ -812,13 +826,13 @@ public class BazaarService extends Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method add the current user to the developers list of a given requirement")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String addUserToDevelopers(@PathParam("projectId")  int projectId,
-                                      @PathParam("componentId")  int componentId,
-                                      @PathParam("requirementId")  int requirementId) {
+    public String addUserToDevelopers(@PathParam("projectId") int projectId,
+                                      @PathParam("componentId") int componentId,
+                                      @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         createValidators();
         // TODO: check whether the current user may create a new requirement
@@ -832,7 +846,7 @@ public class BazaarService extends Service {
             if (internalUserId == null) {
                 resultJSON = "{success = false}";
             } else {
-                dalFacade.wantToDevelop(internalUserId,requirementId);
+                dalFacade.wantToDevelop(internalUserId, requirementId);
             }
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -859,13 +873,13 @@ public class BazaarService extends Service {
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/developers")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method remove the current user from a developers list of a given requirement")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String removeUserFromDevelopers(@PathParam("projectId")  int projectId,
-                                           @PathParam("componentId")  int componentId,
-                                           @PathParam("requirementId")  int requirementId) {
+    public String removeUserFromDevelopers(@PathParam("projectId") int projectId,
+                                           @PathParam("componentId") int componentId,
+                                           @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         createValidators();
         // TODO: check whether the current user may create a new requirement
@@ -879,7 +893,7 @@ public class BazaarService extends Service {
             if (internalUserId == null) {
                 resultJSON = "{success = false}";
             } else {
-                dalFacade.notWantToDevelop(internalUserId,requirementId);
+                dalFacade.notWantToDevelop(internalUserId, requirementId);
             }
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -924,13 +938,13 @@ public class BazaarService extends Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method add the current user to the followers list of a given requirement")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String addUserToFollowers(@PathParam("projectId")  int projectId,
-                                     @PathParam("componentId")  int componentId,
-                                     @PathParam("requirementId")  int requirementId) {
+    public String addUserToFollowers(@PathParam("projectId") int projectId,
+                                     @PathParam("componentId") int componentId,
+                                     @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         createValidators();
         // TODO: check whether the current user may create a new requirement
@@ -944,7 +958,7 @@ public class BazaarService extends Service {
             if (internalUserId == null) {
                 resultJSON = "{success = false}";
             } else {
-                dalFacade.follow(internalUserId,requirementId);
+                dalFacade.follow(internalUserId, requirementId);
             }
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -971,13 +985,13 @@ public class BazaarService extends Service {
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/followers")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method removes the current user from a followers list of a given requirement")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String removeUserFromFollowers(@PathParam("projectId")  int projectId,
-                                          @PathParam("componentId")  int componentId,
-                                          @PathParam("requirementId")  int requirementId) {
+    public String removeUserFromFollowers(@PathParam("projectId") int projectId,
+                                          @PathParam("componentId") int componentId,
+                                          @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
@@ -991,7 +1005,7 @@ public class BazaarService extends Service {
             if (internalUserId == null) {
                 resultJSON = "{success = false}";
             } else {
-                dalFacade.unFollow(internalUserId,requirementId);
+                dalFacade.unFollow(internalUserId, requirementId);
             }
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -1019,13 +1033,13 @@ public class BazaarService extends Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method creates a vote for the given requirement in the name of the current user.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String addVote(@PathParam("projectId")  int projectId,
-                          @PathParam("componentId")  int componentId,
-                          @PathParam("requirementId")  int requirementId,
+    public String addVote(@PathParam("projectId") int projectId,
+                          @PathParam("componentId") int componentId,
+                          @PathParam("requirementId") int requirementId,
                           @QueryParam(name = "direction", defaultValue = "up") String direction) {
 
         long userId = ((UserAgent) getActiveAgent()).getId();
@@ -1033,8 +1047,8 @@ public class BazaarService extends Service {
         DALFacade dalFacade = null;
         String resultJSON = "{\"success\" : \"true\"}";
         try {
-            if (!(direction.equals("up") || direction.equals("down"))){
-                vtor.addViolation(new Violation("Direction can only be \"up\" or \"down\"",direction,direction));
+            if (!(direction.equals("up") || direction.equals("down"))) {
+                vtor.addViolation(new Violation("Direction can only be \"up\" or \"down\"", direction, direction));
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
 
@@ -1071,13 +1085,13 @@ public class BazaarService extends Service {
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/vote")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method removes the vote of the given requirement made by the current user")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String removeVote(@PathParam("projectId")  int projectId,
-                             @PathParam("componentId")  int componentId,
-                             @PathParam("requirementId")  int requirementId) {
+    public String removeVote(@PathParam("projectId") int projectId,
+                             @PathParam("componentId") int componentId,
+                             @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
@@ -1091,7 +1105,7 @@ public class BazaarService extends Service {
             if (internalUserId == null) {
                 resultJSON = "{success = false}";
             } else {
-                dalFacade.unVote(internalUserId,requirementId);
+                dalFacade.unVote(internalUserId, requirementId);
             }
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -1122,15 +1136,15 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of comments for a specific requirement.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns list of comments for the given requirement")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String getComments(@PathParam("projectId")  int projectId,
-                              @PathParam("componentId")  int componentId,
-                              @PathParam("requirementId")  int requirementId,
-                              @QueryParam(name = "page", defaultValue = "0")  int page,
-                              @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
+    public String getComments(@PathParam("projectId") int projectId,
+                              @PathParam("componentId") int componentId,
+                              @PathParam("requirementId") int requirementId,
+                              @QueryParam(name = "page", defaultValue = "0") int page,
+                              @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
         long userId = ((UserAgent) getActiveAgent()).getId();
 
         String resultJSON = "[]";
@@ -1170,13 +1184,13 @@ public class BazaarService extends Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new comment for a requirement.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the id if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String createComment(@PathParam("projectId")  int projectId,
-                                @PathParam("componentId")  int componentId,
-                                @PathParam("requirementId")  int requirementId,
+    public String createComment(@PathParam("projectId") int projectId,
+                                @PathParam("componentId") int componentId,
+                                @PathParam("requirementId") int requirementId,
                                 @ContentParam String comment) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
@@ -1187,7 +1201,7 @@ public class BazaarService extends Service {
         DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
-            Comment commentToCreate = gson.fromJson(comment,Comment.class);
+            Comment commentToCreate = gson.fromJson(comment, Comment.class);
             vtor.validate(commentToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             dalFacade = createConnection();
@@ -1208,7 +1222,7 @@ public class BazaarService extends Service {
         return resultJSON;
     }
 
-        // TODO IS IT NEEDED?
+    // TODO IS IT NEEDED?
 //    /**
 //     * This method returns a specific comment within a requirement.
 //     *
@@ -1262,14 +1276,14 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments/{commentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method deletes a specific comment within a requirement.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String deleteComment(@PathParam("projectId")  int projectId,
-                                    @PathParam("componentId")  int componentId,
-                                    @PathParam("requirementId")  int requirementId,
-                                    @PathParam("commentId")  int commentId) {
+    public String deleteComment(@PathParam("projectId") int projectId,
+                                @PathParam("componentId") int componentId,
+                                @PathParam("requirementId") int requirementId,
+                                @PathParam("commentId") int commentId) {
         // TODO: check if the user may delete this requirement.
         long userId = ((UserAgent) getActiveAgent()).getId();
         String resultJSON = "{\"success\" : \"true\"}";
@@ -1295,7 +1309,7 @@ public class BazaarService extends Service {
      * ATTACHMENTS
      **********************************/
 
-        // TODO INCLUDED IN REQUIREMENT?
+    // TODO INCLUDED IN REQUIREMENT?
 //    /**
 //     * This method returns the list of attachments for a specific requirement.
 //     *
@@ -1328,13 +1342,13 @@ public class BazaarService extends Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new attachment for a requirement.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the id if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String createAttachment(@PathParam("projectId")  int projectId,
-                                   @PathParam("componentId")  int componentId,
-                                   @PathParam("requirementId")  int requirementId,
+    public String createAttachment(@PathParam("projectId") int projectId,
+                                   @PathParam("componentId") int componentId,
+                                   @PathParam("requirementId") int requirementId,
                                    @QueryParam(name = "attachmentType", defaultValue = "U") String attachmentType,
                                    @ContentParam String attachment) {
         long userId = ((UserAgent) getActiveAgent()).getId();
@@ -1347,7 +1361,7 @@ public class BazaarService extends Service {
         try {
             Gson gson = new Gson();
             //TODO??? HOW DOES IT KNOW THE TYPE
-            Attachment attachmentToCreate = gson.fromJson(attachment,Attachment.class);
+            Attachment attachmentToCreate = gson.fromJson(attachment, Attachment.class);
             vtor.validate(attachmentToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             dalFacade = createConnection();
@@ -1368,7 +1382,7 @@ public class BazaarService extends Service {
         return resultJSON;
     }
 
-        // TODO INCLUDED IN REQUIREMENT? NEEDED?
+    // TODO INCLUDED IN REQUIREMENT? NEEDED?
 //    /**
 //     * This method returns a specific attachment within a requirement.
 //     *
@@ -1387,7 +1401,7 @@ public class BazaarService extends Service {
 //        return "[]";
 //    }
 
-        //TODO UPDATE?
+    //TODO UPDATE?
 //    /**
 //     * This method updates a specific attachment within a requirement.
 //     *
@@ -1419,14 +1433,14 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments/{attachmentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method deletes a specific attachment within a requirement.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String deleteAttachment(@PathParam("projectId")  int projectId,
-                                   @PathParam("componentId")  int componentId,
-                                   @PathParam("requirementId")  int requirementId,
-                                   @PathParam("attachmentId")  int attachmentId) {
+    public String deleteAttachment(@PathParam("projectId") int projectId,
+                                   @PathParam("componentId") int componentId,
+                                   @PathParam("requirementId") int requirementId,
+                                   @PathParam("attachmentId") int attachmentId) {
         // TODO: check if the user may delete this requirement.
         String resultJSON = "{\"success\" : \"true\"}";
         createValidators();
@@ -1475,11 +1489,11 @@ public class BazaarService extends Service {
     @Path("users/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("Returns user data by ID")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns user data by ID")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String getUser(@PathParam("userId")  int userId) {
+    public String getUser(@PathParam("userId") int userId) {
         // TODO: check whether the current user may request this project
         String resultJSON = "{}";
         createValidators();
@@ -1515,4 +1529,6 @@ public class BazaarService extends Service {
 //        // TODO: check if user can change this project
 //        return "{success=false}";
 //    }
+
+
 }

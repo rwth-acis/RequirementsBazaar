@@ -1,7 +1,7 @@
 -- Created by Vertabelo (http://vertabelo.com)
 -- Script type: create
 -- Scope: [tables, references, sequences, views, procedures]
--- Generated at Wed Oct 01 11:57:05 UTC 2014
+-- Generated at Fri Jan 09 10:19:41 UTC 2015
 
 
 
@@ -81,7 +81,9 @@ CREATE TABLE Projects (
     description varchar(255) NOT NULL,
     visibility character(1) NOT NULL,
     Leader_Id integer NOT NULL,
-    FOREIGN KEY (Leader_Id) REFERENCES Users (Id)
+    Default_Components_Id integer NOT NULL,
+    FOREIGN KEY (Leader_Id) REFERENCES Users (Id),
+    FOREIGN KEY (Default_Components_Id) REFERENCES Components (Id)
 );
 
 -- Table: Requirements
