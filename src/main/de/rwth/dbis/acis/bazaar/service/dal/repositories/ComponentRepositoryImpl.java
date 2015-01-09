@@ -30,7 +30,6 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
-import sun.awt.ComponentFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,13 +65,6 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                 Component entry = transformator.mapToEntity(queryResult);
                 entries.add(entry);
             }
-
-            //Add special component with unique id to hold non-component related reqs
-            entries.add(Component.getBuilder("Uncategorized")
-                        .id(-1)
-                        .projectId(projectId)
-                        .description("Requirements not under any other component")
-                        .build());
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
