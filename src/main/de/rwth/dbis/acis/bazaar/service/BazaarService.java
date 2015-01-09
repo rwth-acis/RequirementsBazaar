@@ -40,8 +40,7 @@ import i5.las2peer.security.UserAgent;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import jodd.vtor.Violation;
 import jodd.vtor.Vtor;
@@ -85,7 +84,7 @@ public class BazaarService extends Service {
     protected String dbUrl = DEFAULT_DB_URL;
 
     private Vtor vtor;
-
+    private List<BazaarFunctionRegistrator> functionRegistrators;
 
     /**
      * This method is needed for every RESTful application in LAS2peer.
@@ -107,12 +106,70 @@ public class BazaarService extends Service {
 
         Class.forName("com.mysql.jdbc.Driver").newInstance();
 
+        functionRegistrators = new ArrayList<BazaarFunctionRegistrator>();
+        functionRegistrators.add(new BazaarFunctionRegistrator() {
+            @Override
+            public void registerFunction(EnumSet<BazaarFunction> functions) {
+                if (functions.contains(BazaarFunction.VALIDATION)){
+                    createValidators();
+                }
+            }
+        });
+
+        functionRegistrators.add(new BazaarFunctionRegistrator() {
+            @Override
+            public void registerFunction(EnumSet<BazaarFunction> functions) throws Exception {
+                if (functions.contains(BazaarFunction.USER_FIRST_LOGIN_HANDLING)){
+                    registerUserAtFirstLogin();
+                }
+            }
+        });
+    }
+
+    private String notifyRegistrators(EnumSet<BazaarFunction> functions) {
+        String resultJSON = null;
+        try {
+            for (BazaarFunctionRegistrator functionRegistrator : functionRegistrators) {
+                functionRegistrator.registerFunction(functions);
+            }
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Unknown error in registrators");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+        }
+        return resultJSON;
     }
 
     private void createValidators() {
         vtor = new Vtor();
     }
 
+    private static int safeLongToInt(long l) {
+        if (l < Integer.MIN_VALUE || l > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException
+                    (l + " cannot be cast to int without changing its value.");
+        }
+        return (int) l;
+    }
+
+    private void registerUserAtFirstLogin() throws Exception {
+        UserAgent agent = (UserAgent) getActiveAgent();
+
+        //TODO how to check if the user is anonymous?
+        if(agent.getLoginName().equals("anonymous")) return;
+
+        DALFacade dalFacade = null;
+        try {
+            dalFacade = createConnection();
+            Integer userIdByLAS2PeerId = dalFacade.getUserIdByLAS2PeerId(safeLongToInt(agent.getId()));
+            if (userIdByLAS2PeerId == null) {
+                dalFacade.createUser(User.geBuilder(agent.getEmail()).admin(false).las2peerId(safeLongToInt(agent.getId())).userName(agent.getLoginName()).build());
+            }
+        }
+        finally {
+            closeConnection(dalFacade);
+        }
+
+    }
     private DALFacade createConnection() throws Exception {
         Connection dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reqbaz", "root", "");
         return new DALFacadeImpl(dbConnection, SQLDialect.MYSQL);
@@ -172,7 +229,9 @@ public class BazaarService extends Service {
     public String getProjects(
             @QueryParam(name = "page", defaultValue = "0") int page,
             @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
-        createValidators();
+
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         // if the user is not logged in, return all the public projects.
         UserAgent agent = (UserAgent) getActiveAgent();
 
@@ -208,6 +267,9 @@ public class BazaarService extends Service {
         return resultJSON;
     }
 
+
+
+
     /**
      * This method allows to create a new project.
      *
@@ -223,6 +285,8 @@ public class BazaarService extends Service {
 ////            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String createProject(@ContentParam String project) {
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new project
         // TODO: check whether all required parameters are entered
@@ -266,7 +330,8 @@ public class BazaarService extends Service {
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String getProject(@PathParam("projectId") int projectId) {
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         // TODO: check whether the current user may request this project
         String resultJSON = "{}";
         DALFacade dalFacade = null;
@@ -347,7 +412,8 @@ public class BazaarService extends Service {
             @QueryParam(name = "page", defaultValue = "0") int page,
             @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
         // TODO: if the user is not logged in, return all the public projects.
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         // Otherwise return all the user can see.
         String resultJSON = "[]";
         DALFacade dalFacade = null;
@@ -390,7 +456,8 @@ public class BazaarService extends Service {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new project
         // TODO: check whether all required parameters are entered
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         String resultJSON = "{\"success\" : \"true\"}";
         DALFacade dalFacade = null;
         try {
@@ -433,7 +500,8 @@ public class BazaarService extends Service {
     })
     public String getComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId) {
         // TODO: check whether the current user may request this project
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         String resultJSON = "{}";
         DALFacade dalFacade = null;
         try {
@@ -478,7 +546,8 @@ public class BazaarService extends Service {
     })
     public String deleteComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId) {
         // TODO: check if user can delete this project
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         String resultJSON = "{\"success\" : \"true\"}";
         DALFacade dalFacade = null;
         try {
@@ -531,7 +600,8 @@ public class BazaarService extends Service {
                                            @QueryParam(name = "page", defaultValue = "0") int page,
                                            @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
         String resultJSON = "[]";
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
@@ -574,7 +644,8 @@ public class BazaarService extends Service {
                                              @QueryParam(name = "page", defaultValue = "0") int page,
                                              @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
         String resultJSON = "[]";
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
@@ -616,7 +687,8 @@ public class BazaarService extends Service {
     public String createRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
                                     @ContentParam String requirement) {
         long userId = ((UserAgent) getActiveAgent()).getId();
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
@@ -664,7 +736,8 @@ public class BazaarService extends Service {
     public String getRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
                                  @PathParam("requirementId") int requirementId) {
         String resultJSON = "{}";
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
@@ -718,7 +791,8 @@ public class BazaarService extends Service {
                                     @PathParam("requirementId") int requirementId) {
         // TODO: check if the user may delete this requirement.
         String resultJSON = "{\"success\" : \"true\"}";
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
@@ -834,7 +908,8 @@ public class BazaarService extends Service {
                                       @PathParam("componentId") int componentId,
                                       @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
@@ -881,7 +956,8 @@ public class BazaarService extends Service {
                                            @PathParam("componentId") int componentId,
                                            @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
@@ -946,7 +1022,8 @@ public class BazaarService extends Service {
                                      @PathParam("componentId") int componentId,
                                      @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
@@ -997,7 +1074,8 @@ public class BazaarService extends Service {
         // TODO: check whether all required parameters are entered
 
         String resultJSON = "{\"success\" : \"true\"}";
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
@@ -1043,7 +1121,8 @@ public class BazaarService extends Service {
                           @QueryParam(name = "direction", defaultValue = "up") String direction) {
 
         long userId = ((UserAgent) getActiveAgent()).getId();
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         String resultJSON = "{\"success\" : \"true\"}";
         try {
@@ -1097,7 +1176,8 @@ public class BazaarService extends Service {
         // TODO: check whether all required parameters are entered
 
         String resultJSON = "{\"success\" : \"true\"}";
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
@@ -1148,7 +1228,8 @@ public class BazaarService extends Service {
         long userId = ((UserAgent) getActiveAgent()).getId();
 
         String resultJSON = "[]";
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             PageInfo pageInfo = new PageInfo(page, perPage);
@@ -1197,7 +1278,8 @@ public class BazaarService extends Service {
         // TODO: check whether all required parameters are entered
 
         String resultJSON = "{\"success\" : \"true\"}";
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
@@ -1287,7 +1369,8 @@ public class BazaarService extends Service {
         // TODO: check if the user may delete this requirement.
         long userId = ((UserAgent) getActiveAgent()).getId();
         String resultJSON = "{\"success\" : \"true\"}";
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
@@ -1356,7 +1439,8 @@ public class BazaarService extends Service {
         // TODO: check whether all required parameters are entered
 
         String resultJSON = "{\"success\" : \"true\"}";
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
@@ -1443,7 +1527,8 @@ public class BazaarService extends Service {
                                    @PathParam("attachmentId") int attachmentId) {
         // TODO: check if the user may delete this requirement.
         String resultJSON = "{\"success\" : \"true\"}";
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
@@ -1496,7 +1581,8 @@ public class BazaarService extends Service {
     public String getUser(@PathParam("userId") int userId) {
         // TODO: check whether the current user may request this project
         String resultJSON = "{}";
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
