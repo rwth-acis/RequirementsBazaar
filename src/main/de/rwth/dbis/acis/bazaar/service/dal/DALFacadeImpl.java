@@ -120,6 +120,12 @@ public class DALFacadeImpl implements DALFacade {
     public int createProject(Project project) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         Project newProject = projectRepository.add(project);
+        Component uncategorizedComponent = Component.getBuilder("Uncategorized")
+                .description("Requirements which not belong to any component")
+                .leaderId(project.getLeaderId())
+                .projectId(project.getId())
+                .build();
+        createComponent(uncategorizedComponent);
         return newProject.getId();
     }
 
