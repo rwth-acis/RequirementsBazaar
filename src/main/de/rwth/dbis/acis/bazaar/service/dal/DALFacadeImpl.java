@@ -166,9 +166,10 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public int createRequirement(Requirement requirement) throws BazaarException {
+    public int createRequirement(Requirement requirement, int componentId) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         Requirement newRequirement = requirementRepository.add(requirement);
+        addComponentTag(newRequirement.getId(),componentId);
         return newRequirement.getId();
     }
 

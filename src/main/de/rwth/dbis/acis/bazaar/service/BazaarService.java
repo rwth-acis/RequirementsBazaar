@@ -699,8 +699,10 @@ public class BazaarService extends Service {
             Requirement requirementToCreate = gson.fromJson(requirement, Requirement.class);
             vtor.validate(requirementToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+            vtor.validate(componentId);
+            if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             dalFacade = createConnection();
-            int requirementId = dalFacade.createRequirement(requirementToCreate);
+            int requirementId = dalFacade.createRequirement(requirementToCreate, componentId);
             JsonObject idJson = new JsonObject();
             idJson.addProperty("id", requirementId);
             resultJSON = new Gson().toJson(idJson);

@@ -301,7 +301,7 @@ public class DALFacadeMockImpl implements DALFacade {
 
 
     @Override
-    public int createRequirement(Requirement requirement) {
+    public int createRequirement(Requirement requirement, int componentId) {
         requirementList.add(requirement);
         return 0;
     }

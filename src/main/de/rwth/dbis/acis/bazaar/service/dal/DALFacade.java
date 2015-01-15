@@ -147,8 +147,9 @@ public interface DALFacade {
 
     /**
      * @param requirement to be added to the database.
+     * @param componentId
      */
-    public int createRequirement(Requirement requirement) throws BazaarException;
+    public int createRequirement(Requirement requirement, int componentId) throws BazaarException;
 
     /**
      * Modifies the requirement in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
