@@ -1,4 +1,4 @@
-INSERT INTO `reqbaz`.`users` 
+INSERT INTO `reqbaz`.`Users` 
 (`Id`,`first_name`, `last_name`, `email`, `admin`, `Las2peer_Id`, `user_name`)
  VALUES 
 ('1','Max1', 'Mustermann1', 'Max@Mustermann1.de', '1', '1', 'MaxMustermann1'),
@@ -42,7 +42,7 @@ INSERT INTO `reqbaz`.`users`
 ('39','Max39', 'Mustermann39', 'Max@Mustermann39.de', '0', '39', 'MaxMustermann39'),
 ('40','Max40', 'Mustermann40', 'Max@Mustermann40.de', '0', '40', 'MaxMustermann40');
 
-INSERT INTO `reqbaz`.`projects` 
+INSERT INTO `reqbaz`.`Projects` 
 (`Id`,`name`, `description`, `visibility`, `Leader_Id`, `Default_Components_Id`) 
 VALUES
 ('1','Project 1', 'Project 1 - Description - This project is visible - leader MaxMustermann1', '+', '1','31'),
@@ -58,7 +58,7 @@ VALUES
 
 
 
-INSERT INTO `reqbaz`.`components` 
+INSERT INTO `reqbaz`.`Components` 
 (`Id`,`name`, `description`, `Project_Id`, `Leader_Id`) 
 VALUES 
 ('1','Component 1', 'Component  - Description', '1', '1'),
@@ -105,7 +105,7 @@ VALUES
 
 
 
-INSERT INTO `reqbaz`.`requirements` 
+INSERT INTO `reqbaz`.`Requirements` 
 (`Id`, `title`, `description`, `Lead_developer_Id`, `Creator_Id`, `Project_Id`) 
 VALUES 
 ('1', 'Requirement ', 'Requirement - Description', '1', '1', '1'),
@@ -152,7 +152,7 @@ VALUES
 
 
 
-INSERT INTO `reqbaz`.`followers`
+INSERT INTO `reqbaz`.`Followers`
  (`Id`, `Requirement_Id`, `User_Id`) 
 VALUES 
 ('1', '1', '1'),
@@ -177,7 +177,7 @@ VALUES
 ('20', '2', '1');
 
 
-INSERT INTO `reqbaz`.`developers` 
+INSERT INTO `reqbaz`.`Developers` 
 (`Id`, `Requirement_Id`, `User_Id`) 
 VALUES 
 ('1', '1', '1'),
@@ -202,7 +202,7 @@ VALUES
 ('20', '6', '12');
 
 
-INSERT INTO `reqbaz`.`tags` 
+INSERT INTO `reqbaz`.`Tags` 
 (`Id`, `Components_Id`, `Requirements_Id`) 
 VALUES 
 ('1', '1', '1'),
