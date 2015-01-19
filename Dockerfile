@@ -12,7 +12,8 @@ RUN apt-get upgrade -y
 # Install build tools
 RUN apt-get install -y \
                      openjdk-7-jdk \
-                     git
+                     git \
+                     ant
 
 # Set jdk7 as the default JDK
 RUN ln -fs /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java /etc/alternatives/java
