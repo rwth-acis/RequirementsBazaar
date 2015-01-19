@@ -6,4 +6,4 @@ The backend of the Requirements Bazaar
 
 - git clone this repo
 - docker build -t rwth-acis/reqbaz-service .
-- docker run -i -t --rm -v `pwd`:/build rwth-acis/reqbaz-service
+- docker run -i -t --rm -v \`pwd\`:/build rwth-acis/reqbaz-service
