@@ -15,7 +15,7 @@ RUN apt-get install -y \
                      git
 
 # Set jdk7 as the default JDK
-RUN ln -fs /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java /etc/alternatives/java && \
+RUN ln -fs /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java /etc/alternatives/java
 
 # create mount point
 RUN mkdir /build
