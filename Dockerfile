@@ -14,7 +14,7 @@ RUN apt-get install -y \
                      openjdk-7-jdk \
                      git
 
-# jdk7 is the default jdk
+# Set jdk7 as the default JDK
 RUN ln -fs /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java /etc/alternatives/java && \
 
 # create mount point
@@ -22,12 +22,7 @@ RUN mkdir /build
 WORKDIR /build
 VOLUME ["/build"]
 
-# Set default branch
-ENV BRANCH develop
-
 # Clone and build code on run
-CMD git clone https://github.com/rwth-acis/RequirementsBazaar.git --branch $BRANCH --single-branch && \
-	cd ./RequirementsBazaar/  && \
-	ant clean_all && \
-	ant generate_configs  && \
-	ant jar
+CMD ant clean_all && \
+    ant generate_configs  && \
+    ant jar
