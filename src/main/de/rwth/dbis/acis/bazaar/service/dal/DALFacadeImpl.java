@@ -134,8 +134,8 @@ public class DALFacadeImpl implements DALFacade {
         Project newProject = projectRepository.add(project);
         Component uncategorizedComponent = Component.getBuilder("Uncategorized")
                 .description("Requirements which not belong to any component")
-                .leaderId(project.getLeaderId())
-                .projectId(project.getId())
+                .leaderId(newProject.getLeaderId())
+                .projectId(newProject.getId())
                 .build();
         int defaultComponentId = createComponent(uncategorizedComponent);
         newProject.setDefaultComponentId(defaultComponentId);
