@@ -208,9 +208,10 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
             for (Map.Entry<Field, Object> item : map.entrySet()) {
                 Field key = item.getKey();
                 Object value = item.getValue();
-                moreStep = (moreStep == null) ?
-                        update.set(key, value) :
-                        moreStep.set(key, value);
+                if(moreStep == null)
+                    moreStep = update.set(key, value);
+                else
+                    moreStep.set(key,value);
             }
             assert moreStep != null;
             moreStep.where(transformator.getTableId().equal(entity.getId())).execute();

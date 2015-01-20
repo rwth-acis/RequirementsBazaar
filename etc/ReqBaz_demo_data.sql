@@ -45,16 +45,16 @@ INSERT INTO `reqbaz`.`Users`
 INSERT INTO `reqbaz`.`Projects` 
 (`Id`,`name`, `description`, `visibility`, `Leader_Id`, `Default_Components_Id`) 
 VALUES
-('1','Project 1', 'Project 1 - Description - This project is visible - leader MaxMustermann1', '+', '1','31'),
-('2','Project 2', 'Project 2 - Description - This project is visible - leader MaxMustermann1', '+', '1','32'),
-('3','Project 3', 'Project 3 - Description - This project is visible - leader MaxMustermann1', '+', '1','33'),
-('4','Project 4', 'Project 4 - Description - This project is visible - leader MaxMustermann2', '+', '2','34'),
-('5','Project 5', 'Project 5 - Description - This project is visible - leader MaxMustermann3', '+', '3','35'),
-('6','Project 6', 'Project 6 - Description - This project is visible - leader MaxMustermann4', '+', '4','36'),
-('7','Project 7', 'Project 7 - Description - This project is visible - leader MaxMustermann5', '+', '5','37'),
-('8','Project 8', 'Project 8 - Description - This project is visible - leader MaxMustermann6  - Has no components', '+', '6','38'),
-('9','Project 9', 'Project 9 - Description - This project is not visible - leader MaxMustermann7', '-', '7','39'),
-('10','Project 10', 'Project 10 - Description - This project is not visible - leader MaxMustermann8', '-', '8','40');
+('1','Project 1', 'Project 1 - Description - This project is visible - leader MaxMustermann1', '+', '1',NULL),
+('2','Project 2', 'Project 2 - Description - This project is visible - leader MaxMustermann1', '+', '1',NULL),
+('3','Project 3', 'Project 3 - Description - This project is visible - leader MaxMustermann1', '+', '1',NULL),
+('4','Project 4', 'Project 4 - Description - This project is visible - leader MaxMustermann2', '+', '2',NULL),
+('5','Project 5', 'Project 5 - Description - This project is visible - leader MaxMustermann3', '+', '3',NULL),
+('6','Project 6', 'Project 6 - Description - This project is visible - leader MaxMustermann4', '+', '4',NULL),
+('7','Project 7', 'Project 7 - Description - This project is visible - leader MaxMustermann5', '+', '5',NULL),
+('8','Project 8', 'Project 8 - Description - This project is visible - leader MaxMustermann6  - Has no components', '+', '6',NULL),
+('9','Project 9', 'Project 9 - Description - This project is not visible - leader MaxMustermann7', '-', '7',NULL),
+('10','Project 10', 'Project 10 - Description - This project is not visible - leader MaxMustermann8', '-', '8',NULL);
 
 
 
@@ -102,6 +102,16 @@ VALUES
 ('39','Uncategorized-P9 ', 'Uncategorized requirements for Project 9 ', '9 ', '7'),
 ('40','Uncategorized-P10', 'Uncategorized requirements for Project 10', '10', '8');
 
+UPDATE `reqbaz`.`Projects` SET `Default_Components_Id`='31' WHERE `Id`='1 '; 
+UPDATE `reqbaz`.`Projects` SET `Default_Components_Id`='32' WHERE `Id`='2 '; 
+UPDATE `reqbaz`.`Projects` SET `Default_Components_Id`='33' WHERE `Id`='3 '; 
+UPDATE `reqbaz`.`Projects` SET `Default_Components_Id`='34' WHERE `Id`='4 '; 
+UPDATE `reqbaz`.`Projects` SET `Default_Components_Id`='35' WHERE `Id`='5 '; 
+UPDATE `reqbaz`.`Projects` SET `Default_Components_Id`='36' WHERE `Id`='6 '; 
+UPDATE `reqbaz`.`Projects` SET `Default_Components_Id`='37' WHERE `Id`='7 '; 
+UPDATE `reqbaz`.`Projects` SET `Default_Components_Id`='38' WHERE `Id`='8 '; 
+UPDATE `reqbaz`.`Projects` SET `Default_Components_Id`='39' WHERE `Id`='9 '; 
+UPDATE `reqbaz`.`Projects` SET `Default_Components_Id`='40' WHERE `Id`='10'; 
 
 
 

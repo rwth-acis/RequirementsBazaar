@@ -25,9 +25,9 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.repositories.*;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
-import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
+import org.jooq.*;
 import org.jooq.impl.DSL;
+import org.jooq.impl.DefaultExecuteListener;
 
 import java.sql.Connection;
 import java.util.List;
@@ -53,9 +53,20 @@ public class DALFacadeImpl implements DALFacade {
     private UserRepository userRepository;
     private VoteRepostitory voteRepostitory;
 
-    public DALFacadeImpl(Connection connection, SQLDialect dialect) throws Exception {
+    public DALFacadeImpl(Connection connection, SQLDialect dialect) {
         this.connection = connection;
         dslContext = DSL.using(connection, dialect);
+//        dslContext.configuration().set(new ExecuteListenerProvider() {
+//            @Override
+//            public ExecuteListener provide() {
+//                return new DefaultExecuteListener() {
+//                    @Override
+//                    public void renderEnd(ExecuteContext ctx) {
+//                        String sql = ctx.sql();
+//                    }
+//                };
+//            }
+//        });
     }
 
     public DSLContext getDslContext() {
@@ -117,15 +128,19 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public int createProject(Project project) throws BazaarException {
+    public int createProject(Project project) throws Exception {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
+        project.setDefaultComponentId(null);
         Project newProject = projectRepository.add(project);
         Component uncategorizedComponent = Component.getBuilder("Uncategorized")
                 .description("Requirements which not belong to any component")
                 .leaderId(project.getLeaderId())
                 .projectId(project.getId())
                 .build();
-        createComponent(uncategorizedComponent);
+        int defaultComponentId = createComponent(uncategorizedComponent);
+        newProject.setDefaultComponentId(defaultComponentId);
+        //TODO
+        projectRepository.update(newProject);
         return newProject.getId();
     }
 

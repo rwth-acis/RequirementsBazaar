@@ -95,7 +95,7 @@ public interface DALFacade {
     /**
      * @param project data to be created.
      */
-    public int createProject(Project project) throws BazaarException;
+    public int createProject(Project project) throws Exception;
 
     //TODO delete? Should it delete its components and reqs? What should happen after deletion?
 

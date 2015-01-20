@@ -73,7 +73,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                 Project entry = transformator.mapToEntity(queryResult);
                 entries.add(entry);
             }
-        } catch (DataAccessException e) {
+        } catch (Exception e){
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
 

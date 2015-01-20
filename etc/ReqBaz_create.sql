@@ -76,7 +76,7 @@ CREATE TABLE Projects (
     description varchar(255)    NOT NULL ,
     visibility char(1)    NOT NULL ,
     Leader_Id int    NOT NULL ,
-    Default_Components_Id int    NOT NULL ,
+    Default_Components_Id int    NULL ,
     CONSTRAINT Projects_pk PRIMARY KEY (Id)
 );
 
