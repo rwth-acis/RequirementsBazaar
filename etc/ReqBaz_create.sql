@@ -1,7 +1,7 @@
 -- Created by Vertabelo (http://vertabelo.com)
 -- Script type: create
 -- Scope: [tables, references, sequences, views, procedures]
--- Generated at Fri Jan 09 10:21:00 UTC 2015
+-- Generated at Tue Jan 20 10:38:29 UTC 2015
 
 
 
@@ -130,7 +130,8 @@ CREATE TABLE Votes (
 
 
 ALTER TABLE Attachments ADD CONSTRAINT Attachement_Requirement FOREIGN KEY Attachement_Requirement (Requirement_Id)
-    REFERENCES Requirements (Id);
+    REFERENCES Requirements (Id)
+    ON DELETE CASCADE;
 -- Reference:  Attachement_User (table: Attachments)
 
 
@@ -150,7 +151,8 @@ ALTER TABLE Authorizations ADD CONSTRAINT Authorization_User FOREIGN KEY Authori
 
 
 ALTER TABLE Comments ADD CONSTRAINT Comment_Requirement FOREIGN KEY Comment_Requirement (Requirement_Id)
-    REFERENCES Requirements (Id);
+    REFERENCES Requirements (Id)
+    ON DELETE CASCADE;
 -- Reference:  Comment_User (table: Comments)
 
 
@@ -175,7 +177,8 @@ ALTER TABLE Requirements ADD CONSTRAINT Creator FOREIGN KEY Creator (Creator_Id)
 
 
 ALTER TABLE Developers ADD CONSTRAINT Developer_Requirement FOREIGN KEY Developer_Requirement (Requirement_Id)
-    REFERENCES Requirements (Id);
+    REFERENCES Requirements (Id)
+    ON DELETE CASCADE;
 -- Reference:  Developer_User (table: Developers)
 
 
@@ -185,7 +188,8 @@ ALTER TABLE Developers ADD CONSTRAINT Developer_User FOREIGN KEY Developer_User 
 
 
 ALTER TABLE Followers ADD CONSTRAINT Follower_Requirement FOREIGN KEY Follower_Requirement (Requirement_Id)
-    REFERENCES Requirements (Id);
+    REFERENCES Requirements (Id)
+    ON DELETE CASCADE;
 -- Reference:  Follower_User (table: Followers)
 
 
@@ -220,12 +224,14 @@ ALTER TABLE Tags ADD CONSTRAINT Tags_Components FOREIGN KEY Tags_Components (Com
 
 
 ALTER TABLE Tags ADD CONSTRAINT Tags_Requirements FOREIGN KEY Tags_Requirements (Requirements_Id)
-    REFERENCES Requirements (Id);
+    REFERENCES Requirements (Id)
+    ON DELETE CASCADE;
 -- Reference:  Votes_Requirement (table: Votes)
 
 
 ALTER TABLE Votes ADD CONSTRAINT Votes_Requirement FOREIGN KEY Votes_Requirement (Requirement_Id)
-    REFERENCES Requirements (Id);
+    REFERENCES Requirements (Id)
+    ON DELETE CASCADE;
 -- Reference:  Votes_User (table: Votes)
 
 
