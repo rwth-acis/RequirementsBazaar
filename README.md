@@ -4,7 +4,16 @@ Requirements Bazaar
 Table of contents
 -------------
 
-[TOC]
+- [Requirements Bazaar](#)
+	- [Table of contents](#)
+	- [Idea](#)
+	- [Technology](#)
+	- [Dependencies](#)
+	- [How to run using Docker](#)
+	- [How to set up the database](#)
+	- [Configuration](#)
+	- [Build](#)
+	- [How to run](#)
 
 ----------
 
