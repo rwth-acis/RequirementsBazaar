@@ -1,4 +1,4 @@
-INSERT INTO `reqbaz`.`Users` 
+INSERT INTO `reqbaz`.`users` 
 (`Id`,`first_name`, `last_name`, `email`, `admin`, `Las2peer_Id`, `user_name`)
  VALUES 
 ('1','Max1', 'Mustermann1', 'Max@Mustermann1.de', '1', '1', 'MaxMustermann1'),
@@ -42,7 +42,7 @@ INSERT INTO `reqbaz`.`Users`
 ('39','Max39', 'Mustermann39', 'Max@Mustermann39.de', '0', '39', 'MaxMustermann39'),
 ('40','Max40', 'Mustermann40', 'Max@Mustermann40.de', '0', '40', 'MaxMustermann40');
 
-INSERT INTO `reqbaz`.`Projects` 
+INSERT INTO `reqbaz`.`projects` 
 (`Id`,`name`, `description`, `visibility`, `Leader_Id`, `Default_Components_Id`) 
 VALUES
 ('1','Project 1', 'Project 1 - Description - This project is visible - leader MaxMustermann1', '+', '1',NULL),
@@ -58,7 +58,7 @@ VALUES
 
 
 
-INSERT INTO `reqbaz`.`Components` 
+INSERT INTO `reqbaz`.`components` 
 (`Id`,`name`, `description`, `Project_Id`, `Leader_Id`) 
 VALUES 
 ('1','Component 1', 'Component  - Description', '1', '1'),
@@ -102,20 +102,20 @@ VALUES
 ('39','Uncategorized-P9 ', 'Uncategorized requirements for Project 9 ', '9 ', '7'),
 ('40','Uncategorized-P10', 'Uncategorized requirements for Project 10', '10', '8');
 
-UPDATE `reqbaz`.`Projects` SET `Default_Components_Id`='31' WHERE `Id`='1 '; 
-UPDATE `reqbaz`.`Projects` SET `Default_Components_Id`='32' WHERE `Id`='2 '; 
-UPDATE `reqbaz`.`Projects` SET `Default_Components_Id`='33' WHERE `Id`='3 '; 
-UPDATE `reqbaz`.`Projects` SET `Default_Components_Id`='34' WHERE `Id`='4 '; 
-UPDATE `reqbaz`.`Projects` SET `Default_Components_Id`='35' WHERE `Id`='5 '; 
-UPDATE `reqbaz`.`Projects` SET `Default_Components_Id`='36' WHERE `Id`='6 '; 
-UPDATE `reqbaz`.`Projects` SET `Default_Components_Id`='37' WHERE `Id`='7 '; 
-UPDATE `reqbaz`.`Projects` SET `Default_Components_Id`='38' WHERE `Id`='8 '; 
-UPDATE `reqbaz`.`Projects` SET `Default_Components_Id`='39' WHERE `Id`='9 '; 
-UPDATE `reqbaz`.`Projects` SET `Default_Components_Id`='40' WHERE `Id`='10'; 
+UPDATE `reqbaz`.`projects` SET `Default_Components_Id`='31' WHERE `Id`='1 '; 
+UPDATE `reqbaz`.`projects` SET `Default_Components_Id`='32' WHERE `Id`='2 '; 
+UPDATE `reqbaz`.`projects` SET `Default_Components_Id`='33' WHERE `Id`='3 '; 
+UPDATE `reqbaz`.`projects` SET `Default_Components_Id`='34' WHERE `Id`='4 '; 
+UPDATE `reqbaz`.`projects` SET `Default_Components_Id`='35' WHERE `Id`='5 '; 
+UPDATE `reqbaz`.`projects` SET `Default_Components_Id`='36' WHERE `Id`='6 '; 
+UPDATE `reqbaz`.`projects` SET `Default_Components_Id`='37' WHERE `Id`='7 '; 
+UPDATE `reqbaz`.`projects` SET `Default_Components_Id`='38' WHERE `Id`='8 '; 
+UPDATE `reqbaz`.`projects` SET `Default_Components_Id`='39' WHERE `Id`='9 '; 
+UPDATE `reqbaz`.`projects` SET `Default_Components_Id`='40' WHERE `Id`='10'; 
 
 
 
-INSERT INTO `reqbaz`.`Requirements` 
+INSERT INTO `reqbaz`.`requirements` 
 (`Id`, `title`, `description`, `Lead_developer_Id`, `Creator_Id`, `Project_Id`) 
 VALUES 
 ('1', 'Requirement ', 'Requirement - Description', '1', '1', '1'),
@@ -162,7 +162,7 @@ VALUES
 
 
 
-INSERT INTO `reqbaz`.`Followers`
+INSERT INTO `reqbaz`.`followers`
  (`Id`, `Requirement_Id`, `User_Id`) 
 VALUES 
 ('1', '1', '1'),
@@ -187,7 +187,7 @@ VALUES
 ('20', '2', '1');
 
 
-INSERT INTO `reqbaz`.`Developers` 
+INSERT INTO `reqbaz`.`developers` 
 (`Id`, `Requirement_Id`, `User_Id`) 
 VALUES 
 ('1', '1', '1'),
@@ -212,7 +212,7 @@ VALUES
 ('20', '6', '12');
 
 
-INSERT INTO `reqbaz`.`Tags` 
+INSERT INTO `reqbaz`.`tags` 
 (`Id`, `Components_Id`, `Requirements_Id`) 
 VALUES 
 ('1', '1', '1'),
