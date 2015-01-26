@@ -12,7 +12,6 @@ RUN apt-get upgrade -y
 # Install build tools
 RUN apt-get install -y \
                      openjdk-7-jdk \
-                     git \
                      ant
 
 # Set jdk7 as the default JDK
@@ -23,7 +22,7 @@ RUN mkdir /build
 WORKDIR /build
 VOLUME ["/build"]
 
-# Clone and build code on run
+# Build code on run
 CMD ant clean_all && \
     ant generate_configs  && \
     ant jar
