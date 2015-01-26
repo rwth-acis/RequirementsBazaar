@@ -246,6 +246,7 @@ ALTER TABLE Components RENAME TO components;
 ALTER TABLE Developers RENAME TO developers;
 ALTER TABLE Followers RENAME TO followers;
 ALTER TABLE Projects RENAME TO projects;
+ALTER TABLE Requirements RENAME TO requirements;
 ALTER TABLE Tags RENAME TO tags;
 ALTER TABLE Users RENAME TO users;
 ALTER TABLE Votes RENAME TO votes;
