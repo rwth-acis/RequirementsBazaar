@@ -228,6 +228,20 @@ public class DALFacadeImpl implements DALFacade {
     @Override
     public void deleteComponentById(int componentId) throws Exception {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
+
+        //Get requirements for the component in question
+        List<Requirement> requirements = listRequirementsByComponent(componentId, new PageInfo(0, Integer.MAX_VALUE));
+
+        // Get default component
+        Component componentById = getComponentById(componentId);
+        Project projectById = getProjectById(componentById.getProjectId());
+
+        // Move requirements from this component to the default
+        for (Requirement requirement : requirements) {
+            removeComponentTag(requirement.getId(),componentId);
+            addComponentTag(requirement.getId(),projectById.getDefaultComponentId());
+        }
+
         componentRepository.delete(componentId);
     }
 
