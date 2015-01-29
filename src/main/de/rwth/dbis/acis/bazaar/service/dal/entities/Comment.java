@@ -23,6 +23,8 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 import jodd.vtor.constraint.*;
 
+import java.util.Date;
+
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/11/2014
@@ -40,13 +42,14 @@ public class Comment extends EntityBase {
     @Min(-1)
     private final int creatorId;
 
+    private final Date creationTime;
 
     public Comment(Builder builder) {
         Id = builder.id;
         this.message = builder.message;
         this.creatorId = builder.userId;
         this.requirementId = builder.requirementId;
-
+        this.creationTime = builder.creationTime;
     }
 
     public int getRequirementId() {
@@ -65,6 +68,10 @@ public class Comment extends EntityBase {
         return creatorId;
     }
 
+    public Date getCreationTime() {
+        return creationTime;
+    }
+
     public static Builder getBuilder(String message) {
         return new Builder(message);
     }
@@ -74,6 +81,7 @@ public class Comment extends EntityBase {
         private String message;
         private int userId;
         private int requirementId;
+        public Date creationTime;
 
 
         public Builder(String message) {
@@ -92,6 +100,11 @@ public class Comment extends EntityBase {
 
         public Builder creatorId(int creatorId) {
             this.userId = creatorId;
+            return this;
+        }
+
+        public Builder creationTime(Date creationTime) {
+            this.creationTime = creationTime;
             return this;
         }
 

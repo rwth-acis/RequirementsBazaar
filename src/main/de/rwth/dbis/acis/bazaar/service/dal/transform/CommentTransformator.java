@@ -52,6 +52,7 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
                 .id(record.getId())
                 .requirementId(record.getRequirementId())
                 .creatorId(record.getUserId())
+                .creationTime(record.getCreationTime())
                 .build();
     }
 
