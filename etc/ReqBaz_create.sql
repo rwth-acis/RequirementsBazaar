@@ -238,6 +238,17 @@ ALTER TABLE Votes ADD CONSTRAINT Votes_Requirement FOREIGN KEY Votes_Requirement
 ALTER TABLE Votes ADD CONSTRAINT Votes_User FOREIGN KEY Votes_User (User_Id)
     REFERENCES Users (Id);
 
-
+-- Quick fix for RB-50
+ALTER TABLE Attachments RENAME TO attachments;
+ALTER TABLE Authorizations RENAME TO authorizations;
+ALTER TABLE Comments RENAME TO comments;
+ALTER TABLE Components RENAME TO components;
+ALTER TABLE Developers RENAME TO developers;
+ALTER TABLE Followers RENAME TO followers;
+ALTER TABLE Projects RENAME TO projects;
+ALTER TABLE Requirements RENAME TO requirements;
+ALTER TABLE Tags RENAME TO tags;
+ALTER TABLE Users RENAME TO users;
+ALTER TABLE Votes RENAME TO votes;
 
 -- End of file.
