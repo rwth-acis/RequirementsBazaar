@@ -31,7 +31,7 @@ public class Requirement extends EntityBase {
     @Min(-1)
     private final int leadDeveloperId;
     @Min(-1)
-    private final int creatorId;
+    private int creatorId;
 
     public Date getCreation_time() {
         return creation_time;
@@ -59,6 +59,10 @@ public class Requirement extends EntityBase {
 
     public int getCreatorId() {
         return creatorId;
+    }
+
+    public void setCreatorId(int creatorId) {
+        this.creatorId = creatorId;
     }
 
     protected Requirement(Builder builder) {

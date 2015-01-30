@@ -35,7 +35,7 @@ public class User extends EntityBase {
 
     private final boolean admin;
 
-    private final int Las2peerId;
+    private final long Las2peerId;
 
     private final String userName;
 
@@ -71,7 +71,7 @@ public class User extends EntityBase {
         return admin;
     }
 
-    public int getLas2peerId() {
+    public long getLas2peerId() {
         return Las2peerId;
     }
 
@@ -94,7 +94,7 @@ public class User extends EntityBase {
         private String lastName;
         private String eMail;
         private boolean admin;
-        private int las2peerId;
+        private long las2peerId;
         private String userName;
 
 
@@ -127,7 +127,7 @@ public class User extends EntityBase {
             return this;
         }
 
-        public Builder las2peerId(int userId) {
+        public Builder las2peerId(long userId) {
             this.las2peerId = userId;
             return this;
         }

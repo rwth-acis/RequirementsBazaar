@@ -40,7 +40,7 @@ public class Comment extends EntityBase {
     private final String message;
 
     @Min(-1)
-    private final int creatorId;
+    private int creatorId;
 
     private final Date creationTime;
 
@@ -66,6 +66,10 @@ public class Comment extends EntityBase {
 
     public int getCreatorId() {
         return creatorId;
+    }
+
+    public void setCreatorId(int creatorId) {
+        this.creatorId = creatorId;
     }
 
     public Date getCreationTime() {

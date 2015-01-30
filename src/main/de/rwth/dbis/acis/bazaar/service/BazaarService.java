@@ -143,14 +143,6 @@ public class BazaarService extends Service {
         vtor = new Vtor();
     }
 
-    private static int safeLongToInt(long l) {
-        if (l < Integer.MIN_VALUE || l > Integer.MAX_VALUE) {
-            throw new IllegalArgumentException
-                    (l + " cannot be cast to int without changing its value.");
-        }
-        return (int) l;
-    }
-
     private void registerUserAtFirstLogin() throws Exception {
         UserAgent agent = (UserAgent) getActiveAgent();
 
@@ -160,10 +152,13 @@ public class BazaarService extends Service {
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
-            Integer userIdByLAS2PeerId = dalFacade.getUserIdByLAS2PeerId(safeLongToInt(agent.getId()));
+            Integer userIdByLAS2PeerId = dalFacade.getUserIdByLAS2PeerId(agent.getId());
             if (userIdByLAS2PeerId == null) {
-                dalFacade.createUser(User.geBuilder(agent.getEmail()).admin(false).las2peerId(safeLongToInt(agent.getId())).userName(agent.getLoginName()).build());
+                dalFacade.createUser(User.geBuilder(agent.getEmail()).admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).build());
             }
+        }
+        catch (Exception e){
+            e.printStackTrace();
         }
         finally {
             closeConnection(dalFacade);
@@ -250,7 +245,7 @@ public class BazaarService extends Service {
             } else {
                 // return public projects and the ones the user belongs to
                 long userId = agent.getId();
-                projects = dalFacade.listPublicAndAuthorizedProjects(pageInfo, (int) userId);
+                projects = dalFacade.listPublicAndAuthorizedProjects(pageInfo,userId);
             }
 
             resultJSON = gson.toJson(projects);// return only public projects
@@ -697,11 +692,13 @@ public class BazaarService extends Service {
         try {
             Gson gson = new Gson();
             Requirement requirementToCreate = gson.fromJson(requirement, Requirement.class);
+            dalFacade = createConnection();
+//            requirementToCreate.setCreatorId(userId);
             vtor.validate(requirementToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             vtor.validate(componentId);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            dalFacade = createConnection();
+
             int requirementId = dalFacade.createRequirement(requirementToCreate, componentId);
             JsonObject idJson = new JsonObject();
             idJson.addProperty("id", requirementId);
@@ -919,7 +916,7 @@ public class BazaarService extends Service {
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
-            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             if (internalUserId == null) {
                 resultJSON = "{success = false}";
             } else {
@@ -1033,7 +1030,7 @@ public class BazaarService extends Service {
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
-            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             if (internalUserId == null) {
                 resultJSON = "{success = false}";
             } else {
@@ -1134,7 +1131,7 @@ public class BazaarService extends Service {
             }
 
             dalFacade = createConnection();
-            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             if (internalUserId == null) {
                 resultJSON = "{success = false}";
             } else {
@@ -1286,9 +1283,10 @@ public class BazaarService extends Service {
         try {
             Gson gson = new Gson();
             Comment commentToCreate = gson.fromJson(comment, Comment.class);
+            dalFacade = createConnection();
+            commentToCreate.setCreatorId(dalFacade.getUserIdByLAS2PeerId(userId));
             vtor.validate(commentToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            dalFacade = createConnection();
             int commentId = dalFacade.createComment(commentToCreate);
             JsonObject idJson = new JsonObject();
             idJson.addProperty("id", commentId);

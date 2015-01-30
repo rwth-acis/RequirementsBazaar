@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Users extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord> {
 
-	private static final long serialVersionUID = -1211885883;
+	private static final long serialVersionUID = 1256777928;
 
 	/**
 	 * The singleton instance of <code>reqbaz.users</code>
@@ -54,7 +54,7 @@ public class Users extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.serv
 	/**
 	 * The column <code>reqbaz.users.Las2peer_Id</code>.
 	 */
-	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord, java.lang.Integer> LAS2PEER_ID = createField("Las2peer_Id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord, java.lang.Long> LAS2PEER_ID = createField("Las2peer_Id", org.jooq.impl.SQLDataType.BIGINT.nullable(false), this, "");
 
 	/**
 	 * The column <code>reqbaz.users.user_name</code>.

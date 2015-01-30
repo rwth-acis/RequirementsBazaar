@@ -98,7 +98,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public Integer getUserIdByLAS2PeerId(int las2PeerId) throws Exception {
+    public Integer getUserIdByLAS2PeerId(long las2PeerId) throws Exception {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
         return userRepository.getIdByLas2PeerId(las2PeerId);
     }
@@ -110,7 +110,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public List<Project> listPublicAndAuthorizedProjects(PageInfo pageable, int userId) throws BazaarException {
+    public List<Project> listPublicAndAuthorizedProjects(PageInfo pageable, long userId) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         return projectRepository.findAllPublicAndAuthorized(pageable, userId);
     }

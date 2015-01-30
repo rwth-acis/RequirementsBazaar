@@ -81,7 +81,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
     }
 
     @Override
-    public List<Project> findAllPublicAndAuthorized(PageInfo pageable, int userId) throws BazaarException {
+    public List<Project> findAllPublicAndAuthorized(PageInfo pageable, long userId) throws BazaarException {
         List<Project> entries = null;
         try {
             entries = new ArrayList<Project>();

@@ -60,7 +60,7 @@ public interface DALFacade {
     public User getUserById(int userId) throws Exception;
 
 
-    public Integer getUserIdByLAS2PeerId(int las2PeerId) throws Exception;
+    public Integer getUserIdByLAS2PeerId(long las2PeerId) throws Exception;
     //endregion
 
     //region Project
@@ -77,7 +77,7 @@ public interface DALFacade {
      * @param userId   the identifier of the user, whose projects should be returned as well
      * @return all the public projects and all the projects, which the user is authorized to see
      */
-    public List<Project> listPublicAndAuthorizedProjects(PageInfo pageable, int userId) throws BazaarException;
+    public List<Project> listPublicAndAuthorizedProjects(PageInfo pageable, long userId) throws BazaarException;
 
     /**
      * @param searchTerm the text, which is used to search. Search is case insensitive.
