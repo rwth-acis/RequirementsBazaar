@@ -410,7 +410,7 @@ public class DALFacadeTest extends TestCase {
         try {
             Requirement requirement = Requirement.getBuilder("AddedReq1").id(createdRequirementId).description("Test addition").creatorId(2).leadDeveloperId(2).projectId(3).creationTime(Timestamp.valueOf("2005-04-06 09:01:10")).build();
 
-            facade.createRequirement(requirement);
+            facade.createRequirement(requirement, componentId);
 
             RequirementEx requirementById = facade.getRequirementById(createdRequirementId);
 
@@ -434,7 +434,7 @@ public class DALFacadeTest extends TestCase {
     public void testDeleteRequirementById() throws Exception {
         Requirement requirement = Requirement.getBuilder("AddedReq1").id(9).description("Test addition").creatorId(2).leadDeveloperId(2).projectId(3).build();
 
-        facade.createRequirement(requirement);
+        facade.createRequirement(requirement, componentId);
 
         facade.deleteRequirementById(9);
 

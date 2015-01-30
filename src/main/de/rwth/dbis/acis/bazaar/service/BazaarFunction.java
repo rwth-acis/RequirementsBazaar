@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2014, RWTH Aachen University.
+ *  Copyright (c) 2015, RWTH Aachen University.
  *  For a list of contributors see the AUTHORS file at the top-level directory
  *  of this distribution.
  *
@@ -18,30 +18,12 @@
  * /
  */
 
-package de.rwth.dbis.acis.bazaar.service.exception;
+package de.rwth.dbis.acis.bazaar.service;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 10/6/2014
+ * @since 1/9/2015
  */
-public enum ErrorCode {
-    UNKNOWN("000", "Unknown, unexpected exception occurred"),
-    VALIDATION("001", "Constraint validation failed."),
-    CANNOTDELETE("002", "The item cannot be deleted");
-
-    private final String code;
-    private final String message;
-
-    public String asCode() {
-        return code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    private ErrorCode(String code, String message) {
-        this.code = code;
-        this.message = message;
-    }
+public enum BazaarFunction {
+    VALIDATION, USER_FIRST_LOGIN_HANDLING,
 }

@@ -25,6 +25,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
+import java.sql.Connection;
 import java.util.List;
 
 /**
@@ -35,10 +36,12 @@ public interface DALFacade {
 
     //region User
 
+    Connection getConnection();
+
     /**
      * @param user which holds the data of the user to be inserted. Id field will be omitted, a new one will be generated.
      */
-    public void createUser(User user) throws BazaarException;
+    public int createUser(User user) throws BazaarException;
 
     /**
      * Modifies the user in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
@@ -92,7 +95,7 @@ public interface DALFacade {
     /**
      * @param project data to be created.
      */
-    public void createProject(Project project) throws BazaarException;
+    public int createProject(Project project) throws Exception;
 
     //TODO delete? Should it delete its components and reqs? What should happen after deletion?
 
@@ -144,8 +147,9 @@ public interface DALFacade {
 
     /**
      * @param requirement to be added to the database.
+     * @param componentId
      */
-    public void createRequirement(Requirement requirement) throws BazaarException;
+    public int createRequirement(Requirement requirement, int componentId) throws BazaarException;
 
     /**
      * Modifies the requirement in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
@@ -176,7 +180,7 @@ public interface DALFacade {
     /**
      * @param component to be added to the database.
      */
-    public void createComponent(Component component) throws BazaarException;
+    public int createComponent(Component component) throws BazaarException;
 
     /**
      * Modifies the component in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
@@ -208,7 +212,7 @@ public interface DALFacade {
     /**
      * @param attachment object, which holds the data should be persisted
      */
-    public void createAttachment(Attachment attachment) throws BazaarException;
+    public int createAttachment(Attachment attachment) throws BazaarException;
 
     /**
      * @param attachmentId id of the attachment should be deleted
@@ -229,7 +233,7 @@ public interface DALFacade {
     /**
      * @param comment which holds the data for the new comment.
      */
-    public void createComment(Comment comment) throws BazaarException;
+    public int createComment(Comment comment) throws BazaarException;
 
     /**
      * @param commentId to identify the comment to be deleted

@@ -138,8 +138,9 @@ public class DALFacadeMockImpl implements DALFacade {
     //endregion
 
     @Override
-    public void createUser(User user) {
+    public int createUser(User user) {
         userList.add(user);
+        return 0;
     }
 
     @Override
@@ -201,8 +202,9 @@ public class DALFacadeMockImpl implements DALFacade {
     }
 
     @Override
-    public void createProject(Project project) {
+    public int createProject(Project project) {
         projectList.add(project);
+        return 0;
     }
 
     @Override
@@ -299,8 +301,9 @@ public class DALFacadeMockImpl implements DALFacade {
 
 
     @Override
-    public void createRequirement(Requirement requirement) {
+    public int createRequirement(Requirement requirement, int componentId) {
         requirementList.add(requirement);
+        return 0;
     }
 
     @Override
@@ -385,8 +388,9 @@ public class DALFacadeMockImpl implements DALFacade {
     }
 
     @Override
-    public void createComponent(Component component) {
+    public int createComponent(Component component) {
         componentList.add(component);
+        return 0;
     }
 
     @Override
@@ -406,8 +410,9 @@ public class DALFacadeMockImpl implements DALFacade {
     }
 
     @Override
-    public void createAttachment(Attachment attachment) {
+    public int createAttachment(Attachment attachment) {
         attachmentList.add(attachment);
+        return 0;
     }
 
     @Override
@@ -432,8 +437,9 @@ public class DALFacadeMockImpl implements DALFacade {
     }
 
     @Override
-    public void createComment(Comment comment) {
+    public int createComment(Comment comment) {
         commentList.add(comment);
+        return 0;
     }
 
     @Override

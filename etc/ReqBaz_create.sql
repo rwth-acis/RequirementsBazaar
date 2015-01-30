@@ -1,13 +1,13 @@
 -- Created by Vertabelo (http://vertabelo.com)
 -- Script type: create
 -- Scope: [tables, references, sequences, views, procedures]
--- Generated at Wed Oct 01 11:41:54 UTC 2014
+-- Generated at Tue Jan 20 10:38:29 UTC 2015
 
 
 
 
 -- tables
--- Table: Attachments
+-- Table Attachments
 CREATE TABLE Attachments (
     Id int    NOT NULL  AUTO_INCREMENT,
     creation_time timestamp    NOT NULL ,
@@ -24,7 +24,7 @@ CREATE TABLE Attachments (
     CONSTRAINT Attachments_pk PRIMARY KEY (Id)
 );
 
--- Table: Authorizations
+-- Table Authorizations
 CREATE TABLE Authorizations (
     Id int    NOT NULL  AUTO_INCREMENT,
     access_right int    NOT NULL ,
@@ -33,7 +33,7 @@ CREATE TABLE Authorizations (
     CONSTRAINT Authorizations_pk PRIMARY KEY (Id)
 );
 
--- Table: Comments
+-- Table Comments
 CREATE TABLE Comments (
     Id int    NOT NULL  AUTO_INCREMENT,
     message text    NOT NULL ,
@@ -43,7 +43,7 @@ CREATE TABLE Comments (
     CONSTRAINT Comments_pk PRIMARY KEY (Id)
 );
 
--- Table: Components
+-- Table Components
 CREATE TABLE Components (
     Id int    NOT NULL  AUTO_INCREMENT,
     name varchar(255)    NOT NULL ,
@@ -53,7 +53,7 @@ CREATE TABLE Components (
     CONSTRAINT Components_pk PRIMARY KEY (Id)
 );
 
--- Table: Developers
+-- Table Developers
 CREATE TABLE Developers (
     Id int    NOT NULL  AUTO_INCREMENT,
     Requirement_Id int    NOT NULL ,
@@ -61,7 +61,7 @@ CREATE TABLE Developers (
     CONSTRAINT Developers_pk PRIMARY KEY (Id)
 );
 
--- Table: Followers
+-- Table Followers
 CREATE TABLE Followers (
     Id int    NOT NULL  AUTO_INCREMENT,
     Requirement_Id int    NOT NULL ,
@@ -69,17 +69,18 @@ CREATE TABLE Followers (
     CONSTRAINT Followers_pk PRIMARY KEY (Id)
 );
 
--- Table: Projects
+-- Table Projects
 CREATE TABLE Projects (
     Id int    NOT NULL  AUTO_INCREMENT,
     name varchar(255)    NOT NULL ,
     description varchar(255)    NOT NULL ,
     visibility char(1)    NOT NULL ,
     Leader_Id int    NOT NULL ,
+    Default_Components_Id int    NULL ,
     CONSTRAINT Projects_pk PRIMARY KEY (Id)
 );
 
--- Table: Requirements
+-- Table Requirements
 CREATE TABLE Requirements (
     Id int    NOT NULL  AUTO_INCREMENT,
     title varchar(255)    NOT NULL ,
@@ -91,7 +92,7 @@ CREATE TABLE Requirements (
     CONSTRAINT Requirements_pk PRIMARY KEY (Id)
 );
 
--- Table: Tags
+-- Table Tags
 CREATE TABLE Tags (
     Id int    NOT NULL  AUTO_INCREMENT,
     Components_Id int    NOT NULL ,
@@ -99,7 +100,7 @@ CREATE TABLE Tags (
     CONSTRAINT Tags_pk PRIMARY KEY (Id)
 );
 
--- Table: Users
+-- Table Users
 CREATE TABLE Users (
     Id int    NOT NULL  AUTO_INCREMENT,
     first_name varchar(150)    NOT NULL ,
@@ -111,7 +112,7 @@ CREATE TABLE Users (
     CONSTRAINT Users_pk PRIMARY KEY (Id)
 );
 
--- Table: Votes
+-- Table Votes
 CREATE TABLE Votes (
     Id int    NOT NULL  AUTO_INCREMENT,
     is_upvote BOOLEAN    NOT NULL ,
@@ -129,7 +130,8 @@ CREATE TABLE Votes (
 
 
 ALTER TABLE Attachments ADD CONSTRAINT Attachement_Requirement FOREIGN KEY Attachement_Requirement (Requirement_Id)
-    REFERENCES Requirements (Id);
+    REFERENCES Requirements (Id)
+    ON DELETE CASCADE;
 -- Reference:  Attachement_User (table: Attachments)
 
 
@@ -149,7 +151,8 @@ ALTER TABLE Authorizations ADD CONSTRAINT Authorization_User FOREIGN KEY Authori
 
 
 ALTER TABLE Comments ADD CONSTRAINT Comment_Requirement FOREIGN KEY Comment_Requirement (Requirement_Id)
-    REFERENCES Requirements (Id);
+    REFERENCES Requirements (Id)
+    ON DELETE CASCADE;
 -- Reference:  Comment_User (table: Comments)
 
 
@@ -174,7 +177,8 @@ ALTER TABLE Requirements ADD CONSTRAINT Creator FOREIGN KEY Creator (Creator_Id)
 
 
 ALTER TABLE Developers ADD CONSTRAINT Developer_Requirement FOREIGN KEY Developer_Requirement (Requirement_Id)
-    REFERENCES Requirements (Id);
+    REFERENCES Requirements (Id)
+    ON DELETE CASCADE;
 -- Reference:  Developer_User (table: Developers)
 
 
@@ -184,7 +188,8 @@ ALTER TABLE Developers ADD CONSTRAINT Developer_User FOREIGN KEY Developer_User 
 
 
 ALTER TABLE Followers ADD CONSTRAINT Follower_Requirement FOREIGN KEY Follower_Requirement (Requirement_Id)
-    REFERENCES Requirements (Id);
+    REFERENCES Requirements (Id)
+    ON DELETE CASCADE;
 -- Reference:  Follower_User (table: Followers)
 
 
@@ -195,6 +200,11 @@ ALTER TABLE Followers ADD CONSTRAINT Follower_User FOREIGN KEY Follower_User (Us
 
 ALTER TABLE Requirements ADD CONSTRAINT LeadDeveloper FOREIGN KEY LeadDeveloper (Lead_developer_Id)
     REFERENCES Users (Id);
+-- Reference:  Projects_Components (table: Projects)
+
+
+ALTER TABLE Projects ADD CONSTRAINT Projects_Components FOREIGN KEY Projects_Components (Default_Components_Id)
+    REFERENCES Components (Id);
 -- Reference:  Projects_Users (table: Projects)
 
 
@@ -214,18 +224,31 @@ ALTER TABLE Tags ADD CONSTRAINT Tags_Components FOREIGN KEY Tags_Components (Com
 
 
 ALTER TABLE Tags ADD CONSTRAINT Tags_Requirements FOREIGN KEY Tags_Requirements (Requirements_Id)
-    REFERENCES Requirements (Id);
+    REFERENCES Requirements (Id)
+    ON DELETE CASCADE;
 -- Reference:  Votes_Requirement (table: Votes)
 
 
 ALTER TABLE Votes ADD CONSTRAINT Votes_Requirement FOREIGN KEY Votes_Requirement (Requirement_Id)
-    REFERENCES Requirements (Id);
+    REFERENCES Requirements (Id)
+    ON DELETE CASCADE;
 -- Reference:  Votes_User (table: Votes)
 
 
 ALTER TABLE Votes ADD CONSTRAINT Votes_User FOREIGN KEY Votes_User (User_Id)
     REFERENCES Users (Id);
 
-
+-- Quick fix for RB-50
+ALTER TABLE Attachments RENAME TO attachments;
+ALTER TABLE Authorizations RENAME TO authorizations;
+ALTER TABLE Comments RENAME TO comments;
+ALTER TABLE Components RENAME TO components;
+ALTER TABLE Developers RENAME TO developers;
+ALTER TABLE Followers RENAME TO followers;
+ALTER TABLE Projects RENAME TO projects;
+ALTER TABLE Requirements RENAME TO requirements;
+ALTER TABLE Tags RENAME TO tags;
+ALTER TABLE Users RENAME TO users;
+ALTER TABLE Votes RENAME TO votes;
 
 -- End of file.

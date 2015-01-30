@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service;
 
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -39,8 +40,7 @@ import i5.las2peer.security.UserAgent;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import jodd.vtor.Violation;
 import jodd.vtor.Vtor;
@@ -64,12 +64,12 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 @Path("bazaar")
 @Version("0.1")
 @ApiInfo(
-        title="Requirements Bazaar",
-        description="Requirements Bazaar project",
-        termsOfServiceUrl="http://requirements-bazaar.org",
-        contact="info@requirements-bazaar.org",
-        license="Apache2",
-        licenseUrl="http://requirements-bazaar.org/license"
+        title = "Requirements Bazaar",
+        description = "Requirements Bazaar project",
+        termsOfServiceUrl = "http://requirements-bazaar.org",
+        contact = "info@requirements-bazaar.org",
+        license = "Apache2",
+        licenseUrl = "http://requirements-bazaar.org/license"
 )
 public class BazaarService extends Service {
 
@@ -84,11 +84,7 @@ public class BazaarService extends Service {
     protected String dbUrl = DEFAULT_DB_URL;
 
     private Vtor vtor;
-
-    private DALFacade dalFacade;
-    private Connection dbConnection;
-
-
+    private List<BazaarFunctionRegistrator> functionRegistrators;
 
     /**
      * This method is needed for every RESTful application in LAS2peer.
@@ -110,18 +106,77 @@ public class BazaarService extends Service {
 
         Class.forName("com.mysql.jdbc.Driver").newInstance();
 
+        functionRegistrators = new ArrayList<BazaarFunctionRegistrator>();
+        functionRegistrators.add(new BazaarFunctionRegistrator() {
+            @Override
+            public void registerFunction(EnumSet<BazaarFunction> functions) {
+                if (functions.contains(BazaarFunction.VALIDATION)){
+                    createValidators();
+                }
+            }
+        });
+
+        functionRegistrators.add(new BazaarFunctionRegistrator() {
+            @Override
+            public void registerFunction(EnumSet<BazaarFunction> functions) throws Exception {
+                if (functions.contains(BazaarFunction.USER_FIRST_LOGIN_HANDLING)){
+                    registerUserAtFirstLogin();
+                }
+            }
+        });
+    }
+
+    private String notifyRegistrators(EnumSet<BazaarFunction> functions) {
+        String resultJSON = null;
+        try {
+            for (BazaarFunctionRegistrator functionRegistrator : functionRegistrators) {
+                functionRegistrator.registerFunction(functions);
+            }
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Unknown error in registrators");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+        }
+        return resultJSON;
     }
 
     private void createValidators() {
         vtor = new Vtor();
     }
 
-    private void createConnection() throws Exception {
-        dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reqbaz", "root", "");
-        dalFacade = new DALFacadeImpl(dbConnection, SQLDialect.MYSQL);
+    private static int safeLongToInt(long l) {
+        if (l < Integer.MIN_VALUE || l > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException
+                    (l + " cannot be cast to int without changing its value.");
+        }
+        return (int) l;
     }
 
-    private void closeConnection() {
+    private void registerUserAtFirstLogin() throws Exception {
+        UserAgent agent = (UserAgent) getActiveAgent();
+
+        //TODO how to check if the user is anonymous?
+        if(agent.getLoginName().equals("anonymous")) return;
+
+        DALFacade dalFacade = null;
+        try {
+            dalFacade = createConnection();
+            Integer userIdByLAS2PeerId = dalFacade.getUserIdByLAS2PeerId(safeLongToInt(agent.getId()));
+            if (userIdByLAS2PeerId == null) {
+                dalFacade.createUser(User.geBuilder(agent.getEmail()).admin(false).las2peerId(safeLongToInt(agent.getId())).userName(agent.getLoginName()).build());
+            }
+        }
+        finally {
+            closeConnection(dalFacade);
+        }
+
+    }
+    private DALFacade createConnection() throws Exception {
+        Connection dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reqbaz", "root", "");
+        return new DALFacadeImpl(dbConnection, SQLDialect.MYSQL);
+    }
+
+    private void closeConnection(DALFacade dalFacade) {
+        Connection dbConnection = dalFacade.getConnection();
         if (dbConnection != null) {
             try {
                 dbConnection.close();
@@ -132,24 +187,25 @@ public class BazaarService extends Service {
         }
     }
 
-    /**********************************
+    /**
+     * *******************************
      * SWAGGER
-     **********************************/
+     * ********************************
+     */
 
     @GET
     @Path("api-docs")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse getSwaggerResourceListing(){
+    public HttpResponse getSwaggerResourceListing() {
         return RESTMapper.getSwaggerResourceListing(this.getClass());
     }
 
     @GET
     @Path("api-docs/{tlr}")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse getSwaggerApiDeclaration(@PathParam("tlr") String tlr){
-        return RESTMapper.getSwaggerApiDeclaration(this.getClass(),tlr, "http://localhost:8080/bazaar/");
+    public HttpResponse getSwaggerApiDeclaration(@PathParam("tlr") String tlr) {
+        return RESTMapper.getSwaggerApiDeclaration(this.getClass(), tlr, "http://localhost:8080/bazaar/");
     }
-
 
 
     /**********************************
@@ -166,24 +222,28 @@ public class BazaarService extends Service {
     @ResourceListApi(description = "Requirement Bazaar API")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of projects on the server.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "List of projects")
 ////            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String getProjects(
             @QueryParam(name = "page", defaultValue = "0") int page,
             @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
-        createValidators();
+
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         // if the user is not logged in, return all the public projects.
         UserAgent agent = (UserAgent) getActiveAgent();
+
         String resultJSON = "[]";
         Gson gson = new Gson();
+        DALFacade dalFacade = null;
         try {
             PageInfo pageInfo = new PageInfo(page, perPage);
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
 
-            createConnection();
+            dalFacade = createConnection();
             List<Project> projects = null;
             if (agent.getLoginName().equals("anonymous")) {
                 projects = dalFacade.listPublicProjects(pageInfo);
@@ -201,11 +261,14 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
     }
+
+
+
 
     /**
      * This method allows to create a new project.
@@ -217,22 +280,28 @@ public class BazaarService extends Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new project.")
-    @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns success=true if creation was successful")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Returns the id if creation was successful")
 ////            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String createProject(@ContentParam String project) {
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new project
         // TODO: check whether all required parameters are entered
-        String resultJSON = "{success = true}";
+        String resultJSON = "{\"success\" : \"true\"}";
+        DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
             Project projectToCreate = gson.fromJson(project, Project.class);
             vtor.validate(projectToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            createConnection();
-            dalFacade.createProject(projectToCreate);
+            dalFacade = createConnection();
+            int projectId = dalFacade.createProject(projectToCreate);
+            JsonObject idJson = new JsonObject();
+            idJson.addProperty("id", projectId);
+            resultJSON = new Gson().toJson(idJson);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -240,7 +309,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -256,16 +325,18 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to retrieve a certain project.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the detailed view of a certain project.")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String getProject(@PathParam("projectId")  int projectId) {
-        createValidators();
+    public String getProject(@PathParam("projectId") int projectId) {
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         // TODO: check whether the current user may request this project
         String resultJSON = "{}";
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             Project projectToReturn = dalFacade.getProjectById(projectId);
             resultJSON = projectToReturn.toJSON();
         } catch (BazaarException bex) {
@@ -275,7 +346,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -302,7 +373,7 @@ public class BazaarService extends Service {
 //    @Produces(MediaType.APPLICATION_JSON)
 //    public String deleteProject(@PathParam("projectId") int projectId) {
 //        // TODO: check if user can delete this project
-//        String resultJSON = "{success = true}";
+//        String resultJSON = "{\"success\" : \"true\"}";
 //        try {
 //            createConnection();
 //            dalFacade.delePR(projectToCreate);
@@ -332,24 +403,26 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of components under a given project.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a list of components for a given project")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String getComponents(
-            @PathParam("projectId")  int projectId,
-            @QueryParam(name = "page", defaultValue = "0")  int page,
-            @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
+            @PathParam("projectId") int projectId,
+            @QueryParam(name = "page", defaultValue = "0") int page,
+            @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
         // TODO: if the user is not logged in, return all the public projects.
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         // Otherwise return all the user can see.
         String resultJSON = "[]";
+        DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
             PageInfo pageInfo = new PageInfo(page, perPage);
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            createConnection();
+            dalFacade = createConnection();
             List<Component> components = dalFacade.listComponentsByProjectId(projectId, pageInfo);
             resultJSON = gson.toJson(components);
         } catch (BazaarException bex) {
@@ -359,7 +432,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -375,23 +448,28 @@ public class BazaarService extends Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new component under a given a project.")
-    @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Returns the id if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String createComponent(@PathParam("projectId")  int projectId, @ContentParam String component) {
+    public String createComponent(@PathParam("projectId") int projectId, @ContentParam String component) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new project
         // TODO: check whether all required parameters are entered
-        createValidators();
-        String resultJSON = "{success = true}";
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
+        String resultJSON = "{\"success\" : \"true\"}";
+        DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
             Component componentToCreate = gson.fromJson(component, Component.class);
             vtor.validate(componentToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            createConnection();
-            dalFacade.createComponent(componentToCreate);
+            dalFacade = createConnection();
+            int componentId = dalFacade.createComponent(componentToCreate);
+            JsonObject idJson = new JsonObject();
+            idJson.addProperty("id", componentId);
+            resultJSON = new Gson().toJson(idJson);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -399,7 +477,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -416,16 +494,18 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to retrieve a certain component under a project.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the details of a certain component.")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String getComponent(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId) {
+    public String getComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId) {
         // TODO: check whether the current user may request this project
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         String resultJSON = "{}";
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             resultJSON = dalFacade.getComponentById(componentId).toJSON();
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -434,7 +514,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -460,17 +540,31 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("Deletes a component under a project by id")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String deleteComponent(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId) {
+    public String deleteComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId) {
         // TODO: check if user can delete this project
-        createValidators();
-        String resultJSON = "{success = true}";
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
+        String resultJSON = "{\"success\" : \"true\"}";
+        DALFacade dalFacade = null;
         try {
-            createConnection();
-            dalFacade.deleteComponentById(componentId);
+            dalFacade = createConnection();
+
+            Project projectById = dalFacade.getProjectById(projectId);
+            if (projectById.getDefaultComponentId() != componentId) {
+                dalFacade.deleteComponentById(componentId);
+            } else {
+                ExceptionHandler.getInstance().convertAndThrowException(
+                        new Exception(),
+                        ExceptionLocation.BAZAARSERVICE,
+                        ErrorCode.CANNOTDELETE,
+                        "This component item with id " +componentId + " cannot be deleted, because it is the defaut component for the project!"
+                        );
+            }
+
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -478,7 +572,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -491,29 +585,30 @@ public class BazaarService extends Service {
     /**
      * This method returns the list of requirements for a specific project.
      *
-     * @param projectId   the ID of the project to retrieve requirements for.
-     * @param componentId the id of the component under a given project
+     * @param projectId the ID of the project to retrieve requirements for.
      * @return a list of requirements
      */
     @GET
-    @Path("projects/{projectId}/components/{componentId}/requirements")
+    @Path("projects/{projectId}/requirements")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of requirements for a specific project.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a list of requirements for a given project")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String getRequirementsByProject(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId,
-                                  @QueryParam(name = "page", defaultValue = "0")  int page,
-                                  @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
+    public String getRequirementsByProject(@PathParam("projectId") int projectId,
+                                           @QueryParam(name = "page", defaultValue = "0") int page,
+                                           @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
         String resultJSON = "[]";
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
+        DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
             PageInfo pageInfo = new PageInfo(page, perPage);
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            createConnection();
+            dalFacade = createConnection();
             List<Requirement> requirements = dalFacade.listRequirementsByProject(projectId, pageInfo);
             resultJSON = gson.toJson(requirements);
         } catch (BazaarException bex) {
@@ -523,7 +618,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -540,21 +635,24 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}/requirements")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of requirements for a specific component.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a list of requirements for a given component")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String getRequirementsByComponent(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId,
-                                           @QueryParam(name = "page", defaultValue = "0")  int page,
-                                           @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
+    public String getRequirementsByComponent(@PathParam("projectId") int projectId,
+                                             @PathParam("componentId") int componentId,
+                                             @QueryParam(name = "page", defaultValue = "0") int page,
+                                             @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
         String resultJSON = "[]";
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
+        DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
             PageInfo pageInfo = new PageInfo(page, perPage);
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            createConnection();
+            dalFacade = createConnection();
             List<Requirement> requirements = dalFacade.listRequirementsByComponent(componentId, pageInfo);
             resultJSON = gson.toJson(requirements);
         } catch (BazaarException bex) {
@@ -564,7 +662,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -582,25 +680,32 @@ public class BazaarService extends Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new requirement.")
-    @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Returns id if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String createRequirement(@PathParam("projectId")  int projectId, @PathParam("componentId") int componentId,
+    public String createRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
                                     @ContentParam String requirement) {
         long userId = ((UserAgent) getActiveAgent()).getId();
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        String resultJSON = "{success = true}";
+        String resultJSON = "{\"success\" : \"true\"}";
+        DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
             Requirement requirementToCreate = gson.fromJson(requirement, Requirement.class);
             vtor.validate(requirementToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            createConnection();
-            dalFacade.createRequirement(requirementToCreate);
+            vtor.validate(componentId);
+            if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+            dalFacade = createConnection();
+            int requirementId = dalFacade.createRequirement(requirementToCreate, componentId);
+            JsonObject idJson = new JsonObject();
+            idJson.addProperty("id", requirementId);
+            resultJSON = new Gson().toJson(idJson);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -608,7 +713,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -626,16 +731,18 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns a specific requirement within a project.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a requirement")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String getRequirement(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId,
-                                 @PathParam("requirementId")  int requirementId) {
+    public String getRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
+                                 @PathParam("requirementId") int requirementId) {
         String resultJSON = "{}";
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             resultJSON = dalFacade.getRequirementById(requirementId).toJSON();
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -644,7 +751,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -678,17 +785,19 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method deletes a specific requirement within a project.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String deleteRequirement(@PathParam("projectId")  int projectId, @PathParam("componentId")  int componentId,
-                                    @PathParam("requirementId")  int requirementId) {
+    public String deleteRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
+                                    @PathParam("requirementId") int requirementId) {
         // TODO: check if the user may delete this requirement.
-        String resultJSON = "{success = true}";
-        createValidators();
+        String resultJSON = "{\"success\" : \"true\"}";
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             dalFacade.deleteRequirementById(requirementId);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -697,7 +806,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -793,26 +902,28 @@ public class BazaarService extends Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method add the current user to the developers list of a given requirement")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String addUserToDevelopers(@PathParam("projectId")  int projectId,
-                                      @PathParam("componentId")  int componentId,
-                                      @PathParam("requirementId")  int requirementId) {
+    public String addUserToDevelopers(@PathParam("projectId") int projectId,
+                                      @PathParam("componentId") int componentId,
+                                      @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        String resultJSON = "{success = true}";
+        String resultJSON = "{\"success\" : \"true\"}";
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
             if (internalUserId == null) {
                 resultJSON = "{success = false}";
             } else {
-                dalFacade.wantToDevelop(internalUserId,requirementId);
+                dalFacade.wantToDevelop(internalUserId, requirementId);
             }
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -821,7 +932,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -839,26 +950,28 @@ public class BazaarService extends Service {
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/developers")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method remove the current user from a developers list of a given requirement")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String removeUserFromDevelopers(@PathParam("projectId")  int projectId,
-                                           @PathParam("componentId")  int componentId,
-                                           @PathParam("requirementId")  int requirementId) {
+    public String removeUserFromDevelopers(@PathParam("projectId") int projectId,
+                                           @PathParam("componentId") int componentId,
+                                           @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        String resultJSON = "{success = true}";
+        String resultJSON = "{\"success\" : \"true\"}";
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
             if (internalUserId == null) {
                 resultJSON = "{success = false}";
             } else {
-                dalFacade.notWantToDevelop(internalUserId,requirementId);
+                dalFacade.notWantToDevelop(internalUserId, requirementId);
             }
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -867,7 +980,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -903,26 +1016,28 @@ public class BazaarService extends Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method add the current user to the followers list of a given requirement")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String addUserToFollowers(@PathParam("projectId")  int projectId,
-                                     @PathParam("componentId")  int componentId,
-                                     @PathParam("requirementId")  int requirementId) {
+    public String addUserToFollowers(@PathParam("projectId") int projectId,
+                                     @PathParam("componentId") int componentId,
+                                     @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        String resultJSON = "{success = true}";
+        String resultJSON = "{\"success\" : \"true\"}";
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
             if (internalUserId == null) {
                 resultJSON = "{success = false}";
             } else {
-                dalFacade.follow(internalUserId,requirementId);
+                dalFacade.follow(internalUserId, requirementId);
             }
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -931,7 +1046,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -949,26 +1064,28 @@ public class BazaarService extends Service {
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/followers")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method removes the current user from a followers list of a given requirement")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String removeUserFromFollowers(@PathParam("projectId")  int projectId,
-                                          @PathParam("componentId")  int componentId,
-                                          @PathParam("requirementId")  int requirementId) {
+    public String removeUserFromFollowers(@PathParam("projectId") int projectId,
+                                          @PathParam("componentId") int componentId,
+                                          @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        String resultJSON = "{success = true}";
-        createValidators();
+        String resultJSON = "{\"success\" : \"true\"}";
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
             if (internalUserId == null) {
                 resultJSON = "{success = false}";
             } else {
-                dalFacade.unFollow(internalUserId,requirementId);
+                dalFacade.unFollow(internalUserId, requirementId);
             }
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -977,7 +1094,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -996,26 +1113,27 @@ public class BazaarService extends Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method creates a vote for the given requirement in the name of the current user.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String addVote(@PathParam("projectId")  int projectId,
-                          @PathParam("componentId")  int componentId,
-                          @PathParam("requirementId")  int requirementId,
+    public String addVote(@PathParam("projectId") int projectId,
+                          @PathParam("componentId") int componentId,
+                          @PathParam("requirementId") int requirementId,
                           @QueryParam(name = "direction", defaultValue = "up") String direction) {
 
         long userId = ((UserAgent) getActiveAgent()).getId();
-        createValidators();
-
-        String resultJSON = "{success = true}";
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
+        DALFacade dalFacade = null;
+        String resultJSON = "{\"success\" : \"true\"}";
         try {
-            if (!(direction.equals("up") || direction.equals("down"))){
-                vtor.addViolation(new Violation("Direction can only be \"up\" or \"down\"",direction,direction));
+            if (!(direction.equals("up") || direction.equals("down"))) {
+                vtor.addViolation(new Violation("Direction can only be \"up\" or \"down\"", direction, direction));
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
 
-            createConnection();
+            dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
             if (internalUserId == null) {
                 resultJSON = "{success = false}";
@@ -1029,7 +1147,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -1048,26 +1166,28 @@ public class BazaarService extends Service {
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/vote")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method removes the vote of the given requirement made by the current user")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String removeVote(@PathParam("projectId")  int projectId,
-                             @PathParam("componentId")  int componentId,
-                             @PathParam("requirementId")  int requirementId) {
+    public String removeVote(@PathParam("projectId") int projectId,
+                             @PathParam("componentId") int componentId,
+                             @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        String resultJSON = "{success = true}";
-        createValidators();
+        String resultJSON = "{\"success\" : \"true\"}";
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
             if (internalUserId == null) {
                 resultJSON = "{success = false}";
             } else {
-                dalFacade.unVote(internalUserId,requirementId);
+                dalFacade.unVote(internalUserId, requirementId);
             }
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -1076,7 +1196,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -1098,24 +1218,26 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of comments for a specific requirement.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns list of comments for the given requirement")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String getComments(@PathParam("projectId")  int projectId,
-                              @PathParam("componentId")  int componentId,
-                              @PathParam("requirementId")  int requirementId,
-                              @QueryParam(name = "page", defaultValue = "0")  int page,
-                              @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
+    public String getComments(@PathParam("projectId") int projectId,
+                              @PathParam("componentId") int componentId,
+                              @PathParam("requirementId") int requirementId,
+                              @QueryParam(name = "page", defaultValue = "0") int page,
+                              @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
         long userId = ((UserAgent) getActiveAgent()).getId();
 
         String resultJSON = "[]";
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
+        DALFacade dalFacade = null;
         try {
             PageInfo pageInfo = new PageInfo(page, perPage);
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            createConnection();
+            dalFacade = createConnection();
             List<Comment> comments = dalFacade.listCommentsByRequirementId(requirementId, pageInfo);
             Gson gson = new Gson();
             resultJSON = gson.toJson(comments);
@@ -1126,7 +1248,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -1145,27 +1267,32 @@ public class BazaarService extends Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new comment for a requirement.")
-    @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Returns the id if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String createComment(@PathParam("projectId")  int projectId,
-                                @PathParam("componentId")  int componentId,
-                                @PathParam("requirementId")  int requirementId,
+    public String createComment(@PathParam("projectId") int projectId,
+                                @PathParam("componentId") int componentId,
+                                @PathParam("requirementId") int requirementId,
                                 @ContentParam String comment) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        String resultJSON = "{success = true}";
-        createValidators();
+        String resultJSON = "{\"success\" : \"true\"}";
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
+        DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
-            Comment commentToCreate = gson.fromJson(comment,Comment.class);
+            Comment commentToCreate = gson.fromJson(comment, Comment.class);
             vtor.validate(commentToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            createConnection();
-            dalFacade.createComment(commentToCreate);
+            dalFacade = createConnection();
+            int commentId = dalFacade.createComment(commentToCreate);
+            JsonObject idJson = new JsonObject();
+            idJson.addProperty("id", commentId);
+            resultJSON = new Gson().toJson(idJson);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -1173,13 +1300,13 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
     }
 
-        // TODO IS IT NEEDED?
+    // TODO IS IT NEEDED?
 //    /**
 //     * This method returns a specific comment within a requirement.
 //     *
@@ -1233,20 +1360,22 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments/{commentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method deletes a specific comment within a requirement.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String deleteComment(@PathParam("projectId")  int projectId,
-                                    @PathParam("componentId")  int componentId,
-                                    @PathParam("requirementId")  int requirementId,
-                                    @PathParam("commentId")  int commentId) {
+    public String deleteComment(@PathParam("projectId") int projectId,
+                                @PathParam("componentId") int componentId,
+                                @PathParam("requirementId") int requirementId,
+                                @PathParam("commentId") int commentId) {
         // TODO: check if the user may delete this requirement.
         long userId = ((UserAgent) getActiveAgent()).getId();
-        String resultJSON = "{success = true}";
-        createValidators();
+        String resultJSON = "{\"success\" : \"true\"}";
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             dalFacade.deleteCommentById(commentId);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -1255,7 +1384,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -1265,7 +1394,7 @@ public class BazaarService extends Service {
      * ATTACHMENTS
      **********************************/
 
-        // TODO INCLUDED IN REQUIREMENT?
+    // TODO INCLUDED IN REQUIREMENT?
 //    /**
 //     * This method returns the list of attachments for a specific requirement.
 //     *
@@ -1298,29 +1427,34 @@ public class BazaarService extends Service {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new attachment for a requirement.")
-    @ApiResponses(value={
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Returns the id if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String createAttachment(@PathParam("projectId")  int projectId,
-                                   @PathParam("componentId")  int componentId,
-                                   @PathParam("requirementId")  int requirementId,
+    public String createAttachment(@PathParam("projectId") int projectId,
+                                   @PathParam("componentId") int componentId,
+                                   @PathParam("requirementId") int requirementId,
                                    @QueryParam(name = "attachmentType", defaultValue = "U") String attachmentType,
                                    @ContentParam String attachment) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        String resultJSON = "{success = true}";
-        createValidators();
+        String resultJSON = "{\"success\" : \"true\"}";
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
+        DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
             //TODO??? HOW DOES IT KNOW THE TYPE
-            Attachment attachmentToCreate = gson.fromJson(attachment,Attachment.class);
+            Attachment attachmentToCreate = gson.fromJson(attachment, Attachment.class);
             vtor.validate(attachmentToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            createConnection();
-            dalFacade.createAttachment(attachmentToCreate);
+            dalFacade = createConnection();
+            int attachmentId = dalFacade.createAttachment(attachmentToCreate);
+            JsonObject idJson = new JsonObject();
+            idJson.addProperty("id", attachmentId);
+            resultJSON = new Gson().toJson(idJson);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -1328,13 +1462,13 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
     }
 
-        // TODO INCLUDED IN REQUIREMENT? NEEDED?
+    // TODO INCLUDED IN REQUIREMENT? NEEDED?
 //    /**
 //     * This method returns a specific attachment within a requirement.
 //     *
@@ -1353,7 +1487,7 @@ public class BazaarService extends Service {
 //        return "[]";
 //    }
 
-        //TODO UPDATE?
+    //TODO UPDATE?
 //    /**
 //     * This method updates a specific attachment within a requirement.
 //     *
@@ -1385,19 +1519,21 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments/{attachmentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method deletes a specific attachment within a requirement.")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String deleteAttachment(@PathParam("projectId")  int projectId,
-                                   @PathParam("componentId")  int componentId,
-                                   @PathParam("requirementId")  int requirementId,
-                                   @PathParam("attachmentId")  int attachmentId) {
+    public String deleteAttachment(@PathParam("projectId") int projectId,
+                                   @PathParam("componentId") int componentId,
+                                   @PathParam("requirementId") int requirementId,
+                                   @PathParam("attachmentId") int attachmentId) {
         // TODO: check if the user may delete this requirement.
-        String resultJSON = "{success = true}";
-        createValidators();
+        String resultJSON = "{\"success\" : \"true\"}";
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             dalFacade.deleteAttachmentById(attachmentId);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -1406,7 +1542,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -1440,16 +1576,18 @@ public class BazaarService extends Service {
     @Path("users/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("Returns user data by ID")
-    @ApiResponses(value={
+    @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns user data by ID")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
-    public String getUser(@PathParam("userId")  int userId) {
+    public String getUser(@PathParam("userId") int userId) {
         // TODO: check whether the current user may request this project
         String resultJSON = "{}";
-        createValidators();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
+        DALFacade dalFacade = null;
         try {
-            createConnection();
+            dalFacade = createConnection();
             resultJSON = dalFacade.getUserById(userId).toJSON();
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -1458,7 +1596,7 @@ public class BazaarService extends Service {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 
         } finally {
-            closeConnection();
+            closeConnection(dalFacade);
         }
 
         return resultJSON;
@@ -1479,4 +1617,6 @@ public class BazaarService extends Service {
 //        // TODO: check if user can change this project
 //        return "{success=false}";
 //    }
+
+
 }

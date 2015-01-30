@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component inheritJdk="true">
+	<exclude-output/>
+	<contentEntry url="file://$MODULE_DIR$">
+		<testFolder url="file://$MODULE_DIR$/src/test"/>
+	</contentEntry>
+	<lib name="hamcrest-core-1.3.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/hamcrest-core-1.3.jar!/"/>
+	</lib>
+	<lib name="las2peer-0.3-SNAPSHOT.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/las2peer-0.3-SNAPSHOT.jar!/"/>
+	</lib>
+	<lib name="las2peer-rest-mapper-0.3-SNAPSHOT.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/las2peer-rest-mapper-0.3-SNAPSHOT.jar!/"/>
+	</lib>
+	<lib name="las2peer-web-connector-0.3-SNAPSHOT.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/las2peer-web-connector-0.3-SNAPSHOT.jar!/"/>
+	</lib>
+	<lib name="junit-4.11.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/junit-4.11.jar!/"/>
+	</lib>
+	<lib name="sqlite-jdbc-3.7.2.jar" scope="COMPILE">
+		<srcroot url="jar://$MODULE_DIR$/lib/sqlite-jdbc-3.7.2.jar!/"/>
+		<relative-module-src project-related="jar://$PROJECT_DIR$/lib/sqlite-jdbc-3.7.2.jar!/"/>
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/sqlite-jdbc-3.7.2.jar!/"/>
+	</lib>
+	<lib name="gson-2.3.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/gson-2.3.jar!/"/>
+	</lib>
+	<lib name="jooq-3.4.2.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jooq-3.4.2.jar!/"/>
+	</lib>
+	<lib name="mysql-connector-java-5.1.33.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/mysql-connector-java-5.1.33.jar!/"/>
+	</lib>
+	<lib name="jodd-bean-3.6.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jodd-bean-3.6.1.jar!/"/>
+	</lib>
+	<lib name="jodd-core-3.6.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jodd-core-3.6.1.jar!/"/>
+	</lib>
+	<lib name="jodd-vtor-3.6.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jodd-vtor-3.6.1.jar!/"/>
+	</lib>
+</component>
