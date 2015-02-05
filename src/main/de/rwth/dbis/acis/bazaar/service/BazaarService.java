@@ -541,7 +541,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("Deletes a component under a project by id")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
+            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String deleteComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId) {
@@ -786,7 +786,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method deletes a specific requirement within a project.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
+            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String deleteRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
@@ -903,7 +903,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method add the current user to the developers list of a given requirement")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
+            @ApiResponse(code = 200, message = "Returns {success : true} if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String addUserToDevelopers(@PathParam("projectId") int projectId,
@@ -921,7 +921,7 @@ public class BazaarService extends Service {
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
             if (internalUserId == null) {
-                resultJSON = "{success = false}";
+                resultJSON = "{\"success\" : \"false\",\"reason\":\"user not found\"}";
             } else {
                 dalFacade.wantToDevelop(internalUserId, requirementId);
             }
@@ -951,7 +951,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method remove the current user from a developers list of a given requirement")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
+            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String removeUserFromDevelopers(@PathParam("projectId") int projectId,
@@ -969,7 +969,7 @@ public class BazaarService extends Service {
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
             if (internalUserId == null) {
-                resultJSON = "{success = false}";
+                resultJSON = "{\"success\" : \"false\",\"reason\":\"user not found\"}";
             } else {
                 dalFacade.notWantToDevelop(internalUserId, requirementId);
             }
@@ -1013,11 +1013,11 @@ public class BazaarService extends Service {
      */
     @POST
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/followers")
-    @Consumes(MediaType.APPLICATION_JSON)
+    //@Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method add the current user to the followers list of a given requirement")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
+            @ApiResponse(code = 200, message = "Returns {success : true} if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String addUserToFollowers(@PathParam("projectId") int projectId,
@@ -1035,7 +1035,7 @@ public class BazaarService extends Service {
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
             if (internalUserId == null) {
-                resultJSON = "{success = false}";
+                resultJSON = "{\"success\" : \"false\",\"reason\":\"user not found\"}";
             } else {
                 dalFacade.follow(internalUserId, requirementId);
             }
@@ -1065,7 +1065,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method removes the current user from a followers list of a given requirement")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
+            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String removeUserFromFollowers(@PathParam("projectId") int projectId,
@@ -1083,7 +1083,7 @@ public class BazaarService extends Service {
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
             if (internalUserId == null) {
-                resultJSON = "{success = false}";
+                resultJSON = "{\"success\" : \"false\",\"reason\":\"user not found\"}";
             } else {
                 dalFacade.unFollow(internalUserId, requirementId);
             }
@@ -1110,11 +1110,11 @@ public class BazaarService extends Service {
      */
     @POST
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/vote")
-    @Consumes(MediaType.APPLICATION_JSON)
+    //@Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method creates a vote for the given requirement in the name of the current user.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
+            @ApiResponse(code = 200, message = "Returns {success : true} if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String addVote(@PathParam("projectId") int projectId,
@@ -1136,7 +1136,7 @@ public class BazaarService extends Service {
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
             if (internalUserId == null) {
-                resultJSON = "{success = false}";
+                resultJSON = "{\"success\" : \"false\",\"reason\":\"user not found\"}";
             } else {
                 dalFacade.vote(internalUserId, requirementId, direction.equals("up"));
             }
@@ -1167,7 +1167,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method removes the vote of the given requirement made by the current user")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
+            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String removeVote(@PathParam("projectId") int projectId,
@@ -1185,7 +1185,7 @@ public class BazaarService extends Service {
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
             if (internalUserId == null) {
-                resultJSON = "{success = false}";
+                resultJSON = "{\"success\" : \"false\",\"reason\":\"user not found\"}";
             } else {
                 dalFacade.unVote(internalUserId, requirementId);
             }
@@ -1361,7 +1361,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method deletes a specific comment within a requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
+            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String deleteComment(@PathParam("projectId") int projectId,
@@ -1520,7 +1520,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method deletes a specific attachment within a requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
+            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String deleteAttachment(@PathParam("projectId") int projectId,
