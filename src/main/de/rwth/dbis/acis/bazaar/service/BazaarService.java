@@ -147,7 +147,9 @@ public class BazaarService extends Service {
         UserAgent agent = (UserAgent) getActiveAgent();
 
         //TODO how to check if the user is anonymous?
-        if(agent.getLoginName().equals("anonymous")) return;
+        if(agent.getLoginName().equals("anonymous"))
+            agent.setEmail("anonymous@requirements-bazaar.org");
+
 
         DALFacade dalFacade = null;
         try {

@@ -107,7 +107,7 @@ CREATE TABLE Users (
     last_name varchar(150)    NOT NULL ,
     email varchar(255)    NOT NULL ,
     admin BOOLEAN    NOT NULL ,
-    Las2peer_Id int    NOT NULL ,
+    Las2peer_Id bigint    NOT NULL ,
     user_name varchar(255)    NOT NULL ,
     CONSTRAINT Users_pk PRIMARY KEY (Id)
 );
