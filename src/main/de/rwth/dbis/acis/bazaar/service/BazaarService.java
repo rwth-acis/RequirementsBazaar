@@ -20,9 +20,7 @@
 
 package de.rwth.dbis.acis.bazaar.service;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
@@ -49,11 +47,12 @@ import jodd.vtor.Vtor;
 import jodd.vtor.constraint.*;
 import org.jooq.SQLDialect;
 
-import com.google.gson.Gson;
+
 
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
+import org.jooq.tools.json.JSONObject;
 
 
 /**
@@ -164,9 +163,22 @@ public class BazaarService extends Service {
     private void registerUserAtFirstLogin() throws Exception {
         UserAgent agent = (UserAgent) getActiveAgent();
 
+        String profileImage = "https://api.learning-layers.eu/profile.png";
+
         //TODO how to check if the user is anonymous?
-        if(agent.getLoginName().equals("anonymous"))
+        if(agent.getLoginName().equals("anonymous")) {
             agent.setEmail("anonymous@requirements-bazaar.org");
+        }
+        else {
+            JsonObject userDataJson = new JsonParser().parse(agent.getUserData().toString()).getAsJsonObject();
+            String agentPicture= userDataJson.getAsJsonPrimitive("picture").getAsString();
+            if (agentPicture != null && !agentPicture.isEmpty())
+                profileImage = agentPicture;
+        }
+
+
+
+
 
 
         DALFacade dalFacade = null;
@@ -174,7 +186,7 @@ public class BazaarService extends Service {
             dalFacade = createConnection();
             Integer userIdByLAS2PeerId = dalFacade.getUserIdByLAS2PeerId(agent.getId());
             if (userIdByLAS2PeerId == null) {
-                dalFacade.createUser(User.geBuilder(agent.getEmail()).admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).build());
+                dalFacade.createUser(User.geBuilder(agent.getEmail()).admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).profileImage(profileImage).build());
             }
         } catch (Exception ex) {
             ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Error during registering users at first login.");

@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Users extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord> {
 
-	private static final long serialVersionUID = 2046707751;
+	private static final long serialVersionUID = -736333471;
 
 	/**
 	 * The singleton instance of <code>reqbaz.users</code>
@@ -60,6 +60,11 @@ public class Users extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.serv
 	 * The column <code>reqbaz.users.user_name</code>.
 	 */
 	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord, java.lang.String> USER_NAME = createField("user_name", org.jooq.impl.SQLDataType.VARCHAR.length(255), this, "");
+
+	/**
+	 * The column <code>reqbaz.users.profile_image</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord, java.lang.String> PROFILE_IMAGE = createField("profile_image", org.jooq.impl.SQLDataType.CLOB.length(65535), this, "");
 
 	/**
 	 * Create a <code>reqbaz.users</code> table reference

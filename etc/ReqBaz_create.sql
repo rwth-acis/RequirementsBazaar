@@ -1,7 +1,7 @@
 -- Created by Vertabelo (http://vertabelo.com)
 -- Script type: create
 -- Scope: [tables, references, sequences, views, procedures]
--- Generated at Thu Feb 19 14:10:03 UTC 2015
+-- Generated at Thu Feb 19 15:21:56 UTC 2015
 
 
 
@@ -141,6 +141,7 @@ CREATE TABLE users (
     admin BOOLEAN    NOT NULL ,
     Las2peer_Id bigint    NOT NULL ,
     user_name varchar(255)    NULL ,
+    profile_image text    NULL ,
     CONSTRAINT users_pk PRIMARY KEY (Id)
 );
 
