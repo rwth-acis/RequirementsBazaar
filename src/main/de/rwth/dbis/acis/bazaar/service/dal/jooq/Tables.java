@@ -19,11 +19,6 @@ public class Tables {
 	public static final de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachments ATTACHMENTS = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachments.ATTACHMENTS;
 
 	/**
-	 * The table reqbaz.authorizations
-	 */
-	public static final de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Authorizations AUTHORIZATIONS = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Authorizations.AUTHORIZATIONS;
-
-	/**
 	 * The table reqbaz.comments
 	 */
 	public static final de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments COMMENTS = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments.COMMENTS;
@@ -44,6 +39,11 @@ public class Tables {
 	public static final de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Followers FOLLOWERS = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Followers.FOLLOWERS;
 
 	/**
+	 * The table reqbaz.privileges
+	 */
+	public static final de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privileges PRIVILEGES = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privileges.PRIVILEGES;
+
+	/**
 	 * The table reqbaz.projects
 	 */
 	public static final de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects PROJECTS = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS;
@@ -54,6 +54,21 @@ public class Tables {
 	public static final de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements REQUIREMENTS = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQUIREMENTS;
 
 	/**
+	 * The table reqbaz.roles
+	 */
+	public static final de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Roles ROLES = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Roles.ROLES;
+
+	/**
+	 * The table reqbaz.role_privilege
+	 */
+	public static final de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RolePrivilege ROLE_PRIVILEGE = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RolePrivilege.ROLE_PRIVILEGE;
+
+	/**
+	 * The table reqbaz.role_role
+	 */
+	public static final de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RoleRole ROLE_ROLE = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RoleRole.ROLE_ROLE;
+
+	/**
 	 * The table reqbaz.tags
 	 */
 	public static final de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Tags TAGS = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Tags.TAGS;
@@ -62,6 +77,11 @@ public class Tables {
 	 * The table reqbaz.users
 	 */
 	public static final de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users USERS = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS;
+
+	/**
+	 * The table reqbaz.user_role
+	 */
+	public static final de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.UserRole USER_ROLE = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.UserRole.USER_ROLE;
 
 	/**
 	 * The table reqbaz.votes

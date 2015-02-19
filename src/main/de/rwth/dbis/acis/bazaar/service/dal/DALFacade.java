@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2014, RWTH Aachen University.
+ *  Copyright (c) 2015, RWTH Aachen University.
  *  For a list of contributors see the AUTHORS file at the top-level directory
  *  of this distribution.
  *
@@ -106,6 +106,15 @@ public interface DALFacade {
      * @param modifiedProject holds the modified data of the project identified by its id. Just only direct project data will be modified, relations not!
      */
     public void modifyProject(Project modifiedProject) throws Exception;
+
+
+    /**
+     * Return true if the project is public
+     *
+     * @param projectId
+     * @return
+     */
+    boolean isProjectPublic(int projectId) throws Exception;
 
     //endregion
 
@@ -282,36 +291,6 @@ public interface DALFacade {
 
     //endregion
 
-    //region Authorization
-
-    /**
-     * This method gives authorization right for a given project to a given user
-     *
-     * @param userId    the identifier of the user, whose access will be granted
-     * @param projectId the id of the project, what the user can see/edit
-     */
-    public void giveAuthorization(int userId, int projectId) throws BazaarException;
-
-    /**
-     * This method removes authorization right for a given project from a given user
-     *
-     * @param userId    the identifier of the user, whose access will be removed
-     * @param projectId the id of the project, what the user cannot see anymore
-     */
-    public void removeAuthorization(int userId, int projectId) throws BazaarException;
-
-
-    /**
-     * This method checks if a user has right to access to the project
-     *
-     * @param userId    the the identifier of the user, who wants to access a project
-     * @param projectId the id of the project we are looking in
-     * @return if the user has authorization
-     */
-    //TODO not only boolean, but different right levels? Admin, viewer, editor, etc.?
-    public boolean isAuthorized(int userId, int projectId) throws BazaarException;
-    //endregion
-
     //region Tag (Component >-< Requirement)
 
     /**
@@ -360,6 +339,19 @@ public interface DALFacade {
      * @return true if the user has voted for the requirement, false otherwise
      */
     public boolean hasUserVotedForRequirement(int userId, int requirementId) throws BazaarException;
+
+
+    /**
+     * This method returns all the roles and permissions for the given user
+     *
+     * @param userId the identifier of the user
+     * @return all the roles filled up with parents and permissions
+     */
+    public List<Role> getRolesByUserId(int userId) throws BazaarException;
+
+    public List<Role> getParentsForRole(int roleId) throws BazaarException;
+
+    void createPrivilegeIfNotExists(PrivilegeEnum privilege) throws BazaarException;
 
 
     //endregion

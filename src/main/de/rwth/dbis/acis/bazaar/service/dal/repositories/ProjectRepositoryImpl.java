@@ -24,7 +24,6 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Authorizations;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
@@ -40,7 +39,6 @@ import org.jooq.exception.DataAccessException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Authorizations.AUTHORIZATIONS;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS;
 
@@ -86,9 +84,11 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
         try {
             entries = new ArrayList<Project>();
 
+            //TODO only authorized projects?
             List<ProjectsRecord> queryResults = jooq.selectFrom(transformator.getTable()
-                    .leftOuterJoin(AUTHORIZATIONS).on(AUTHORIZATIONS.PROJECT_ID.equal(PROJECTS.ID))
-                    .join(USERS).on(AUTHORIZATIONS.USER_ID.equal(USERS.ID)))
+//                    .leftOuterJoin(AUTHORIZATIONS).on(AUTHORIZATIONS.PROJECT_ID.equal(PROJECTS.ID))
+//                    .join(USERS).on(AUTHORIZATIONS.USER_ID.equal(USERS.ID))
+                    )
                     .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar()).or(USERS.LAS2PEER_ID.equal(userId)))
                     .orderBy(transformator.getSortFields(pageable.getSortDirection()))
                     .limit(pageable.getPageSize())

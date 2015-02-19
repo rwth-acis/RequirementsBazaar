@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2014, RWTH Aachen University.
+ *  Copyright (c) 2015, RWTH Aachen University.
  *  For a list of contributors see the AUTHORS file at the top-level directory
  *  of this distribution.
  *
@@ -18,31 +18,35 @@
  * /
  */
 
-package de.rwth.dbis.acis.bazaar.service.exception;
+package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 10/6/2014
+ * @since 2/17/2015
  */
-public enum ErrorCode {
-    UNKNOWN("000", "Unknown, unexpected exception occurred"),
-    VALIDATION("001", "Constraint validation failed."),
-    CANNOTDELETE("002", "The item cannot be deleted"),
-    AUTHORIZATION("003", "This user is not authorized to use this method.");
+public enum PrivilegeEnum {
+    Create_PROJECT,
+    Read_PROJECT,
+    Read_PUBLIC_PROJECT,
+    Modify_PROJECT,
 
-    private final String code;
-    private final String message;
+    Create_COMPONENT,
+    Read_COMPONENT,
+    Read_PUBLIC_COMPONENT,
+    Modify_COMPONENT,
 
-    public String asCode() {
-        return code;
-    }
+    Create_REQUIREMENT,
+    Read_REQUIREMENT,
+    Read_PUBLIC_REQUIREMENT,
+    Modify_REQUIREMENT,
 
-    public String getMessage() {
-        return message;
-    }
+    Create_COMMENT,
+    Read_COMMENT,
+    Read_PUBLIC_COMMENT,
+    Modify_COMMENT,
 
-    private ErrorCode(String code, String message) {
-        this.code = code;
-        this.message = message;
-    }
+    Create_ATTACHMENT,
+    Read_ATTACHMENT,
+    Read_PUBLIC_ATTACHMENT,
+    Modify_ATTACHMENT
 }

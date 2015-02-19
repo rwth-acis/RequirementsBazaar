@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2014, RWTH Aachen University.
+ *  Copyright (c) 2015, RWTH Aachen University.
  *  For a list of contributors see the AUTHORS file at the top-level directory
  *  of this distribution.
  *
@@ -18,31 +18,20 @@
  * /
  */
 
-package de.rwth.dbis.acis.bazaar.service.exception;
+package de.rwth.dbis.acis.bazaar.service.dal.repositories;
+
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+
+import java.util.List;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 10/6/2014
+ * @since 2/17/2015
  */
-public enum ErrorCode {
-    UNKNOWN("000", "Unknown, unexpected exception occurred"),
-    VALIDATION("001", "Constraint validation failed."),
-    CANNOTDELETE("002", "The item cannot be deleted"),
-    AUTHORIZATION("003", "This user is not authorized to use this method.");
+public interface RoleRepostitory extends Repository<Role>{
+    List<Role> listRolesOfUser(int userId) throws BazaarException;
 
-    private final String code;
-    private final String message;
-
-    public String asCode() {
-        return code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    private ErrorCode(String code, String message) {
-        this.code = code;
-        this.message = message;
-    }
+    List<Role> listParentsForRole(int roleId) throws BazaarException;
 }
