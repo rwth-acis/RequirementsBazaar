@@ -21,9 +21,20 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachments;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.AttachmentTransformator;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.exception.DataAccessException;
+
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments.COMMENTS;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -36,5 +47,23 @@ public class AttachmentRepositoryImpl extends RepositoryImpl<Attachment, Attachm
      */
     public AttachmentRepositoryImpl(DSLContext jooq) {
         super(jooq, new AttachmentTransformator());
+    }
+
+    @Override
+    public boolean belongsToPublicProject(int id) throws BazaarException {
+        try {
+
+            Integer countOfPublicProjects = jooq.selectCount()
+                    .from(transformator.getTable())
+                    .join(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.ID.eq(Attachments.ATTACHMENTS.REQUIREMENT_ID))
+                    .join(Projects.PROJECTS).on(Projects.PROJECTS.ID.eq(Requirements.REQUIREMENTS.PROJECT_ID))
+                    .where(transformator.getTableId().eq(id).and(Projects.PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar())))
+                    .fetchOne(0, int.class);
+
+            return (countOfPublicProjects == 1);
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return false;
     }
 }

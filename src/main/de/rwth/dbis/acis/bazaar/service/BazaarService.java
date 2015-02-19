@@ -581,7 +581,7 @@ public class BazaarService extends Service {
             dalFacade = createConnection();
 
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            if (dalFacade.isProjectPublic(projectId)) {
+            if (dalFacade.isComponentPublic(componentId)) {
 
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMPONENT, dalFacade);
                 if (!authorized)
@@ -770,7 +770,7 @@ public class BazaarService extends Service {
             dalFacade = createConnection();
 
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            if (dalFacade.isProjectPublic(projectId)) {
+            if (dalFacade.isComponentPublic(componentId)) {
 
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, dalFacade);
                 if (!authorized)
@@ -886,7 +886,7 @@ public class BazaarService extends Service {
             dalFacade = createConnection();
 
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            if (dalFacade.isProjectPublic(projectId)) {
+            if (dalFacade.isRequirementPublic(requirementId)) {
 
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, dalFacade);
                 if (!authorized)
@@ -1405,7 +1405,7 @@ public class BazaarService extends Service {
             dalFacade = createConnection();
 
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            if (dalFacade.isProjectPublic(projectId)) {
+            if (dalFacade.isRequirementPublic(projectId)) {
 
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT, dalFacade);
                 if (!authorized)

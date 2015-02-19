@@ -153,10 +153,9 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public boolean isProjectPublic(int projectId) throws Exception {
+    public boolean isProjectPublic(int projectId) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
-        Project project = projectRepository.findById(projectId);
-        return project.getVisibility() == Project.ProjectVisibility.PUBLIC;
+        return projectRepository.belongsToPublicProject(projectId);
     }
 
     @Override
@@ -210,6 +209,12 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public boolean isRequirementPublic(int requirementId) throws BazaarException {
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        return requirementRepository.belongsToPublicProject(requirementId);
+    }
+
+    @Override
     public List<Component> listComponentsByProjectId(int projectId, Pageable pageable) throws BazaarException {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
         return componentRepository.findByProjectId(projectId, pageable);
@@ -252,6 +257,12 @@ public class DALFacadeImpl implements DALFacade {
         }
 
         componentRepository.delete(componentId);
+    }
+
+    @Override
+    public boolean isComponentPublic(int componentId) throws BazaarException {
+        componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
+        return componentRepository.belongsToPublicProject(componentId);
     }
 
     @Override

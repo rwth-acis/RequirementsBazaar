@@ -36,4 +36,6 @@ public interface ProjectRepository extends Repository<Project> {
     List<Project> findAllPublic(Pageable pageable) throws BazaarException;
 
     List<Project> findAllPublicAndAuthorized(PageInfo pageable, long userId) throws BazaarException;
+
+    public boolean belongsToPublicProject(int id) throws BazaarException;
 }

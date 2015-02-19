@@ -107,15 +107,13 @@ public interface DALFacade {
      */
     public void modifyProject(Project modifiedProject) throws Exception;
 
-
     /**
-     * Return true if the project is public
+     * Returns if a project is public or not
      *
      * @param projectId
      * @return
      */
-    boolean isProjectPublic(int projectId) throws Exception;
-
+    boolean isProjectPublic(int projectId) throws BazaarException;
     //endregion
 
     //region Requirement
@@ -175,6 +173,14 @@ public interface DALFacade {
      */
     public void deleteRequirementById(int requirementId) throws Exception;
 
+
+    /**
+     * Returns true if requirement belongs to a public project
+     *
+     * @param requirementId
+     * @return
+     */
+    public boolean isRequirementPublic(int requirementId) throws BazaarException;
     //endregion
 
     //region Component
@@ -213,6 +219,14 @@ public interface DALFacade {
      * @param componentId for the component to be deleted
      */
     public void deleteComponentById(int componentId) throws Exception;
+
+    /**
+     * Returns true if component belongs to a public project
+     *
+     * @param projectId
+     * @return
+     */
+    public boolean isComponentPublic(int componentId) throws BazaarException;
 
     //endregion
 
@@ -347,12 +361,15 @@ public interface DALFacade {
      * @param userId the identifier of the user
      * @return all the roles filled up with parents and permissions
      */
+
+
+    //endregion
+
+    //region Authorization
     public List<Role> getRolesByUserId(int userId) throws BazaarException;
 
     public List<Role> getParentsForRole(int roleId) throws BazaarException;
 
-    void createPrivilegeIfNotExists(PrivilegeEnum privilege) throws BazaarException;
-
-
+    public void createPrivilegeIfNotExists(PrivilegeEnum privilege) throws BazaarException;
     //endregion
 }

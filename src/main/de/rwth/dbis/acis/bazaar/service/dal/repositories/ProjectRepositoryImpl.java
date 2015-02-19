@@ -24,9 +24,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.*;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.ProjectTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -104,5 +102,20 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
         }
 
         return entries;
+    }
+
+    @Override
+    public boolean belongsToPublicProject(int id) throws BazaarException {
+        try {
+            Integer countOfPublicProjects = jooq.selectCount()
+                    .from(transformator.getTable())
+                    .where(transformator.getTableId().eq(id).and(Projects.PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar())))
+                    .fetchOne(0, int.class);
+
+            return (countOfPublicProjects == 1);
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return false;
     }
 }
