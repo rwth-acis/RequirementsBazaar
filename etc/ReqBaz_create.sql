@@ -1,7 +1,7 @@
 -- Created by Vertabelo (http://vertabelo.com)
 -- Script type: create
 -- Scope: [tables, references, sequences, views, procedures]
--- Generated at Thu Feb 19 15:21:56 UTC 2015
+-- Generated at Fri Feb 20 12:42:30 UTC 2015
 
 
 
@@ -129,6 +129,7 @@ CREATE TABLE user_role (
     Id int    NOT NULL  AUTO_INCREMENT,
     Roles_Id int    NOT NULL ,
     Users_Id int    NOT NULL ,
+    context_info varchar(255)    NULL ,
     CONSTRAINT user_role_pk PRIMARY KEY (Id)
 );
 

@@ -369,9 +369,9 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public List<Role> getRolesByUserId(int userId) throws BazaarException {
+    public List<Role> getRolesByUserId(int userId, String context) throws BazaarException {
         roleRepostitory = (roleRepostitory != null) ? roleRepostitory : new RoleRepostitoryImpl(dslContext);
-        return roleRepostitory.listRolesOfUser(userId);
+        return roleRepostitory.listRolesOfUser(userId, context);
     }
 
     @Override

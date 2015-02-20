@@ -49,7 +49,7 @@ public class RoleRepostitoryImpl extends RepositoryImpl<Role, RolesRecord> imple
     }
 
     @Override
-    public List<Role> listRolesOfUser(int userId) throws BazaarException {
+    public List<Role> listRolesOfUser(int userId, String context) throws BazaarException {
         List<Role> roles = null;
 
         try {
@@ -61,7 +61,7 @@ public class RoleRepostitoryImpl extends RepositoryImpl<Role, RolesRecord> imple
                             .join(rolesTable).on(UserRole.USER_ROLE.ROLES_ID.eq(rolesTable.ID))
                             .leftOuterJoin(RolePrivilege.ROLE_PRIVILEGE).on(RolePrivilege.ROLE_PRIVILEGE.ROLES_ID.eq(Roles.ROLES.ID))
                             .leftOuterJoin(privilegesTable).on(privilegesTable.ID.eq(RolePrivilege.ROLE_PRIVILEGE.PRIVILEGES_ID))
-            ).where(UserRole.USER_ROLE.USERS_ID.equal(userId)).fetch();
+            ).where(UserRole.USER_ROLE.USERS_ID.equal(userId).and(UserRole.USER_ROLE.CONTEXT_INFO.eq(context).or(UserRole.USER_ROLE.CONTEXT_INFO.isNull()))).fetch();
 
             if (queryResult!= null && !queryResult.isEmpty()) {
                 roles = new ArrayList<Role>();

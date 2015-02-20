@@ -366,10 +366,12 @@ public interface DALFacade {
     //endregion
 
     //region Authorization
-    public List<Role> getRolesByUserId(int userId) throws BazaarException;
+    public List<Role> getRolesByUserId(int userId, String context) throws BazaarException;
 
     public List<Role> getParentsForRole(int roleId) throws BazaarException;
 
     public void createPrivilegeIfNotExists(PrivilegeEnum privilege) throws BazaarException;
+
+
     //endregion
 }

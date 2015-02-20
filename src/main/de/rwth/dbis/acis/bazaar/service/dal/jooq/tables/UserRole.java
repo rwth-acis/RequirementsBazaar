@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class UserRole extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRoleRecord> {
 
-	private static final long serialVersionUID = -483604541;
+	private static final long serialVersionUID = -417779326;
 
 	/**
 	 * The singleton instance of <code>reqbaz.user_role</code>
@@ -40,6 +40,11 @@ public class UserRole extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.s
 	 * The column <code>reqbaz.user_role.Users_Id</code>.
 	 */
 	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRoleRecord, java.lang.Integer> USERS_ID = createField("Users_Id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
+
+	/**
+	 * The column <code>reqbaz.user_role.context_info</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRoleRecord, java.lang.String> CONTEXT_INFO = createField("context_info", org.jooq.impl.SQLDataType.VARCHAR.length(255), this, "");
 
 	/**
 	 * Create a <code>reqbaz.user_role</code> table reference

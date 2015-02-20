@@ -376,13 +376,13 @@ public class BazaarService extends Service {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             if (dalFacade.isProjectPublic(projectId)) {
 
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_PROJECT, dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_PROJECT, String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Even anonymous can watch this. Inform maintainers.");
 
             }
             else {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PROJECT, dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PROJECT, String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can see components.");
             }
@@ -477,13 +477,13 @@ public class BazaarService extends Service {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             if (dalFacade.isProjectPublic(projectId)) {
 
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMPONENT, dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMPONENT,String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Even anonymous can watch this. Inform maintainers.");
 
             }
             else {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMPONENT, dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMPONENT,String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can see components.");
             }
@@ -534,7 +534,7 @@ public class BazaarService extends Service {
 
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_COMPONENT, dalFacade);
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_COMPONENT,String.valueOf(componentToCreate.getProjectId()), dalFacade);
             if (!authorized)
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only admins can create components.");
 
@@ -579,22 +579,25 @@ public class BazaarService extends Service {
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
-
+            Component componentById = dalFacade.getComponentById(componentId);
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             if (dalFacade.isComponentPublic(componentId)) {
 
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMPONENT, dalFacade);
+
+
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMPONENT,String.valueOf(componentById.getProjectId()), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Even anonymous can watch this. Inform maintainers.");
 
             }
             else {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMPONENT, dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMPONENT,String.valueOf(componentById.getProjectId()), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can see components.");
             }
 
-            resultJSON = dalFacade.getComponentById(componentId).toJSON();
+
+            resultJSON = componentById.toJSON();
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -644,7 +647,7 @@ public class BazaarService extends Service {
 
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_COMPONENT, dalFacade);
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_COMPONENT,String.valueOf(projectId), dalFacade);
             if (!authorized)
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only admins can modify components.");
 
@@ -711,13 +714,13 @@ public class BazaarService extends Service {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             if (dalFacade.isProjectPublic(projectId)) {
 
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT,String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Even anonymous can watch this. Inform maintainers.");
 
             }
             else {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT, dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT,String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can see components.");
             }
@@ -770,15 +773,16 @@ public class BazaarService extends Service {
             dalFacade = createConnection();
 
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            //TODO use components requirementId not the one it is sent for security context info
             if (dalFacade.isComponentPublic(componentId)) {
 
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT,String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Even anonymous can watch this. Inform maintainers.");
 
             }
             else {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT, dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT,String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can see components.");
             }
@@ -828,7 +832,7 @@ public class BazaarService extends Service {
             Gson gson = new Gson();
             Requirement requirementToCreate = gson.fromJson(requirement, Requirement.class);
             dalFacade = createConnection();
-//            requirementToCreate.setCreatorId(userId);
+
             vtor.validate(requirementToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             vtor.validate(componentId);
@@ -836,7 +840,7 @@ public class BazaarService extends Service {
 
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_REQUIREMENT, dalFacade);
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_REQUIREMENT, String.valueOf(requirementToCreate.getProjectId()), dalFacade);
             if (!authorized)
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Minimum project members can create requirements.");
 
@@ -884,22 +888,23 @@ public class BazaarService extends Service {
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
-
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            RequirementEx requirementById = dalFacade.getRequirementById(requirementId);
             if (dalFacade.isRequirementPublic(requirementId)) {
 
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT,String.valueOf(requirementById.getProjectId()), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Even anonymous can watch this. Inform maintainers.");
 
             }
             else {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT, dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT,String.valueOf(requirementById.getProjectId()), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can see components.");
             }
 
-            resultJSON = dalFacade.getRequirementById(requirementId).toJSON();
+
+            resultJSON = requirementById.toJSON();
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -957,7 +962,8 @@ public class BazaarService extends Service {
 
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, dalFacade);
+            //Todo use requirement's projectId for serurity context, not the one sent from client
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT,Arrays.asList(String.valueOf(projectId), String.valueOf(requirementId)), dalFacade);
             if (!authorized)
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only the creator and admins can modify attachments.");
 
@@ -1404,16 +1410,17 @@ public class BazaarService extends Service {
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             dalFacade = createConnection();
 
+            //Todo use requirement's projectId for serurity context, not the one sent from client
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            if (dalFacade.isRequirementPublic(projectId)) {
+            if (dalFacade.isRequirementPublic(requirementId)) {
 
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT, dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT,String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Even anonymous can watch this. Inform maintainers.");
 
             }
             else {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMMENT, dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMMENT,String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can see comments.");
             }
@@ -1470,7 +1477,8 @@ public class BazaarService extends Service {
 
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_COMMENT, dalFacade);
+            //Todo use requirement's projectId for serurity context, not the one sent from client
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_COMMENT,String.valueOf(projectId), dalFacade);
             if (!authorized)
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Minimum project members can create comments.");
 
@@ -1566,8 +1574,8 @@ public class BazaarService extends Service {
             dalFacade = createConnection();
 
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_COMMENT, dalFacade);
+            //Todo use requirement's projectId for serurity context, not the one sent from client
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_COMMENT,Arrays.asList(String.valueOf(commentId),String.valueOf(projectId)), dalFacade);
             if (!authorized)
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only the creator and admins can modify comments.");
 
@@ -1650,7 +1658,8 @@ public class BazaarService extends Service {
 
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_ATTACHMENT, dalFacade);
+            //Todo use requirement's projectId for serurity context, not the one sent from client
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_ATTACHMENT, String.valueOf(projectId), dalFacade);
             if (!authorized)
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Minimum project members can create attachments.");
 
@@ -1740,8 +1749,8 @@ public class BazaarService extends Service {
             dalFacade = createConnection();
 
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_ATTACHMENT, dalFacade);
+            //Todo use requirement's projectId for serurity context, not the one sent from client
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_ATTACHMENT,Arrays.asList(String.valueOf(attachmentId),String.valueOf(projectId)), dalFacade);
             if (!authorized)
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only the creator and admins can modify attachments.");
 

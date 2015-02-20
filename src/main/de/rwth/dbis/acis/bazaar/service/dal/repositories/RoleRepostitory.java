@@ -31,7 +31,7 @@ import java.util.List;
  * @since 2/17/2015
  */
 public interface RoleRepostitory extends Repository<Role>{
-    List<Role> listRolesOfUser(int userId) throws BazaarException;
-
     List<Role> listParentsForRole(int roleId) throws BazaarException;
+
+    List<Role> listRolesOfUser(int userId, String context) throws BazaarException;
 }
