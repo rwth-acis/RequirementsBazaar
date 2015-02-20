@@ -24,6 +24,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.repositories.*;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.PrivilegeEnumConverter;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import org.jooq.*;
 import org.jooq.impl.DSL;
@@ -42,7 +43,6 @@ public class DALFacadeImpl implements DALFacade {
     private final Connection connection;
 
     private AttachmentRepository attachmentRepository;
-    private AuthorizationRepository authorizationRepository;
     private CommentRepository commentRepository;
     private ComponentRepository componentRepository;
     private DeveloperRepository developerRepository;
@@ -52,6 +52,8 @@ public class DALFacadeImpl implements DALFacade {
     private TagRepository tagRepository;
     private UserRepository userRepository;
     private VoteRepostitory voteRepostitory;
+    private RoleRepostitory roleRepostitory;
+    private PrivilegeRepostitory privilegeRepostitory;
 
     public DALFacadeImpl(Connection connection, SQLDialect dialect) {
         this.connection = connection;
@@ -98,7 +100,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public Integer getUserIdByLAS2PeerId(int las2PeerId) throws Exception {
+    public Integer getUserIdByLAS2PeerId(long las2PeerId) throws Exception {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
         return userRepository.getIdByLas2PeerId(las2PeerId);
     }
@@ -110,7 +112,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public List<Project> listPublicAndAuthorizedProjects(PageInfo pageable, int userId) throws BazaarException {
+    public List<Project> listPublicAndAuthorizedProjects(PageInfo pageable, long userId) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         return projectRepository.findAllPublicAndAuthorized(pageable, userId);
     }
@@ -148,6 +150,12 @@ public class DALFacadeImpl implements DALFacade {
     public void modifyProject(Project modifiedProject) throws Exception {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         projectRepository.update(modifiedProject);
+    }
+
+    @Override
+    public boolean isProjectPublic(int projectId) throws BazaarException {
+        projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
+        return projectRepository.belongsToPublicProject(projectId);
     }
 
     @Override
@@ -201,6 +209,12 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public boolean isRequirementPublic(int requirementId) throws BazaarException {
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        return requirementRepository.belongsToPublicProject(requirementId);
+    }
+
+    @Override
     public List<Component> listComponentsByProjectId(int projectId, Pageable pageable) throws BazaarException {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
         return componentRepository.findByProjectId(projectId, pageable);
@@ -243,6 +257,12 @@ public class DALFacadeImpl implements DALFacade {
         }
 
         componentRepository.delete(componentId);
+    }
+
+    @Override
+    public boolean isComponentPublic(int componentId) throws BazaarException {
+        componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
+        return componentRepository.belongsToPublicProject(componentId);
     }
 
     @Override
@@ -309,27 +329,6 @@ public class DALFacadeImpl implements DALFacade {
         developerRepository.delete(userId, requirementId);
     }
 
-    @Override
-    public void giveAuthorization(int userId, int projectId) throws BazaarException {
-        authorizationRepository = (authorizationRepository != null) ? authorizationRepository : new AuthorizationRepositoryImpl(dslContext);
-        authorizationRepository.add(Authorization.getBuilder()
-                        .projectId(projectId)
-                        .userId(userId)
-                        .build()
-        );
-    }
-
-    @Override
-    public void removeAuthorization(int userId, int projectId) throws BazaarException {
-        authorizationRepository = (authorizationRepository != null) ? authorizationRepository : new AuthorizationRepositoryImpl(dslContext);
-        authorizationRepository.delete(userId, projectId);
-    }
-
-    @Override
-    public boolean isAuthorized(int userId, int projectId) throws BazaarException {
-        authorizationRepository = (authorizationRepository != null) ? authorizationRepository : new AuthorizationRepositoryImpl(dslContext);
-        return authorizationRepository.isAuthorized(userId, projectId);
-    }
 
     @Override
     public void addComponentTag(int requirementId, int componentId) throws BazaarException {
@@ -367,5 +366,28 @@ public class DALFacadeImpl implements DALFacade {
     public boolean hasUserVotedForRequirement(int userId, int requirementId) throws BazaarException {
         voteRepostitory = (voteRepostitory != null) ? voteRepostitory : new VoteRepostitoryImpl(dslContext);
         return voteRepostitory.hasUserVotedForRequirement(userId, requirementId);
+    }
+
+    @Override
+    public List<Role> getRolesByUserId(int userId, String context) throws BazaarException {
+        roleRepostitory = (roleRepostitory != null) ? roleRepostitory : new RoleRepostitoryImpl(dslContext);
+        return roleRepostitory.listRolesOfUser(userId, context);
+    }
+
+    @Override
+    public List<Role> getParentsForRole(int roleId) throws BazaarException {
+        roleRepostitory = (roleRepostitory != null) ? roleRepostitory : new RoleRepostitoryImpl(dslContext);
+        return roleRepostitory.listParentsForRole(roleId);
+    }
+
+    @Override
+    public void createPrivilegeIfNotExists(PrivilegeEnum privilege) throws BazaarException {
+        privilegeRepostitory = (privilegeRepostitory != null) ? privilegeRepostitory : new PrivilegeRepostitoryImpl(dslContext);
+
+        Privilege privilegeDb = privilegeRepostitory.findByName(new PrivilegeEnumConverter().to(privilege));
+        if (privilegeDb == null) {
+            privilegeRepostitory.add(Privilege.getBuilder(privilege).build());
+        }
+
     }
 }

@@ -21,7 +21,10 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.CommentTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -29,7 +32,10 @@ import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.Record1;
+import org.jooq.Result;
 import org.jooq.exception.DataAccessException;
+import org.jooq.impl.DSL;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -71,5 +77,23 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
         }
 
         return entries;
+    }
+
+    @Override
+    public boolean belongsToPublicProject(int id) throws BazaarException {
+        try {
+
+            Integer countOfPublicProjects = jooq.selectCount()
+                    .from(transformator.getTable())
+                    .join(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.ID.eq(COMMENTS.REQUIREMENT_ID))
+                    .join(Projects.PROJECTS).on(Projects.PROJECTS.ID.eq(Requirements.REQUIREMENTS.PROJECT_ID))
+                    .where(transformator.getTableId().eq(id).and(Projects.PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar())))
+                    .fetchOne(0, int.class);
+
+            return (countOfPublicProjects == 1);
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return false;
     }
 }

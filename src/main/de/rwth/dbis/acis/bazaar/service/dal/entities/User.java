@@ -35,10 +35,11 @@ public class User extends EntityBase {
 
     private final boolean admin;
 
-    private final int Las2peerId;
+    private final long Las2peerId;
 
     private final String userName;
 
+    private final String profileImage;
 
     public User(Builder builder) {
         Id = builder.id;
@@ -48,7 +49,7 @@ public class User extends EntityBase {
         this.admin = builder.admin;
         Las2peerId = builder.las2peerId;
         this.userName = builder.userName;
-
+        this.profileImage = builder.profileImage;
     }
 
     public int getId() {
@@ -71,7 +72,7 @@ public class User extends EntityBase {
         return admin;
     }
 
-    public int getLas2peerId() {
+    public long getLas2peerId() {
         return Las2peerId;
     }
 
@@ -79,6 +80,9 @@ public class User extends EntityBase {
         return userName;
     }
 
+    public String getProfileImage() {
+        return profileImage;
+    }
 
     public static Builder geBuilder(String eMail) {
         return new Builder(eMail);
@@ -94,8 +98,9 @@ public class User extends EntityBase {
         private String lastName;
         private String eMail;
         private boolean admin;
-        private int las2peerId;
+        private long las2peerId;
         private String userName;
+        private String profileImage;
 
 
         public Builder(String eMail) {
@@ -127,13 +132,18 @@ public class User extends EntityBase {
             return this;
         }
 
-        public Builder las2peerId(int userId) {
+        public Builder las2peerId(long userId) {
             this.las2peerId = userId;
             return this;
         }
 
         public Builder userName(String userName) {
             this.userName = userName;
+            return this;
+        }
+
+        public Builder profileImage(String profileImage) {
+            this.profileImage = profileImage;
             return this;
         }
 

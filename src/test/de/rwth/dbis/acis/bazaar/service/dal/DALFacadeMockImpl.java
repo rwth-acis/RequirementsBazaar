@@ -23,7 +23,9 @@ package de.rwth.dbis.acis.bazaar.service.dal;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -43,7 +45,6 @@ public class DALFacadeMockImpl implements DALFacade {
     List<Requirement> requirementList = new ArrayList<Requirement>();
     List<Comment> commentList = new ArrayList<Comment>();
     List<Attachment> attachmentList = new ArrayList<Attachment>();
-    List<Authorization> authorizationList = new ArrayList<Authorization>();
     List<Vote> voteList = new ArrayList<Vote>();
     List<Tag> tagList = new ArrayList<Tag>();
     List<Developer> developerList = new ArrayList<Developer>();
@@ -138,6 +139,11 @@ public class DALFacadeMockImpl implements DALFacade {
     //endregion
 
     @Override
+    public Connection getConnection() {
+        return null;
+    }
+
+    @Override
     public int createUser(User user) {
         userList.add(user);
         return 0;
@@ -166,6 +172,11 @@ public class DALFacadeMockImpl implements DALFacade {
     }
 
     @Override
+    public Integer getUserIdByLAS2PeerId(long las2PeerId) throws Exception {
+        return null;
+    }
+
+    @Override
     public List<Project> listPublicProjects(Pageable pageable) {
         return projectList.subList(calcPaginationFrom(pageable),calcPaginationTo(pageable,projectList.size()));
 //        return Arrays.asList(
@@ -176,7 +187,7 @@ public class DALFacadeMockImpl implements DALFacade {
     }
 
     @Override
-    public List<Project> listPublicAndAuthorizedProjects(PageInfo pageable, int userId) {
+    public List<Project> listPublicAndAuthorizedProjects(PageInfo pageable, long userId) throws BazaarException {
         return null;
     }
 
@@ -210,6 +221,11 @@ public class DALFacadeMockImpl implements DALFacade {
     @Override
     public void modifyProject(Project modifiedProject) {
 
+    }
+
+    @Override
+    public boolean isProjectPublic(int projectId) throws Exception {
+        return false;
     }
 
     @Override
@@ -488,32 +504,7 @@ public class DALFacadeMockImpl implements DALFacade {
         }
     }
 
-    @Override
-    public void giveAuthorization(int userId, int projectId) {
-        Authorization authorization = Authorization.getBuilder().id(new Random().nextInt()).projectId(projectId).userId(userId).accessRight(0).build();
 
-        authorizationList.add(authorization);
-    }
-
-    @Override
-    public void removeAuthorization(int userId, int projectId) {
-        Iterator<Authorization> itr = authorizationList.iterator();
-        while (itr.hasNext()) {
-            Authorization authorization = itr.next();
-
-            if (authorization.getUserId() == userId && authorization.getProjectId() == projectId)
-                itr.remove();
-        }
-    }
-
-    @Override
-    public boolean isAuthorized(int userId, int projectId) {
-        for (Authorization authorization : authorizationList) {
-            if (authorization.getProjectId() == projectId && authorization.getUserId() == userId)
-                return true;
-        }
-        return false;
-    }
 
     @Override
     public void addComponentTag(int requirementId, int componentId) {
@@ -559,11 +550,22 @@ public class DALFacadeMockImpl implements DALFacade {
         }
         return false;
     }
-	@Override
-	public Integer getUserIdByLAS2PeerId(int las2PeerId) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
+
+    @Override
+    public List<Role> getRolesByUserId(int userId) throws BazaarException {
+        return null;
+    }
+
+    @Override
+    public List<Role> getParentsForRole(int roleId) throws BazaarException {
+        return null;
+    }
+
+    @Override
+    public void createPrivilegeIfNotExists(PrivilegeEnum privilege) throws BazaarException {
+
+    }
+
 	@Override
 	public Component getComponentById(int componentId) throws Exception {
 		// TODO Auto-generated method stub

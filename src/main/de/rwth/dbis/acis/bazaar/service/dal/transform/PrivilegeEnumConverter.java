@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2014, RWTH Aachen University.
+ *  Copyright (c) 2015, RWTH Aachen University.
  *  For a list of contributors see the AUTHORS file at the top-level directory
  *  of this distribution.
  *
@@ -18,19 +18,13 @@
  * /
  */
 
-package de.rwth.dbis.acis.bazaar.service.dal.repositories;
+package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.PrivilegeEnum;
+import org.jooq.impl.EnumConverter;
 
-import java.util.List;
-
-/**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/22/2014
- */
-public interface CommentRepository extends Repository<Comment> {
-    List<Comment> findAllByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
-    public boolean belongsToPublicProject(int id) throws BazaarException;
+public class PrivilegeEnumConverter extends EnumConverter<String, PrivilegeEnum> {
+    public PrivilegeEnumConverter() {
+        super(String.class, PrivilegeEnum.class);
+    }
 }

@@ -1,46 +1,48 @@
 INSERT INTO `reqbaz`.`users` 
-(`Id`,`first_name`, `last_name`, `email`, `admin`, `Las2peer_Id`, `user_name`)
+(`Id`,`first_name`, `last_name`, `email`, `admin`, `Las2peer_Id`, `user_name`, `profile_image`)
  VALUES 
-('1','Max1', 'Mustermann1', 'Max@Mustermann1.de', '1', '1', 'MaxMustermann1'),
-('2','Max2', 'Mustermann2', 'Max@Mustermann2.de', '1', '2', 'MaxMustermann2'),
-('3','Max3', 'Mustermann3', 'Max@Mustermann3.de', '1', '3', 'MaxMustermann3'),
-('4','Max4', 'Mustermann4', 'Max@Mustermann4.de', '1', '4', 'MaxMustermann4'),
-('5','Max5', 'Mustermann5', 'Max@Mustermann5.de', '1', '5', 'MaxMustermann5'),
-('6','Max6', 'Mustermann6', 'Max@Mustermann6.de', '1', '6', 'MaxMustermann6'),
-('7','Max7', 'Mustermann7', 'Max@Mustermann7.de', '1', '7', 'MaxMustermann7'),
-('8','Max8', 'Mustermann8', 'Max@Mustermann8.de', '1', '8', 'MaxMustermann8'),
-('9','Max9', 'Mustermann9', 'Max@Mustermann9.de', '1', '9', 'MaxMustermann9'),
-('10','Max10', 'Mustermann10', 'Max@Mustermann10.de', '0', '10', 'MaxMustermann10'),
-('11','Max11', 'Mustermann11', 'Max@Mustermann11.de', '0', '11', 'MaxMustermann11'),
-('12','Max12', 'Mustermann12', 'Max@Mustermann12.de', '0', '12', 'MaxMustermann12'),
-('13','Max13', 'Mustermann13', 'Max@Mustermann13.de', '0', '13', 'MaxMustermann13'),
-('14','Max14', 'Mustermann14', 'Max@Mustermann14.de', '0', '14', 'MaxMustermann14'),
-('15','Max15', 'Mustermann15', 'Max@Mustermann15.de', '0', '15', 'MaxMustermann15'),
-('16','Max16', 'Mustermann16', 'Max@Mustermann16.de', '0', '16', 'MaxMustermann16'),
-('17','Max17', 'Mustermann17', 'Max@Mustermann17.de', '0', '17', 'MaxMustermann17'),
-('18','Max18', 'Mustermann18', 'Max@Mustermann18.de', '0', '18', 'MaxMustermann18'),
-('19','Max19', 'Mustermann19', 'Max@Mustermann19.de', '0', '19', 'MaxMustermann19'),
-('20','Max20', 'Mustermann20', 'Max@Mustermann20.de', '0', '20', 'MaxMustermann20'),
-('21','Max21', 'Mustermann21', 'Max@Mustermann21.de', '0', '21', 'MaxMustermann21'),
-('22','Max22', 'Mustermann22', 'Max@Mustermann22.de', '0', '22', 'MaxMustermann22'),
-('23','Max23', 'Mustermann23', 'Max@Mustermann23.de', '0', '23', 'MaxMustermann23'),
-('24','Max24', 'Mustermann24', 'Max@Mustermann24.de', '0', '24', 'MaxMustermann24'),
-('25','Max25', 'Mustermann25', 'Max@Mustermann25.de', '0', '25', 'MaxMustermann25'),
-('26','Max26', 'Mustermann26', 'Max@Mustermann26.de', '0', '26', 'MaxMustermann26'),
-('27','Max27', 'Mustermann27', 'Max@Mustermann27.de', '0', '27', 'MaxMustermann27'),
-('28','Max28', 'Mustermann28', 'Max@Mustermann28.de', '0', '28', 'MaxMustermann28'),
-('29','Max29', 'Mustermann29', 'Max@Mustermann29.de', '0', '29', 'MaxMustermann29'),
-('30','Max30', 'Mustermann30', 'Max@Mustermann30.de', '0', '30', 'MaxMustermann30'),
-('31','Max31', 'Mustermann31', 'Max@Mustermann31.de', '0', '31', 'MaxMustermann31'),
-('32','Max32', 'Mustermann32', 'Max@Mustermann32.de', '0', '32', 'MaxMustermann32'),
-('33','Max33', 'Mustermann33', 'Max@Mustermann33.de', '0', '33', 'MaxMustermann33'),
-('34','Max34', 'Mustermann34', 'Max@Mustermann34.de', '0', '34', 'MaxMustermann34'),
-('35','Max35', 'Mustermann35', 'Max@Mustermann35.de', '0', '35', 'MaxMustermann35'),
-('36','Max36', 'Mustermann36', 'Max@Mustermann36.de', '0', '36', 'MaxMustermann36'),
-('37','Max37', 'Mustermann37', 'Max@Mustermann37.de', '0', '37', 'MaxMustermann37'),
-('38','Max38', 'Mustermann38', 'Max@Mustermann38.de', '0', '38', 'MaxMustermann38'),
-('39','Max39', 'Mustermann39', 'Max@Mustermann39.de', '0', '39', 'MaxMustermann39'),
-('40','Max40', 'Mustermann40', 'Max@Mustermann40.de', '0', '40', 'MaxMustermann40');
+('1','Max1', 'Mustermann1', 'Max@Mustermann1.de', '1', '1', 'MaxMustermann1','https://api.learning-layers.eu/profile.png'),
+('2','Max2', 'Mustermann2', 'Max@Mustermann2.de', '1', '2', 'MaxMustermann2','https://api.learning-layers.eu/profile.png'),
+('3','Max3', 'Mustermann3', 'Max@Mustermann3.de', '1', '3', 'MaxMustermann3','https://api.learning-layers.eu/profile.png'),
+('4','Max4', 'Mustermann4', 'Max@Mustermann4.de', '1', '4', 'MaxMustermann4','https://api.learning-layers.eu/profile.png'),
+('5','Max5', 'Mustermann5', 'Max@Mustermann5.de', '1', '5', 'MaxMustermann5','https://api.learning-layers.eu/profile.png'),
+('6','Max6', 'Mustermann6', 'Max@Mustermann6.de', '1', '6', 'MaxMustermann6','https://api.learning-layers.eu/profile.png'),
+('7','Max7', 'Mustermann7', 'Max@Mustermann7.de', '1', '7', 'MaxMustermann7','https://api.learning-layers.eu/profile.png'),
+('8','Max8', 'Mustermann8', 'Max@Mustermann8.de', '1', '8', 'MaxMustermann8','https://api.learning-layers.eu/profile.png'),
+('9','Max9', 'Mustermann9', 'Max@Mustermann9.de', '1', '9', 'MaxMustermann9','https://api.learning-layers.eu/profile.png'),
+('10','Max10', 'Mustermann10', 'Max@Mustermann10.de', '0', '10', 'MaxMustermann10','https://api.learning-layers.eu/profile.png'),
+('11','Max11', 'Mustermann11', 'Max@Mustermann11.de', '0', '11', 'MaxMustermann11','https://api.learning-layers.eu/profile.png'),
+('12','Max12', 'Mustermann12', 'Max@Mustermann12.de', '0', '12', 'MaxMustermann12','https://api.learning-layers.eu/profile.png'),
+('13','Max13', 'Mustermann13', 'Max@Mustermann13.de', '0', '13', 'MaxMustermann13','https://api.learning-layers.eu/profile.png'),
+('14','Max14', 'Mustermann14', 'Max@Mustermann14.de', '0', '14', 'MaxMustermann14','https://api.learning-layers.eu/profile.png'),
+('15','Max15', 'Mustermann15', 'Max@Mustermann15.de', '0', '15', 'MaxMustermann15','https://api.learning-layers.eu/profile.png'),
+('16','Max16', 'Mustermann16', 'Max@Mustermann16.de', '0', '16', 'MaxMustermann16','https://api.learning-layers.eu/profile.png'),
+('17','Max17', 'Mustermann17', 'Max@Mustermann17.de', '0', '17', 'MaxMustermann17','https://api.learning-layers.eu/profile.png'),
+('18','Max18', 'Mustermann18', 'Max@Mustermann18.de', '0', '18', 'MaxMustermann18','https://api.learning-layers.eu/profile.png'),
+('19','Max19', 'Mustermann19', 'Max@Mustermann19.de', '0', '19', 'MaxMustermann19','https://api.learning-layers.eu/profile.png'),
+('20','Max20', 'Mustermann20', 'Max@Mustermann20.de', '0', '20', 'MaxMustermann20','https://api.learning-layers.eu/profile.png'),
+('21','Max21', 'Mustermann21', 'Max@Mustermann21.de', '0', '21', 'MaxMustermann21','https://api.learning-layers.eu/profile.png'),
+('22','Max22', 'Mustermann22', 'Max@Mustermann22.de', '0', '22', 'MaxMustermann22','https://api.learning-layers.eu/profile.png'),
+('23','Max23', 'Mustermann23', 'Max@Mustermann23.de', '0', '23', 'MaxMustermann23','https://api.learning-layers.eu/profile.png'),
+('24','Max24', 'Mustermann24', 'Max@Mustermann24.de', '0', '24', 'MaxMustermann24','https://api.learning-layers.eu/profile.png'),
+('25','Max25', 'Mustermann25', 'Max@Mustermann25.de', '0', '25', 'MaxMustermann25','https://api.learning-layers.eu/profile.png'),
+('26','Max26', 'Mustermann26', 'Max@Mustermann26.de', '0', '26', 'MaxMustermann26','https://api.learning-layers.eu/profile.png'),
+('27','Max27', 'Mustermann27', 'Max@Mustermann27.de', '0', '27', 'MaxMustermann27','https://api.learning-layers.eu/profile.png'),
+('28','Max28', 'Mustermann28', 'Max@Mustermann28.de', '0', '28', 'MaxMustermann28','https://api.learning-layers.eu/profile.png'),
+('29','Max29', 'Mustermann29', 'Max@Mustermann29.de', '0', '29', 'MaxMustermann29','https://api.learning-layers.eu/profile.png'),
+('30','Max30', 'Mustermann30', 'Max@Mustermann30.de', '0', '30', 'MaxMustermann30','https://api.learning-layers.eu/profile.png'),
+('31','Max31', 'Mustermann31', 'Max@Mustermann31.de', '0', '31', 'MaxMustermann31','https://api.learning-layers.eu/profile.png'),
+('32','Max32', 'Mustermann32', 'Max@Mustermann32.de', '0', '32', 'MaxMustermann32','https://api.learning-layers.eu/profile.png'),
+('33','Max33', 'Mustermann33', 'Max@Mustermann33.de', '0', '33', 'MaxMustermann33','https://api.learning-layers.eu/profile.png'),
+('34','Max34', 'Mustermann34', 'Max@Mustermann34.de', '0', '34', 'MaxMustermann34','https://api.learning-layers.eu/profile.png'),
+('35','Max35', 'Mustermann35', 'Max@Mustermann35.de', '0', '35', 'MaxMustermann35','https://api.learning-layers.eu/profile.png'),
+('36','Max36', 'Mustermann36', 'Max@Mustermann36.de', '0', '36', 'MaxMustermann36','https://api.learning-layers.eu/profile.png'),
+('37','Max37', 'Mustermann37', 'Max@Mustermann37.de', '0', '37', 'MaxMustermann37','https://api.learning-layers.eu/profile.png'),
+('38','Max38', 'Mustermann38', 'Max@Mustermann38.de', '0', '38', 'MaxMustermann38','https://api.learning-layers.eu/profile.png'),
+('39','Max39', 'Mustermann39', 'Max@Mustermann39.de', '0', '39', 'MaxMustermann39','https://api.learning-layers.eu/profile.png'),
+('40','Max40', 'Mustermann40', 'Max@Mustermann40.de', '0', '40', 'MaxMustermann40','https://api.learning-layers.eu/profile.png'),
+('41',NULL, NULL, 'anonymous@requirements-bazaar.org', '0', '-1722613621014065292', 'anonymous','https://api.learning-layers.eu/profile.png');
+
 
 INSERT INTO `reqbaz`.`projects` 
 (`Id`,`name`, `description`, `visibility`, `Leader_Id`, `Default_Components_Id`) 
@@ -216,10 +218,6 @@ INSERT INTO `reqbaz`.`tags`
 (`Id`, `Components_Id`, `Requirements_Id`) 
 VALUES 
 ('1', '1', '1'),
-('2', '1', '1'),
-('3', '1', '1'),
-('4', '1', '1'),
-('5', '1', '1'),
 ('6', '1', '2'),
 ('7', '1', '3'),
 ('8', '2', '4'),
@@ -260,7 +258,67 @@ VALUES
 ('43', '5', '39'),
 ('44', '5', '40');
 
+INSERT INTO `roles` (`Id`, `name`) VALUES
+(1, 'Anonymous'),
+(2, 'LoggedInUser'),
+(3, 'ProjectAdmin'),
+(4, 'SystemAdmin');
 
+INSERT INTO `privileges` (`Id`, `name`) VALUES
+(1, 'Create_PROJECT'),
+(2, 'Read_PROJECT'),
+(3, 'Read_PUBLIC_PROJECT'),
+(4, 'Modify_PROJECT'),
+(5, 'Create_COMPONENT'),
+(6, 'Read_COMPONENT'),
+(7, 'Read_PUBLIC_COMPONENT'),
+(8, 'Modify_COMPONENT'),
+(9, 'Create_REQUIREMENT'),
+(10, 'Read_REQUIREMENT'),
+(11, 'Read_PUBLIC_REQUIREMENT'),
+(12, 'Modify_REQUIREMENT'),
+(13, 'Create_COMMENT'),
+(14, 'Read_COMMENT'),
+(15, 'Read_PUBLIC_COMMENT'),
+(16, 'Modify_COMMENT'),
+(17, 'Create_ATTACHMENT'),
+(18, 'Read_ATTACHMENT'),
+(19, 'Read_PUBLIC_ATTACHMENT'),
+(20, 'Modify_ATTACHMENT');
+
+INSERT INTO `role_privilege` (`Id`, `Roles_Id`, `Privileges_Id`) VALUES
+(1, 1, 3),
+(2, 1, 7),
+(3, 1, 11),
+(4, 1, 15),
+(5, 1, 19),
+(6, 4, 1),
+(7, 4, 2),
+(8, 4, 8),
+(9, 4, 7),
+(10, 4, 6),
+(11, 4, 5),
+(12, 4, 3),
+(13, 4, 4),
+(14, 4, 9),
+(15, 4, 10),
+(16, 4, 11),
+(17, 4, 12),
+(18, 4, 13),
+(19, 4, 14),
+(20, 4, 16),
+(21, 4, 17),
+(22, 4, 18),
+(23, 4, 19),
+(24, 4, 20);
+
+INSERT INTO `role_role` (`Id`, `Child_Id`, `Parent_Id`) VALUES
+(1, 2, 1),
+(2, 3, 2),
+(3, 4, 3);
+
+INSERT INTO `user_role` (`Id`, `Roles_Id`, `Users_Id`) VALUES
+(1, 1, 41);
 
 
 

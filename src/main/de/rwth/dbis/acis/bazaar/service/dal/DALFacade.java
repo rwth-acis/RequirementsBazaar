@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2014, RWTH Aachen University.
+ *  Copyright (c) 2015, RWTH Aachen University.
  *  For a list of contributors see the AUTHORS file at the top-level directory
  *  of this distribution.
  *
@@ -60,7 +60,7 @@ public interface DALFacade {
     public User getUserById(int userId) throws Exception;
 
 
-    public Integer getUserIdByLAS2PeerId(int las2PeerId) throws Exception;
+    public Integer getUserIdByLAS2PeerId(long las2PeerId) throws Exception;
     //endregion
 
     //region Project
@@ -77,7 +77,7 @@ public interface DALFacade {
      * @param userId   the identifier of the user, whose projects should be returned as well
      * @return all the public projects and all the projects, which the user is authorized to see
      */
-    public List<Project> listPublicAndAuthorizedProjects(PageInfo pageable, int userId) throws BazaarException;
+    public List<Project> listPublicAndAuthorizedProjects(PageInfo pageable, long userId) throws BazaarException;
 
     /**
      * @param searchTerm the text, which is used to search. Search is case insensitive.
@@ -107,6 +107,13 @@ public interface DALFacade {
      */
     public void modifyProject(Project modifiedProject) throws Exception;
 
+    /**
+     * Returns if a project is public or not
+     *
+     * @param projectId
+     * @return
+     */
+    boolean isProjectPublic(int projectId) throws BazaarException;
     //endregion
 
     //region Requirement
@@ -166,6 +173,14 @@ public interface DALFacade {
      */
     public void deleteRequirementById(int requirementId) throws Exception;
 
+
+    /**
+     * Returns true if requirement belongs to a public project
+     *
+     * @param requirementId
+     * @return
+     */
+    public boolean isRequirementPublic(int requirementId) throws BazaarException;
     //endregion
 
     //region Component
@@ -204,6 +219,14 @@ public interface DALFacade {
      * @param componentId for the component to be deleted
      */
     public void deleteComponentById(int componentId) throws Exception;
+
+    /**
+     * Returns true if component belongs to a public project
+     *
+     * @param projectId
+     * @return
+     */
+    public boolean isComponentPublic(int componentId) throws BazaarException;
 
     //endregion
 
@@ -282,36 +305,6 @@ public interface DALFacade {
 
     //endregion
 
-    //region Authorization
-
-    /**
-     * This method gives authorization right for a given project to a given user
-     *
-     * @param userId    the identifier of the user, whose access will be granted
-     * @param projectId the id of the project, what the user can see/edit
-     */
-    public void giveAuthorization(int userId, int projectId) throws BazaarException;
-
-    /**
-     * This method removes authorization right for a given project from a given user
-     *
-     * @param userId    the identifier of the user, whose access will be removed
-     * @param projectId the id of the project, what the user cannot see anymore
-     */
-    public void removeAuthorization(int userId, int projectId) throws BazaarException;
-
-
-    /**
-     * This method checks if a user has right to access to the project
-     *
-     * @param userId    the the identifier of the user, who wants to access a project
-     * @param projectId the id of the project we are looking in
-     * @return if the user has authorization
-     */
-    //TODO not only boolean, but different right levels? Admin, viewer, editor, etc.?
-    public boolean isAuthorized(int userId, int projectId) throws BazaarException;
-    //endregion
-
     //region Tag (Component >-< Requirement)
 
     /**
@@ -360,6 +353,24 @@ public interface DALFacade {
      * @return true if the user has voted for the requirement, false otherwise
      */
     public boolean hasUserVotedForRequirement(int userId, int requirementId) throws BazaarException;
+
+
+    /**
+     * This method returns all the roles and permissions for the given user
+     *
+     * @param userId the identifier of the user
+     * @return all the roles filled up with parents and permissions
+     */
+
+
+    //endregion
+
+    //region Authorization
+    public List<Role> getRolesByUserId(int userId, String context) throws BazaarException;
+
+    public List<Role> getParentsForRole(int roleId) throws BazaarException;
+
+    public void createPrivilegeIfNotExists(PrivilegeEnum privilege) throws BazaarException;
 
 
     //endregion

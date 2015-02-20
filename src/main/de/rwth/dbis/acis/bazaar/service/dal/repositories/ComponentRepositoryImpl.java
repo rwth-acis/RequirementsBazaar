@@ -21,7 +21,11 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Component;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachments;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentsRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.ComponentTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -70,5 +74,22 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
         }
 
         return entries;
+    }
+
+    @Override
+    public boolean belongsToPublicProject(int id) throws BazaarException {
+        try {
+
+            Integer countOfPublicProjects = jooq.selectCount()
+                    .from(transformator.getTable())
+                    .join(Projects.PROJECTS).on(Projects.PROJECTS.ID.eq(COMPONENTS.PROJECT_ID))
+                    .where(transformator.getTableId().eq(id).and(Projects.PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar())))
+                    .fetchOne(0, int.class);
+
+            return (countOfPublicProjects == 1);
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return false;
     }
 }

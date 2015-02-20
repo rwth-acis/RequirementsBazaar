@@ -27,7 +27,8 @@ package de.rwth.dbis.acis.bazaar.service.exception;
 public enum ErrorCode {
     UNKNOWN("000", "Unknown, unexpected exception occurred"),
     VALIDATION("001", "Constraint validation failed."),
-    CANNOTDELETE("002", "The item cannot be deleted");
+    CANNOTDELETE("002", "The item cannot be deleted"),
+    AUTHORIZATION("003", "This user is not authorized to use this method.");
 
     private final String code;
     private final String message;

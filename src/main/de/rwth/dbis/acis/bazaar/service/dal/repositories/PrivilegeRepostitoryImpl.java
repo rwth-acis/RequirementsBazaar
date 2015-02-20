@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2014, RWTH Aachen University.
+ *  Copyright (c) 2015, RWTH Aachen University.
  *  For a list of contributors see the AUTHORS file at the top-level directory
  *  of this distribution.
  *
@@ -20,39 +20,38 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformator;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Privilege;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privileges;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.PrivilegesRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolesRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.PrivilegeTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privileges.PRIVILEGES;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/23/2014
+ * @since 2/18/2015
  */
-public class UserRepositoryImpl extends RepositoryImpl<User, UsersRecord> implements UserRepository {
-    /**
-     * @param jooq DSLContext for JOOQ connection
-     */
-    public UserRepositoryImpl(DSLContext jooq) {
-        super(jooq, new UserTransformator());
+public class PrivilegeRepostitoryImpl extends RepositoryImpl<Privilege, PrivilegesRecord> implements PrivilegeRepostitory {
+    public PrivilegeRepostitoryImpl(DSLContext jooq) {
+        super(jooq, new PrivilegeTransformator());
     }
 
     @Override
-    public Integer getIdByLas2PeerId(long las2PeerId) throws BazaarException {
-        Integer id = null;
+    public Privilege findByName(String privilegeName) throws BazaarException {
+        PrivilegesRecord privilege = null;
         try {
-            id =jooq.selectFrom(USERS).where(USERS.LAS2PEER_ID.equal(las2PeerId)).fetchOne(USERS.ID);
+            privilege =jooq.selectFrom(PRIVILEGES).where(PRIVILEGES.NAME.equal(privilegeName)).fetchOne();
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
 
-        return id;
+        return privilege == null ? null : new PrivilegeTransformator().mapToEntity(privilege);
     }
 }

@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2014, RWTH Aachen University.
+ *  Copyright (c) 2015, RWTH Aachen University.
  *  For a list of contributors see the AUTHORS file at the top-level directory
  *  of this distribution.
  *
@@ -20,15 +20,18 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Authorization;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+
+import java.util.List;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/22/2014
+ * @since 2/17/2015
  */
-public interface AuthorizationRepository extends Repository<Authorization> {
-    void delete(int userId, int projectId) throws BazaarException;
+public interface RoleRepostitory extends Repository<Role>{
+    List<Role> listParentsForRole(int roleId) throws BazaarException;
 
-    boolean isAuthorized(int userId, int projectId) throws BazaarException;
+    List<Role> listRolesOfUser(int userId, String context) throws BazaarException;
 }

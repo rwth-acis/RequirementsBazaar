@@ -68,7 +68,7 @@ public enum ExceptionHandler {
         return gson.toJson(exception);
     }
 
-    public <T> void handleViolations(List<Violation> violations) throws BazaarException {
+    public void handleViolations(List<Violation> violations) throws BazaarException {
         BazaarException bazaarException = new BazaarException(ExceptionLocation.BAZAARSERVICE);
         bazaarException.setErrorCode(ErrorCode.VALIDATION);
         StringBuilder builder = new StringBuilder();
@@ -77,6 +77,13 @@ public enum ExceptionHandler {
         }
 
         bazaarException.setMessage(builder.toString());
+        throw bazaarException;
+    }
+
+    public void throwException(ExceptionLocation location, ErrorCode errorCode, String message) throws BazaarException {
+        BazaarException bazaarException = new BazaarException(location);
+        bazaarException.setErrorCode(errorCode);
+        bazaarException.setMessage(message);
         throw bazaarException;
     }
 }

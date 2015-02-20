@@ -37,6 +37,8 @@ public interface RequirementRepository extends Repository<Requirement> {
 
     List<Requirement> findAllByComponent(int componentId, Pageable pageable) throws BazaarException;
 
+    public boolean belongsToPublicProject(int id) throws BazaarException;
+
     @Override
     RequirementEx findById(int id) throws Exception;
 }
