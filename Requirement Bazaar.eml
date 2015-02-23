@@ -42,4 +42,81 @@
 	<lib name="jodd-vtor-3.6.1.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jodd-vtor-3.6.1.jar!/"/>
 	</lib>
+	<lib name="activation-1.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/activation-1.1.jar!/"/>
+	</lib>
+	<lib name="ant-junit-1.6.5.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/ant-junit-1.6.5.jar!/"/>
+	</lib>
+	<lib name="bcprov-jdk15on-1.50.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/bcprov-jdk15on-1.50.jar!/"/>
+	</lib>
+	<lib name="commons-codec-1.9.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/commons-codec-1.9.jar!/"/>
+	</lib>
+	<lib name="commons-lang3-3.3.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/commons-lang3-3.3.1.jar!/"/>
+	</lib>
+	<lib name="FreePastry-2.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/FreePastry-2.1.jar!/"/>
+	</lib>
+	<lib name="i5-httpServer-0.4.jar" scope="COMPILE">
+		<srcroot url="jar://$MODULE_DIR$/lib/i5-httpServer-0.4.jar!/"/>
+		<relative-module-src project-related="jar://$PROJECT_DIR$/lib/i5-httpServer-0.4.jar!/"/>
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/i5-httpServer-0.4.jar!/"/>
+	</lib>
+	<lib name="i5-simpleXML-0.2.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/i5-simpleXML-0.2.jar!/"/>
+	</lib>
+	<lib name="integration-1.6.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/integration-1.6.1.jar!/"/>
+	</lib>
+	<lib name="jcip-annotations-1.0.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jcip-annotations-1.0.jar!/"/>
+	</lib>
+	<lib name="jdbc-api-1.4.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jdbc-api-1.4.jar!/"/>
+	</lib>
+	<lib name="jooq-codegen-3.4.2.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jooq-codegen-3.4.2.jar!/"/>
+	</lib>
+	<lib name="jooq-meta-3.4.2.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jooq-meta-3.4.2.jar!/"/>
+	</lib>
+	<lib name="json-simple-1.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/json-simple-1.1.jar!/"/>
+	</lib>
+	<lib name="json-smart-1.1.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/json-smart-1.1.1.jar!/"/>
+	</lib>
+	<lib name="lang-tag-1.4.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/lang-tag-1.4.jar!/"/>
+	</lib>
+	<lib name="mail-1.4.7.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/mail-1.4.7.jar!/"/>
+	</lib>
+	<lib name="nestedvm-1.0.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/nestedvm-1.0.jar!/"/>
+	</lib>
+	<lib name="nimbus-jose-jwt-2.26.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/nimbus-jose-jwt-2.26.jar!/"/>
+	</lib>
+	<lib name="oauth2-oidc-sdk-3.3.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/oauth2-oidc-sdk-3.3.jar!/"/>
+	</lib>
+	<lib name="persistence-api-1.0.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/persistence-api-1.0.jar!/"/>
+	</lib>
+	<lib name="slf4j-api-1.6.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/slf4j-api-1.6.1.jar!/"/>
+	</lib>
+	<lib name="validation-api-1.1.0.Alpha1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/validation-api-1.1.0.Alpha1.jar!/"/>
+	</lib>
+	<lib name="xpp3-1.1.4c.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/xpp3-1.1.4c.jar!/"/>
+	</lib>
+	<lib name="hamcrest-all-1.3.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/hamcrest-all-1.3.jar!/"/>
+	</lib>
 </component>
