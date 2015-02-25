@@ -60,6 +60,7 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
                 .lastName(record.getLastName())
                 .las2peerId(record.getLas2peerId())
                 .profileImage(record.getProfileImage())
+                .userName(record.getUserName())
                 .build();
     }
 
