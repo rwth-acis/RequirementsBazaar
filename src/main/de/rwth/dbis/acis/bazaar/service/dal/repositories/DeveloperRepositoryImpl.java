@@ -22,15 +22,22 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Developer;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.DevelopersRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.DeveloperTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.UpdateSetFirstStep;
+import org.jooq.UpdateSetMoreStep;
 import org.jooq.exception.DataAccessException;
 
+import java.util.Map;
+
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Developers.DEVELOPERS;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Votes.VOTES;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -52,6 +59,42 @@ public class DeveloperRepositoryImpl extends RepositoryImpl<Developer, Developer
                     .execute();
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+    }
+
+    @Override
+    public boolean hasUserAlreadyDevelops(int userId, int requirementId) throws BazaarException {
+        int execute = 0;
+        try {
+            execute = jooq.selectFrom(DEVELOPERS)
+                    .where(DEVELOPERS.USER_ID.equal(userId).and(DEVELOPERS.REQUIREMENT_ID.equal(requirementId)))
+                    .execute();
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return execute > 0;
+    }
+
+    @Override
+    public void addOrUpdate(Developer developer) throws BazaarException {
+        if (hasUserAlreadyDevelops(developer.getUserId(), developer.getRequirementId())){
+            UpdateSetFirstStep<DevelopersRecord> update = jooq.update(transformator.getTable());
+            Map<Field, Object> map = transformator.getUpdateMap(developer);
+            UpdateSetMoreStep moreStep = null;
+            for (Map.Entry<Field, Object> item : map.entrySet()) {
+                Field key = item.getKey();
+                Object value = item.getValue();
+                if(moreStep == null)
+                    moreStep = update.set(key, value);
+                else
+                    moreStep.set(key,value);
+            }
+            assert moreStep != null;
+            moreStep.where(DEVELOPERS.USER_ID.equal(developer.getUserId()).and(DEVELOPERS.REQUIREMENT_ID.equal(developer.getRequirementId())))
+                    .execute();
+        }
+        else {
+            this.add(developer);
         }
     }
 }

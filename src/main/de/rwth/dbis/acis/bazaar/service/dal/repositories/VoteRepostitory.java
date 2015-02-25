@@ -31,4 +31,6 @@ public interface VoteRepostitory extends Repository<Vote> {
     void delete(int userId, int requirementId) throws BazaarException;
 
     boolean hasUserVotedForRequirement(int userId, int requirementId) throws BazaarException;
+
+    void addOrUpdate(Vote vote) throws BazaarException;
 }

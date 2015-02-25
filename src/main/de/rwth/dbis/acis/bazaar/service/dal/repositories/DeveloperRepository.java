@@ -29,4 +29,8 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
  */
 public interface DeveloperRepository extends Repository<Developer> {
     void delete(int userId, int requirementId) throws BazaarException;
+
+    boolean hasUserAlreadyDevelops(int userId, int requirementId) throws BazaarException;
+
+    void addOrUpdate(Developer developer) throws BazaarException;
 }
