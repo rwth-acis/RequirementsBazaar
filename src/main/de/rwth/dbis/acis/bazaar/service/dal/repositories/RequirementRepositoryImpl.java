@@ -167,26 +167,12 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
             //Filling up Creator
             builder.creator(
-                    User.geBuilder(queryResult.getValues(creatorUser.EMAIL).get(0))
-                            .id(queryResult.getValues(creatorUser.ID).get(0))
-                            .admin(queryResult.getValues(creatorUser.ADMIN).get(0) != 0)
-                            .firstName(queryResult.getValues(creatorUser.FIRST_NAME).get(0))
-                            .lastName(queryResult.getValues(creatorUser.LAST_NAME).get(0))
-                            .las2peerId(queryResult.getValues(creatorUser.LAS2PEER_ID).get(0))
-                            .userName(queryResult.getValues(creatorUser.USER_NAME).get(0))
-                            .build()
+                    getUserFromRecords(creatorUser, queryResult)
             );
 
             //Filling up LeadDeveloper
             builder.leadDeveloper(
-                    User.geBuilder(queryResult.getValues(leadDeveloperUser.EMAIL).get(0))
-                            .id(queryResult.getValues(leadDeveloperUser.ID).get(0))
-                            .admin(queryResult.getValues(leadDeveloperUser.ADMIN).get(0) != 0)
-                            .firstName(queryResult.getValues(leadDeveloperUser.FIRST_NAME).get(0))
-                            .lastName(queryResult.getValues(leadDeveloperUser.LAST_NAME).get(0))
-                            .las2peerId(queryResult.getValues(leadDeveloperUser.LAS2PEER_ID).get(0))
-                            .userName(queryResult.getValues(leadDeveloperUser.USER_NAME).get(0))
-                            .build()
+                    getUserFromRecords(leadDeveloperUser, queryResult)
             );
 
             //Filling up developers list
@@ -195,14 +181,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 if (entry.getKey() == null) continue;
                 Result<Record> records = entry.getValue();
                 devList.add(
-                        User.geBuilder(records.getValues(developerUsers.EMAIL).get(0))
-                                .id(records.getValues(developerUsers.ID).get(0))
-                                .admin(records.getValues(developerUsers.ADMIN).get(0) != 0)
-                                .firstName(records.getValues(developerUsers.FIRST_NAME).get(0))
-                                .lastName(records.getValues(developerUsers.LAST_NAME).get(0))
-                                .las2peerId(records.getValues(developerUsers.LAS2PEER_ID).get(0))
-                                .userName(records.getValues(developerUsers.USER_NAME).get(0))
-                                .build()
+                        getUserFromRecords(developerUsers, records)
                 );
             }
             builder.developers(devList);
@@ -213,14 +192,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 if (entry.getKey() == null) continue;
                 Result<Record> records = entry.getValue();
                 followers.add(
-                        User.geBuilder(records.getValues(followerUsers.EMAIL).get(0))
-                                .id(records.getValues(followerUsers.ID).get(0))
-                                .admin(records.getValues(followerUsers.ADMIN).get(0) != 0)
-                                .firstName(records.getValues(followerUsers.FIRST_NAME).get(0))
-                                .lastName(records.getValues(followerUsers.LAST_NAME).get(0))
-                                .las2peerId(records.getValues(followerUsers.LAS2PEER_ID).get(0))
-                                .userName(records.getValues(followerUsers.USER_NAME).get(0))
-                                .build()
+                        getUserFromRecords(followerUsers, records)
                 );
             }
             builder.followers(followers);
@@ -233,14 +205,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 if (entry.getKey() == null) continue;
                 Result<Record> records = entry.getValue();
                 contributorList.add(
-                        User.geBuilder(records.getValues(contributorUsers.EMAIL).get(0))
-                                .id(records.getValues(contributorUsers.ID).get(0))
-                                .admin(records.getValues(contributorUsers.ADMIN).get(0) != 0)
-                                .firstName(records.getValues(contributorUsers.FIRST_NAME).get(0))
-                                .lastName(records.getValues(contributorUsers.LAST_NAME).get(0))
-                                .las2peerId(records.getValues(contributorUsers.LAS2PEER_ID).get(0))
-                                .userName(records.getValues(contributorUsers.USER_NAME).get(0))
-                                .build()
+                        getUserFromRecords(contributorUsers, records)
                 );
             }
 
@@ -299,5 +264,17 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return requirementEx;
+    }
+
+    private User getUserFromRecords(Users creatorUser, Result<Record> queryResult) {
+        return User.geBuilder(queryResult.getValues(creatorUser.EMAIL).get(0))
+                .id(queryResult.getValues(creatorUser.ID).get(0))
+                .admin(queryResult.getValues(creatorUser.ADMIN).get(0) != 0)
+                .firstName(queryResult.getValues(creatorUser.FIRST_NAME).get(0))
+                .lastName(queryResult.getValues(creatorUser.LAST_NAME).get(0))
+                .las2peerId(queryResult.getValues(creatorUser.LAS2PEER_ID).get(0))
+                .userName(queryResult.getValues(creatorUser.USER_NAME).get(0))
+                .profileImage(queryResult.getValues(creatorUser.PROFILE_IMAGE).get(0))
+                .build();
     }
 }
