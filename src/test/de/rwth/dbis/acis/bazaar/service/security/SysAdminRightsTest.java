@@ -21,52 +21,45 @@
 package de.rwth.dbis.acis.bazaar.service.security;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import de.rwth.dbis.acis.bazaar.service.BazaarRequestParams;
 import de.rwth.dbis.acis.bazaar.service.TestBase;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
-import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
-import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
-import i5.las2peer.persistency.MalformedXMLException;
-import i5.las2peer.security.UserAgent;
 import i5.las2peer.testing.MockAgentFactory;
 import i5.las2peer.webConnector.client.ClientResponse;
 import i5.las2peer.webConnector.client.MiniClient;
-
+import jdk.nashorn.internal.parser.JSONParser;
 import org.hamcrest.Matchers;
-import org.hamcrest.Matchers.*;
-import org.junit.*;
-import org.junit.runner.Request;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-
-
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 2/22/2015
+ * @since 2/24/2015
  */
-public class AnonymUserRightsTest extends TestBase {
-
+public class SysAdminRightsTest extends TestBase {
     @BeforeClass
     public static void startServer() throws Exception {
-        //testPass = "evespass";
-        testAgent = MockAgentFactory.getAnonymous();
+        testPass = "evespass";
+        testAgent = MockAgentFactory.getEve();
         TestBase.startServer();
     }
 
     @Override
     protected void login(MiniClient c) throws UnsupportedEncodingException {
-        //super.login(c);
+        super.login(c);
     }
-
-
 
     @Test
     public void test_getProjects() {
@@ -75,7 +68,7 @@ public class AnonymUserRightsTest extends TestBase {
         List<Project> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Project>>() {
         }.getType());
         assertThat(projectList, hasItem(Matchers.<Project>hasProperty("id", equalTo(1))));
-        assertThat(projectList, not(hasItem(Matchers.<Project>hasProperty("id", equalTo(2)))));
+        assertThat(projectList, hasItem(Matchers.<Project>hasProperty("id", equalTo(2))));
     }
 
     @Test
@@ -98,11 +91,15 @@ public class AnonymUserRightsTest extends TestBase {
             put("projectId", String.valueOf(2));
         }});
         ClientResponse response = super.test_getProject(params);
-        assertAccessDenied(response);
+        assertThat(response,is(notNullValue()));
+        Project project = new Gson().fromJson(response.getResponse(), Project.class);
+        assertThat(project.getId(), is(2));
+        assertThat(project.getName(), is("PrivateTestProject"));
     }
 
     @Test
-    public void test_createComponents( ){
+    @Ignore
+    public void test_createAndDeleteComponents( ){
         BazaarRequestParams params = new BazaarRequestParams();
         Component component = Component.getBuilder("TestCreateComponent").id(901).description("hello").projectId(1).build();
         params.setContentParam(new Gson().toJson(component));
@@ -110,7 +107,23 @@ public class AnonymUserRightsTest extends TestBase {
             put("projectId", String.valueOf(1));
         }});
         ClientResponse response = super.test_createComponent(params);
-        assertAccessDenied(response);
+        assertThat(response,is(notNullValue()));
+        JsonObject userDataJson = new JsonParser().parse(response.getResponse()).getAsJsonObject();
+        Integer insertedId= userDataJson.getAsJsonPrimitive("id").getAsInt();
+        assertThat(insertedId,is(901));
+
+        //Delete it
+
+        params = new BazaarRequestParams();
+        params.setQueryParams(new HashMap<String, String>() {{
+            put("projectId", String.valueOf(2));
+            put("componentId", String.valueOf(901));
+        }});
+        response = super.test_deleteComponent(params);
+        assertThat(response,is(notNullValue()));
+        userDataJson = new JsonParser().parse(response.getResponse()).getAsJsonObject();
+        Boolean success = userDataJson.getAsJsonPrimitive("success").getAsBoolean();
+        assertThat(success,is(true));
     }
 
     @Test
@@ -122,8 +135,8 @@ public class AnonymUserRightsTest extends TestBase {
         ClientResponse response = super.test_getComponents(params);
         assertThat(response, is(notNullValue()));
         List<Component> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Component>>() {}.getType());
+        assertThat(projectList, hasSize(1));
         assertThat(projectList, hasItem(Matchers.<Component>hasProperty("id", equalTo(1))));
-        assertThat(projectList, not(hasItem(Matchers.<Component>hasProperty("id", equalTo(2)))));
     }
 
     @Test
@@ -133,21 +146,14 @@ public class AnonymUserRightsTest extends TestBase {
             put("projectId", String.valueOf(2));
         }});
         ClientResponse response = super.test_getComponents(params);
-        assertAccessDenied(response);
+        assertThat(response, is(notNullValue()));
+        List<Component> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Component>>() {}.getType());
+        assertThat(projectList, hasSize(1));
+        assertThat(projectList, hasItem(Matchers.<Component>hasProperty("id", equalTo(2))));
     }
 
     @Test
-    public void test_deleteComponent() {
-        BazaarRequestParams params = new BazaarRequestParams();
-        params.setQueryParams(new HashMap<String, String>() {{
-            put("projectId", String.valueOf(2));
-            put("componentId", String.valueOf(2));
-        }});
-        ClientResponse response = super.test_deleteComponent(params);
-        assertAccessDenied(response);
-    }
-
-    @Test
+    @Ignore
     public void test_createRequirementPublicProject( ){
         BazaarRequestParams params = new BazaarRequestParams();
         Requirement requirement = Requirement.getBuilder("TestCreateReq").id(901).description("hello").projectId(1).build();
@@ -170,6 +176,7 @@ public class AnonymUserRightsTest extends TestBase {
         assertThat(response, is(notNullValue()));
         List<Component> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Component>>() {}.getType());
         assertThat(projectList, hasItem(Matchers.<Component>hasProperty("id", equalTo(1))));
+        assertThat(projectList, hasSize(1));
     }
 
     @Test
@@ -179,7 +186,10 @@ public class AnonymUserRightsTest extends TestBase {
             put("projectId", String.valueOf(2));
         }});
         ClientResponse response = super.test_getRequirementsByProject(params);
-        assertAccessDenied(response);
+        assertThat(response, is(notNullValue()));
+        List<Component> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Component>>() {}.getType());
+        assertThat(projectList, hasItem(Matchers.<Component>hasProperty("id", equalTo(2))));
+        assertThat(projectList, hasSize(1));
     }
 
     @Test
@@ -193,6 +203,7 @@ public class AnonymUserRightsTest extends TestBase {
         assertThat(response, is(notNullValue()));
         List<Component> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Component>>() {}.getType());
         assertThat(projectList, hasItem(Matchers.<Component>hasProperty("id", equalTo(1))));
+        assertThat(projectList, hasSize(1));
     }
 
     @Test
@@ -203,7 +214,10 @@ public class AnonymUserRightsTest extends TestBase {
             put("componentId", String.valueOf(2));
         }});
         ClientResponse response = super.test_getRequirementsByComponent(params);
-        assertAccessDenied(response);
+        assertThat(response, is(notNullValue()));
+        List<Component> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Component>>() {}.getType());
+        assertThat(projectList, hasItem(Matchers.<Component>hasProperty("id", equalTo(2))));
+        assertThat(projectList, hasSize(1));
     }
 
     @Test
@@ -230,10 +244,14 @@ public class AnonymUserRightsTest extends TestBase {
             put("requirementId", String.valueOf(2));
         }});
         ClientResponse response = super.test_getRequirement(params);
-        assertAccessDenied(response);
+        assertThat(response,is(notNullValue()));
+        RequirementEx requirementEx = new Gson().fromJson(response.getResponse(), RequirementEx.class);
+        assertThat(requirementEx.getId(), is(2));
+        assertThat(requirementEx.getTitle(), is("PrivateRequirement"));
     }
 
     @Test
+    @Ignore
     public void test_deleteRequirement() {
         BazaarRequestParams params = new BazaarRequestParams();
         params.setQueryParams(new HashMap<String, String>() {{
@@ -246,6 +264,7 @@ public class AnonymUserRightsTest extends TestBase {
     }
 
     @Test
+    @Ignore
     public void test_createComment( ){
         BazaarRequestParams params = new BazaarRequestParams();
         Comment comment = Comment.getBuilder("TestCommentText").id(901).requirementId(1).build();
@@ -270,6 +289,7 @@ public class AnonymUserRightsTest extends TestBase {
         ClientResponse response = super.test_getComments(params);
         assertThat(response, is(notNullValue()));
         List<Comment> comments = new Gson().fromJson(response.getResponse(), new TypeToken<List<Comment>>() {}.getType());
+        assertThat(comments, hasSize(1));
         assertThat(comments, hasItem(Matchers.<Comment>hasProperty("id", equalTo(1))));
     }
 
@@ -282,6 +302,11 @@ public class AnonymUserRightsTest extends TestBase {
             put("requirementId", String.valueOf(2));
         }});
         ClientResponse response = super.test_getComments(params);
-        assertAccessDenied(response);
+        assertThat(response, is(notNullValue()));
+        List<Comment> comments = new Gson().fromJson(response.getResponse(), new TypeToken<List<Comment>>() {
+        }.getType());
+        assertThat(comments, hasSize(1));
+        assertThat(comments, hasItem(Matchers.<Comment>hasProperty("id", equalTo(2))));
     }
+
 }

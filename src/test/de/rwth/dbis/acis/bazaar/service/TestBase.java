@@ -20,10 +20,16 @@
 
 package de.rwth.dbis.acis.bazaar.service;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import com.google.gson.Gson;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import i5.las2peer.p2p.LocalNode;
 import i5.las2peer.persistency.MalformedXMLException;
 import i5.las2peer.restMapper.data.Pair;
@@ -141,6 +147,12 @@ public abstract class TestBase {
         return c;
     }
 
+
+    protected void assertAccessDenied(ClientResponse response) {
+        assertThat(response,is(notNullValue()));
+        BazaarException bazaarException = new Gson().fromJson(response.getResponse(), BazaarException.class);
+        assertThat(bazaarException.getErrorCode(),is(ErrorCode.AUTHORIZATION));
+    }
 
     public ClientResponse test_addUserToDevelopers(BazaarRequestParams params) {
          MiniClient c = getClient();
