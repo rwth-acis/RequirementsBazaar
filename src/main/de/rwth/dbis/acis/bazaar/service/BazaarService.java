@@ -834,13 +834,14 @@ public class BazaarService extends Service {
             Gson gson = new Gson();
             Requirement requirementToCreate = gson.fromJson(requirement, Requirement.class);
             dalFacade = createConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+            requirementToCreate.setCreatorId(internalUserId);
 
             vtor.validate(requirementToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             vtor.validate(componentId);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-
-            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_REQUIREMENT, String.valueOf(requirementToCreate.getProjectId()), dalFacade);
             if (!authorized)
@@ -1630,7 +1631,7 @@ public class BazaarService extends Service {
      */
     @POST
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new attachment for a requirement.")
     @ApiResponses(value = {
