@@ -1093,11 +1093,12 @@ public class BazaarService extends Service {
         try {
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            if (internalUserId == null) {
-                resultJSON = "{\"success\" : \"false\",\"reason\":\"user not found\"}";
-            } else {
-                dalFacade.wantToDevelop(internalUserId, requirementId);
-            }
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_DEVELOP, dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Project members can develop");
+
+            dalFacade.wantToDevelop(internalUserId, requirementId);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -1141,11 +1142,12 @@ public class BazaarService extends Service {
         try {
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
-            if (internalUserId == null) {
-                resultJSON = "{\"success\" : \"false\",\"reason\":\"user not found\"}";
-            } else {
-                dalFacade.notWantToDevelop(internalUserId, requirementId);
-            }
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_DEVELOP, dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Project members can cancel to develop");
+
+            dalFacade.notWantToDevelop(internalUserId, requirementId);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -1207,11 +1209,12 @@ public class BazaarService extends Service {
         try {
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            if (internalUserId == null) {
-                resultJSON = "{\"success\" : \"false\",\"reason\":\"user not found\"}";
-            } else {
-                dalFacade.follow(internalUserId, requirementId);
-            }
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_FOLLOW, dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Project members can follow");
+
+            dalFacade.follow(internalUserId, requirementId);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -1255,11 +1258,12 @@ public class BazaarService extends Service {
         try {
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
-            if (internalUserId == null) {
-                resultJSON = "{\"success\" : \"false\",\"reason\":\"user not found\"}";
-            } else {
-                dalFacade.unFollow(internalUserId, requirementId);
-            }
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_FOLLOW, dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Project members can cancel following");
+
+            dalFacade.unFollow(internalUserId, requirementId);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -1309,11 +1313,12 @@ public class BazaarService extends Service {
 
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            if (internalUserId == null) {
-                resultJSON = "{\"success\" : \"false\",\"reason\":\"user not found\"}";
-            } else {
-                dalFacade.vote(internalUserId, requirementId, direction.equals("up"));
-            }
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_VOTE, dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Project members can vote");
+
+            dalFacade.vote(internalUserId, requirementId, direction.equals("up"));
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -1358,11 +1363,12 @@ public class BazaarService extends Service {
         try {
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
-            if (internalUserId == null) {
-                resultJSON = "{\"success\" : \"false\",\"reason\":\"user not found\"}";
-            } else {
-                dalFacade.unVote(internalUserId, requirementId);
-            }
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_VOTE, dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Project members can delete vote");
+
+            dalFacade.unVote(internalUserId, requirementId);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {

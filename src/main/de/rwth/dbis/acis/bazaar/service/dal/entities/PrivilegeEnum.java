@@ -48,5 +48,10 @@ public enum PrivilegeEnum {
     Create_ATTACHMENT,
     Read_ATTACHMENT,
     Read_PUBLIC_ATTACHMENT,
-    Modify_ATTACHMENT
+    Modify_ATTACHMENT,
+
+    Create_VOTE, Delete_VOTE,
+    Create_FOLLOW, Delete_FOLLOW,
+
+    Create_DEVELOP, Delete_DEVELOP,
 }

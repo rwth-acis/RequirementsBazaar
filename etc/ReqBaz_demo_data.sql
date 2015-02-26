@@ -284,7 +284,14 @@ INSERT INTO `privileges` (`Id`, `name`) VALUES
 (17, 'Create_ATTACHMENT'),
 (18, 'Read_ATTACHMENT'),
 (19, 'Read_PUBLIC_ATTACHMENT'),
-(20, 'Modify_ATTACHMENT');
+(20, 'Modify_ATTACHMENT'),
+(21, 'Create_VOTE'),
+(22, 'Delete_VOTE'),
+(23, 'Create_FOLLOW'),
+(24, 'Delete_FOLLOW'),
+(25, 'Create_DEVELOP'),
+(26, 'Delete_DEVELOP');
+	
 
 INSERT INTO `role_privilege` (`Id`, `Roles_Id`, `Privileges_Id`) VALUES
 (1, 1, 3),
@@ -310,7 +317,14 @@ INSERT INTO `role_privilege` (`Id`, `Roles_Id`, `Privileges_Id`) VALUES
 (21, 4, 17),
 (22, 4, 18),
 (23, 4, 19),
-(24, 4, 20);
+(24, 4, 20),
+(25, 4, 21),
+(26, 4, 22),
+(27, 4, 23),
+(28, 4, 24),
+(29, 4, 25),
+(30, 4, 26);
+
 
 INSERT INTO `role_role` (`Id`, `Child_Id`, `Parent_Id`) VALUES
 (1, 2, 1),
