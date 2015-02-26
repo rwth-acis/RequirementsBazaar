@@ -40,7 +40,7 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
     @Override
     public UsersRecord createRecord(User entity) {
         UsersRecord record = new UsersRecord();
-        record.setId(entity.getId());
+//        record.setId(entity.getId());
         record.setLas2peerId(entity.getLas2peerId());
         record.setAdmin((byte) (entity.getAdmin() ? 1 : 0));
         record.setEmail(entity.geteMail());
