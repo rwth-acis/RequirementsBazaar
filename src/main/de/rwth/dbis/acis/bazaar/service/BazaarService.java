@@ -163,13 +163,15 @@ public class BazaarService extends Service {
     private void registerUserAtFirstLogin() throws Exception {
         UserAgent agent = (UserAgent) getActiveAgent();
 
+        if (agent.getEmail() == null) agent.setEmail("NO.EMAIL@WARNING.COM");
+
         String profileImage = "https://api.learning-layers.eu/profile.png";
 
         //TODO how to check if the user is anonymous?
         if(agent.getLoginName().equals("anonymous")) {
             agent.setEmail("anonymous@requirements-bazaar.org");
         }
-        else {
+        else if (agent.getUserData() != null){
             JsonObject userDataJson = new JsonParser().parse(agent.getUserData().toString()).getAsJsonObject();
             String agentPicture= userDataJson.getAsJsonPrimitive("picture").getAsString();
             if (agentPicture != null && !agentPicture.isEmpty())
