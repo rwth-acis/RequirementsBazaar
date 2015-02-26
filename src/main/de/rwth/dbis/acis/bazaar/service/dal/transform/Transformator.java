@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord;
 import org.jooq.*;
 
 import java.util.Collection;
@@ -77,4 +78,6 @@ public interface Transformator<E, R extends Record> {
     Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection);
 
     Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception;
+
+
 }

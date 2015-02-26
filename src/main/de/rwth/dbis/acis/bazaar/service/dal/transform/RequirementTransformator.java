@@ -50,15 +50,19 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
         return record;
     }
 
-    @Override
-    public Requirement mapToEntity(RequirementsRecord record) {
+    public Requirement.Builder mapToEntityBuilder(RequirementsRecord record) {
         return Requirement.getBuilder(record.getTitle())
                 .description(record.getDescription())
                 .id(record.getId())
                 .creationTime(record.getCreationTime())
                 .leadDeveloperId(record.getLeadDeveloperId())
                 .projectId(record.getProjectId())
-                .creatorId(record.getCreatorId())
+                .creatorId(record.getCreatorId());
+    }
+
+    @Override
+    public Requirement mapToEntity(RequirementsRecord record) {
+        return mapToEntityBuilder(record)
                 .build();
     }
 
@@ -105,4 +109,7 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
                         .or(REQUIREMENTS.DESCRIPTION.likeIgnoreCase(likeExpression))
         );
     }
+
+
+
 }
