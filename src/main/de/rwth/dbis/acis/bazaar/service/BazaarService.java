@@ -724,7 +724,7 @@ public class BazaarService extends Service {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can see components.");
             }
 
-            List<Requirement> requirements = dalFacade.listRequirementsByProject(projectId, pageInfo);
+            List<Requirement> requirements = dalFacade.listRequirementsByProject(projectId, pageInfo, internalUserId);
             resultJSON = gson.toJson(requirements);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -786,7 +786,7 @@ public class BazaarService extends Service {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can see components.");
             }
 
-            List<Requirement> requirements = dalFacade.listRequirementsByComponent(componentId, pageInfo);
+            List<Requirement> requirements = dalFacade.listRequirementsByComponent(componentId, pageInfo, internalUserId);
             resultJSON = gson.toJson(requirements);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);

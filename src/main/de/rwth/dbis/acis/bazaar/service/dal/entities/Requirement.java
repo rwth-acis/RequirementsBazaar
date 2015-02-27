@@ -1,6 +1,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.UserVote;
 import jodd.vtor.constraint.*;
 
 
@@ -33,6 +34,7 @@ public class Requirement extends EntityBase {
 
     private final int upVotes;
     private final int downVotes;
+    private final UserVote userVoted;
 
     @Min(-1)
     private int creatorId;
@@ -82,6 +84,7 @@ public class Requirement extends EntityBase {
         this.creation_time = builder.creation_time;
         this.upVotes = builder.upVotes;
         this.downVotes = builder.downVotes;
+        this.userVoted = builder.userVoted;
     }
 
     /**
@@ -107,6 +110,7 @@ public class Requirement extends EntityBase {
         private Date creation_time;
         private int upVotes;
         private int downVotes;
+        public UserVote userVoted;
 
         public Builder(String title) {
             this.title = title;
@@ -166,6 +170,12 @@ public class Requirement extends EntityBase {
 
         public Builder downVotes(int downVotes) {
             this.downVotes = downVotes;
+            return this;
+        }
+
+        public Builder userVoted(UserVote userVoted)
+        {
+            this.userVoted=userVoted;
             return this;
         }
     }

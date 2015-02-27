@@ -22,6 +22,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.UserVote;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.*;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord;
@@ -52,7 +53,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     }
 
     @Override
-    public List<Requirement> findAllByProject(int projectId, Pageable pageable) throws BazaarException {
+    public List<Requirement> findAllByProject(int projectId, Pageable pageable, int userId) throws BazaarException {
         List<Requirement> entries = null;
         try {
             entries = new ArrayList<Requirement>();
@@ -83,15 +84,17 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     "req.`Lead_developer_Id`, " +
                     "req.`Creator_Id`, " +
                     "req.`Project_Id`, " +
-                    "    COUNT(nullif(votes.`is_upvote`, 0)) as `upVotes`, " +
-                    "    COUNT(nullif(votes.`is_upvote`, 1)) as `downVotes` " +
+                    "COUNT(nullif(votes.`is_upvote`, 0)) as `upVotes`, " +
+                    "COUNT(nullif(votes.`is_upvote`, 1)) as `downVotes` " +
+                    "userVotes.is_upvote as `userVoted` " +
                     "FROM `reqbaz`.`requirements` req " +
                     "LEFT OUTER JOIN Votes votes ON votes.Requirement_Id = req.Id " +
+                    "LEFT OUTER JOIN Votes userVotes ON userVotes.Requirement_Id = req.Id AND userVotes.User_Id = ? " +
                     "where req.Project_Id = ? " +
                     "GROUP BY req.Id " +
                     "ORDER BY req.CREATION_TIME " +
                     "LIMIT ? " +
-                    "OFFSET ?", projectId, pageable.getPageSize(), pageable.getOffset());
+                    "OFFSET ?",userId, projectId, pageable.getPageSize(), pageable.getOffset());
 
 
             for (Record queryResult : queryResults) {
@@ -99,6 +102,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 Requirement.Builder entryBuilder = ((RequirementTransformator)transformator).mapToEntityBuilder(requirementsRecord);
                 entryBuilder.upVotes(queryResult.getValue("upVotes", Integer.class));
                 entryBuilder.downVotes(queryResult.getValue("downVotes", Integer.class));
+                entryBuilder.userVoted(transformToUserVoted(queryResult.getValue("userVoted", Integer.class)));
                 entries.add(entryBuilder.build());
             }
         } catch (DataAccessException e) {
@@ -108,8 +112,20 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
         return entries;
     }
 
+    private UserVote transformToUserVoted(Integer userVotedInt) {
+        UserVote userVoted;
+        if (userVotedInt == null)
+            return UserVote.NO_VOTE;
+        switch (userVotedInt) {
+            case 0: userVoted = UserVote.DOWN_VOTE; break;
+            case 1: userVoted = UserVote.UP_VOTE; break;
+            default: userVoted = UserVote.NO_VOTE;
+        }
+        return userVoted;
+    }
+
     @Override
-    public List<Requirement> findAllByComponent(int componentId, Pageable pageable) throws BazaarException {
+    public List<Requirement> findAllByComponent(int componentId, Pageable pageable, int userId) throws BazaarException {
         List<Requirement> entries = null;
         try {
             entries = new ArrayList<Requirement>();
@@ -130,22 +146,25 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     "req.`Lead_developer_Id`,  " +
                     "req.`Creator_Id`,  " +
                     "req.`Project_Id`,  " +
-                    "    COUNT(nullif(votes.`is_upvote`, 0)) as `upVotes`, " +
-                    "    COUNT(nullif(votes.`is_upvote`, 1)) as `downVotes` " +
+                    "COUNT(nullif(votes.`is_upvote`, 0)) as `upVotes`, " +
+                    "COUNT(nullif(votes.`is_upvote`, 1)) as `downVotes`, " +
+                    "userVotes.is_upvote as `userVoted` " +
                     "FROM `reqbaz`.`requirements` req " +
                     "JOIN Tags tag ON tag.Requirements_Id = req.Id " +
                     "LEFT OUTER JOIN Votes votes ON votes.Requirement_Id = req.Id " +
+                    "LEFT OUTER JOIN Votes userVotes ON userVotes.Requirement_Id = req.Id AND userVotes.User_Id = ? " +
                     "where tag.Components_Id = ? " +
                     "GROUP BY req.Id " +
                     "ORDER BY req.CREATION_TIME, req.Id desc " +
                     "LIMIT ? " +
-                    "OFFSET ?",componentId, pageable.getPageSize(), pageable.getOffset());
+                    "OFFSET ?",userId,componentId, pageable.getPageSize(), pageable.getOffset());
 
             for (Record queryResult : queryResults) {
                 RequirementsRecord requirementsRecord = queryResult.into(RequirementsRecord.class);
                 Requirement.Builder entryBuilder = ((RequirementTransformator)transformator).mapToEntityBuilder(requirementsRecord);
                 entryBuilder.upVotes(queryResult.getValue("upVotes", Integer.class));
                 entryBuilder.downVotes(queryResult.getValue("downVotes", Integer.class));
+                entryBuilder.userVoted(transformToUserVoted(queryResult.getValue("userVoted", Integer.class)));
                 entries.add(entryBuilder.build());
             }
         } catch (DataAccessException e) {

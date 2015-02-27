@@ -33,9 +33,9 @@ import java.util.List;
  */
 public interface RequirementRepository extends Repository<Requirement> {
 
-    List<Requirement> findAllByProject(int projectId, Pageable pageable) throws BazaarException;
+    List<Requirement> findAllByProject(int projectId, Pageable pageable, int userId) throws BazaarException;
 
-    List<Requirement> findAllByComponent(int componentId, Pageable pageable) throws BazaarException;
+    List<Requirement> findAllByComponent(int componentId, Pageable pageable, int userId) throws BazaarException;
 
     public boolean belongsToPublicProject(int id) throws BazaarException;
 

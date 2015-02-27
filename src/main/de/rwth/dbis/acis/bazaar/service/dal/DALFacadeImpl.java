@@ -27,12 +27,8 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.repositories.*;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.PrivilegeEnumConverter;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
-import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
-import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
-import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.*;
 import org.jooq.impl.DSL;
-import org.jooq.impl.DefaultExecuteListener;
 
 import java.sql.Connection;
 import java.util.List;
@@ -169,15 +165,15 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public List<Requirement> listRequirementsByProject(int projectId, Pageable pageable) throws BazaarException {
+    public List<Requirement> listRequirementsByProject(int projectId, Pageable pageable, int userId) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
-        return requirementRepository.findAllByProject(projectId, pageable);
+        return requirementRepository.findAllByProject(projectId, pageable, userId);
     }
 
     @Override
-    public List<Requirement> listRequirementsByComponent(int componentId, Pageable pageable) throws BazaarException {
+    public List<Requirement> listRequirementsByComponent(int componentId, Pageable pageable, int userId) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
-        return requirementRepository.findAllByComponent(componentId, pageable);
+        return requirementRepository.findAllByComponent(componentId, pageable, userId);
     }
 
     @Override
@@ -248,7 +244,7 @@ public class DALFacadeImpl implements DALFacade {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
 
         //Get requirements for the component in question
-        List<Requirement> requirements = listRequirementsByComponent(componentId, new PageInfo(0, Integer.MAX_VALUE));
+        List<Requirement> requirements = listRequirementsByComponent(componentId, new PageInfo(0, Integer.MAX_VALUE), 0);
 
         // Get default component
         Component componentById = getComponentById(componentId);
