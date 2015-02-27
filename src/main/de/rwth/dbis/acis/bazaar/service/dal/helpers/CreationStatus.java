@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2014, RWTH Aachen University.
+ *  Copyright (c) 2015, RWTH Aachen University.
  *  For a list of contributors see the AUTHORS file at the top-level directory
  *  of this distribution.
  *
@@ -18,21 +18,14 @@
  * /
  */
 
-package de.rwth.dbis.acis.bazaar.service.dal.repositories;
-
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Developer;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Follower;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
-import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+package de.rwth.dbis.acis.bazaar.service.dal.helpers;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/22/2014
+ * @since 2/27/2015
  */
-public interface FollowerRepository extends Repository<Follower> {
-    public void delete(int userId, int requirementId) throws BazaarException;
-
-    boolean hasUserAlreadyFollows(int userId, int requirementId) throws BazaarException;
-
-    CreationStatus addOrUpdate(Follower follower) throws BazaarException;
+public enum CreationStatus {
+    CREATED,
+    CHANGED,
+    UNCHANGED
 }

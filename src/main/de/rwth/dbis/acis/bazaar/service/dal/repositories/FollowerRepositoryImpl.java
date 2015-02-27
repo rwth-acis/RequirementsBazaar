@@ -22,6 +22,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Developer;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Follower;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.FollowerTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -75,25 +76,17 @@ public class FollowerRepositoryImpl extends RepositoryImpl<Follower, FollowersRe
     }
 
     @Override
-    public void addOrUpdate(Follower follower) throws BazaarException {
-        if (hasUserAlreadyFollows(follower.getUserId(), follower.getRequirementId())){
-            UpdateSetFirstStep<FollowersRecord> update = jooq.update(transformator.getTable());
-            Map<Field, Object> map = transformator.getUpdateMap(follower);
-            UpdateSetMoreStep moreStep = null;
-            for (Map.Entry<Field, Object> item : map.entrySet()) {
-                Field key = item.getKey();
-                Object value = item.getValue();
-                if(moreStep == null)
-                    moreStep = update.set(key, value);
-                else
-                    moreStep.set(key,value);
-            }
-            assert moreStep != null;
-            moreStep.where(FOLLOWERS.USER_ID.equal(follower.getUserId()).and(FOLLOWERS.REQUIREMENT_ID.equal(follower.getRequirementId())))
-                    .execute();
+    public CreationStatus addOrUpdate(Follower follower) throws BazaarException {
+        FollowersRecord record = jooq.selectFrom(FOLLOWERS)
+                .where(FOLLOWERS.USER_ID.equal(follower.getUserId()).and(FOLLOWERS.REQUIREMENT_ID.equal(follower.getRequirementId())))
+                .fetchOne();
+
+        if (record != null){
+            return CreationStatus.UNCHANGED;
         }
         else {
             this.add(follower);
+            return CreationStatus.CREATED;
         }
     }
 }

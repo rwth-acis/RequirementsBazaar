@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Developer;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.DevelopersRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.DeveloperTransformator;
@@ -76,25 +77,17 @@ public class DeveloperRepositoryImpl extends RepositoryImpl<Developer, Developer
     }
 
     @Override
-    public void addOrUpdate(Developer developer) throws BazaarException {
-        if (hasUserAlreadyDevelops(developer.getUserId(), developer.getRequirementId())){
-            UpdateSetFirstStep<DevelopersRecord> update = jooq.update(transformator.getTable());
-            Map<Field, Object> map = transformator.getUpdateMap(developer);
-            UpdateSetMoreStep moreStep = null;
-            for (Map.Entry<Field, Object> item : map.entrySet()) {
-                Field key = item.getKey();
-                Object value = item.getValue();
-                if(moreStep == null)
-                    moreStep = update.set(key, value);
-                else
-                    moreStep.set(key,value);
-            }
-            assert moreStep != null;
-            moreStep.where(DEVELOPERS.USER_ID.equal(developer.getUserId()).and(DEVELOPERS.REQUIREMENT_ID.equal(developer.getRequirementId())))
-                    .execute();
+    public CreationStatus addOrUpdate(Developer developer) throws BazaarException {
+        DevelopersRecord record = jooq.selectFrom(DEVELOPERS)
+                .where(DEVELOPERS.USER_ID.equal(developer.getUserId()).and(DEVELOPERS.REQUIREMENT_ID.equal(developer.getRequirementId())))
+                .fetchOne();
+
+        if (record != null){
+            return CreationStatus.UNCHANGED;
         }
         else {
             this.add(developer);
+            return CreationStatus.CREATED;
         }
     }
 }

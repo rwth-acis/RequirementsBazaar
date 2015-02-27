@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Developer;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 /**
@@ -32,5 +33,5 @@ public interface DeveloperRepository extends Repository<Developer> {
 
     boolean hasUserAlreadyDevelops(int userId, int requirementId) throws BazaarException;
 
-    void addOrUpdate(Developer developer) throws BazaarException;
+    CreationStatus addOrUpdate(Developer developer) throws BazaarException;
 }

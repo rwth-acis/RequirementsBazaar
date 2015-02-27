@@ -22,6 +22,7 @@ package de.rwth.dbis.acis.bazaar.service;
 
 import com.google.gson.*;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -1088,7 +1089,7 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        String resultJSON = "{\"success\" : \"true\"}";
+        String resultJSON = "{}";
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
@@ -1098,7 +1099,10 @@ public class BazaarService extends Service {
             if (!authorized)
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Project members can develop");
 
-            dalFacade.wantToDevelop(internalUserId, requirementId);
+            CreationStatus creationStatus = dalFacade.wantToDevelop(internalUserId, requirementId);
+            JsonObject resultJsonObject = new JsonObject();
+            resultJsonObject.addProperty("status", String.valueOf(creationStatus));
+            resultJSON = resultJsonObject.toString();
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -1204,7 +1208,7 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        String resultJSON = "{\"success\" : \"true\"}";
+        String resultJSON = "{}";
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
@@ -1214,7 +1218,10 @@ public class BazaarService extends Service {
             if (!authorized)
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Project members can follow");
 
-            dalFacade.follow(internalUserId, requirementId);
+            CreationStatus creationStatus = dalFacade.follow(internalUserId, requirementId);
+            JsonObject resultJsonObject = new JsonObject();
+            resultJsonObject.addProperty("status", String.valueOf(creationStatus));
+            resultJSON = resultJsonObject.toString();
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -1304,7 +1311,7 @@ public class BazaarService extends Service {
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
         if(registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
-        String resultJSON = "{\"success\" : \"true\"}";
+        String resultJSON = "";
         try {
             if (!(direction.equals("up") || direction.equals("down"))) {
                 vtor.addViolation(new Violation("Direction can only be \"up\" or \"down\"", direction, direction));
@@ -1318,7 +1325,10 @@ public class BazaarService extends Service {
             if (!authorized)
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Project members can vote");
 
-            dalFacade.vote(internalUserId, requirementId, direction.equals("up"));
+            CreationStatus creationStatus = dalFacade.vote(internalUserId, requirementId, direction.equals("up"));
+            JsonObject resultJsonObject = new JsonObject();
+            resultJsonObject.addProperty("status", String.valueOf(creationStatus));
+            resultJSON = resultJsonObject.toString();
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {

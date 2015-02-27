@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.repositories.*;
@@ -301,9 +302,9 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public void follow(int userId, int requirementId) throws BazaarException {
+    public CreationStatus follow(int userId, int requirementId) throws BazaarException {
         followerRepository = (followerRepository != null) ? followerRepository : new FollowerRepositoryImpl(dslContext);
-        followerRepository.addOrUpdate(Follower.getBuilder()
+        return followerRepository.addOrUpdate(Follower.getBuilder()
                         .requirementId(requirementId)
                         .userId(userId)
                         .build()
@@ -317,9 +318,9 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public void wantToDevelop(int userId, int requirementId) throws BazaarException {
+    public CreationStatus wantToDevelop(int userId, int requirementId) throws BazaarException {
         developerRepository = (developerRepository != null) ? developerRepository : new DeveloperRepositoryImpl(dslContext);
-        developerRepository.addOrUpdate(Developer.getBuilder()
+        return developerRepository.addOrUpdate(Developer.getBuilder()
                         .requirementId(requirementId)
                         .userId(userId)
                         .build()
@@ -349,9 +350,9 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public void vote(int userId, int requirementId, boolean isUpVote) throws BazaarException {
+    public CreationStatus vote(int userId, int requirementId, boolean isUpVote) throws BazaarException {
         voteRepostitory = (voteRepostitory != null) ? voteRepostitory : new VoteRepostitoryImpl(dslContext);
-        voteRepostitory.addOrUpdate(Vote.getBuilder()
+        return voteRepostitory.addOrUpdate(Vote.getBuilder()
                         .requirementId(requirementId)
                         .userId(userId)
                         .isUpvote(isUpVote)

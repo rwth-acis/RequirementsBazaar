@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -273,7 +274,7 @@ public interface DALFacade {
      * @param userId        the identifier of the user, who wants to follow the requirement
      * @param requirementId the the identifier of the requirement we want to follow
      */
-    public void follow(int userId, int requirementId) throws BazaarException;
+    public CreationStatus follow(int userId, int requirementId) throws BazaarException;
 
     /**
      * This method deleted the follow relationship between the given user and requirement.
@@ -293,7 +294,7 @@ public interface DALFacade {
      * @param userId
      * @param requirementId
      */
-    public void wantToDevelop(int userId, int requirementId) throws BazaarException;
+    public CreationStatus wantToDevelop(int userId, int requirementId) throws BazaarException;
 
     /**
      * This method deletes the develop relation between a given requirement and a given user
@@ -334,7 +335,7 @@ public interface DALFacade {
      * @param requirementId the identifier of the requirement
      * @param isUpVote      true if the vote is positive, false if not.
      */
-    public void vote(int userId, int requirementId, boolean isUpVote) throws BazaarException;
+    public CreationStatus vote(int userId, int requirementId, boolean isUpVote) throws BazaarException;
 
     /**
      * This method deletes the vote of the given user for the given project

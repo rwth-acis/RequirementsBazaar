@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Vote;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 /**
@@ -32,5 +33,5 @@ public interface VoteRepostitory extends Repository<Vote> {
 
     boolean hasUserVotedForRequirement(int userId, int requirementId) throws BazaarException;
 
-    void addOrUpdate(Vote vote) throws BazaarException;
+    CreationStatus addOrUpdate(Vote vote) throws BazaarException;
 }
