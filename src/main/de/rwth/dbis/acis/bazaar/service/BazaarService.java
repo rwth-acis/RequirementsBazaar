@@ -179,17 +179,13 @@ public class BazaarService extends Service {
                 profileImage = agentPicture;
         }
 
-
-
-
-
-
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
             Integer userIdByLAS2PeerId = dalFacade.getUserIdByLAS2PeerId(agent.getId());
             if (userIdByLAS2PeerId == null) {
-                dalFacade.createUser(User.geBuilder(agent.getEmail()).admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).profileImage(profileImage).build());
+                int userId = dalFacade.createUser(User.geBuilder(agent.getEmail()).admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).profileImage(profileImage).build());
+                dalFacade.addUserToRole(userId,"LoggedInUser",null);
             }
         } catch (Exception ex) {
             ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Error during registering users at first login.");

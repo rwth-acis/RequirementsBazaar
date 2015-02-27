@@ -34,4 +34,8 @@ public interface RoleRepostitory extends Repository<Role>{
     List<Role> listParentsForRole(int roleId) throws BazaarException;
 
     List<Role> listRolesOfUser(int userId, String context) throws BazaarException;
+
+    void addUserToRole(int userId, String roleName, String context) throws BazaarException;
+
+    Role findByRoleName(String roleName) throws BazaarException;
 }

@@ -24,6 +24,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Privilege;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.*;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolesRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRoleRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.CommentTransformator;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.PrivilegeEnumConverter;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.RoleTransformator;
@@ -39,6 +40,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Roles.ROLES;
+
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 2/17/2015
@@ -53,13 +56,13 @@ public class RoleRepostitoryImpl extends RepositoryImpl<Role, RolesRecord> imple
         List<Role> roles = null;
 
         try {
-            Roles rolesTable = Roles.ROLES.as("roles");
+            Roles rolesTable = ROLES.as("roles");
             Privileges privilegesTable = Privileges.PRIVILEGES.as("privileges");
 
             Result<Record> queryResult = jooq.selectFrom(
                     UserRole.USER_ROLE
                             .join(rolesTable).on(UserRole.USER_ROLE.ROLES_ID.eq(rolesTable.ID))
-                            .leftOuterJoin(RolePrivilege.ROLE_PRIVILEGE).on(RolePrivilege.ROLE_PRIVILEGE.ROLES_ID.eq(Roles.ROLES.ID))
+                            .leftOuterJoin(RolePrivilege.ROLE_PRIVILEGE).on(RolePrivilege.ROLE_PRIVILEGE.ROLES_ID.eq(ROLES.ID))
                             .leftOuterJoin(privilegesTable).on(privilegesTable.ID.eq(RolePrivilege.ROLE_PRIVILEGE.PRIVILEGES_ID))
             ).where(UserRole.USER_ROLE.USERS_ID.equal(userId).and(UserRole.USER_ROLE.CONTEXT_INFO.eq(context).or(UserRole.USER_ROLE.CONTEXT_INFO.isNull()))).fetch();
 
@@ -75,11 +78,42 @@ public class RoleRepostitoryImpl extends RepositoryImpl<Role, RolesRecord> imple
     }
 
     @Override
+    public void addUserToRole(int userId, String roleName, String context) throws BazaarException {
+        Role role = findByRoleName(roleName);
+        UserRoleRecord record = new UserRoleRecord();
+        record.setRolesId(role.getId());
+        record.setUsersId(userId);
+        record.setContextInfo(context);
+        UserRoleRecord inserted = jooq.insertInto(UserRole.USER_ROLE)
+                .set(record)
+                .returning()
+                .fetchOne();
+
+    }
+
+    @Override
+    public Role findByRoleName(String roleName) throws BazaarException {
+        Role role = null;
+
+        try {
+
+            RolesRecord rolesRecord = jooq.selectFrom(ROLES).where(ROLES.NAME.eq(roleName)).fetchOne();
+            if (rolesRecord == null) {
+                throw new Exception("No " + transformator.getRecordClass() + " found with name: " + roleName);
+            }
+            role = transformator.mapToEntity(rolesRecord);
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return role;
+    }
+
+    @Override
     public List<Role> listParentsForRole(int roleId) throws BazaarException {
         List<Role> roles = null;
 
         try {
-            Roles rolesTable = Roles.ROLES.as("roles");
+            Roles rolesTable = ROLES.as("roles");
             Privileges privilegesTable = Privileges.PRIVILEGES.as("privileges");
 
             Result<Record> queryResult = jooq.selectFrom(
