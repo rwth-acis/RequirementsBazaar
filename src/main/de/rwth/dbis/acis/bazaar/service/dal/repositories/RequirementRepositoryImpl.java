@@ -32,11 +32,14 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
+import de.rwth.dbis.acis.bazaar.service.scoringprovider.comparators.VoteComparator;
+import de.rwth.dbis.acis.bazaar.service.scoringprovider.core.ScoringComparator;
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 
 
 import java.util.*;
+import java.util.Comparator;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQUIREMENTS;
 
@@ -97,14 +100,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     "OFFSET ?",userId, projectId, pageable.getPageSize(), pageable.getOffset());
 
 
-            for (Record queryResult : queryResults) {
-                RequirementsRecord requirementsRecord = queryResult.into(RequirementsRecord.class);
-                Requirement.Builder entryBuilder = ((RequirementTransformator)transformator).mapToEntityBuilder(requirementsRecord);
-                entryBuilder.upVotes(queryResult.getValue("upVotes", Integer.class));
-                entryBuilder.downVotes(queryResult.getValue("downVotes", Integer.class));
-                entryBuilder.userVoted(transformToUserVoted(queryResult.getValue("userVoted", Integer.class)));
-                entries.add(entryBuilder.build());
-            }
+            transformToEntities(entries, queryResults);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
@@ -159,14 +155,68 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     "LIMIT ? " +
                     "OFFSET ?",userId,componentId, pageable.getPageSize(), pageable.getOffset());
 
+            transformToEntities(entries, queryResults);
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+
+        return entries;
+    }
+
+    private void transformToEntities(List<Requirement> entries, List<Record> queryResults) {
+        for (Record queryResult : queryResults) {
+            RequirementsRecord requirementsRecord = queryResult.into(RequirementsRecord.class);
+            Requirement.Builder entryBuilder = ((RequirementTransformator)transformator).mapToEntityBuilder(requirementsRecord);
+            entryBuilder.upVotes(queryResult.getValue("upVotes", Integer.class));
+            entryBuilder.downVotes(queryResult.getValue("downVotes", Integer.class));
+            entryBuilder.userVoted(transformToUserVoted(queryResult.getValue("userVoted", Integer.class)));
+            entries.add(entryBuilder.build());
+        }
+    }
+
+
+    public List<Requirement> findAllByComponentWithVotes(int componentId, Pageable pageable, int userId) throws BazaarException {
+        List<Requirement> entries = null;
+        try {
+            entries = new ArrayList<Requirement>();
+
+            List<Record> queryResults;
+
+            queryResults = jooq.fetch("SELECT " +
+                    "req.`Id`,  " +
+                    "req.`title`,  " +
+                    "req.`description`,  " +
+                    "req.`creation_time`,  " +
+                    "req.`Lead_developer_Id`,  " +
+                    "req.`Creator_Id`,  " +
+                    "req.`Project_Id`,  " +
+                    "COUNT(nullif(votes.`is_upvote`, 0)) as `upVotes`, " +
+                    "COUNT(nullif(votes.`is_upvote`, 1)) as `downVotes`, " +
+                    "userVotes.is_upvote as `userVoted` " +
+                    "FROM `reqbaz`.`requirements` req " +
+                    "JOIN Tags tag ON tag.Requirements_Id = req.Id " +
+                    "LEFT OUTER JOIN Votes votes ON votes.Requirement_Id = req.Id " +
+                    "LEFT OUTER JOIN Votes userVotes ON userVotes.Requirement_Id = req.Id AND userVotes.User_Id = ? " +
+                    "where tag.Components_Id = ? " +
+                    "GROUP BY req.Id ",userId,componentId);
+
+            List<RequirementsRecord> requirementsRecords = new ArrayList<RequirementsRecord>();
             for (Record queryResult : queryResults) {
-                RequirementsRecord requirementsRecord = queryResult.into(RequirementsRecord.class);
-                Requirement.Builder entryBuilder = ((RequirementTransformator)transformator).mapToEntityBuilder(requirementsRecord);
-                entryBuilder.upVotes(queryResult.getValue("upVotes", Integer.class));
-                entryBuilder.downVotes(queryResult.getValue("downVotes", Integer.class));
-                entryBuilder.userVoted(transformToUserVoted(queryResult.getValue("userVoted", Integer.class)));
-                entries.add(entryBuilder.build());
+                requirementsRecords.add(queryResult.into(RequirementsRecord.class));
             }
+
+            Comparator<RequirementsRecord> scoring = new VoteComparator(requirementsRecords,jooq);
+            Collections.sort(requirementsRecords, scoring);
+
+            //Pagination
+            int start = Math.min(requirementsRecords.size(), Math.abs(pageable.getPageNumber() * pageable.getPageSize()));
+            requirementsRecords.subList(0, start).clear();
+
+            int size = requirementsRecords.size();
+            int end = Math.min(pageable.getPageSize(), size);
+            requirementsRecords.subList(end, size).clear();
+
+            transformToEntities(entries, queryResults);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }

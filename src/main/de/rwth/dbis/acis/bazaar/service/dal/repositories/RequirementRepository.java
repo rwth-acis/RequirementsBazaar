@@ -23,7 +23,9 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementEx;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+import de.rwth.dbis.acis.bazaar.service.scoringprovider.core.ScoringComparator;
 
 import java.util.List;
 
@@ -36,6 +38,8 @@ public interface RequirementRepository extends Repository<Requirement> {
     List<Requirement> findAllByProject(int projectId, Pageable pageable, int userId) throws BazaarException;
 
     List<Requirement> findAllByComponent(int componentId, Pageable pageable, int userId) throws BazaarException;
+
+    List<Requirement> findAllByComponentWithVotes(int componentId, Pageable pageable, int userId) throws BazaarException;
 
     public boolean belongsToPublicProject(int id) throws BazaarException;
 

@@ -173,7 +173,8 @@ public class DALFacadeImpl implements DALFacade {
     @Override
     public List<Requirement> listRequirementsByComponent(int componentId, Pageable pageable, int userId) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
-        return requirementRepository.findAllByComponent(componentId, pageable, userId);
+        return requirementRepository.findAllByComponentWithVotes(componentId,pageable,userId);
+//        return requirementRepository.findAllByComponent(componentId, pageable, userId);
     }
 
     @Override
