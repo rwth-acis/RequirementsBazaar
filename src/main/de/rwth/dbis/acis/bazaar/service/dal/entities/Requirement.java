@@ -24,7 +24,6 @@ public class Requirement extends EntityBase {
     private final Date creation_time;
 
     @NotBlank
-    @MaxLength(255)
     private final String description;
 
     @Min(-1)
