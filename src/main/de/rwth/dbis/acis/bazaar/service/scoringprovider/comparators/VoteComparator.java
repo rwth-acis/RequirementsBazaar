@@ -49,5 +49,4 @@ public class VoteComparator<RequirementsRecord> extends WeightedScoringComparato
 
         return metrics;
     }
-
 }

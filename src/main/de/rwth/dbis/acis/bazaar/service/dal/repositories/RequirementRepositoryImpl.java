@@ -200,13 +200,14 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     "where tag.Components_Id = ? " +
                     "GROUP BY req.Id ",userId,componentId);
 
+            //TODO this is so ugly, 100% can be done better
             List<RequirementsRecord> requirementsRecords = new ArrayList<RequirementsRecord>();
             for (Record queryResult : queryResults) {
                 requirementsRecords.add(queryResult.into(RequirementsRecord.class));
             }
 
             Comparator<RequirementsRecord> scoring = new VoteComparator(requirementsRecords,jooq);
-            Collections.sort(requirementsRecords, scoring);
+            Collections.sort(requirementsRecords, Collections.reverseOrder(scoring));
 
             //Pagination
             int start = Math.min(requirementsRecords.size(), Math.abs(pageable.getPageNumber() * pageable.getPageSize()));
@@ -216,7 +217,20 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             int end = Math.min(pageable.getPageSize(), size);
             requirementsRecords.subList(end, size).clear();
 
-            transformToEntities(entries, queryResults);
+            List<Record> records = new ArrayList<Record>();
+            for (int i = 0; i < requirementsRecords.size(); i++) {
+                RequirementsRecord requirementsRecord = requirementsRecords.get(i);
+                Record resultFromQuery = null;
+                for (Record queryResult : queryResults) {
+                    if (queryResult.getValue(REQUIREMENTS.ID).equals(requirementsRecord.getId())) {
+                        resultFromQuery = queryResult;
+                    }
+                }
+                records.add(i,resultFromQuery);
+            }
+
+
+            transformToEntities(entries, records);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }

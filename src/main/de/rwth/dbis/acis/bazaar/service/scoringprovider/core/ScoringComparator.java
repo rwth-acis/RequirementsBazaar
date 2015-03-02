@@ -30,8 +30,8 @@ import java.util.*;
  */
 public abstract class ScoringComparator<T> implements Comparator<T> {
 
-    private Map<T,Double> scores;
-    private Set<MetricProvider<T>> metrics;
+    protected Map<T,Double> scores;
+    protected Set<MetricProvider<T>> metrics;
 
     public ScoringComparator(List<T> items, DSLContext db) {
         metrics = registerMetrics();
