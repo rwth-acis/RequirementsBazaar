@@ -31,12 +31,12 @@ import java.util.*;
 public abstract class ScoringComparator<T> implements Comparator<T> {
 
     protected Map<T,Double> scores;
-    protected Set<MetricProvider<T>> metrics;
+    protected Map<String,MetricProvider<T>> metrics;
 
     public ScoringComparator(List<T> items, DSLContext db) {
         metrics = registerMetrics();
 
-        for (MetricProvider<T> metric : metrics) {
+        for (MetricProvider<T> metric : metrics.values()) {
             metric.calculateMetric(items, db);
         }
 
@@ -51,7 +51,7 @@ public abstract class ScoringComparator<T> implements Comparator<T> {
     /**
      * @return the metrics to be used during the scoring
      */
-    protected abstract Set<MetricProvider<T>> registerMetrics();
+    protected abstract Map<String,MetricProvider<T>> registerMetrics();
 
 
     /**
@@ -61,7 +61,7 @@ public abstract class ScoringComparator<T> implements Comparator<T> {
      * @param metrics
      * @return
      */
-    protected abstract Double calculateScore(T item, Set<MetricProvider<T>> metrics);
+    protected abstract Double calculateScore(T item, Map<String,MetricProvider<T>> metrics);
 
     @Override
     public int compare(T item1, T item2) {

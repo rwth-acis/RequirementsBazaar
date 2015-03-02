@@ -27,10 +27,7 @@ import org.jooq.*;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Votes.VOTES;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -44,6 +41,7 @@ public class VoteTransformator implements de.rwth.dbis.acis.bazaar.service.dal.t
         record.setUserId(entity.getUserId());
         record.setRequirementId(entity.getRequirementId());
         record.setIsUpvote((byte) (entity.isUpvote() ? 1 : 0));
+        record.setCreationTime(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         return record;
     }
 

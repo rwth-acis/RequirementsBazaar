@@ -27,10 +27,7 @@ import org.jooq.*;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Developers.DEVELOPERS;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -43,6 +40,7 @@ public class DeveloperTransformator implements Transformator<de.rwth.dbis.acis.b
 //        record.setId(entity.getId());
         record.setUserId(entity.getUserId());
         record.setRequirementId(entity.getRequirementId());
+        record.setCreationTime(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         return record;
     }
 

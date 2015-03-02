@@ -47,4 +47,14 @@ public abstract class MetricProviderBase<T> implements MetricProvider<T> {
         //Feature scaling
         return lowerBoundOfRange() + ((getMetric(item) - minValue) * (upperBoundOfRange() - lowerBoundOfRange())) / (maxValue - minValue);
     }
+
+    @Override
+    public double lowerBoundOfRange() {
+        return 0;
+    }
+
+    @Override
+    public double upperBoundOfRange() {
+        return 0;
+    }
 }

@@ -32,6 +32,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
+import de.rwth.dbis.acis.bazaar.service.scoringprovider.comparators.ActivityComparator;
 import de.rwth.dbis.acis.bazaar.service.scoringprovider.comparators.VoteComparator;
 import de.rwth.dbis.acis.bazaar.service.scoringprovider.core.ScoringComparator;
 import org.jooq.*;
@@ -205,6 +206,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             for (Record queryResult : queryResults) {
                 requirementsRecords.add(queryResult.into(RequirementsRecord.class));
             }
+
+            Comparator<RequirementsRecord> comparator = new ActivityComparator<RequirementsRecord>(requirementsRecords, jooq);
 
             Comparator<RequirementsRecord> scoring = new VoteComparator(requirementsRecords,jooq);
             Collections.sort(requirementsRecords, Collections.reverseOrder(scoring));

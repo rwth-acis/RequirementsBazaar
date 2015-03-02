@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Votes extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord> {
 
-	private static final long serialVersionUID = 927411631;
+	private static final long serialVersionUID = 228611743;
 
 	/**
 	 * The singleton instance of <code>reqbaz.votes</code>
@@ -45,6 +45,11 @@ public class Votes extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.serv
 	 * The column <code>reqbaz.votes.User_Id</code>.
 	 */
 	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord, java.lang.Integer> USER_ID = createField("User_Id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
+
+	/**
+	 * The column <code>reqbaz.votes.creation_time</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord, java.sql.Timestamp> CREATION_TIME = createField("creation_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * Create a <code>reqbaz.votes</code> table reference

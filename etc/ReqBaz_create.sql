@@ -1,7 +1,7 @@
 -- Created by Vertabelo (http://vertabelo.com)
 -- Script type: create
 -- Scope: [tables, references, sequences, views, procedures]
--- Generated at Fri Feb 20 12:42:30 UTC 2015
+-- Generated at Mon Mar 02 15:24:40 UTC 2015
 
 
 
@@ -49,6 +49,7 @@ CREATE TABLE developers (
     Id int    NOT NULL  AUTO_INCREMENT,
     Requirement_Id int    NOT NULL ,
     User_Id int    NOT NULL ,
+    creation_time timestamp    NOT NULL ,
     CONSTRAINT developers_pk PRIMARY KEY (Id)
 );
 
@@ -57,6 +58,7 @@ CREATE TABLE followers (
     Id int    NOT NULL  AUTO_INCREMENT,
     Requirement_Id int    NOT NULL ,
     User_Id int    NOT NULL ,
+    creation_time timestamp    NULL ,
     CONSTRAINT followers_pk PRIMARY KEY (Id)
 );
 
@@ -152,6 +154,7 @@ CREATE TABLE votes (
     is_upvote BOOLEAN    NOT NULL ,
     Requirement_Id int    NOT NULL ,
     User_Id int    NOT NULL ,
+    creation_time timestamp    NOT NULL ,
     CONSTRAINT votes_pk PRIMARY KEY (Id)
 );
 

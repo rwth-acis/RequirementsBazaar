@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Developers extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.DevelopersRecord> {
 
-	private static final long serialVersionUID = 552465760;
+	private static final long serialVersionUID = -561836428;
 
 	/**
 	 * The singleton instance of <code>reqbaz.developers</code>
@@ -40,6 +40,11 @@ public class Developers extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar
 	 * The column <code>reqbaz.developers.User_Id</code>.
 	 */
 	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.DevelopersRecord, java.lang.Integer> USER_ID = createField("User_Id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
+
+	/**
+	 * The column <code>reqbaz.developers.creation_time</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.DevelopersRecord, java.sql.Timestamp> CREATION_TIME = createField("creation_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * Create a <code>reqbaz.developers</code> table reference

@@ -20,8 +20,11 @@
 
 package de.rwth.dbis.acis.bazaar.service.scoringprovider.core;
 
+
+import org.apache.commons.lang3.tuple.Pair;
 import org.jooq.DSLContext;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,23 +42,31 @@ public abstract class WeightedScoringComparator<T> extends ScoringComparator<T>{
         super(items, db);
     }
 
-    protected abstract Map<MetricProvider<T>,Double> registerMetricsWithWeights();
+    protected abstract Map<String,Pair<MetricProvider<T>,Double>> registerMetricsWithWeights();
 
     @Override
-    protected final Set<MetricProvider<T>> registerMetrics() {
-        weightedMetrics = registerMetricsWithWeights();
+    protected Map<String,MetricProvider<T>> registerMetrics() {
+        Map<String, Pair<MetricProvider<T>, Double>> namedWeightedMap = registerMetricsWithWeights();
+        weightedMetrics = new HashMap<MetricProvider<T>, Double>();
+        Map<String,MetricProvider<T>> namedMetrics = new HashMap<String, MetricProvider<T>>();
+
+        for (Map.Entry<String, Pair<MetricProvider<T>, Double>> stringPairEntry : namedWeightedMap.entrySet()) {
+            weightedMetrics.put(stringPairEntry.getValue().getKey(),stringPairEntry.getValue().getValue());
+            namedMetrics.put(stringPairEntry.getKey(), stringPairEntry.getValue().getKey());
+        }
 
         for (Double weight : weightedMetrics.values()) {
             sumOfWeights += weight;
         }
-        return weightedMetrics.keySet();
+
+        return namedMetrics;
     }
 
     @Override
-    protected Double calculateScore(T item, Set<MetricProvider<T>> metrics) {
+    protected Double calculateScore(T item, Map<String,MetricProvider<T>> metrics) {
         double weightedScoreSum = 0;
 
-        for (MetricProvider<T> metric : metrics) {
+        for (MetricProvider<T> metric : metrics.values()) {
             weightedScoreSum += (weightedMetrics.get(metric)/sumOfWeights) * metric.getNormalizedMetric(item);
         }
 
