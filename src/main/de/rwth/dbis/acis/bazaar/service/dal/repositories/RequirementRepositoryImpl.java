@@ -88,8 +88,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     "COUNT(nullif(votes.`is_upvote`, 1)) as `downVotes` " +
                     "userVotes.is_upvote as `userVoted` " +
                     "FROM `reqbaz`.`requirements` req " +
-                    "LEFT OUTER JOIN Votes votes ON votes.Requirement_Id = req.Id " +
-                    "LEFT OUTER JOIN Votes userVotes ON userVotes.Requirement_Id = req.Id AND userVotes.User_Id = ? " +
+                    "LEFT OUTER JOIN `reqbaz`.`votes` votes ON votes.Requirement_Id = req.Id " +
+                    "LEFT OUTER JOIN `reqbaz`.`votes` userVotes ON userVotes.Requirement_Id = req.Id AND userVotes.User_Id = ? " +
                     "where req.Project_Id = ? " +
                     "GROUP BY req.Id " +
                     "ORDER BY req.CREATION_TIME " +
@@ -150,9 +150,9 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     "COUNT(nullif(votes.`is_upvote`, 1)) as `downVotes`, " +
                     "userVotes.is_upvote as `userVoted` " +
                     "FROM `reqbaz`.`requirements` req " +
-                    "JOIN Tags tag ON tag.Requirements_Id = req.Id " +
-                    "LEFT OUTER JOIN Votes votes ON votes.Requirement_Id = req.Id " +
-                    "LEFT OUTER JOIN Votes userVotes ON userVotes.Requirement_Id = req.Id AND userVotes.User_Id = ? " +
+                    "JOIN `reqbaz`.`tags` tag ON tag.Requirements_Id = req.Id " +
+                    "LEFT OUTER JOIN `reqbaz`.`votes` votes ON votes.Requirement_Id = req.Id " +
+                    "LEFT OUTER JOIN `reqbaz`.`votes` userVotes ON userVotes.Requirement_Id = req.Id AND userVotes.User_Id = ? " +
                     "where tag.Components_Id = ? " +
                     "GROUP BY req.Id " +
                     "ORDER BY req.CREATION_TIME, req.Id desc " +
