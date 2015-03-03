@@ -34,11 +34,13 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
+import org.jooq.impl.DSL;
 
 
 import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQUIREMENTS;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Tags.TAGS;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -58,44 +60,29 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
         try {
             entries = new ArrayList<Requirement>();
             List<Record> queryResults;
+            
+            Votes votes = Votes.VOTES.as("votes");
+            Votes userVotes = Votes.VOTES.as("userVotes");
 
-//            Votes votes = Votes.VOTES.as("votes");
-//
-//            Field<Integer> upVotesField = DSL.count(DSL.nullif(votes.IS_UPVOTE, (byte) 0)).as("upVotes");
-//            Field<Integer> downVotesField = DSL.count(DSL.nullif(votes.IS_UPVOTE, (byte) 1)).as("downVotes");
-//
-//            queryResults = jooq
-//                    .select(upVotesField).select(downVotesField)
-//                    .select(REQUIREMENTS.leftOuterJoin(votes).on(votes.REQUIREMENT_ID.eq(REQUIREMENTS.ID)).fields())
-//                    .where(REQUIREMENTS.PROJECT_ID.equal(projectId))
-//                    .groupBy(REQUIREMENTS.ID)
-//                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
-//                    .limit(pageable.getPageSize())
-//                    .offset(pageable.getOffset())
-//                    .fetch();
-//                    .fetchInto(transformator.getRecordClass());
-
-            //TODO use JOOQ terms, like above but working :)
-            queryResults = jooq.fetch("SELECT " +
-                    "req.`Id`, " +
-                    "req.`title`, " +
-                    "req.`description`, " +
-                    "req.`creation_time`, " +
-                    "req.`Lead_developer_Id`, " +
-                    "req.`Creator_Id`, " +
-                    "req.`Project_Id`, " +
-                    "COUNT(nullif(votes.`is_upvote`, 0)) as `upVotes`, " +
-                    "COUNT(nullif(votes.`is_upvote`, 1)) as `downVotes` " +
-                    "userVotes.is_upvote as `userVoted` " +
-                    "FROM `reqbaz`.`requirements` req " +
-                    "LEFT OUTER JOIN Votes votes ON votes.Requirement_Id = req.Id " +
-                    "LEFT OUTER JOIN Votes userVotes ON userVotes.Requirement_Id = req.Id AND userVotes.User_Id = ? " +
-                    "where req.Project_Id = ? " +
-                    "GROUP BY req.Id " +
-                    "ORDER BY req.CREATION_TIME " +
-                    "LIMIT ? " +
-                    "OFFSET ?",userId, projectId, pageable.getPageSize(), pageable.getOffset());
-
+            queryResults = jooq.select(REQUIREMENTS.ID)
+                    .select(REQUIREMENTS.TITLE)
+                    .select(REQUIREMENTS.DESCRIPTION)
+                    .select(REQUIREMENTS.CREATION_TIME)
+                    .select(REQUIREMENTS.LEAD_DEVELOPER_ID)
+                    .select(REQUIREMENTS.CREATOR_ID)
+                    .select(REQUIREMENTS.PROJECT_ID)
+                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE,0)).as("upVotes"))
+                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE,1)).as("downVotes"))
+                    .select(userVotes.IS_UPVOTE.as("userVoted"))
+                    .from(REQUIREMENTS)
+                    .leftOuterJoin(votes).on(votes.REQUIREMENT_ID.eq(REQUIREMENTS.ID))
+                    .leftOuterJoin(userVotes).on(userVotes.REQUIREMENT_ID.eq(REQUIREMENTS.ID).and(userVotes.USER_ID.eq(userId)))
+                    .where(REQUIREMENTS.PROJECT_ID.eq(projectId))
+                    .groupBy(REQUIREMENTS.ID)
+                    .orderBy(REQUIREMENTS.CREATION_TIME.desc(), REQUIREMENTS.ID.desc())
+                    .limit(pageable.getPageSize())
+                    .offset(pageable.getOffset())
+                    .fetch();
 
             for (Record queryResult : queryResults) {
                 RequirementsRecord requirementsRecord = queryResult.into(RequirementsRecord.class);
@@ -131,33 +118,30 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             entries = new ArrayList<Requirement>();
 
             List<Record> queryResults;
-//            queryResults = jooq.selectFrom(REQUIREMENTS.join(Tags.TAGS).on(Tags.TAGS.REQUIREMENTS_ID.equal(REQUIREMENTS.ID)))
-//                    .where(Tags.TAGS.COMPONENTS_ID.equal(componentId))
-//                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
-//                    .limit(pageable.getPageSize())
-//                    .offset(pageable.getOffset())
-//                    .fetchInto(transformator.getRecordClass());
 
-            queryResults = jooq.fetch("SELECT " +
-                    "req.`Id`,  " +
-                    "req.`title`,  " +
-                    "req.`description`,  " +
-                    "req.`creation_time`,  " +
-                    "req.`Lead_developer_Id`,  " +
-                    "req.`Creator_Id`,  " +
-                    "req.`Project_Id`,  " +
-                    "COUNT(nullif(votes.`is_upvote`, 0)) as `upVotes`, " +
-                    "COUNT(nullif(votes.`is_upvote`, 1)) as `downVotes`, " +
-                    "userVotes.is_upvote as `userVoted` " +
-                    "FROM `reqbaz`.`requirements` req " +
-                    "JOIN Tags tag ON tag.Requirements_Id = req.Id " +
-                    "LEFT OUTER JOIN Votes votes ON votes.Requirement_Id = req.Id " +
-                    "LEFT OUTER JOIN Votes userVotes ON userVotes.Requirement_Id = req.Id AND userVotes.User_Id = ? " +
-                    "where tag.Components_Id = ? " +
-                    "GROUP BY req.Id " +
-                    "ORDER BY req.CREATION_TIME, req.Id desc " +
-                    "LIMIT ? " +
-                    "OFFSET ?",userId,componentId, pageable.getPageSize(), pageable.getOffset());
+            Votes votes = Votes.VOTES.as("votes");
+            Votes userVotes = Votes.VOTES.as("userVotes");
+
+            queryResults = jooq.select(REQUIREMENTS.ID)
+                    .select(REQUIREMENTS.TITLE)
+                    .select(REQUIREMENTS.DESCRIPTION)
+                    .select(REQUIREMENTS.CREATION_TIME)
+                    .select(REQUIREMENTS.LEAD_DEVELOPER_ID)
+                    .select(REQUIREMENTS.CREATOR_ID)
+                    .select(REQUIREMENTS.PROJECT_ID)
+                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE,0)).as("upVotes"))
+                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE,1)).as("downVotes"))
+                    .select(userVotes.IS_UPVOTE.as("userVoted"))
+                    .from(REQUIREMENTS)
+                    .join(TAGS).on(TAGS.REQUIREMENTS_ID.eq(REQUIREMENTS.ID))
+                    .leftOuterJoin(votes).on(votes.REQUIREMENT_ID.eq(REQUIREMENTS.ID))
+                    .leftOuterJoin(userVotes).on(userVotes.REQUIREMENT_ID.eq(REQUIREMENTS.ID).and(userVotes.USER_ID.eq(userId)))
+                    .where(TAGS.COMPONENTS_ID.eq(componentId))
+                    .groupBy(REQUIREMENTS.ID)
+                    .orderBy(REQUIREMENTS.CREATION_TIME.desc(), REQUIREMENTS.ID.desc())
+                    .limit(pageable.getPageSize())
+                    .offset(pageable.getOffset())
+                    .fetch();
 
             for (Record queryResult : queryResults) {
                 RequirementsRecord requirementsRecord = queryResult.into(RequirementsRecord.class);
@@ -216,8 +200,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
                             .leftOuterJoin(contributorUsers).on(Attachments.ATTACHMENTS.USER_ID.equal(contributorUsers.ID))
 
-                            .leftOuterJoin(Tags.TAGS).on(Tags.TAGS.REQUIREMENTS_ID.equal(REQUIREMENTS.ID))
-                            .leftOuterJoin(Components.COMPONENTS).on(Components.COMPONENTS.ID.equal(Tags.TAGS.COMPONENTS_ID))
+                            .leftOuterJoin(TAGS).on(TAGS.REQUIREMENTS_ID.equal(REQUIREMENTS.ID))
+                            .leftOuterJoin(Components.COMPONENTS).on(Components.COMPONENTS.ID.equal(TAGS.COMPONENTS_ID))
             )
                     .where(transformator.getTableId().equal(id))
                     .fetch();
