@@ -43,9 +43,9 @@ import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQU
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 3/2/2015
  */
-public class CommentsSinceMetric extends SinceMetricBase {
+public class RecentCommentsMetric extends SinceMetricBase {
 
-    public CommentsSinceMetric(Duration duration) {
+    public RecentCommentsMetric(Duration duration) {
         super(duration);
     }
 
@@ -55,17 +55,17 @@ public class CommentsSinceMetric extends SinceMetricBase {
     }
 
     @Override
-    public Field getIDField() {
+    public Field<Integer> getIDField() {
         return COMMENTS.ID;
     }
 
     @Override
-    public Field getRequirementIdField() {
+    public Field<Integer> getRequirementIdField() {
         return COMMENTS.REQUIREMENT_ID;
     }
 
     @Override
-    public Field getCreationTimeField() {
+    public Field<Timestamp> getCreationTimeField() {
         return COMMENTS.CREATION_TIME;
     }
 

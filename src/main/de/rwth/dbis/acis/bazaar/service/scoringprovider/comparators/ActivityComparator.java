@@ -22,7 +22,7 @@ package de.rwth.dbis.acis.bazaar.service.scoringprovider.comparators;
 
 import de.rwth.dbis.acis.bazaar.service.scoringprovider.core.MetricProvider;
 import de.rwth.dbis.acis.bazaar.service.scoringprovider.core.ScoringComparator;
-import de.rwth.dbis.acis.bazaar.service.scoringprovider.metrics.CommentsSinceMetric;
+import de.rwth.dbis.acis.bazaar.service.scoringprovider.metrics.RecentCommentsMetric;
 import org.joda.time.Duration;
 import org.jooq.DSLContext;
 
@@ -44,7 +44,7 @@ public class ActivityComparator<RequirementsRecord> extends ScoringComparator<Re
     protected Map<String, MetricProvider<RequirementsRecord>> registerMetrics() {
         Map<String, MetricProvider<RequirementsRecord>> metrics = new HashMap<String, MetricProvider<RequirementsRecord>>();
         Duration recentLimit = Duration.standardDays(7);
-        metrics.put("recentComments", (MetricProvider<RequirementsRecord>) new CommentsSinceMetric(recentLimit));
+        metrics.put("recentComments", (MetricProvider<RequirementsRecord>) new RecentCommentsMetric(recentLimit));
         return metrics;
     }
 

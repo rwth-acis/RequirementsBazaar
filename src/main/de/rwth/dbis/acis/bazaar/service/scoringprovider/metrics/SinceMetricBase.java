@@ -58,13 +58,14 @@ public abstract class SinceMetricBase extends MetricProviderBase<RequirementsRec
         }
 
         Timestamp since = new Timestamp(sinceTime.getMillis());
+
         Result<Record> recentComments = db.select(REQUIREMENTS.ID)
-                .select(DSL.count(getIDField()))
-                .from(REQUIREMENTS)
-                .leftOuterJoin(getTable()).on(getRequirementIdField().eq(REQUIREMENTS.ID))
-                .where(REQUIREMENTS.ID.in(itemIds).and(getCreationTimeField().greaterOrEqual(since)))
-                .groupBy(REQUIREMENTS.ID)
-                .fetch();
+                                          .select(DSL.count(getIDField()))
+                                          .from(REQUIREMENTS)
+                                          .leftOuterJoin(getTable()).on(getRequirementIdField().eq(REQUIREMENTS.ID))
+                                          .where(REQUIREMENTS.ID.in(itemIds).and(getCreationTimeField().greaterOrEqual(since).or(getIDField().isNull())))
+                                          .groupBy(REQUIREMENTS.ID)
+                                          .fetch();
 
         this.measurements = new HashMap<RequirementsRecord, Double>();
         for (Record vote : recentComments) {
@@ -82,7 +83,7 @@ public abstract class SinceMetricBase extends MetricProviderBase<RequirementsRec
     }
 
     public abstract Table<?> getTable();
-    public abstract Field getIDField();
-    public abstract Field getRequirementIdField();
-    public abstract Field getCreationTimeField();
+    public abstract Field<Integer> getIDField();
+    public abstract Field<Integer> getRequirementIdField();
+    public abstract Field<Timestamp> getCreationTimeField();
 }
