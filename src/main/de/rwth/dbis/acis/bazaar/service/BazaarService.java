@@ -185,7 +185,7 @@ public class BazaarService extends Service {
             Integer userIdByLAS2PeerId = dalFacade.getUserIdByLAS2PeerId(agent.getId());
             if (userIdByLAS2PeerId == null) {
                 int userId = dalFacade.createUser(User.geBuilder(agent.getEmail()).admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).profileImage(profileImage).build());
-                dalFacade.addUserToRole(userId,"LoggedInUser",null);
+                dalFacade.addUserToRole(userId,"SystemAdmin",null);
             }
         } catch (Exception ex) {
             ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Error during registering users at first login.");
