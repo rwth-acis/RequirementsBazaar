@@ -8,7 +8,7 @@
 
 -- tables
 -- Table attachments
-CREATE TABLE attachments (
+CREATE TABLE IF NOT EXISTS attachments (
     Id int    NOT NULL  AUTO_INCREMENT,
     creation_time timestamp    NOT NULL ,
     Requirement_Id int    NOT NULL ,
@@ -25,7 +25,7 @@ CREATE TABLE attachments (
 );
 
 -- Table comments
-CREATE TABLE comments (
+CREATE TABLE IF NOT EXISTS comments (
     Id int    NOT NULL  AUTO_INCREMENT,
     message text    NOT NULL ,
     creation_time timestamp    NOT NULL ,
@@ -35,7 +35,7 @@ CREATE TABLE comments (
 );
 
 -- Table components
-CREATE TABLE components (
+CREATE TABLE IF NOT EXISTS components (
     Id int    NOT NULL  AUTO_INCREMENT,
     name varchar(255)    NOT NULL ,
     description text    NOT NULL ,
@@ -45,7 +45,7 @@ CREATE TABLE components (
 );
 
 -- Table developers
-CREATE TABLE developers (
+CREATE TABLE IF NOT EXISTS developers (
     Id int    NOT NULL  AUTO_INCREMENT,
     Requirement_Id int    NOT NULL ,
     User_Id int    NOT NULL ,
@@ -54,7 +54,7 @@ CREATE TABLE developers (
 );
 
 -- Table followers
-CREATE TABLE followers (
+CREATE TABLE IF NOT EXISTS followers (
     Id int    NOT NULL  AUTO_INCREMENT,
     Requirement_Id int    NOT NULL ,
     User_Id int    NOT NULL ,
@@ -63,14 +63,14 @@ CREATE TABLE followers (
 );
 
 -- Table privileges
-CREATE TABLE privileges (
+CREATE TABLE IF NOT EXISTS privileges (
     Id int    NOT NULL  AUTO_INCREMENT,
     name varchar(100)    NOT NULL ,
     CONSTRAINT privileges_pk PRIMARY KEY (Id)
 );
 
 -- Table projects
-CREATE TABLE projects (
+CREATE TABLE IF NOT EXISTS projects (
     Id int    NOT NULL  AUTO_INCREMENT,
     name varchar(255)    NOT NULL ,
     description text    NOT NULL ,
@@ -81,7 +81,7 @@ CREATE TABLE projects (
 );
 
 -- Table requirements
-CREATE TABLE requirements (
+CREATE TABLE IF NOT EXISTS requirements (
     Id int    NOT NULL  AUTO_INCREMENT,
     title varchar(255)    NOT NULL ,
     description text    NULL ,
@@ -93,7 +93,7 @@ CREATE TABLE requirements (
 );
 
 -- Table role_privilege
-CREATE TABLE role_privilege (
+CREATE TABLE IF NOT EXISTS role_privilege (
     Id int    NOT NULL  AUTO_INCREMENT,
     Roles_Id int    NOT NULL ,
     Privileges_Id int    NOT NULL ,
@@ -101,7 +101,7 @@ CREATE TABLE role_privilege (
 );
 
 -- Table role_role
-CREATE TABLE role_role (
+CREATE TABLE IF NOT EXISTS role_role (
     Id int    NOT NULL  AUTO_INCREMENT,
     Child_Id int    NOT NULL ,
     Parent_Id int    NOT NULL ,
@@ -109,7 +109,7 @@ CREATE TABLE role_role (
 );
 
 -- Table roles
-CREATE TABLE roles (
+CREATE TABLE IF NOT EXISTS roles (
     Id int    NOT NULL  AUTO_INCREMENT,
     name varchar(50)    NULL ,
     CONSTRAINT roles_pk PRIMARY KEY (Id)
@@ -119,7 +119,7 @@ CREATE  UNIQUE INDEX Role_idx_1 ON roles (name);
 
 
 -- Table tags
-CREATE TABLE tags (
+CREATE TABLE IF NOT EXISTS tags (
     Id int    NOT NULL  AUTO_INCREMENT,
     Components_Id int    NOT NULL ,
     Requirements_Id int    NOT NULL ,
@@ -127,7 +127,7 @@ CREATE TABLE tags (
 );
 
 -- Table user_role
-CREATE TABLE user_role (
+CREATE TABLE IF NOT EXISTS user_role (
     Id int    NOT NULL  AUTO_INCREMENT,
     Roles_Id int    NOT NULL ,
     Users_Id int    NOT NULL ,
@@ -136,7 +136,7 @@ CREATE TABLE user_role (
 );
 
 -- Table users
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     Id int    NOT NULL  AUTO_INCREMENT,
     first_name varchar(150)    NULL ,
     last_name varchar(150)    NULL ,
@@ -149,7 +149,7 @@ CREATE TABLE users (
 );
 
 -- Table votes
-CREATE TABLE votes (
+CREATE TABLE IF NOT EXISTS votes (
     Id int    NOT NULL  AUTO_INCREMENT,
     is_upvote BOOLEAN    NOT NULL ,
     Requirement_Id int    NOT NULL ,
