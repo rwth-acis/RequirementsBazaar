@@ -22,6 +22,7 @@ package de.rwth.dbis.acis.bazaar.service.dal;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.DeleteResponse;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -174,7 +175,7 @@ public interface DALFacade {
      *
      * @param requirementId which identifies the requirement to delete.
      */
-    public void deleteRequirementById(int requirementId) throws Exception;
+    public DeleteResponse deleteRequirementById(int requirementId) throws Exception;
 
 
     /**
@@ -221,7 +222,7 @@ public interface DALFacade {
      *
      * @param componentId for the component to be deleted
      */
-    public void deleteComponentById(int componentId) throws Exception;
+    public DeleteResponse deleteComponentById(int componentId) throws Exception;
 
     /**
      * Returns true if component belongs to a public project
@@ -243,7 +244,7 @@ public interface DALFacade {
     /**
      * @param attachmentId id of the attachment should be deleted
      */
-    public void deleteAttachmentById(int attachmentId) throws Exception;
+    public DeleteResponse deleteAttachmentById(int attachmentId) throws Exception;
 
     //endregion
 
@@ -264,7 +265,7 @@ public interface DALFacade {
     /**
      * @param commentId to identify the comment to be deleted
      */
-    public void deleteCommentById(int commentId) throws Exception;
+    public DeleteResponse deleteCommentById(int commentId) throws Exception;
 
     //endregion
 

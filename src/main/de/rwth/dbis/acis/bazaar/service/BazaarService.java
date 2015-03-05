@@ -23,6 +23,7 @@ package de.rwth.dbis.acis.bazaar.service;
 import com.google.gson.*;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.DeleteResponse;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -653,7 +654,8 @@ public class BazaarService extends Service {
 
             Project projectById = dalFacade.getProjectById(projectId);
             if (projectById.getDefaultComponentId() != componentId) {
-                dalFacade.deleteComponentById(componentId);
+                DeleteResponse deleteResponse = dalFacade.deleteComponentById(componentId);
+                resultJSON = deleteResponse.toJSON();
             } else {
                 ExceptionHandler.getInstance().convertAndThrowException(
                         new Exception(),
@@ -968,7 +970,8 @@ public class BazaarService extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only the creator and admins can modify attachments.");
 
 
-            dalFacade.deleteRequirementById(requirementId);
+            DeleteResponse deleteResponse = dalFacade.deleteRequirementById(requirementId);
+            resultJSON = deleteResponse.toJSON();
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -1595,7 +1598,9 @@ public class BazaarService extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only the creator and admins can modify comments.");
 
 
-            dalFacade.deleteCommentById(commentId);
+            DeleteResponse deleteResponse = dalFacade.deleteCommentById(commentId);
+            resultJSON = deleteResponse.toJSON();
+
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -1769,8 +1774,9 @@ public class BazaarService extends Service {
             if (!authorized)
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only the creator and admins can modify attachments.");
 
+            DeleteResponse deleteResponse = dalFacade.deleteAttachmentById(attachmentId);
+            resultJSON = deleteResponse.toJSON();
 
-            dalFacade.deleteAttachmentById(attachmentId);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {

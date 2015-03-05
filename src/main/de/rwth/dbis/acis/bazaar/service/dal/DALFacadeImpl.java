@@ -22,6 +22,7 @@ package de.rwth.dbis.acis.bazaar.service.dal;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.DeleteResponse;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.repositories.*;
@@ -203,9 +204,13 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public void deleteRequirementById(int requirementId) throws Exception {
+    public DeleteResponse deleteRequirementById(int requirementId) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+
+        //TODO it's a very heavy call for very little
+        RequirementEx requirement = requirementRepository.findById(requirementId);
         requirementRepository.delete(requirementId);
+        return new DeleteResponse(true, requirement.getId(), requirement.getTitle());
     }
 
     @Override
@@ -240,7 +245,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public void deleteComponentById(int componentId) throws Exception {
+    public DeleteResponse deleteComponentById(int componentId) throws Exception {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
 
         //Get requirements for the component in question
@@ -257,6 +262,7 @@ public class DALFacadeImpl implements DALFacade {
         }
 
         componentRepository.delete(componentId);
+        return new DeleteResponse(true, componentById.getId(), componentById.getName());
     }
 
     @Override
@@ -273,9 +279,14 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public void deleteAttachmentById(int attachmentId) throws Exception {
+    public DeleteResponse deleteAttachmentById(int attachmentId) throws Exception {
         attachmentRepository = (attachmentRepository != null) ? attachmentRepository : new AttachmentRepositoryImpl(dslContext);
+
+        Attachment attachment = attachmentRepository.findById(attachmentId);
+
         attachmentRepository.delete(attachmentId);
+
+        return new DeleteResponse(true, attachment.getId(), attachment.getTitle());
     }
 
     @Override
@@ -292,9 +303,14 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public void deleteCommentById(int commentId) throws Exception {
+    public DeleteResponse deleteCommentById(int commentId) throws Exception {
         commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
+
+        Comment comment = commentRepository.findById(commentId);
+
         commentRepository.delete(commentId);
+
+        return new DeleteResponse(true, comment.getId(), comment.getMessage());
     }
 
     @Override
