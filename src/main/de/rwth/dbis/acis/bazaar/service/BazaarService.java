@@ -536,6 +536,7 @@ public class BazaarService extends Service {
             if (!authorized)
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only admins can create components.");
 
+            componentToCreate.setLeaderId(internalUserId);
 
             int componentId = dalFacade.createComponent(componentToCreate);
             JsonObject idJson = new JsonObject();
