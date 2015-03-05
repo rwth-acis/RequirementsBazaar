@@ -1068,7 +1068,7 @@ public class BazaarService extends Service {
      */
     @POST
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/developers")
-    @Consumes(MediaType.APPLICATION_JSON)
+    //@Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method add the current user to the developers list of a given requirement")
     @ApiResponses(value = {
