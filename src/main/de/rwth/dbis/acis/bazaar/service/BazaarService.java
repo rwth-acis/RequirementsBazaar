@@ -196,7 +196,7 @@ public class BazaarService extends Service {
 
     }
     private DALFacade createConnection() throws Exception {
-        Connection dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reqbaz", "root", "");
+        Connection dbConnection = DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
         return new DALFacadeImpl(dbConnection, SQLDialect.MYSQL);
     }
 
