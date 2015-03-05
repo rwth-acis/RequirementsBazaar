@@ -76,14 +76,10 @@ import org.jooq.tools.json.JSONObject;
 public class BazaarService extends Service {
 
     //CONFIG PROPERTIES
-    public static final String DEFAULT_DB_USERNAME = "root";
-    protected String dbUserName = DEFAULT_DB_USERNAME;
-
-    public static final String DEFAULT_DB_PASSWORD = "";
-    protected String dbPassword = DEFAULT_DB_PASSWORD;
-
-    public static final String DEFAULT_DB_URL = "jdbc:mysql://localhost:3306/reqbaz";
-    protected String dbUrl = DEFAULT_DB_URL;
+    protected String dbUserName;
+    protected String dbPassword;
+    protected String dbUrl;
+    protected String swaggerHost;
 
     private Vtor vtor;
     private List<BazaarFunctionRegistrator> functionRegistrators;
@@ -105,6 +101,8 @@ public class BazaarService extends Service {
     }
 
     public BazaarService() throws Exception {
+
+        setFieldValues();
 
         Class.forName("com.mysql.jdbc.Driver").newInstance();
 
@@ -229,7 +227,8 @@ public class BazaarService extends Service {
     @Path("api-docs/{tlr}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse getSwaggerApiDeclaration(@PathParam("tlr") String tlr) {
-        return RESTMapper.getSwaggerApiDeclaration(this.getClass(), tlr, "http://localhost:8080/bazaar/");
+        //TODO parameter localhsot
+        return RESTMapper.getSwaggerApiDeclaration(this.getClass(), tlr, "http://"+swaggerHost+":8080/bazaar/");
     }
 
 
