@@ -31,7 +31,7 @@ public class User extends EntityBase {
 
     private final String lastName;
 
-    private final String eMail;
+    private transient final String eMail;
 
     private final boolean admin;
 
