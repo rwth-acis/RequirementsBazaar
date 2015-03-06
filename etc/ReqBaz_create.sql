@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS attachments (
     subject varchar(255)    NULL ,
     object varchar(255)    NULL ,
     object_desc varchar(255)    NULL ,
-    CONSTRAINT attachments_pk PRIMARY KEY (Id).,
+    CONSTRAINT attachments_pk PRIMARY KEY (Id),
 	CONSTRAINT Attachement_Requirement FOREIGN KEY Attachement_Requirement (Requirement_Id) REFERENCES requirements (Id) ON DELETE CASCADE,
 	CONSTRAINT Attachement_User FOREIGN KEY Attachement_User (User_Id) REFERENCES users (Id)
 );
@@ -131,10 +131,9 @@ CREATE TABLE IF NOT EXISTS role_role (
 CREATE TABLE IF NOT EXISTS roles (
     Id int    NOT NULL  AUTO_INCREMENT,
     name varchar(50)    NULL ,
-    CONSTRAINT roles_pk PRIMARY KEY (Id)
+    CONSTRAINT roles_pk PRIMARY KEY (Id),
+	UNIQUE KEY Role_idx_1 (name)
 );
-
-CREATE  UNIQUE INDEX Role_idx_1 ON roles (name);
 
 
 -- Table tags
