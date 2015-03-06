@@ -4,7 +4,7 @@
 -- Generated at Thu Mar 05 20:06:24 UTC 2015
 
 
-
+SET FOREIGN_KEY_CHECKS=0;
 
 -- tables
 -- Table attachments
@@ -21,7 +21,9 @@ CREATE TABLE IF NOT EXISTS attachments (
     subject varchar(255)    NULL ,
     object varchar(255)    NULL ,
     object_desc varchar(255)    NULL ,
-    CONSTRAINT attachments_pk PRIMARY KEY (Id)
+    CONSTRAINT attachments_pk PRIMARY KEY (Id).,
+	CONSTRAINT Attachement_Requirement FOREIGN KEY Attachement_Requirement (Requirement_Id) REFERENCES requirements (Id) ON DELETE CASCADE,
+	CONSTRAINT Attachement_User FOREIGN KEY Attachement_User (User_Id) REFERENCES users (Id)
 );
 
 -- Table comments
@@ -31,7 +33,9 @@ CREATE TABLE IF NOT EXISTS comments (
     creation_time timestamp    NOT NULL ,
     Requirement_Id int    NOT NULL ,
     User_Id int    NOT NULL ,
-    CONSTRAINT comments_pk PRIMARY KEY (Id)
+    CONSTRAINT comments_pk PRIMARY KEY (Id),
+	CONSTRAINT Comment_Requirement FOREIGN KEY Comment_Requirement (Requirement_Id) REFERENCES requirements (Id) ON DELETE CASCADE,
+	CONSTRAINT Comment_User FOREIGN KEY Comment_User (User_Id)  REFERENCES users (Id)
 );
 
 -- Table components
@@ -41,7 +45,9 @@ CREATE TABLE IF NOT EXISTS components (
     description text    NOT NULL ,
     Project_Id int    NOT NULL ,
     Leader_Id int    NOT NULL ,
-    CONSTRAINT components_pk PRIMARY KEY (Id)
+    CONSTRAINT components_pk PRIMARY KEY (Id),
+	CONSTRAINT Component_Project FOREIGN KEY Component_Project (Project_Id) REFERENCES projects (Id),
+	CONSTRAINT Components_Users FOREIGN KEY Components_Users (Leader_Id) REFERENCES users (Id)
 );
 
 -- Table developers
@@ -50,7 +56,9 @@ CREATE TABLE IF NOT EXISTS developers (
     Requirement_Id int    NOT NULL ,
     User_Id int    NOT NULL ,
     creation_time timestamp    NOT NULL ,
-    CONSTRAINT developers_pk PRIMARY KEY (Id)
+    CONSTRAINT developers_pk PRIMARY KEY (Id),
+	CONSTRAINT Developer_Requirement FOREIGN KEY Developer_Requirement (Requirement_Id)  REFERENCES requirements (Id)  ON DELETE CASCADE,
+	CONSTRAINT Developer_User FOREIGN KEY Developer_User (User_Id)  REFERENCES users (Id)
 );
 
 -- Table followers
@@ -59,7 +67,9 @@ CREATE TABLE IF NOT EXISTS followers (
     Requirement_Id int    NOT NULL ,
     User_Id int    NOT NULL ,
     creation_time timestamp    NULL ,
-    CONSTRAINT followers_pk PRIMARY KEY (Id)
+    CONSTRAINT followers_pk PRIMARY KEY (Id),
+	CONSTRAINT Follower_Requirement FOREIGN KEY Follower_Requirement (Requirement_Id)  REFERENCES requirements (Id)  ON DELETE CASCADE,
+	CONSTRAINT Follower_User FOREIGN KEY Follower_User (User_Id)  REFERENCES users (Id)
 );
 
 -- Table privileges
@@ -77,7 +87,9 @@ CREATE TABLE IF NOT EXISTS projects (
     visibility char(1)    NOT NULL ,
     Leader_Id int    NOT NULL ,
     Default_Components_Id int    NULL ,
-    CONSTRAINT projects_pk PRIMARY KEY (Id)
+    CONSTRAINT projects_pk PRIMARY KEY (Id),
+	CONSTRAINT Projects_Components FOREIGN KEY Projects_Components (Default_Components_Id)  REFERENCES components (Id),
+	CONSTRAINT Projects_Users FOREIGN KEY Projects_Users (Leader_Id)  REFERENCES users (Id)
 );
 
 -- Table requirements
@@ -89,7 +101,10 @@ CREATE TABLE IF NOT EXISTS requirements (
     Lead_developer_Id int    NOT NULL ,
     Creator_Id int    NOT NULL ,
     Project_Id int    NOT NULL ,
-    CONSTRAINT requirements_pk PRIMARY KEY (Id)
+    CONSTRAINT requirements_pk PRIMARY KEY (Id),
+	CONSTRAINT Creator FOREIGN KEY Creator (Creator_Id)  REFERENCES users (Id),
+	CONSTRAINT LeadDeveloper FOREIGN KEY LeadDeveloper (Lead_developer_Id)  REFERENCES users (Id),
+	CONSTRAINT Requirement_Project FOREIGN KEY Requirement_Project (Project_Id)   REFERENCES projects (Id)
 );
 
 -- Table role_privilege
@@ -97,7 +112,9 @@ CREATE TABLE IF NOT EXISTS role_privilege (
     Id int    NOT NULL  AUTO_INCREMENT,
     Roles_Id int    NOT NULL ,
     Privileges_Id int    NOT NULL ,
-    CONSTRAINT role_privilege_pk PRIMARY KEY (Id)
+    CONSTRAINT role_privilege_pk PRIMARY KEY (Id),
+	CONSTRAINT Role_Privilege_Privileges FOREIGN KEY Role_Privilege_Privileges (Privileges_Id)  REFERENCES privileges (Id)  ON DELETE CASCADE,
+	CONSTRAINT Role_Privilege_Roles FOREIGN KEY Role_Privilege_Roles (Roles_Id)  REFERENCES roles (Id)  ON DELETE CASCADE
 );
 
 -- Table role_role
@@ -105,7 +122,9 @@ CREATE TABLE IF NOT EXISTS role_role (
     Id int    NOT NULL  AUTO_INCREMENT,
     Child_Id int    NOT NULL ,
     Parent_Id int    NOT NULL ,
-    CONSTRAINT role_role_pk PRIMARY KEY (Id)
+    CONSTRAINT role_role_pk PRIMARY KEY (Id),
+	CONSTRAINT Role_Child FOREIGN KEY Role_Child (Child_Id)   REFERENCES roles (Id)  ON DELETE CASCADE,
+	CONSTRAINT Role_Parent FOREIGN KEY Role_Parent (Parent_Id)  REFERENCES roles (Id)   ON DELETE CASCADE
 );
 
 -- Table roles
@@ -123,7 +142,9 @@ CREATE TABLE IF NOT EXISTS tags (
     Id int    NOT NULL  AUTO_INCREMENT,
     Components_Id int    NOT NULL ,
     Requirements_Id int    NOT NULL ,
-    CONSTRAINT tags_pk PRIMARY KEY (Id)
+    CONSTRAINT tags_pk PRIMARY KEY (Id),
+	CONSTRAINT Tags_Components FOREIGN KEY Tags_Components (Components_Id)    REFERENCES components (Id),
+	CONSTRAINT Tags_Requirements FOREIGN KEY Tags_Requirements (Requirements_Id)    REFERENCES requirements (Id)    ON DELETE CASCADE
 );
 
 -- Table user_role
@@ -132,7 +153,9 @@ CREATE TABLE IF NOT EXISTS user_role (
     Roles_Id int    NOT NULL ,
     Users_Id int    NOT NULL ,
     context_info varchar(255)    NULL ,
-    CONSTRAINT user_role_pk PRIMARY KEY (Id)
+    CONSTRAINT user_role_pk PRIMARY KEY (Id),
+	CONSTRAINT User_Role_Roles FOREIGN KEY User_Role_Roles (Roles_Id)    REFERENCES roles (Id)    ON DELETE CASCADE,
+	CONSTRAINT User_Role_Users FOREIGN KEY User_Role_Users (Users_Id)    REFERENCES users (Id)    ON DELETE CASCADE
 );
 
 -- Table users
@@ -155,152 +178,10 @@ CREATE TABLE IF NOT EXISTS votes (
     Requirement_Id int    NOT NULL ,
     User_Id int    NOT NULL ,
     creation_time timestamp    NOT NULL ,
-    CONSTRAINT votes_pk PRIMARY KEY (Id)
+    CONSTRAINT votes_pk PRIMARY KEY (Id),
+	CONSTRAINT Votes_Requirement FOREIGN KEY Votes_Requirement (Requirement_Id)    REFERENCES requirements (Id)    ON DELETE CASCADE,
+	CONSTRAINT Votes_User FOREIGN KEY Votes_User (User_Id)    REFERENCES users (Id)
 );
 
 
-
-
-
--- foreign keys
--- Reference:  Attachement_Requirement (table: attachments)
-
-
-ALTER TABLE attachments ADD CONSTRAINT Attachement_Requirement FOREIGN KEY Attachement_Requirement (Requirement_Id)
-    REFERENCES requirements (Id)
-    ON DELETE CASCADE;
--- Reference:  Attachement_User (table: attachments)
-
-
-ALTER TABLE attachments ADD CONSTRAINT Attachement_User FOREIGN KEY Attachement_User (User_Id)
-    REFERENCES users (Id);
--- Reference:  Comment_Requirement (table: comments)
-
-
-ALTER TABLE comments ADD CONSTRAINT Comment_Requirement FOREIGN KEY Comment_Requirement (Requirement_Id)
-    REFERENCES requirements (Id)
-    ON DELETE CASCADE;
--- Reference:  Comment_User (table: comments)
-
-
-ALTER TABLE comments ADD CONSTRAINT Comment_User FOREIGN KEY Comment_User (User_Id)
-    REFERENCES users (Id);
--- Reference:  Component_Project (table: components)
-
-
-ALTER TABLE components ADD CONSTRAINT Component_Project FOREIGN KEY Component_Project (Project_Id)
-    REFERENCES projects (Id);
--- Reference:  Components_Users (table: components)
-
-
-ALTER TABLE components ADD CONSTRAINT Components_Users FOREIGN KEY Components_Users (Leader_Id)
-    REFERENCES users (Id);
--- Reference:  Creator (table: requirements)
-
-
-ALTER TABLE requirements ADD CONSTRAINT Creator FOREIGN KEY Creator (Creator_Id)
-    REFERENCES users (Id);
--- Reference:  Developer_Requirement (table: developers)
-
-
-ALTER TABLE developers ADD CONSTRAINT Developer_Requirement FOREIGN KEY Developer_Requirement (Requirement_Id)
-    REFERENCES requirements (Id)
-    ON DELETE CASCADE;
--- Reference:  Developer_User (table: developers)
-
-
-ALTER TABLE developers ADD CONSTRAINT Developer_User FOREIGN KEY Developer_User (User_Id)
-    REFERENCES users (Id);
--- Reference:  Follower_Requirement (table: followers)
-
-
-ALTER TABLE followers ADD CONSTRAINT Follower_Requirement FOREIGN KEY Follower_Requirement (Requirement_Id)
-    REFERENCES requirements (Id)
-    ON DELETE CASCADE;
--- Reference:  Follower_User (table: followers)
-
-
-ALTER TABLE followers ADD CONSTRAINT Follower_User FOREIGN KEY Follower_User (User_Id)
-    REFERENCES users (Id);
--- Reference:  LeadDeveloper (table: requirements)
-
-
-ALTER TABLE requirements ADD CONSTRAINT LeadDeveloper FOREIGN KEY LeadDeveloper (Lead_developer_Id)
-    REFERENCES users (Id);
--- Reference:  Projects_Components (table: projects)
-
-
-ALTER TABLE projects ADD CONSTRAINT Projects_Components FOREIGN KEY Projects_Components (Default_Components_Id)
-    REFERENCES components (Id);
--- Reference:  Projects_Users (table: projects)
-
-
-ALTER TABLE projects ADD CONSTRAINT Projects_Users FOREIGN KEY Projects_Users (Leader_Id)
-    REFERENCES users (Id);
--- Reference:  Requirement_Project (table: requirements)
-
-
-ALTER TABLE requirements ADD CONSTRAINT Requirement_Project FOREIGN KEY Requirement_Project (Project_Id)
-    REFERENCES projects (Id);
--- Reference:  Role_Child (table: role_role)
-
-
-ALTER TABLE role_role ADD CONSTRAINT Role_Child FOREIGN KEY Role_Child (Child_Id)
-    REFERENCES roles (Id)
-    ON DELETE CASCADE;
--- Reference:  Role_Parent (table: role_role)
-
-
-ALTER TABLE role_role ADD CONSTRAINT Role_Parent FOREIGN KEY Role_Parent (Parent_Id)
-    REFERENCES roles (Id)
-    ON DELETE CASCADE;
--- Reference:  Role_Privilege_Privileges (table: role_privilege)
-
-
-ALTER TABLE role_privilege ADD CONSTRAINT Role_Privilege_Privileges FOREIGN KEY Role_Privilege_Privileges (Privileges_Id)
-    REFERENCES privileges (Id)
-    ON DELETE CASCADE;
--- Reference:  Role_Privilege_Roles (table: role_privilege)
-
-
-ALTER TABLE role_privilege ADD CONSTRAINT Role_Privilege_Roles FOREIGN KEY Role_Privilege_Roles (Roles_Id)
-    REFERENCES roles (Id)
-    ON DELETE CASCADE;
--- Reference:  Tags_Components (table: tags)
-
-
-ALTER TABLE tags ADD CONSTRAINT Tags_Components FOREIGN KEY Tags_Components (Components_Id)
-    REFERENCES components (Id);
--- Reference:  Tags_Requirements (table: tags)
-
-
-ALTER TABLE tags ADD CONSTRAINT Tags_Requirements FOREIGN KEY Tags_Requirements (Requirements_Id)
-    REFERENCES requirements (Id)
-    ON DELETE CASCADE;
--- Reference:  User_Role_Roles (table: user_role)
-
-
-ALTER TABLE user_role ADD CONSTRAINT User_Role_Roles FOREIGN KEY User_Role_Roles (Roles_Id)
-    REFERENCES roles (Id)
-    ON DELETE CASCADE;
--- Reference:  User_Role_Users (table: user_role)
-
-
-ALTER TABLE user_role ADD CONSTRAINT User_Role_Users FOREIGN KEY User_Role_Users (Users_Id)
-    REFERENCES users (Id)
-    ON DELETE CASCADE;
--- Reference:  Votes_Requirement (table: votes)
-
-
-ALTER TABLE votes ADD CONSTRAINT Votes_Requirement FOREIGN KEY Votes_Requirement (Requirement_Id)
-    REFERENCES requirements (Id)
-    ON DELETE CASCADE;
--- Reference:  Votes_User (table: votes)
-
-
-ALTER TABLE votes ADD CONSTRAINT Votes_User FOREIGN KEY Votes_User (User_Id)
-    REFERENCES users (Id);
-
-
-
--- End of file.
+SET FOREIGN_KEY_CHECKS=1;
