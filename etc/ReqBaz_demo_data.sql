@@ -1,22 +1,22 @@
 INSERT INTO `reqbaz`.`users` 
 (`Id`,`first_name`, `last_name`, `email`, `admin`, `Las2peer_Id`, `user_name`, `profile_image`)
  VALUES 
-('41',NULL, NULL, 'anonymous@requirements-bazaar.org', '0', '-1722613621014065292', 'anonymous','https://api.learning-layers.eu/profile.png');
+('1',NULL, NULL, 'anonymous@requirements-bazaar.org', '0', '-1722613621014065292', 'anonymous','https://api.learning-layers.eu/profile.png');
 
 
 INSERT INTO `reqbaz`.`projects` 
 (`Id`,`name`, `description`, `visibility`, `Leader_Id`, `Default_Components_Id`) 
 VALUES
-('1','Layers', 'This is everything about Layers', '+', '42', NULL),
-('2','Requirements Bazaar', 'This project is about Requirement Bazaar', '+', '42',NULL);
+('1','Layers', 'This is everything about Layers', '+', '1', NULL),
+('2','Requirements Bazaar', 'This project is about Requirement Bazaar', '+', '1',NULL);
 
 
 
 INSERT INTO `reqbaz`.`components` 
 (`Id`,`name`, `description`, `Project_Id`, `Leader_Id`) 
 VALUES 
-('1','Layers Box', 'This is a play box component for the Layers project.', '1 ', '42'),
-('2','WebApp', 'Post your requirements about the Requirement Bazaar WebApp under this component', '2', '42');
+('1','Layers Box', 'This is a play box component for the Layers project.', '1 ', '1'),
+('2','WebApp', 'Post your requirements about the Requirement Bazaar WebApp under this component', '2', '1');
 
 UPDATE `reqbaz`.`projects` SET `Default_Components_Id`='1' WHERE `Id`='1 '; 
 UPDATE `reqbaz`.`projects` SET `Default_Components_Id`='2' WHERE `Id`='2 '; 
@@ -96,7 +96,7 @@ INSERT INTO `role_role` (`Id`, `Child_Id`, `Parent_Id`) VALUES
 (3, 4, 3);
 
 INSERT INTO `user_role` (`Id`, `Roles_Id`, `Users_Id`) VALUES
-(1, 1, 41);
+(1, 1, 1);
 
 
 
