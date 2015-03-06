@@ -166,6 +166,8 @@ public class BazaarService extends Service {
         if (agent.getEmail() == null) agent.setEmail("NO.EMAIL@WARNING.COM");
 
         String profileImage = "https://api.learning-layers.eu/profile.png";
+        String givenName = null;
+        String familyName = null;
 
         //TODO how to check if the user is anonymous?
         if(agent.getLoginName().equals("anonymous")) {
@@ -176,6 +178,12 @@ public class BazaarService extends Service {
             String agentPicture= userDataJson.getAsJsonPrimitive("picture").getAsString();
             if (agentPicture != null && !agentPicture.isEmpty())
                 profileImage = agentPicture;
+            String givenNameData= userDataJson.getAsJsonPrimitive("given_name").getAsString();
+            if (givenNameData != null && !givenNameData.isEmpty())
+                givenName = givenNameData;
+            String familyNameData= userDataJson.getAsJsonPrimitive("family_name").getAsString();
+            if (familyNameData != null && !familyNameData.isEmpty())
+                familyName = familyNameData;
         }
 
         DALFacade dalFacade = null;
@@ -183,7 +191,13 @@ public class BazaarService extends Service {
             dalFacade = createConnection();
             Integer userIdByLAS2PeerId = dalFacade.getUserIdByLAS2PeerId(agent.getId());
             if (userIdByLAS2PeerId == null) {
-                int userId = dalFacade.createUser(User.geBuilder(agent.getEmail()).admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).profileImage(profileImage).build());
+                User.Builder userBuilder = User.geBuilder(agent.getEmail());
+                if (givenName != null)
+                    userBuilder = userBuilder.firstName(givenName);
+                if (familyName != null)
+                    userBuilder = userBuilder.lastName(familyName);
+                User user = userBuilder.admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).profileImage(profileImage).build();
+                int userId = dalFacade.createUser(user);
                 dalFacade.addUserToRole(userId,"SystemAdmin",null);
             }
         } catch (Exception ex) {

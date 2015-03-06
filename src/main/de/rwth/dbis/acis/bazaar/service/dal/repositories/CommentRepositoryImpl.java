@@ -22,9 +22,11 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.CommentTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -32,6 +34,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.Record;
 import org.jooq.Record1;
 import org.jooq.Result;
 import org.jooq.exception.DataAccessException;
@@ -41,6 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments.COMMENTS;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -60,16 +64,28 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
         List<Comment> entries = null;
         try {
             entries = new ArrayList<Comment>();
-
-            List<CommentsRecord> queryResults = jooq.selectFrom(transformator.getTable())
+            Users creatorUser = USERS.as("creatorUser");
+            List<Record> queryResults = jooq.selectFrom(COMMENTS
+                    .join(creatorUser).on(creatorUser.ID.equal(COMMENTS.USER_ID)))
                     .where(COMMENTS.REQUIREMENT_ID.equal(requirementId))
                     .orderBy(transformator.getSortFields(pageable.getSortDirection()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
-                    .fetchInto(transformator.getRecordClass());
+                    .fetch();
 
-            for (CommentsRecord queryResult : queryResults) {
-                Comment entry = transformator.mapToEntity(queryResult);
+            for (Record record : queryResults) {
+                CommentsRecord commentsRecord = record.into(CommentsRecord.class);
+                Comment entry = transformator.mapToEntity(commentsRecord);
+                User creator = User.geBuilder(record.getValue(USERS.EMAIL))
+                        .userName(record.getValue(USERS.USER_NAME))
+                        .profileImage(record.getValue(USERS.PROFILE_IMAGE))
+                        .admin(record.getValue(USERS.ADMIN) == 1)
+                        .firstName(record.getValue(USERS.FIRST_NAME))
+                        .lastName(record.getValue(USERS.LAST_NAME))
+                        .id(record.getValue(USERS.ID))
+                        .las2peerId(record.getValue(USERS.LAS2PEER_ID))
+                        .build();
+                entry.setCreator(creator);
                 entries.add(entry);
             }
         } catch (DataAccessException e) {
