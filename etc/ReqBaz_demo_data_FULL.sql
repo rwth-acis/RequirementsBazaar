@@ -1,4 +1,6 @@
-INSERT INTO `reqbaz`.`users` 
+SET FOREIGN_KEY_CHECKS=0;
+
+REPLACE INTO `reqbaz`.`users` 
 (`Id`,`first_name`, `last_name`, `email`, `admin`, `Las2peer_Id`, `user_name`, `profile_image`)
  VALUES 
 ('1','Max1', 'Mustermann1', 'Max@Mustermann1.de', '1', '1', 'MaxMustermann1','https://api.learning-layers.eu/profile.png'),
@@ -44,7 +46,7 @@ INSERT INTO `reqbaz`.`users`
 ('41',NULL, NULL, 'anonymous@requirements-bazaar.org', '0', '-1722613621014065292', 'anonymous','https://api.learning-layers.eu/profile.png');
 
 
-INSERT INTO `reqbaz`.`projects` 
+REPLACE INTO `reqbaz`.`projects` 
 (`Id`,`name`, `description`, `visibility`, `Leader_Id`, `Default_Components_Id`) 
 VALUES
 ('1','Project 1', 'Project 1 - Description - This project is visible - leader MaxMustermann1', '+', '1',NULL),
@@ -60,7 +62,7 @@ VALUES
 
 
 
-INSERT INTO `reqbaz`.`components` 
+REPLACE INTO `reqbaz`.`components` 
 (`Id`,`name`, `description`, `Project_Id`, `Leader_Id`) 
 VALUES 
 ('1','Component 1', 'Component  - Description', '1', '1'),
@@ -117,7 +119,7 @@ UPDATE `reqbaz`.`projects` SET `Default_Components_Id`='40' WHERE `Id`='10';
 
 
 
-INSERT INTO `reqbaz`.`requirements` 
+REPLACE INTO `reqbaz`.`requirements` 
 (`Id`, `title`, `description`, `Lead_developer_Id`, `Creator_Id`, `Project_Id`) 
 VALUES 
 ('1', 'Requirement ', 'Requirement - Description', '1', '1', '1'),
@@ -164,7 +166,7 @@ VALUES
 
 
 
-INSERT INTO `reqbaz`.`followers`
+REPLACE INTO `reqbaz`.`followers`
  (`Id`, `Requirement_Id`, `User_Id`) 
 VALUES 
 ('1', '1', '1'),
@@ -189,7 +191,7 @@ VALUES
 ('20', '2', '1');
 
 
-INSERT INTO `reqbaz`.`developers` 
+REPLACE INTO `reqbaz`.`developers` 
 (`Id`, `Requirement_Id`, `User_Id`) 
 VALUES 
 ('1', '1', '1'),
@@ -214,7 +216,7 @@ VALUES
 ('20', '6', '12');
 
 
-INSERT INTO `reqbaz`.`tags` 
+REPLACE INTO `reqbaz`.`tags` 
 (`Id`, `Components_Id`, `Requirements_Id`) 
 VALUES 
 ('1', '1', '1'),
@@ -258,13 +260,13 @@ VALUES
 ('43', '5', '39'),
 ('44', '5', '40');
 
-INSERT INTO `roles` (`Id`, `name`) VALUES
+REPLACE INTO `roles` (`Id`, `name`) VALUES
 (1, 'Anonymous'),
 (2, 'LoggedInUser'),
 (3, 'ProjectAdmin'),
 (4, 'SystemAdmin');
 
-INSERT INTO `privileges` (`Id`, `name`) VALUES
+REPLACE INTO `privileges` (`Id`, `name`) VALUES
 (1, 'Create_PROJECT'),
 (2, 'Read_PROJECT'),
 (3, 'Read_PUBLIC_PROJECT'),
@@ -293,7 +295,7 @@ INSERT INTO `privileges` (`Id`, `name`) VALUES
 (26, 'Delete_DEVELOP');
 	
 
-INSERT INTO `role_privilege` (`Id`, `Roles_Id`, `Privileges_Id`) VALUES
+REPLACE INTO `role_privilege` (`Id`, `Roles_Id`, `Privileges_Id`) VALUES
 (1, 1, 3),
 (2, 1, 7),
 (3, 1, 11),
@@ -326,15 +328,15 @@ INSERT INTO `role_privilege` (`Id`, `Roles_Id`, `Privileges_Id`) VALUES
 (30, 4, 26);
 
 
-INSERT INTO `role_role` (`Id`, `Child_Id`, `Parent_Id`) VALUES
+REPLACE INTO `role_role` (`Id`, `Child_Id`, `Parent_Id`) VALUES
 (1, 2, 1),
 (2, 3, 2),
 (3, 4, 3);
 
-INSERT INTO `user_role` (`Id`, `Roles_Id`, `Users_Id`) VALUES
+REPLACE INTO `user_role` (`Id`, `Roles_Id`, `Users_Id`) VALUES
 (1, 1, 41);
 
-
+SET FOREIGN_KEY_CHECKS=1;
 
 
 

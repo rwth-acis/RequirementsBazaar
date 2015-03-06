@@ -1,10 +1,12 @@
-INSERT INTO `reqbaz`.`users` 
+SET FOREIGN_KEY_CHECKS=0;
+
+REPLACE INTO `reqbaz`.`users` 
 (`Id`,`first_name`, `last_name`, `email`, `admin`, `Las2peer_Id`, `user_name`, `profile_image`)
  VALUES 
 ('1',NULL, NULL, 'anonymous@requirements-bazaar.org', '0', '-1722613621014065292', 'anonymous','https://api.learning-layers.eu/profile.png');
 
 
-INSERT INTO `reqbaz`.`projects` 
+REPLACE INTO `reqbaz`.`projects` 
 (`Id`,`name`, `description`, `visibility`, `Leader_Id`, `Default_Components_Id`) 
 VALUES
 ('1','Layers', 'This is everything about Layers', '+', '1', NULL),
@@ -12,7 +14,7 @@ VALUES
 
 
 
-INSERT INTO `reqbaz`.`components` 
+REPLACE INTO `reqbaz`.`components` 
 (`Id`,`name`, `description`, `Project_Id`, `Leader_Id`) 
 VALUES 
 ('1','Layers Box', 'This is a play box component for the Layers project.', '1 ', '1'),
@@ -22,13 +24,13 @@ UPDATE `reqbaz`.`projects` SET `Default_Components_Id`='1' WHERE `Id`='1 ';
 UPDATE `reqbaz`.`projects` SET `Default_Components_Id`='2' WHERE `Id`='2 '; 
 
 
-INSERT INTO `roles` (`Id`, `name`) VALUES
+REPLACE INTO `roles` (`Id`, `name`) VALUES
 (1, 'Anonymous'),
 (2, 'LoggedInUser'),
 (3, 'ProjectAdmin'),
 (4, 'SystemAdmin');
 
-INSERT INTO `privileges` (`Id`, `name`) VALUES
+REPLACE INTO `privileges` (`Id`, `name`) VALUES
 (1, 'Create_PROJECT'),
 (2, 'Read_PROJECT'),
 (3, 'Read_PUBLIC_PROJECT'),
@@ -57,7 +59,7 @@ INSERT INTO `privileges` (`Id`, `name`) VALUES
 (26, 'Delete_DEVELOP');
 	
 
-INSERT INTO `role_privilege` (`Id`, `Roles_Id`, `Privileges_Id`) VALUES
+REPLACE INTO `role_privilege` (`Id`, `Roles_Id`, `Privileges_Id`) VALUES
 (1, 1, 3),
 (2, 1, 7),
 (3, 1, 11),
@@ -90,15 +92,15 @@ INSERT INTO `role_privilege` (`Id`, `Roles_Id`, `Privileges_Id`) VALUES
 (30, 4, 26);
 
 
-INSERT INTO `role_role` (`Id`, `Child_Id`, `Parent_Id`) VALUES
+REPLACE INTO `role_role` (`Id`, `Child_Id`, `Parent_Id`) VALUES
 (1, 2, 1),
 (2, 3, 2),
 (3, 4, 3);
 
-INSERT INTO `user_role` (`Id`, `Roles_Id`, `Users_Id`) VALUES
+REPLACE INTO `user_role` (`Id`, `Roles_Id`, `Users_Id`) VALUES
 (1, 1, 1);
 
-
+SET FOREIGN_KEY_CHECKS=1;
 
 
 
