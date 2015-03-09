@@ -60,6 +60,7 @@ public class VoteComparator<RequirementsRecord> extends ScoringComparator<Requir
         int positiveVotes = (int) upvotes.getMetric(item);
         double confidence = 0.95;
         WilsonScoreInterval wilsonScoreInterval = new WilsonScoreInterval();
+        if (voteSum == 0) return 0.0;
         return wilsonScoreInterval.createInterval(voteSum, positiveVotes, confidence).getLowerBound();
     }
 }

@@ -54,9 +54,6 @@
 	<lib name="commons-codec-1.9.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/commons-codec-1.9.jar!/"/>
 	</lib>
-	<lib name="commons-io-2.2.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/commons-io-2.2.jar!/"/>
-	</lib>
 	<lib name="commons-lang3-3.3.1.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/commons-lang3-3.3.1.jar!/"/>
 	</lib>
@@ -114,12 +111,6 @@
 	<lib name="persistence-api-1.0.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/persistence-api-1.0.jar!/"/>
 	</lib>
-	<lib name="portlet-api-1.0.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/portlet-api-1.0.jar!/"/>
-	</lib>
-	<lib name="servlet-api-2.4.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/servlet-api-2.4.jar!/"/>
-	</lib>
 	<lib name="slf4j-api-1.6.1.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/slf4j-api-1.6.1.jar!/"/>
 	</lib>
@@ -129,13 +120,13 @@
 	<lib name="xpp3-1.1.4c.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/xpp3-1.1.4c.jar!/"/>
 	</lib>
-	<lib name="C:\Users\Adam\Documents\University\Work\RequirementsBazaar\lib\commons-math3-3.4.1.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/commons-math3-3.4.1.jar!/"/>
+	<lib name="C:\Users\Adam\Documents\University\Work\RequirementsBazaar\lib\joda-convert-1.2.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/joda-convert-1.2.jar!/"/>
 	</lib>
 	<lib name="C:\Users\Adam\Documents\University\Work\RequirementsBazaar\lib\joda-time-2.7.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/joda-time-2.7.jar!/"/>
 	</lib>
-	<lib name="C:\Users\Adam\Documents\University\Work\RequirementsBazaar\lib\joda-convert-1.2.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/joda-convert-1.2.jar!/"/>
+	<lib name="C:\Users\Adam\Documents\University\Work\RequirementsBazaar\lib\commons-math3-3.4.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/commons-math3-3.4.1.jar!/"/>
 	</lib>
 </component>

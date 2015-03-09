@@ -63,6 +63,10 @@ public abstract class ScoringComparator<T> implements Comparator<T> {
      */
     protected abstract Double calculateScore(T item, Map<String,MetricProvider<T>> metrics);
 
+    public Map<T, Double> getScores() {
+        return scores;
+    }
+
     @Override
     public int compare(T item1, T item2) {
         return scores.get(item1).compareTo(scores.get(item2));

@@ -22,7 +22,9 @@ package de.rwth.dbis.acis.bazaar.service.scoringprovider.comparators;
 
 import de.rwth.dbis.acis.bazaar.service.scoringprovider.core.MetricProvider;
 import de.rwth.dbis.acis.bazaar.service.scoringprovider.core.ScoringComparator;
-import de.rwth.dbis.acis.bazaar.service.scoringprovider.metrics.RecentCommentsMetric;
+import de.rwth.dbis.acis.bazaar.service.scoringprovider.core.WeightedScoringComparator;
+import de.rwth.dbis.acis.bazaar.service.scoringprovider.metrics.*;
+import org.apache.commons.lang3.tuple.Pair;
 import org.joda.time.Duration;
 import org.jooq.DSLContext;
 
@@ -35,21 +37,21 @@ import java.util.Map;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 3/2/2015
  */
-public class ActivityComparator<RequirementsRecord> extends ScoringComparator<RequirementsRecord> {
+public class ActivityComparator<RequirementsRecord> extends WeightedScoringComparator<RequirementsRecord> {
     public ActivityComparator(List<RequirementsRecord> items, DSLContext db) {
         super(items, db);
     }
 
     @Override
-    protected Map<String, MetricProvider<RequirementsRecord>> registerMetrics() {
-        Map<String, MetricProvider<RequirementsRecord>> metrics = new HashMap<String, MetricProvider<RequirementsRecord>>();
+    protected Map<String, Pair<MetricProvider<RequirementsRecord>, Double>> registerMetricsWithWeights() {
+        Map<String, Pair<MetricProvider<RequirementsRecord>, Double>> metrics = new HashMap<String, Pair<MetricProvider<RequirementsRecord>, Double>>();
         Duration recentLimit = Duration.standardDays(7);
-        metrics.put("recentComments", (MetricProvider<RequirementsRecord>) new RecentCommentsMetric(recentLimit));
-        return metrics;
-    }
 
-    @Override
-    protected Double calculateScore(RequirementsRecord item, Map<String, MetricProvider<RequirementsRecord>> metrics) {
-        return metrics.get("recentComments").getMetric(item);
+        metrics.put("recentAttachments" , Pair.of((MetricProvider<RequirementsRecord>) new RecentAttachmentsMetric(recentLimit), 0.333));
+        metrics.put("recentComments"    , Pair.of((MetricProvider<RequirementsRecord>) new RecentCommentsMetric(recentLimit), 0.1));
+        metrics.put("recentDevelopers"  , Pair.of((MetricProvider<RequirementsRecord>) new RecentDevelopersMetric(recentLimit), 0.333));
+        metrics.put("recentFollowers"   , Pair.of((MetricProvider<RequirementsRecord>) new RecentFollowersMetric(recentLimit), 0.167));
+        metrics.put("recentVotes"   , Pair.of((MetricProvider<RequirementsRecord>) new RecentVotesMetric(recentLimit), 0.067));
+        return metrics;
     }
 }

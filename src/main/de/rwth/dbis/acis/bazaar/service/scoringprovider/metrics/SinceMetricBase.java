@@ -59,23 +59,24 @@ public abstract class SinceMetricBase extends MetricProviderBase<RequirementsRec
 
         Timestamp since = new Timestamp(sinceTime.getMillis());
 
-        Result<Record> recentComments = db.select(REQUIREMENTS.ID)
-                                          .select(DSL.count(getIDField()))
-                                          .from(REQUIREMENTS)
-                                          .leftOuterJoin(getTable()).on(getRequirementIdField().eq(REQUIREMENTS.ID))
-                                          .where(REQUIREMENTS.ID.in(itemIds).and(getCreationTimeField().greaterOrEqual(since).or(getIDField().isNull())))
-                                          .groupBy(REQUIREMENTS.ID)
+        SelectHavingStep<Record> query = db.select(REQUIREMENTS.ID)
+                .select(DSL.count(getIDField()))
+                .from(REQUIREMENTS)
+                .leftOuterJoin(getTable()).on(getRequirementIdField().eq(REQUIREMENTS.ID))
+                .where(REQUIREMENTS.ID.in(itemIds).and(getCreationTimeField().greaterOrEqual(since).or(getIDField().isNull())))
+                .groupBy(REQUIREMENTS.ID);
+        Result<Record> recentItems = query
                                           .fetch();
 
         this.measurements = new HashMap<RequirementsRecord, Double>();
-        for (Record vote : recentComments) {
+        for (Record vote : recentItems) {
             Integer requirementId = vote.getValue(0, Integer.class);
-            Double numberOfVotes = vote.getValue(1, Double.class);
+            Double itemCount = vote.getValue(1, Double.class);
 
             for (RequirementsRecord item : items) {
                 if (item.getId().equals(requirementId))
                 {
-                    measurements.put(item, numberOfVotes);
+                    measurements.put(item, itemCount);
                     break;
                 }
             }

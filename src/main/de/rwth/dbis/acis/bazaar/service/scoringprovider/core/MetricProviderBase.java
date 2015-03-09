@@ -44,6 +44,7 @@ public abstract class MetricProviderBase<T> implements MetricProvider<T> {
             maxValue = Math.max(maxValue, measurement);
         }
 
+        //TODO FOLLOWER METRIC DOESN't HAVE ITEM
         //Feature scaling
         return lowerBoundOfRange() + ((getMetric(item) - minValue) * (upperBoundOfRange() - lowerBoundOfRange())) / (maxValue - minValue);
     }
