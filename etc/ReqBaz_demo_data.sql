@@ -18,7 +18,7 @@ REPLACE INTO `reqbaz`.`components`
 (`Id`,`name`, `description`, `Project_Id`, `Leader_Id`) 
 VALUES 
 ('1','Layers Box', 'This is a play box component for the Layers project.', '1 ', '1'),
-('2','WebApp', 'Post your requirements about the Requirement Bazaar WebApp under this component', '2', '1');
+('2','Web App', 'Post your requirements about the Requirement Bazaar Web app under this component', '2', '1');
 
 UPDATE `reqbaz`.`projects` SET `Default_Components_Id`='1' WHERE `Id`='1 '; 
 UPDATE `reqbaz`.`projects` SET `Default_Components_Id`='2' WHERE `Id`='2 '; 
