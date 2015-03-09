@@ -914,7 +914,7 @@ public class BazaarService extends Service {
 
             }
             else {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT,String.valueOf(requirementById.getProjectId()), dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT, String.valueOf(requirementById.getProjectId()), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can see components.");
             }
@@ -981,7 +981,7 @@ public class BazaarService extends Service {
             //Todo use requirement's projectId for serurity context, not the one sent from client
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT,Arrays.asList(String.valueOf(projectId), String.valueOf(requirementId)), dalFacade);
             if (!authorized)
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only the creator and admins can modify attachments.");
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only the creator and admins can delete requirements");
 
 
             DeleteResponse deleteResponse = dalFacade.deleteRequirementById(requirementId);
