@@ -296,6 +296,12 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public Comment getCommentById(int commentId) throws Exception {
+        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
+        return commentRepository.findById(commentId);
+    }
+
+    @Override
     public int createComment(Comment comment) throws BazaarException {
         commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
         Comment newComment = commentRepository.add(comment);

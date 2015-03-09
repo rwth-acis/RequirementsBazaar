@@ -74,18 +74,7 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
                     .fetch();
 
             for (Record record : queryResults) {
-                CommentsRecord commentsRecord = record.into(CommentsRecord.class);
-                Comment entry = transformator.mapToEntity(commentsRecord);
-                User creator = User.geBuilder(record.getValue(USERS.EMAIL))
-                        .userName(record.getValue(USERS.USER_NAME))
-                        .profileImage(record.getValue(USERS.PROFILE_IMAGE))
-                        .admin(record.getValue(USERS.ADMIN) == 1)
-                        .firstName(record.getValue(USERS.FIRST_NAME))
-                        .lastName(record.getValue(USERS.LAST_NAME))
-                        .id(record.getValue(USERS.ID))
-                        .las2peerId(record.getValue(USERS.LAS2PEER_ID))
-                        .build();
-                entry.setCreator(creator);
+                Comment entry = convertToCommentWithUser(record);
                 entries.add(entry);
             }
         } catch (DataAccessException e) {
@@ -93,6 +82,38 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
         }
 
         return entries;
+    }
+
+    private Comment convertToCommentWithUser(Record record) {
+        CommentsRecord commentsRecord = record.into(CommentsRecord.class);
+        Comment entry = transformator.mapToEntity(commentsRecord);
+        User creator = User.geBuilder(record.getValue(USERS.EMAIL))
+                .userName(record.getValue(USERS.USER_NAME))
+                .profileImage(record.getValue(USERS.PROFILE_IMAGE))
+                .admin(record.getValue(USERS.ADMIN) == 1)
+                .firstName(record.getValue(USERS.FIRST_NAME))
+                .lastName(record.getValue(USERS.LAST_NAME))
+                .id(record.getValue(USERS.ID))
+                .las2peerId(record.getValue(USERS.LAS2PEER_ID))
+                .build();
+        entry.setCreator(creator);
+        return entry;
+    }
+
+    @Override
+    public Comment findById(int id) throws Exception {
+        Comment returnComment = null;
+        try {
+            Users creatorUser = USERS.as("creatorUser");
+            Record record = jooq.selectFrom(COMMENTS
+                    .join(creatorUser).on(creatorUser.ID.equal(COMMENTS.USER_ID)))
+                    .where(transformator.getTableId().equal(id))
+                    .fetchOne();
+            returnComment = convertToCommentWithUser(record);
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return returnComment;
     }
 
     @Override

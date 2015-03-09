@@ -1474,6 +1474,60 @@ public class BazaarService extends Service {
     }
 
     /**
+     * This method allows to retrieve a certain component under a project.
+     *
+     * @param projectId   the id of the project
+     * @param componentId the id of the component under a given project
+     * @return the details of a certain component.
+     */
+    @GET
+    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments/{commentId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Summary("This method allows to retrieve a certain component under a project.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Returns the details of a certain component.")
+//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+    })
+    public String getComment(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId, @PathParam("commentId") int commentId) {
+        long userId = ((UserAgent) getActiveAgent()).getId();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
+        String resultJSON = "{}";
+        DALFacade dalFacade = null;
+        try {
+            dalFacade = createConnection();
+            //TODO use comment's project id, rather then trust users
+            Comment commentById = dalFacade.getCommentById(commentId);
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            if (dalFacade.isComponentPublic(componentId)) {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT,String.valueOf(projectId), dalFacade);
+                if (!authorized)
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Even anonymous can watch this. Inform maintainers.");
+
+            }
+            else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMMENT,String.valueOf(projectId), dalFacade);
+                if (!authorized)
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can see comments.");
+            }
+
+
+            resultJSON = commentById.toJSON();
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection(dalFacade);
+        }
+
+        return resultJSON;
+    }
+
+
+    /**
      * This method allows to create a new comment for a requirement.
      *
      * @param projectId     the ID of the project for the requirement.

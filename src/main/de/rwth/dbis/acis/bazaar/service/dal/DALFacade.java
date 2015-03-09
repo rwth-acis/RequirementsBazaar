@@ -257,6 +257,13 @@ public interface DALFacade {
      */
     public List<Comment> listCommentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
 
+
+    /**
+     * @param commentId
+     * @return the comment for a given id
+     */
+    public Comment getCommentById(int commentId) throws Exception;
+
     /**
      * @param comment which holds the data for the new comment.
      */
@@ -377,6 +384,8 @@ public interface DALFacade {
     public void createPrivilegeIfNotExists(PrivilegeEnum privilege) throws BazaarException;
 
     public void addUserToRole(int userId, String roleName, String context) throws BazaarException;
+
+
 
 
     //endregion
