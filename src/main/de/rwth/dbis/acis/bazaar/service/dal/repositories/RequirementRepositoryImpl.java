@@ -32,16 +32,17 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
+import de.rwth.dbis.acis.bazaar.service.scoringprovider.ClientScoringProvider;
 import de.rwth.dbis.acis.bazaar.service.scoringprovider.comparators.ActivityComparator;
-import de.rwth.dbis.acis.bazaar.service.scoringprovider.comparators.CombinedComparators;
+import de.rwth.dbis.acis.bazaar.service.scoringprovider.core.CombinedComparator;
 import de.rwth.dbis.acis.bazaar.service.scoringprovider.comparators.VoteComparator;
 import de.rwth.dbis.acis.bazaar.service.scoringprovider.core.ScoringComparator;
+import de.rwth.dbis.acis.bazaar.service.scoringprovider.register.ScoringProviderRegister;
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 
 
 import java.util.*;
-import java.util.Comparator;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQUIREMENTS;
 
@@ -177,7 +178,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     }
 
 
-    public List<Requirement> findAllByComponentWithVotes(int componentId, Pageable pageable, int userId) throws BazaarException {
+    public List<Requirement> findAllByComponentWithScoringProviders(int componentId, Pageable pageable, int userId, ClientScoringProvider scoringProviders) throws BazaarException {
         List<Requirement> entries = null;
         try {
             entries = new ArrayList<Requirement>();
@@ -208,15 +209,14 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 requirementsRecords.add(queryResult.into(RequirementsRecord.class));
             }
 
-            final ActivityComparator<RequirementsRecord> activityComparator = new ActivityComparator<RequirementsRecord>(requirementsRecords, jooq);
-            final VoteComparator voteComparator = new VoteComparator(requirementsRecords, jooq);
+            Map<ScoringComparator<RequirementsRecord>, Double> weightedComparators = new HashMap<ScoringComparator<RequirementsRecord>, Double>();
 
+            for (Map.Entry<ScoringProviderRegister, Double> clientProviders : scoringProviders.entrySet()) {
+                ScoringComparator scoringProvider = clientProviders.getKey().getScoringProvider(requirementsRecords, jooq);
+                weightedComparators.put(scoringProvider,clientProviders.getValue());
+            }
 
-            Map<ScoringComparator<RequirementsRecord>, Double> weightedComparators = new HashMap<ScoringComparator<RequirementsRecord>, Double>() {{
-                put(activityComparator,0.7);
-                put(voteComparator,0.3);
-            }};
-            CombinedComparators<RequirementsRecord> combinedComparators = new CombinedComparators<RequirementsRecord>(weightedComparators);
+            CombinedComparator<RequirementsRecord> combinedComparators = new CombinedComparator<RequirementsRecord>(weightedComparators);
 
             Collections.sort(requirementsRecords, Collections.reverseOrder(combinedComparators));
 

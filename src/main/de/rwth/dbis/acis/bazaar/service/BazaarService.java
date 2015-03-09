@@ -21,12 +21,15 @@
 package de.rwth.dbis.acis.bazaar.service;
 
 import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
+import de.rwth.dbis.acis.bazaar.service.scoringprovider.ClientScoringProvider;
+import de.rwth.dbis.acis.bazaar.service.scoringprovider.register.ScoringProviderRegister;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Service;
 import i5.las2peer.restMapper.HttpResponse;
@@ -34,10 +37,10 @@ import i5.las2peer.restMapper.MediaType;
 import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.*;
 import i5.las2peer.restMapper.annotations.swagger.*;
-import i5.las2peer.security.Agent;
 import i5.las2peer.security.UserAgent;
 
 import java.io.Serializable;
+import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -45,7 +48,6 @@ import java.util.*;
 
 import jodd.vtor.Violation;
 import jodd.vtor.Vtor;
-import jodd.vtor.constraint.*;
 import org.jooq.SQLDialect;
 
 
@@ -53,7 +55,6 @@ import org.jooq.SQLDialect;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
-import org.jooq.tools.json.JSONObject;
 
 
 /**
@@ -757,7 +758,8 @@ public class BazaarService extends Service {
     public String getRequirementsByComponent(@PathParam("projectId") int projectId,
                                              @PathParam("componentId") int componentId,
                                              @QueryParam(name = "page", defaultValue = "0") int page,
-                                             @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
+                                             @QueryParam(name = "per_page", defaultValue = "10") int perPage,
+                                             @QueryParam(name = "scoring-providers", defaultValue = "") String scoringProviders) {
 
         long userId = ((UserAgent) getActiveAgent()).getId();
         String resultJSON = "[]";
@@ -767,6 +769,13 @@ public class BazaarService extends Service {
         try {
             Gson gson = new Gson();
             PageInfo pageInfo = new PageInfo(page, perPage);
+
+            ClientScoringProvider clientScoringProvider = null;
+            if (scoringProviders != null && !scoringProviders.isEmpty()) {
+                Type scoringProviderType = new TypeToken<ClientScoringProvider>(){}.getType();
+                clientScoringProvider = gson.fromJson(scoringProviders, scoringProviderType);
+            }
+
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             dalFacade = createConnection();
@@ -786,7 +795,7 @@ public class BazaarService extends Service {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can see components.");
             }
 
-            List<Requirement> requirements = dalFacade.listRequirementsByComponent(componentId, pageInfo, internalUserId);
+            List<Requirement> requirements = dalFacade.listRequirementsByComponent(componentId, pageInfo, internalUserId, clientScoringProvider);
             resultJSON = gson.toJson(requirements);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -1854,5 +1863,19 @@ public class BazaarService extends Service {
 //        return "{success=false}";
 //    }
 
+    /**********************************
+     * Scoring Providers
+     **********************************/
 
+    @GET
+    @Path("scoring-providers/")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Summary("Returns available scoring providers")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Returns user data by ID")
+    })
+    public String getScoringProviders() {
+        ScoringProviderRegister[] providers = ScoringProviderRegister.values();
+        return new Gson().toJson(providers);
+    }
 }

@@ -18,7 +18,7 @@
  * /
  */
 
-package de.rwth.dbis.acis.bazaar.service.scoringprovider.comparators;
+package de.rwth.dbis.acis.bazaar.service.scoringprovider.core;
 
 import de.rwth.dbis.acis.bazaar.service.scoringprovider.core.MetricProvider;
 import de.rwth.dbis.acis.bazaar.service.scoringprovider.core.ScoringComparator;
@@ -32,11 +32,11 @@ import java.util.Map;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 3/8/2015
  */
-public class CombinedComparators<T> implements Comparator<T> {
+public class CombinedComparator<T> implements Comparator<T> {
     Map<ScoringComparator<T>, Double> weightedComparators;
     protected double sumOfWeights = 0;
 
-    public CombinedComparators(Map<ScoringComparator<T>, Double> weightedComparators) {
+    public CombinedComparator(Map<ScoringComparator<T>, Double> weightedComparators) {
         this.weightedComparators = weightedComparators;
         sumOfWeights = 0;
         for (Double weight : weightedComparators.values()) {

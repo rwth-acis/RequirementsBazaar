@@ -27,6 +27,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.repositories.*;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.PrivilegeEnumConverter;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+import de.rwth.dbis.acis.bazaar.service.scoringprovider.ClientScoringProvider;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
@@ -171,9 +172,11 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public List<Requirement> listRequirementsByComponent(int componentId, Pageable pageable, int userId) throws BazaarException {
+    public List<Requirement> listRequirementsByComponent(int componentId, Pageable pageable, int userId, ClientScoringProvider scoringProviders) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
-        return requirementRepository.findAllByComponentWithVotes(componentId,pageable,userId);
+        if (scoringProviders == null)
+            return requirementRepository.findAllByComponent(componentId,pageable,userId);
+        return requirementRepository.findAllByComponentWithScoringProviders(componentId, pageable, userId, scoringProviders);
 //        return requirementRepository.findAllByComponent(componentId, pageable, userId);
     }
 
@@ -245,7 +248,7 @@ public class DALFacadeImpl implements DALFacade {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
 
         //Get requirements for the component in question
-        List<Requirement> requirements = listRequirementsByComponent(componentId, new PageInfo(0, Integer.MAX_VALUE), 0);
+        List<Requirement> requirements = listRequirementsByComponent(componentId, new PageInfo(0, Integer.MAX_VALUE), 0, null);
 
         // Get default component
         Component componentById = getComponentById(componentId);

@@ -25,6 +25,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+import de.rwth.dbis.acis.bazaar.service.scoringprovider.ClientScoringProvider;
 
 import java.sql.Connection;
 import java.util.List;
@@ -137,9 +138,11 @@ public interface DALFacade {
      * @param componentId the id of the component we are looking in
      * @param pageable    pagination information
      * @param userId
+     * @param scoringProviders
      * @return the requirements under the given component in a paginated way
+     * @throws de.rwth.dbis.acis.bazaar.service.exception.BazaarException
      */
-    public List<Requirement> listRequirementsByComponent(int componentId, Pageable pageable, int userId) throws BazaarException;
+    public List<Requirement> listRequirementsByComponent(int componentId, Pageable pageable, int userId, ClientScoringProvider scoringProviders) throws BazaarException;
 
     /**
      * @param searchTerm the text, which is used to search. Search is case insensitive.
