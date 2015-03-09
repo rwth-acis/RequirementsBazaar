@@ -1336,7 +1336,7 @@ public class BazaarService extends Service {
 
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_VOTE, dalFacade);
             if (!authorized)
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Project members can vote");
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can vote");
 
             CreationStatus creationStatus = dalFacade.vote(internalUserId, requirementId, direction.equals("up"));
             JsonObject resultJsonObject = new JsonObject();
