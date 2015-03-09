@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Vote;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.VoteTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -28,7 +29,13 @@ import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.UpdateSetFirstStep;
+import org.jooq.UpdateSetMoreStep;
 import org.jooq.exception.DataAccessException;
+
+import java.util.List;
+import java.util.Map;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Votes.VOTES;
 
@@ -66,5 +73,39 @@ public class VoteRepostitoryImpl extends RepositoryImpl<Vote, VotesRecord> imple
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return execute > 0;
+    }
+
+    @Override
+    public CreationStatus addOrUpdate(Vote vote) throws BazaarException {
+        VotesRecord record = jooq.selectFrom(VOTES)
+                .where(VOTES.USER_ID.equal(vote.getUserId()).and(VOTES.REQUIREMENT_ID.equal(vote.getRequirementId())))
+                .fetchOne();
+
+        if (record != null){
+            if (record.getIsUpvote() != (byte) (vote.isUpvote() ? 1 : 0)) {
+                UpdateSetFirstStep<VotesRecord> update = jooq.update(transformator.getTable());
+                Map<Field, Object> map = transformator.getUpdateMap(vote);
+                UpdateSetMoreStep moreStep = null;
+                for (Map.Entry<Field, Object> item : map.entrySet()) {
+                    Field key = item.getKey();
+                    Object value = item.getValue();
+                    if(moreStep == null)
+                        moreStep = update.set(key, value);
+                    else
+                        moreStep.set(key,value);
+                }
+                assert moreStep != null;
+                moreStep.where(VOTES.USER_ID.equal(vote.getUserId()).and(VOTES.REQUIREMENT_ID.equal(vote.getRequirementId())))
+                        .execute();
+                return CreationStatus.CHANGED;
+            }
+            else {
+                return CreationStatus.UNCHANGED;
+            }
+        }
+        else {
+            this.add(vote);
+            return CreationStatus.CREATED;
+        }
     }
 }

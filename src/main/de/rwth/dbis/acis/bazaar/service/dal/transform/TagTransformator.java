@@ -40,7 +40,7 @@ public class TagTransformator implements Transformator<de.rwth.dbis.acis.bazaar.
     @Override
     public TagsRecord createRecord(Tag entity) {
         TagsRecord record = new TagsRecord();
-        record.setId(entity.getId());
+//        record.setId(entity.getId());
         record.setComponentsId(entity.getComponentId());
         record.setRequirementsId(entity.getRequirementId());
         return record;

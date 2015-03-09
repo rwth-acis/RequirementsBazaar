@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Reqbaz extends org.jooq.impl.SchemaImpl {
 
-	private static final long serialVersionUID = -1553130340;
+	private static final long serialVersionUID = 1591668149;
 
 	/**
 	 * The singleton instance of <code>reqbaz</code>
@@ -35,15 +35,19 @@ public class Reqbaz extends org.jooq.impl.SchemaImpl {
 	private final java.util.List<org.jooq.Table<?>> getTables0() {
 		return java.util.Arrays.<org.jooq.Table<?>>asList(
 			de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachments.ATTACHMENTS,
-			de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Authorizations.AUTHORIZATIONS,
 			de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments.COMMENTS,
 			de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Components.COMPONENTS,
 			de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Developers.DEVELOPERS,
 			de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Followers.FOLLOWERS,
+			de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privileges.PRIVILEGES,
 			de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS,
 			de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQUIREMENTS,
+			de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Roles.ROLES,
+			de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RolePrivilege.ROLE_PRIVILEGE,
+			de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RoleRole.ROLE_ROLE,
 			de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Tags.TAGS,
 			de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS,
+			de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.UserRole.USER_ROLE,
 			de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Votes.VOTES);
 	}
 }

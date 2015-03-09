@@ -43,7 +43,7 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
         record.setDescription(entry.getDescription());
         record.setName(entry.getName());
         record.setProjectId(entry.getProjectId());
-        record.setId(entry.getId());
+//        record.setId(entry.getId());
         record.setLeaderId(entry.getLeaderId());
         return record;
     }

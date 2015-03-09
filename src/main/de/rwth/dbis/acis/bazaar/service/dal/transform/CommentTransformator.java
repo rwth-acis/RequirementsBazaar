@@ -38,7 +38,7 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
     @Override
     public CommentsRecord createRecord(Comment entity) {
         CommentsRecord record = new CommentsRecord();
-        record.setId(entity.getId());
+//        record.setId(entity.getId());
         record.setUserId(entity.getCreatorId());
         record.setMessage(entity.getMessage());
         record.setRequirementId(entity.getRequirementId());

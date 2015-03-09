@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Projects extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord> {
 
-	private static final long serialVersionUID = 1928226620;
+	private static final long serialVersionUID = 921456119;
 
 	/**
 	 * The singleton instance of <code>reqbaz.projects</code>
@@ -39,7 +39,7 @@ public class Projects extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.s
 	/**
 	 * The column <code>reqbaz.projects.description</code>.
 	 */
-	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord, java.lang.String> DESCRIPTION = createField("description", org.jooq.impl.SQLDataType.VARCHAR.length(255).nullable(false), this, "");
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord, java.lang.String> DESCRIPTION = createField("description", org.jooq.impl.SQLDataType.CLOB.length(65535).nullable(false), this, "");
 
 	/**
 	 * The column <code>reqbaz.projects.visibility</code>.

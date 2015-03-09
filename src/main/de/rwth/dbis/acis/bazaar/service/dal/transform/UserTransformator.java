@@ -40,13 +40,14 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
     @Override
     public UsersRecord createRecord(User entity) {
         UsersRecord record = new UsersRecord();
-        record.setId(entity.getId());
+//        record.setId(entity.getId());
         record.setLas2peerId(entity.getLas2peerId());
         record.setAdmin((byte) (entity.getAdmin() ? 1 : 0));
         record.setEmail(entity.geteMail());
         record.setFirstName(entity.getFirstName());
         record.setLastName(entity.getLastName());
         record.setUserName(entity.getUserName());
+        record.setProfileImage(entity.getProfileImage());
         return record;
     }
 
@@ -58,6 +59,8 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
                 .firstName(record.getFirstName())
                 .lastName(record.getLastName())
                 .las2peerId(record.getLas2peerId())
+                .profileImage(record.getProfileImage())
+                .userName(record.getUserName())
                 .build();
     }
 
@@ -85,6 +88,7 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
             put(USERS.LAST_NAME, entity.getLastName());
             put(USERS.LAS2PEER_ID, entity.getLas2peerId());
             put(USERS.USER_NAME, entity.getUserName());
+            put(USERS.PROFILE_IMAGE, entity.getProfileImage());
         }};
     }
 

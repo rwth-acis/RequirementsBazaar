@@ -21,10 +21,12 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/22/2014
  */
 public interface AttachmentRepository extends Repository<Attachment> {
+    public boolean belongsToPublicProject(int id) throws BazaarException;
 }

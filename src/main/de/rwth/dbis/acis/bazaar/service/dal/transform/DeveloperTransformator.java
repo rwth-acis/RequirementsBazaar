@@ -40,7 +40,7 @@ public class DeveloperTransformator implements Transformator<de.rwth.dbis.acis.b
     @Override
     public DevelopersRecord createRecord(Developer entity) {
         DevelopersRecord record = new DevelopersRecord();
-        record.setId(entity.getId());
+//        record.setId(entity.getId());
         record.setUserId(entity.getUserId());
         record.setRequirementId(entity.getRequirementId());
         return record;

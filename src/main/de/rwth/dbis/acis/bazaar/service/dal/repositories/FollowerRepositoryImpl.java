@@ -20,7 +20,9 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Developer;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Follower;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.FollowerTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -28,7 +30,12 @@ import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.Field;
+import org.jooq.UpdateSetFirstStep;
+import org.jooq.UpdateSetMoreStep;
 import org.jooq.exception.DataAccessException;
+
+import java.util.Map;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Followers.FOLLOWERS;
 
@@ -52,6 +59,34 @@ public class FollowerRepositoryImpl extends RepositoryImpl<Follower, FollowersRe
                     .execute();
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+    }
+
+    @Override
+    public boolean hasUserAlreadyFollows(int userId, int requirementId) throws BazaarException {
+        int execute = 0;
+        try {
+            execute = jooq.selectFrom(FOLLOWERS)
+                    .where(FOLLOWERS.USER_ID.equal(userId).and(FOLLOWERS.REQUIREMENT_ID.equal(requirementId)))
+                    .execute();
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return execute > 0;
+    }
+
+    @Override
+    public CreationStatus addOrUpdate(Follower follower) throws BazaarException {
+        FollowersRecord record = jooq.selectFrom(FOLLOWERS)
+                .where(FOLLOWERS.USER_ID.equal(follower.getUserId()).and(FOLLOWERS.REQUIREMENT_ID.equal(follower.getRequirementId())))
+                .fetchOne();
+
+        if (record != null){
+            return CreationStatus.UNCHANGED;
+        }
+        else {
+            this.add(follower);
+            return CreationStatus.CREATED;
         }
     }
 }

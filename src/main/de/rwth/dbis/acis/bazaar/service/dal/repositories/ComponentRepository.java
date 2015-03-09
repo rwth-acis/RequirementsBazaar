@@ -32,4 +32,5 @@ import java.util.List;
  */
 public interface ComponentRepository extends Repository<Component> {
     List<Component> findByProjectId(int projectId, Pageable pageable) throws BazaarException;
+    public boolean belongsToPublicProject(int id) throws BazaarException;
 }

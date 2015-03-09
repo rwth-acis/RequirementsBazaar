@@ -1,6 +1,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.UserVote;
 import jodd.vtor.constraint.*;
 
 
@@ -22,16 +23,20 @@ public class Requirement extends EntityBase {
 
     private final Date creation_time;
 
-    @NotBlank
-    @MaxLength(255)
+
     private final String description;
 
     @Min(-1)
     private final int projectId;
     @Min(-1)
     private final int leadDeveloperId;
+
+    private final int upVotes;
+    private final int downVotes;
+    private final UserVote userVoted;
+
     @Min(-1)
-    private final int creatorId;
+    private int creatorId;
 
     public Date getCreation_time() {
         return creation_time;
@@ -61,6 +66,10 @@ public class Requirement extends EntityBase {
         return creatorId;
     }
 
+    public void setCreatorId(int creatorId) {
+        this.creatorId = creatorId;
+    }
+
     protected Requirement(Builder builder) {
         this.id = builder.id;
 
@@ -72,7 +81,9 @@ public class Requirement extends EntityBase {
         this.leadDeveloperId = builder.leadDeveloperId;
         this.creatorId = builder.creatorId;
         this.creation_time = builder.creation_time;
-
+        this.upVotes = builder.upVotes;
+        this.downVotes = builder.downVotes;
+        this.userVoted = builder.userVoted;
     }
 
     /**
@@ -96,6 +107,9 @@ public class Requirement extends EntityBase {
         private int leadDeveloperId;
         private int creatorId;
         private Date creation_time;
+        private int upVotes;
+        private int downVotes;
+        public UserVote userVoted;
 
         public Builder(String title) {
             this.title = title;
@@ -145,6 +159,22 @@ public class Requirement extends EntityBase {
 
         public Builder creationTime(Date creationTime) {
             this.creation_time = creationTime;
+            return this;
+        }
+
+        public Builder upVotes(int upVotes) {
+            this.upVotes = upVotes;
+            return this;
+        }
+
+        public Builder downVotes(int downVotes) {
+            this.downVotes = downVotes;
+            return this;
+        }
+
+        public Builder userVoted(UserVote userVoted)
+        {
+            this.userVoted=userVoted;
             return this;
         }
     }

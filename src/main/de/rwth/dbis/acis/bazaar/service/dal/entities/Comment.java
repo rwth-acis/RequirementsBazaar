@@ -40,9 +40,11 @@ public class Comment extends EntityBase {
     private final String message;
 
     @Min(-1)
-    private final int creatorId;
+    private int creatorId;
 
     private final Date creationTime;
+
+    private User creator;
 
     public Comment(Builder builder) {
         Id = builder.id;
@@ -50,6 +52,7 @@ public class Comment extends EntityBase {
         this.creatorId = builder.userId;
         this.requirementId = builder.requirementId;
         this.creationTime = builder.creationTime;
+        this.creator = builder.creator;
     }
 
     public int getRequirementId() {
@@ -68,8 +71,20 @@ public class Comment extends EntityBase {
         return creatorId;
     }
 
+    public void setCreatorId(int creatorId) {
+        this.creatorId = creatorId;
+    }
+
     public Date getCreationTime() {
         return creationTime;
+    }
+
+    public User getCreator() {
+        return creator;
+    }
+
+    public void setCreator(User creator) {
+        this.creator = creator;
     }
 
     public static Builder getBuilder(String message) {
@@ -82,6 +97,7 @@ public class Comment extends EntityBase {
         private int userId;
         private int requirementId;
         public Date creationTime;
+        public User creator;
 
 
         public Builder(String message) {
@@ -117,5 +133,9 @@ public class Comment extends EntityBase {
             return this;
         }
 
+        public Builder creator(User creator) {
+            this.creator = creator;
+            return this;
+        }
     }
 }

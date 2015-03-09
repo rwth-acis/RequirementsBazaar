@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2014, RWTH Aachen University.
+ *  Copyright (c) 2015, RWTH Aachen University.
  *  For a list of contributors see the AUTHORS file at the top-level directory
  *  of this distribution.
  *
@@ -21,6 +21,8 @@
 package de.rwth.dbis.acis.bazaar.service.dal;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.DeleteResponse;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -60,7 +62,7 @@ public interface DALFacade {
     public User getUserById(int userId) throws Exception;
 
 
-    public Integer getUserIdByLAS2PeerId(int las2PeerId) throws Exception;
+    public Integer getUserIdByLAS2PeerId(long las2PeerId) throws Exception;
     //endregion
 
     //region Project
@@ -77,7 +79,7 @@ public interface DALFacade {
      * @param userId   the identifier of the user, whose projects should be returned as well
      * @return all the public projects and all the projects, which the user is authorized to see
      */
-    public List<Project> listPublicAndAuthorizedProjects(PageInfo pageable, int userId) throws BazaarException;
+    public List<Project> listPublicAndAuthorizedProjects(PageInfo pageable, long userId) throws BazaarException;
 
     /**
      * @param searchTerm the text, which is used to search. Search is case insensitive.
@@ -107,6 +109,13 @@ public interface DALFacade {
      */
     public void modifyProject(Project modifiedProject) throws Exception;
 
+    /**
+     * Returns if a project is public or not
+     *
+     * @param projectId
+     * @return
+     */
+    boolean isProjectPublic(int projectId) throws BazaarException;
     //endregion
 
     //region Requirement
@@ -120,16 +129,18 @@ public interface DALFacade {
     /**
      * @param projectId the id of the project we are looking in
      * @param pageable  pagination information
+     * @param userId
      * @return the requirements under the given project in a paginated way
      */
-    public List<Requirement> listRequirementsByProject(int projectId, Pageable pageable) throws BazaarException;
+    public List<Requirement> listRequirementsByProject(int projectId, Pageable pageable, int userId) throws BazaarException;
 
     /**
      * @param componentId the id of the component we are looking in
      * @param pageable    pagination information
+     * @param userId
      * @return the requirements under the given component in a paginated way
      */
-    public List<Requirement> listRequirementsByComponent(int componentId, Pageable pageable) throws BazaarException;
+    public List<Requirement> listRequirementsByComponent(int componentId, Pageable pageable, int userId) throws BazaarException;
 
     /**
      * @param searchTerm the text, which is used to search. Search is case insensitive.
@@ -164,8 +175,16 @@ public interface DALFacade {
      *
      * @param requirementId which identifies the requirement to delete.
      */
-    public void deleteRequirementById(int requirementId) throws Exception;
+    public DeleteResponse deleteRequirementById(int requirementId) throws Exception;
 
+
+    /**
+     * Returns true if requirement belongs to a public project
+     *
+     * @param requirementId
+     * @return
+     */
+    public boolean isRequirementPublic(int requirementId) throws BazaarException;
     //endregion
 
     //region Component
@@ -203,7 +222,15 @@ public interface DALFacade {
      *
      * @param componentId for the component to be deleted
      */
-    public void deleteComponentById(int componentId) throws Exception;
+    public DeleteResponse deleteComponentById(int componentId) throws Exception;
+
+    /**
+     * Returns true if component belongs to a public project
+     *
+     * @param componentId
+     * @return
+     */
+    public boolean isComponentPublic(int componentId) throws BazaarException;
 
     //endregion
 
@@ -217,7 +244,7 @@ public interface DALFacade {
     /**
      * @param attachmentId id of the attachment should be deleted
      */
-    public void deleteAttachmentById(int attachmentId) throws Exception;
+    public DeleteResponse deleteAttachmentById(int attachmentId) throws Exception;
 
     //endregion
 
@@ -230,6 +257,13 @@ public interface DALFacade {
      */
     public List<Comment> listCommentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
 
+
+    /**
+     * @param commentId
+     * @return the comment for a given id
+     */
+    public Comment getCommentById(int commentId) throws Exception;
+
     /**
      * @param comment which holds the data for the new comment.
      */
@@ -238,7 +272,7 @@ public interface DALFacade {
     /**
      * @param commentId to identify the comment to be deleted
      */
-    public void deleteCommentById(int commentId) throws Exception;
+    public DeleteResponse deleteCommentById(int commentId) throws Exception;
 
     //endregion
 
@@ -250,7 +284,7 @@ public interface DALFacade {
      * @param userId        the identifier of the user, who wants to follow the requirement
      * @param requirementId the the identifier of the requirement we want to follow
      */
-    public void follow(int userId, int requirementId) throws BazaarException;
+    public CreationStatus follow(int userId, int requirementId) throws BazaarException;
 
     /**
      * This method deleted the follow relationship between the given user and requirement.
@@ -270,7 +304,7 @@ public interface DALFacade {
      * @param userId
      * @param requirementId
      */
-    public void wantToDevelop(int userId, int requirementId) throws BazaarException;
+    public CreationStatus wantToDevelop(int userId, int requirementId) throws BazaarException;
 
     /**
      * This method deletes the develop relation between a given requirement and a given user
@@ -280,36 +314,6 @@ public interface DALFacade {
      */
     public void notWantToDevelop(int userId, int requirementId) throws BazaarException;
 
-    //endregion
-
-    //region Authorization
-
-    /**
-     * This method gives authorization right for a given project to a given user
-     *
-     * @param userId    the identifier of the user, whose access will be granted
-     * @param projectId the id of the project, what the user can see/edit
-     */
-    public void giveAuthorization(int userId, int projectId) throws BazaarException;
-
-    /**
-     * This method removes authorization right for a given project from a given user
-     *
-     * @param userId    the identifier of the user, whose access will be removed
-     * @param projectId the id of the project, what the user cannot see anymore
-     */
-    public void removeAuthorization(int userId, int projectId) throws BazaarException;
-
-
-    /**
-     * This method checks if a user has right to access to the project
-     *
-     * @param userId    the the identifier of the user, who wants to access a project
-     * @param projectId the id of the project we are looking in
-     * @return if the user has authorization
-     */
-    //TODO not only boolean, but different right levels? Admin, viewer, editor, etc.?
-    public boolean isAuthorized(int userId, int projectId) throws BazaarException;
     //endregion
 
     //region Tag (Component >-< Requirement)
@@ -341,7 +345,7 @@ public interface DALFacade {
      * @param requirementId the identifier of the requirement
      * @param isUpVote      true if the vote is positive, false if not.
      */
-    public void vote(int userId, int requirementId, boolean isUpVote) throws BazaarException;
+    public CreationStatus vote(int userId, int requirementId, boolean isUpVote) throws BazaarException;
 
     /**
      * This method deletes the vote of the given user for the given project
@@ -360,6 +364,28 @@ public interface DALFacade {
      * @return true if the user has voted for the requirement, false otherwise
      */
     public boolean hasUserVotedForRequirement(int userId, int requirementId) throws BazaarException;
+
+
+    /**
+     * This method returns all the roles and permissions for the given user
+     *
+     * @param userId the identifier of the user
+     * @return all the roles filled up with parents and permissions
+     */
+
+
+    //endregion
+
+    //region Authorization
+    public List<Role> getRolesByUserId(int userId, String context) throws BazaarException;
+
+    public List<Role> getParentsForRole(int roleId) throws BazaarException;
+
+    public void createPrivilegeIfNotExists(PrivilegeEnum privilege) throws BazaarException;
+
+    public void addUserToRole(int userId, String roleName, String context) throws BazaarException;
+
+
 
 
     //endregion

@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2014, RWTH Aachen University.
+ *  Copyright (c) 2015, RWTH Aachen University.
  *  For a list of contributors see the AUTHORS file at the top-level directory
  *  of this distribution.
  *
@@ -18,17 +18,40 @@
  * /
  */
 
-package de.rwth.dbis.acis.bazaar.service.dal.repositories;
-
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Authorization;
-import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/22/2014
+ * @since 2/17/2015
  */
-public interface AuthorizationRepository extends Repository<Authorization> {
-    void delete(int userId, int projectId) throws BazaarException;
+public enum PrivilegeEnum {
+    Create_PROJECT,
+    Read_PROJECT,
+    Read_PUBLIC_PROJECT,
+    Modify_PROJECT,
 
-    boolean isAuthorized(int userId, int projectId) throws BazaarException;
+    Create_COMPONENT,
+    Read_COMPONENT,
+    Read_PUBLIC_COMPONENT,
+    Modify_COMPONENT,
+
+    Create_REQUIREMENT,
+    Read_REQUIREMENT,
+    Read_PUBLIC_REQUIREMENT,
+    Modify_REQUIREMENT,
+
+    Create_COMMENT,
+    Read_COMMENT,
+    Read_PUBLIC_COMMENT,
+    Modify_COMMENT,
+
+    Create_ATTACHMENT,
+    Read_ATTACHMENT,
+    Read_PUBLIC_ATTACHMENT,
+    Modify_ATTACHMENT,
+
+    Create_VOTE, Delete_VOTE,
+    Create_FOLLOW, Delete_FOLLOW,
+
+    Create_DEVELOP, Delete_DEVELOP,
 }

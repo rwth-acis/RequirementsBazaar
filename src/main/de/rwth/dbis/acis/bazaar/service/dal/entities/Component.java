@@ -41,7 +41,7 @@ public class Component extends EntityBase {
     private final String name;
 
     @Min(-1)
-    private final int leaderId;
+    private int leaderId;
 
     @Min(-1)
     private final int projectId;
@@ -64,6 +64,10 @@ public class Component extends EntityBase {
 
     public int getLeaderId() {
         return leaderId;
+    }
+
+    public void setLeaderId(int leaderId) {
+        this.leaderId = leaderId;
     }
 
     /**

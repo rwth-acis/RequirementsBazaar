@@ -24,10 +24,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Authorizations;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.*;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.ProjectTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -40,7 +37,6 @@ import org.jooq.exception.DataAccessException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Authorizations.AUTHORIZATIONS;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS;
 
@@ -81,15 +77,17 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
     }
 
     @Override
-    public List<Project> findAllPublicAndAuthorized(PageInfo pageable, int userId) throws BazaarException {
+    public List<Project> findAllPublicAndAuthorized(PageInfo pageable, long userId) throws BazaarException {
         List<Project> entries = null;
         try {
             entries = new ArrayList<Project>();
 
+            //TODO only authorized projects?
             List<ProjectsRecord> queryResults = jooq.selectFrom(transformator.getTable()
-                    .leftOuterJoin(AUTHORIZATIONS).on(AUTHORIZATIONS.PROJECT_ID.equal(PROJECTS.ID))
-                    .join(USERS).on(AUTHORIZATIONS.USER_ID.equal(USERS.ID)))
-                    .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar()).or(USERS.LAS2PEER_ID.equal(userId)))
+//                    .leftOuterJoin(AUTHORIZATIONS).on(AUTHORIZATIONS.PROJECT_ID.equal(PROJECTS.ID))
+//                    .join(USERS).on(AUTHORIZATIONS.USER_ID.equal(USERS.ID))
+                    )
+                    .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar()))//.or(USERS.LAS2PEER_ID.equal(userId)))
                     .orderBy(transformator.getSortFields(pageable.getSortDirection()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
@@ -104,5 +102,20 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
         }
 
         return entries;
+    }
+
+    @Override
+    public boolean belongsToPublicProject(int id) throws BazaarException {
+        try {
+            Integer countOfPublicProjects = jooq.selectCount()
+                    .from(transformator.getTable())
+                    .where(transformator.getTableId().eq(id).and(Projects.PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar())))
+                    .fetchOne(0, int.class);
+
+            return (countOfPublicProjects == 1);
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return false;
     }
 }

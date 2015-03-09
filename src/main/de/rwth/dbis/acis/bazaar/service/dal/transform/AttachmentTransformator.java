@@ -42,7 +42,7 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
     public AttachmentsRecord createRecord(Attachment entity) {
         AttachmentsRecord attachmentsRecord = new AttachmentsRecord();
 
-        attachmentsRecord.setId(entity.getId());
+//        attachmentsRecord.setId(entity.getId());
         attachmentsRecord.setCreationTime(new Timestamp(entity.getCreation_time().getTime()));
         attachmentsRecord.setRequirementId(entity.getRequirementId());
         attachmentsRecord.setUserId(entity.getCreatorId());

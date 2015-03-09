@@ -19,15 +19,19 @@ public class Keys {
 	// -------------------------------------------------------------------------
 
 	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord, java.lang.Integer> IDENTITY_ATTACHMENTS = Identities0.IDENTITY_ATTACHMENTS;
-	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AuthorizationsRecord, java.lang.Integer> IDENTITY_AUTHORIZATIONS = Identities0.IDENTITY_AUTHORIZATIONS;
 	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord, java.lang.Integer> IDENTITY_COMMENTS = Identities0.IDENTITY_COMMENTS;
 	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentsRecord, java.lang.Integer> IDENTITY_COMPONENTS = Identities0.IDENTITY_COMPONENTS;
 	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.DevelopersRecord, java.lang.Integer> IDENTITY_DEVELOPERS = Identities0.IDENTITY_DEVELOPERS;
 	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord, java.lang.Integer> IDENTITY_FOLLOWERS = Identities0.IDENTITY_FOLLOWERS;
+	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.PrivilegesRecord, java.lang.Integer> IDENTITY_PRIVILEGES = Identities0.IDENTITY_PRIVILEGES;
 	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord, java.lang.Integer> IDENTITY_PROJECTS = Identities0.IDENTITY_PROJECTS;
 	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord, java.lang.Integer> IDENTITY_REQUIREMENTS = Identities0.IDENTITY_REQUIREMENTS;
+	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolesRecord, java.lang.Integer> IDENTITY_ROLES = Identities0.IDENTITY_ROLES;
+	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolePrivilegeRecord, java.lang.Integer> IDENTITY_ROLE_PRIVILEGE = Identities0.IDENTITY_ROLE_PRIVILEGE;
+	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RoleRoleRecord, java.lang.Integer> IDENTITY_ROLE_ROLE = Identities0.IDENTITY_ROLE_ROLE;
 	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.TagsRecord, java.lang.Integer> IDENTITY_TAGS = Identities0.IDENTITY_TAGS;
 	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord, java.lang.Integer> IDENTITY_USERS = Identities0.IDENTITY_USERS;
+	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRoleRecord, java.lang.Integer> IDENTITY_USER_ROLE = Identities0.IDENTITY_USER_ROLE;
 	public static final org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord, java.lang.Integer> IDENTITY_VOTES = Identities0.IDENTITY_VOTES;
 
 	// -------------------------------------------------------------------------
@@ -35,15 +39,20 @@ public class Keys {
 	// -------------------------------------------------------------------------
 
 	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord> KEY_ATTACHMENTS_PRIMARY = UniqueKeys0.KEY_ATTACHMENTS_PRIMARY;
-	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AuthorizationsRecord> KEY_AUTHORIZATIONS_PRIMARY = UniqueKeys0.KEY_AUTHORIZATIONS_PRIMARY;
 	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord> KEY_COMMENTS_PRIMARY = UniqueKeys0.KEY_COMMENTS_PRIMARY;
 	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentsRecord> KEY_COMPONENTS_PRIMARY = UniqueKeys0.KEY_COMPONENTS_PRIMARY;
 	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.DevelopersRecord> KEY_DEVELOPERS_PRIMARY = UniqueKeys0.KEY_DEVELOPERS_PRIMARY;
 	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord> KEY_FOLLOWERS_PRIMARY = UniqueKeys0.KEY_FOLLOWERS_PRIMARY;
+	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.PrivilegesRecord> KEY_PRIVILEGES_PRIMARY = UniqueKeys0.KEY_PRIVILEGES_PRIMARY;
 	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord> KEY_PROJECTS_PRIMARY = UniqueKeys0.KEY_PROJECTS_PRIMARY;
 	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord> KEY_REQUIREMENTS_PRIMARY = UniqueKeys0.KEY_REQUIREMENTS_PRIMARY;
+	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolesRecord> KEY_ROLES_PRIMARY = UniqueKeys0.KEY_ROLES_PRIMARY;
+	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolesRecord> KEY_ROLES_ROLE_IDX_1 = UniqueKeys0.KEY_ROLES_ROLE_IDX_1;
+	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolePrivilegeRecord> KEY_ROLE_PRIVILEGE_PRIMARY = UniqueKeys0.KEY_ROLE_PRIVILEGE_PRIMARY;
+	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RoleRoleRecord> KEY_ROLE_ROLE_PRIMARY = UniqueKeys0.KEY_ROLE_ROLE_PRIMARY;
 	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.TagsRecord> KEY_TAGS_PRIMARY = UniqueKeys0.KEY_TAGS_PRIMARY;
 	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord> KEY_USERS_PRIMARY = UniqueKeys0.KEY_USERS_PRIMARY;
+	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRoleRecord> KEY_USER_ROLE_PRIMARY = UniqueKeys0.KEY_USER_ROLE_PRIMARY;
 	public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord> KEY_VOTES_PRIMARY = UniqueKeys0.KEY_VOTES_PRIMARY;
 
 	// -------------------------------------------------------------------------
@@ -57,29 +66,38 @@ public class Keys {
 
 	private static class Identities0 extends org.jooq.impl.AbstractKeys {
 		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord, java.lang.Integer> IDENTITY_ATTACHMENTS = createIdentity(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachments.ATTACHMENTS, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachments.ATTACHMENTS.ID);
-		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AuthorizationsRecord, java.lang.Integer> IDENTITY_AUTHORIZATIONS = createIdentity(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Authorizations.AUTHORIZATIONS, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Authorizations.AUTHORIZATIONS.ID);
 		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord, java.lang.Integer> IDENTITY_COMMENTS = createIdentity(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments.COMMENTS, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments.COMMENTS.ID);
 		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentsRecord, java.lang.Integer> IDENTITY_COMPONENTS = createIdentity(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Components.COMPONENTS, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Components.COMPONENTS.ID);
 		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.DevelopersRecord, java.lang.Integer> IDENTITY_DEVELOPERS = createIdentity(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Developers.DEVELOPERS, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Developers.DEVELOPERS.ID);
 		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord, java.lang.Integer> IDENTITY_FOLLOWERS = createIdentity(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Followers.FOLLOWERS, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Followers.FOLLOWERS.ID);
+		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.PrivilegesRecord, java.lang.Integer> IDENTITY_PRIVILEGES = createIdentity(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privileges.PRIVILEGES, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privileges.PRIVILEGES.ID);
 		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord, java.lang.Integer> IDENTITY_PROJECTS = createIdentity(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS.ID);
 		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord, java.lang.Integer> IDENTITY_REQUIREMENTS = createIdentity(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQUIREMENTS, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQUIREMENTS.ID);
+		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolesRecord, java.lang.Integer> IDENTITY_ROLES = createIdentity(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Roles.ROLES, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Roles.ROLES.ID);
+		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolePrivilegeRecord, java.lang.Integer> IDENTITY_ROLE_PRIVILEGE = createIdentity(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RolePrivilege.ROLE_PRIVILEGE, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RolePrivilege.ROLE_PRIVILEGE.ID);
+		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RoleRoleRecord, java.lang.Integer> IDENTITY_ROLE_ROLE = createIdentity(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RoleRole.ROLE_ROLE, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RoleRole.ROLE_ROLE.ID);
 		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.TagsRecord, java.lang.Integer> IDENTITY_TAGS = createIdentity(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Tags.TAGS, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Tags.TAGS.ID);
 		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord, java.lang.Integer> IDENTITY_USERS = createIdentity(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS.ID);
+		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRoleRecord, java.lang.Integer> IDENTITY_USER_ROLE = createIdentity(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.UserRole.USER_ROLE, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.UserRole.USER_ROLE.ID);
 		public static org.jooq.Identity<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord, java.lang.Integer> IDENTITY_VOTES = createIdentity(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Votes.VOTES, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Votes.VOTES.ID);
 	}
 
 	private static class UniqueKeys0 extends org.jooq.impl.AbstractKeys {
 		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord> KEY_ATTACHMENTS_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachments.ATTACHMENTS, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachments.ATTACHMENTS.ID);
-		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AuthorizationsRecord> KEY_AUTHORIZATIONS_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Authorizations.AUTHORIZATIONS, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Authorizations.AUTHORIZATIONS.ID);
 		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord> KEY_COMMENTS_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments.COMMENTS, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments.COMMENTS.ID);
 		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentsRecord> KEY_COMPONENTS_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Components.COMPONENTS, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Components.COMPONENTS.ID);
 		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.DevelopersRecord> KEY_DEVELOPERS_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Developers.DEVELOPERS, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Developers.DEVELOPERS.ID);
 		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord> KEY_FOLLOWERS_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Followers.FOLLOWERS, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Followers.FOLLOWERS.ID);
+		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.PrivilegesRecord> KEY_PRIVILEGES_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privileges.PRIVILEGES, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privileges.PRIVILEGES.ID);
 		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord> KEY_PROJECTS_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS.ID);
 		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord> KEY_REQUIREMENTS_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQUIREMENTS, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQUIREMENTS.ID);
+		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolesRecord> KEY_ROLES_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Roles.ROLES, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Roles.ROLES.ID);
+		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolesRecord> KEY_ROLES_ROLE_IDX_1 = createUniqueKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Roles.ROLES, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Roles.ROLES.NAME);
+		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolePrivilegeRecord> KEY_ROLE_PRIVILEGE_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RolePrivilege.ROLE_PRIVILEGE, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RolePrivilege.ROLE_PRIVILEGE.ID);
+		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RoleRoleRecord> KEY_ROLE_ROLE_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RoleRole.ROLE_ROLE, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RoleRole.ROLE_ROLE.ID);
 		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.TagsRecord> KEY_TAGS_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Tags.TAGS, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Tags.TAGS.ID);
 		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord> KEY_USERS_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS.ID);
+		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRoleRecord> KEY_USER_ROLE_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.UserRole.USER_ROLE, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.UserRole.USER_ROLE.ID);
 		public static final org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord> KEY_VOTES_PRIMARY = createUniqueKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Votes.VOTES, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Votes.VOTES.ID);
 	}
 }

@@ -28,5 +28,5 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
  * @since 6/22/2014
  */
 public interface UserRepository extends Repository<User> {
-    Integer getIdByLas2PeerId(int las2PeerId) throws BazaarException;
+    Integer getIdByLas2PeerId(long las2PeerId) throws BazaarException;
 }

@@ -20,14 +20,15 @@
 
 package de.rwth.dbis.acis.bazaar.service;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.DeleteResponse;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
+import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Service;
 import i5.las2peer.restMapper.HttpResponse;
 import i5.las2peer.restMapper.MediaType;
@@ -37,6 +38,7 @@ import i5.las2peer.restMapper.annotations.swagger.*;
 import i5.las2peer.security.Agent;
 import i5.las2peer.security.UserAgent;
 
+import java.io.Serializable;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -47,11 +49,12 @@ import jodd.vtor.Vtor;
 import jodd.vtor.constraint.*;
 import org.jooq.SQLDialect;
 
-import com.google.gson.Gson;
+
 
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
+import org.jooq.tools.json.JSONObject;
 
 
 /**
@@ -74,14 +77,10 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 public class BazaarService extends Service {
 
     //CONFIG PROPERTIES
-    public static final String DEFAULT_DB_USERNAME = "root";
-    protected String dbUserName = DEFAULT_DB_USERNAME;
-
-    public static final String DEFAULT_DB_PASSWORD = "";
-    protected String dbPassword = DEFAULT_DB_PASSWORD;
-
-    public static final String DEFAULT_DB_URL = "jdbc:mysql://localhost:3306/reqbaz";
-    protected String dbUrl = DEFAULT_DB_URL;
+    protected String dbUserName;
+    protected String dbPassword;
+    protected String dbUrl;
+    protected String swaggerHost;
 
     private Vtor vtor;
     private List<BazaarFunctionRegistrator> functionRegistrators;
@@ -104,9 +103,27 @@ public class BazaarService extends Service {
 
     public BazaarService() throws Exception {
 
+        setFieldValues();
+
         Class.forName("com.mysql.jdbc.Driver").newInstance();
 
         functionRegistrators = new ArrayList<BazaarFunctionRegistrator>();
+        functionRegistrators.add(new BazaarFunctionRegistrator() {
+            @Override
+            public void registerFunction(EnumSet<BazaarFunction> functions) throws BazaarException {
+                DALFacade dalFacade = null;
+                try {
+                    dalFacade = createConnection();
+                    AuthorizationManager.SyncPrivileges(dalFacade);
+                } catch (Exception ex) {
+                   ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Error during synching privileges");
+                }
+                finally {
+                    closeConnection(dalFacade);
+                }
+            }
+        });
+
         functionRegistrators.add(new BazaarFunctionRegistrator() {
             @Override
             public void registerFunction(EnumSet<BazaarFunction> functions) {
@@ -143,27 +160,48 @@ public class BazaarService extends Service {
         vtor = new Vtor();
     }
 
-    private static int safeLongToInt(long l) {
-        if (l < Integer.MIN_VALUE || l > Integer.MAX_VALUE) {
-            throw new IllegalArgumentException
-                    (l + " cannot be cast to int without changing its value.");
-        }
-        return (int) l;
-    }
-
     private void registerUserAtFirstLogin() throws Exception {
         UserAgent agent = (UserAgent) getActiveAgent();
 
+        if (agent.getEmail() == null) agent.setEmail("NO.EMAIL@WARNING.COM");
+
+        String profileImage = "https://api.learning-layers.eu/profile.png";
+        String givenName = null;
+        String familyName = null;
+
         //TODO how to check if the user is anonymous?
-        if(agent.getLoginName().equals("anonymous")) return;
+        if(agent.getLoginName().equals("anonymous")) {
+            agent.setEmail("anonymous@requirements-bazaar.org");
+        }
+        else if (agent.getUserData() != null){
+            JsonObject userDataJson = new JsonParser().parse(agent.getUserData().toString()).getAsJsonObject();
+            String agentPicture= userDataJson.getAsJsonPrimitive("picture").getAsString();
+            if (agentPicture != null && !agentPicture.isEmpty())
+                profileImage = agentPicture;
+            String givenNameData= userDataJson.getAsJsonPrimitive("given_name").getAsString();
+            if (givenNameData != null && !givenNameData.isEmpty())
+                givenName = givenNameData;
+            String familyNameData= userDataJson.getAsJsonPrimitive("family_name").getAsString();
+            if (familyNameData != null && !familyNameData.isEmpty())
+                familyName = familyNameData;
+        }
 
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
-            Integer userIdByLAS2PeerId = dalFacade.getUserIdByLAS2PeerId(safeLongToInt(agent.getId()));
+            Integer userIdByLAS2PeerId = dalFacade.getUserIdByLAS2PeerId(agent.getId());
             if (userIdByLAS2PeerId == null) {
-                dalFacade.createUser(User.geBuilder(agent.getEmail()).admin(false).las2peerId(safeLongToInt(agent.getId())).userName(agent.getLoginName()).build());
+                User.Builder userBuilder = User.geBuilder(agent.getEmail());
+                if (givenName != null)
+                    userBuilder = userBuilder.firstName(givenName);
+                if (familyName != null)
+                    userBuilder = userBuilder.lastName(familyName);
+                User user = userBuilder.admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).profileImage(profileImage).build();
+                int userId = dalFacade.createUser(user);
+                dalFacade.addUserToRole(userId,"SystemAdmin",null);
             }
+        } catch (Exception ex) {
+            ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Error during registering users at first login.");
         }
         finally {
             closeConnection(dalFacade);
@@ -171,7 +209,7 @@ public class BazaarService extends Service {
 
     }
     private DALFacade createConnection() throws Exception {
-        Connection dbConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/reqbaz", "root", "");
+        Connection dbConnection = DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
         return new DALFacadeImpl(dbConnection, SQLDialect.MYSQL);
     }
 
@@ -204,7 +242,8 @@ public class BazaarService extends Service {
     @Path("api-docs/{tlr}")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse getSwaggerApiDeclaration(@PathParam("tlr") String tlr) {
-        return RESTMapper.getSwaggerApiDeclaration(this.getClass(), tlr, "http://localhost:8080/bazaar/");
+        //TODO parameter localhsot
+        return RESTMapper.getSwaggerApiDeclaration(this.getClass(), tlr, "http://"+swaggerHost+":8080/bazaar/");
     }
 
 
@@ -230,6 +269,7 @@ public class BazaarService extends Service {
             @QueryParam(name = "page", defaultValue = "0") int page,
             @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
 
+        Serializable userData = ((UserAgent) getActiveAgent()).getUserData();
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
         if(registratorErrors != null) return registratorErrors;
         // if the user is not logged in, return all the public projects.
@@ -250,7 +290,7 @@ public class BazaarService extends Service {
             } else {
                 // return public projects and the ones the user belongs to
                 long userId = agent.getId();
-                projects = dalFacade.listPublicAndAuthorizedProjects(pageInfo, (int) userId);
+                projects = dalFacade.listPublicAndAuthorizedProjects(pageInfo,userId);
             }
 
             resultJSON = gson.toJson(projects);// return only public projects
@@ -298,6 +338,14 @@ public class BazaarService extends Service {
             vtor.validate(projectToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             dalFacade = createConnection();
+
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_PROJECT, dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Minimum logged-in users can create projects.");
+
+
             int projectId = dalFacade.createProject(projectToCreate);
             JsonObject idJson = new JsonObject();
             idJson.addProperty("id", projectId);
@@ -332,11 +380,26 @@ public class BazaarService extends Service {
     public String getProject(@PathParam("projectId") int projectId) {
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
         if(registratorErrors != null) return registratorErrors;
-        // TODO: check whether the current user may request this project
+        long userId = ((UserAgent) getActiveAgent()).getId();
         String resultJSON = "{}";
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
+
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            if (dalFacade.isProjectPublic(projectId)) {
+
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_PROJECT, String.valueOf(projectId), dalFacade);
+                if (!authorized)
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Even anonymous can watch this. Inform maintainers.");
+
+            }
+            else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PROJECT, String.valueOf(projectId), dalFacade);
+                if (!authorized)
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can see components.");
+            }
+
             Project projectToReturn = dalFacade.getProjectById(projectId);
             resultJSON = projectToReturn.toJSON();
         } catch (BazaarException bex) {
@@ -411,7 +474,7 @@ public class BazaarService extends Service {
             @PathParam("projectId") int projectId,
             @QueryParam(name = "page", defaultValue = "0") int page,
             @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
-        // TODO: if the user is not logged in, return all the public projects.
+        long userId = ((UserAgent) getActiveAgent()).getId();
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
         if(registratorErrors != null) return registratorErrors;
         // Otherwise return all the user can see.
@@ -423,6 +486,21 @@ public class BazaarService extends Service {
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             dalFacade = createConnection();
+
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            if (dalFacade.isProjectPublic(projectId)) {
+
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMPONENT,String.valueOf(projectId), dalFacade);
+                if (!authorized)
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Even anonymous can watch this. Inform maintainers.");
+
+            }
+            else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMPONENT,String.valueOf(projectId), dalFacade);
+                if (!authorized)
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can see components.");
+            }
+
             List<Component> components = dalFacade.listComponentsByProjectId(projectId, pageInfo);
             resultJSON = gson.toJson(components);
         } catch (BazaarException bex) {
@@ -466,6 +544,15 @@ public class BazaarService extends Service {
             vtor.validate(componentToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             dalFacade = createConnection();
+
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_COMPONENT,String.valueOf(componentToCreate.getProjectId()), dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only admins can create components.");
+
+            componentToCreate.setLeaderId(internalUserId);
+
             int componentId = dalFacade.createComponent(componentToCreate);
             JsonObject idJson = new JsonObject();
             idJson.addProperty("id", componentId);
@@ -499,14 +586,32 @@ public class BazaarService extends Service {
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String getComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId) {
-        // TODO: check whether the current user may request this project
+        long userId = ((UserAgent) getActiveAgent()).getId();
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
         if(registratorErrors != null) return registratorErrors;
         String resultJSON = "{}";
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
-            resultJSON = dalFacade.getComponentById(componentId).toJSON();
+            Component componentById = dalFacade.getComponentById(componentId);
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            if (dalFacade.isComponentPublic(componentId)) {
+
+
+
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMPONENT,String.valueOf(componentById.getProjectId()), dalFacade);
+                if (!authorized)
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Even anonymous can watch this. Inform maintainers.");
+
+            }
+            else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMPONENT,String.valueOf(componentById.getProjectId()), dalFacade);
+                if (!authorized)
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can see components.");
+            }
+
+
+            resultJSON = componentById.toJSON();
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -541,11 +646,12 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("Deletes a component under a project by id")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
+            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String deleteComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId) {
-        // TODO: check if user can delete this project
+        long userId = ((UserAgent) getActiveAgent()).getId();
+
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
         if(registratorErrors != null) return registratorErrors;
         String resultJSON = "{\"success\" : \"true\"}";
@@ -553,9 +659,17 @@ public class BazaarService extends Service {
         try {
             dalFacade = createConnection();
 
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_COMPONENT,String.valueOf(projectId), dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only admins can modify components.");
+
+
             Project projectById = dalFacade.getProjectById(projectId);
             if (projectById.getDefaultComponentId() != componentId) {
-                dalFacade.deleteComponentById(componentId);
+                DeleteResponse deleteResponse = dalFacade.deleteComponentById(componentId);
+                resultJSON = deleteResponse.toJSON();
             } else {
                 ExceptionHandler.getInstance().convertAndThrowException(
                         new Exception(),
@@ -599,6 +713,8 @@ public class BazaarService extends Service {
     public String getRequirementsByProject(@PathParam("projectId") int projectId,
                                            @QueryParam(name = "page", defaultValue = "0") int page,
                                            @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
+
+        long userId = ((UserAgent) getActiveAgent()).getId();
         String resultJSON = "[]";
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
         if(registratorErrors != null) return registratorErrors;
@@ -609,7 +725,22 @@ public class BazaarService extends Service {
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             dalFacade = createConnection();
-            List<Requirement> requirements = dalFacade.listRequirementsByProject(projectId, pageInfo);
+
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            if (dalFacade.isProjectPublic(projectId)) {
+
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT,String.valueOf(projectId), dalFacade);
+                if (!authorized)
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Even anonymous can watch this. Inform maintainers.");
+
+            }
+            else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT,String.valueOf(projectId), dalFacade);
+                if (!authorized)
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can see components.");
+            }
+
+            List<Requirement> requirements = dalFacade.listRequirementsByProject(projectId, pageInfo, internalUserId);
             resultJSON = gson.toJson(requirements);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -643,6 +774,8 @@ public class BazaarService extends Service {
                                              @PathParam("componentId") int componentId,
                                              @QueryParam(name = "page", defaultValue = "0") int page,
                                              @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
+
+        long userId = ((UserAgent) getActiveAgent()).getId();
         String resultJSON = "[]";
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
         if(registratorErrors != null) return registratorErrors;
@@ -653,7 +786,23 @@ public class BazaarService extends Service {
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             dalFacade = createConnection();
-            List<Requirement> requirements = dalFacade.listRequirementsByComponent(componentId, pageInfo);
+
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            //TODO use components requirementId not the one it is sent for security context info
+            if (dalFacade.isComponentPublic(componentId)) {
+
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT,String.valueOf(projectId), dalFacade);
+                if (!authorized)
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Even anonymous can watch this. Inform maintainers.");
+
+            }
+            else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT,String.valueOf(projectId), dalFacade);
+                if (!authorized)
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can see components.");
+            }
+
+            List<Requirement> requirements = dalFacade.listRequirementsByComponent(componentId, pageInfo, internalUserId);
             resultJSON = gson.toJson(requirements);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -697,11 +846,21 @@ public class BazaarService extends Service {
         try {
             Gson gson = new Gson();
             Requirement requirementToCreate = gson.fromJson(requirement, Requirement.class);
+            dalFacade = createConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+            requirementToCreate.setCreatorId(internalUserId);
+
             vtor.validate(requirementToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             vtor.validate(componentId);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            dalFacade = createConnection();
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_REQUIREMENT, String.valueOf(requirementToCreate.getProjectId()), dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Minimum project members can create requirements.");
+
+
             int requirementId = dalFacade.createRequirement(requirementToCreate, componentId);
             JsonObject idJson = new JsonObject();
             idJson.addProperty("id", requirementId);
@@ -737,13 +896,31 @@ public class BazaarService extends Service {
     })
     public String getRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
                                  @PathParam("requirementId") int requirementId) {
+        long userId = ((UserAgent) getActiveAgent()).getId();
+
         String resultJSON = "{}";
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
         if(registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
-            resultJSON = dalFacade.getRequirementById(requirementId).toJSON();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            RequirementEx requirementById = dalFacade.getRequirementById(requirementId);
+            if (dalFacade.isRequirementPublic(requirementId)) {
+
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT,String.valueOf(requirementById.getProjectId()), dalFacade);
+                if (!authorized)
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Even anonymous can watch this. Inform maintainers.");
+
+            }
+            else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT, String.valueOf(requirementById.getProjectId()), dalFacade);
+                if (!authorized)
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can see components.");
+            }
+
+
+            resultJSON = requirementById.toJSON();
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -786,19 +963,29 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method deletes a specific requirement within a project.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
+            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String deleteRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
                                     @PathParam("requirementId") int requirementId) {
-        // TODO: check if the user may delete this requirement.
+        long userId = ((UserAgent) getActiveAgent()).getId();
         String resultJSON = "{\"success\" : \"true\"}";
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
         if(registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
-            dalFacade.deleteRequirementById(requirementId);
+
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+            //Todo use requirement's projectId for serurity context, not the one sent from client
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT,Arrays.asList(String.valueOf(projectId), String.valueOf(requirementId)), dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only the creator and admins can delete requirements");
+
+
+            DeleteResponse deleteResponse = dalFacade.deleteRequirementById(requirementId);
+            resultJSON = deleteResponse.toJSON();
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -899,11 +1086,11 @@ public class BazaarService extends Service {
      */
     @POST
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/developers")
-    @Consumes(MediaType.APPLICATION_JSON)
+    //@Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method add the current user to the developers list of a given requirement")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
+            @ApiResponse(code = 200, message = "Returns {success : true} if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String addUserToDevelopers(@PathParam("projectId") int projectId,
@@ -915,16 +1102,20 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        String resultJSON = "{\"success\" : \"true\"}";
+        String resultJSON = "{}";
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
-            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
-            if (internalUserId == null) {
-                resultJSON = "{success = false}";
-            } else {
-                dalFacade.wantToDevelop(internalUserId, requirementId);
-            }
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_DEVELOP, dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Project members can develop");
+
+            CreationStatus creationStatus = dalFacade.wantToDevelop(internalUserId, requirementId);
+            JsonObject resultJsonObject = new JsonObject();
+            resultJsonObject.addProperty("status", String.valueOf(creationStatus));
+            resultJSON = resultJsonObject.toString();
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -951,7 +1142,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method remove the current user from a developers list of a given requirement")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
+            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String removeUserFromDevelopers(@PathParam("projectId") int projectId,
@@ -968,11 +1159,12 @@ public class BazaarService extends Service {
         try {
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
-            if (internalUserId == null) {
-                resultJSON = "{success = false}";
-            } else {
-                dalFacade.notWantToDevelop(internalUserId, requirementId);
-            }
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_DEVELOP, dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Project members can cancel to develop");
+
+            dalFacade.notWantToDevelop(internalUserId, requirementId);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -1013,11 +1205,11 @@ public class BazaarService extends Service {
      */
     @POST
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/followers")
-    @Consumes(MediaType.APPLICATION_JSON)
+    //@Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method add the current user to the followers list of a given requirement")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
+            @ApiResponse(code = 200, message = "Returns {success : true} if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String addUserToFollowers(@PathParam("projectId") int projectId,
@@ -1029,16 +1221,20 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
-        String resultJSON = "{\"success\" : \"true\"}";
+        String resultJSON = "{}";
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
-            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
-            if (internalUserId == null) {
-                resultJSON = "{success = false}";
-            } else {
-                dalFacade.follow(internalUserId, requirementId);
-            }
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_FOLLOW, dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Project members can follow");
+
+            CreationStatus creationStatus = dalFacade.follow(internalUserId, requirementId);
+            JsonObject resultJsonObject = new JsonObject();
+            resultJsonObject.addProperty("status", String.valueOf(creationStatus));
+            resultJSON = resultJsonObject.toString();
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -1065,7 +1261,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method removes the current user from a followers list of a given requirement")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
+            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String removeUserFromFollowers(@PathParam("projectId") int projectId,
@@ -1082,11 +1278,12 @@ public class BazaarService extends Service {
         try {
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
-            if (internalUserId == null) {
-                resultJSON = "{success = false}";
-            } else {
-                dalFacade.unFollow(internalUserId, requirementId);
-            }
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_FOLLOW, dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Project members can cancel following");
+
+            dalFacade.unFollow(internalUserId, requirementId);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -1110,11 +1307,11 @@ public class BazaarService extends Service {
      */
     @POST
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/vote")
-    @Consumes(MediaType.APPLICATION_JSON)
+    //@Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method creates a vote for the given requirement in the name of the current user.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success = true} if creation was successful")
+            @ApiResponse(code = 200, message = "Returns {success : true} if creation was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String addVote(@PathParam("projectId") int projectId,
@@ -1123,10 +1320,11 @@ public class BazaarService extends Service {
                           @QueryParam(name = "direction", defaultValue = "up") String direction) {
 
         long userId = ((UserAgent) getActiveAgent()).getId();
+
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
         if(registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
-        String resultJSON = "{\"success\" : \"true\"}";
+        String resultJSON = "";
         try {
             if (!(direction.equals("up") || direction.equals("down"))) {
                 vtor.addViolation(new Violation("Direction can only be \"up\" or \"down\"", direction, direction));
@@ -1134,12 +1332,16 @@ public class BazaarService extends Service {
             }
 
             dalFacade = createConnection();
-            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
-            if (internalUserId == null) {
-                resultJSON = "{success = false}";
-            } else {
-                dalFacade.vote(internalUserId, requirementId, direction.equals("up"));
-            }
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_VOTE, dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can vote");
+
+            CreationStatus creationStatus = dalFacade.vote(internalUserId, requirementId, direction.equals("up"));
+            JsonObject resultJsonObject = new JsonObject();
+            resultJsonObject.addProperty("status", String.valueOf(creationStatus));
+            resultJSON = resultJsonObject.toString();
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -1167,7 +1369,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method removes the vote of the given requirement made by the current user")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
+            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String removeVote(@PathParam("projectId") int projectId,
@@ -1184,11 +1386,12 @@ public class BazaarService extends Service {
         try {
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId((int) userId);
-            if (internalUserId == null) {
-                resultJSON = "{success = false}";
-            } else {
-                dalFacade.unVote(internalUserId, requirementId);
-            }
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_VOTE, dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Project members can delete vote");
+
+            dalFacade.unVote(internalUserId, requirementId);
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -1238,6 +1441,22 @@ public class BazaarService extends Service {
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             dalFacade = createConnection();
+
+            //Todo use requirement's projectId for serurity context, not the one sent from client
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            if (dalFacade.isRequirementPublic(requirementId)) {
+
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT,String.valueOf(projectId), dalFacade);
+                if (!authorized)
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Even anonymous can watch this. Inform maintainers.");
+
+            }
+            else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMMENT,String.valueOf(projectId), dalFacade);
+                if (!authorized)
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can see comments.");
+            }
+
             List<Comment> comments = dalFacade.listCommentsByRequirementId(requirementId, pageInfo);
             Gson gson = new Gson();
             resultJSON = gson.toJson(comments);
@@ -1253,6 +1472,60 @@ public class BazaarService extends Service {
 
         return resultJSON;
     }
+
+    /**
+     * This method allows to retrieve a certain component under a project.
+     *
+     * @param projectId   the id of the project
+     * @param componentId the id of the component under a given project
+     * @return the details of a certain component.
+     */
+    @GET
+    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments/{commentId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Summary("This method allows to retrieve a certain component under a project.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Returns the details of a certain component.")
+//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+    })
+    public String getComment(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId, @PathParam("commentId") int commentId) {
+        long userId = ((UserAgent) getActiveAgent()).getId();
+        String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+        if(registratorErrors != null) return registratorErrors;
+        String resultJSON = "{}";
+        DALFacade dalFacade = null;
+        try {
+            dalFacade = createConnection();
+            //TODO use comment's project id, rather then trust users
+            Comment commentById = dalFacade.getCommentById(commentId);
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            if (dalFacade.isComponentPublic(componentId)) {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT,String.valueOf(projectId), dalFacade);
+                if (!authorized)
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Even anonymous can watch this. Inform maintainers.");
+
+            }
+            else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMMENT,String.valueOf(projectId), dalFacade);
+                if (!authorized)
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only project members can see comments.");
+            }
+
+
+            resultJSON = commentById.toJSON();
+        } catch (BazaarException bex) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+
+        } finally {
+            closeConnection(dalFacade);
+        }
+
+        return resultJSON;
+    }
+
 
     /**
      * This method allows to create a new comment for a requirement.
@@ -1286,9 +1559,18 @@ public class BazaarService extends Service {
         try {
             Gson gson = new Gson();
             Comment commentToCreate = gson.fromJson(comment, Comment.class);
+            dalFacade = createConnection();
+
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+            //Todo use requirement's projectId for serurity context, not the one sent from client
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_COMMENT,String.valueOf(projectId), dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Minimum project members can create comments.");
+
+            commentToCreate.setCreatorId(internalUserId);
             vtor.validate(commentToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            dalFacade = createConnection();
             int commentId = dalFacade.createComment(commentToCreate);
             JsonObject idJson = new JsonObject();
             idJson.addProperty("id", commentId);
@@ -1361,7 +1643,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method deletes a specific comment within a requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
+            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String deleteComment(@PathParam("projectId") int projectId,
@@ -1376,7 +1658,17 @@ public class BazaarService extends Service {
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
-            dalFacade.deleteCommentById(commentId);
+
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            //Todo use requirement's projectId for serurity context, not the one sent from client
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_COMMENT,Arrays.asList(String.valueOf(commentId),String.valueOf(projectId)), dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only the creator and admins can modify comments.");
+
+
+            DeleteResponse deleteResponse = dalFacade.deleteCommentById(commentId);
+            resultJSON = deleteResponse.toJSON();
+
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
@@ -1424,7 +1716,7 @@ public class BazaarService extends Service {
      */
     @POST
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new attachment for a requirement.")
     @ApiResponses(value = {
@@ -1451,6 +1743,14 @@ public class BazaarService extends Service {
             vtor.validate(attachmentToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             dalFacade = createConnection();
+
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+            //Todo use requirement's projectId for serurity context, not the one sent from client
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_ATTACHMENT, String.valueOf(projectId), dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Minimum project members can create attachments.");
+
             int attachmentId = dalFacade.createAttachment(attachmentToCreate);
             JsonObject idJson = new JsonObject();
             idJson.addProperty("id", attachmentId);
@@ -1520,21 +1820,31 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method deletes a specific attachment within a requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success = true} if deletion was successful")
+            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
 //            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
     })
     public String deleteAttachment(@PathParam("projectId") int projectId,
                                    @PathParam("componentId") int componentId,
                                    @PathParam("requirementId") int requirementId,
                                    @PathParam("attachmentId") int attachmentId) {
-        // TODO: check if the user may delete this requirement.
+        long userId = ((UserAgent) getActiveAgent()).getId();
+
         String resultJSON = "{\"success\" : \"true\"}";
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
         if(registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
-            dalFacade.deleteAttachmentById(attachmentId);
+
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            //Todo use requirement's projectId for serurity context, not the one sent from client
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_ATTACHMENT,Arrays.asList(String.valueOf(attachmentId),String.valueOf(projectId)), dalFacade);
+            if (!authorized)
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only the creator and admins can modify attachments.");
+
+            DeleteResponse deleteResponse = dalFacade.deleteAttachmentById(attachmentId);
+            resultJSON = deleteResponse.toJSON();
+
         } catch (BazaarException bex) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bex);
         } catch (Exception ex) {
