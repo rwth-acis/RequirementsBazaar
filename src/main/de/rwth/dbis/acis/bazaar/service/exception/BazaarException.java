@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service.exception;
 
 import com.google.gson.annotations.Expose;
+import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -60,6 +61,6 @@ public class BazaarException extends Exception {
     }
 
     public String getExceptionMessage() {
-        return message + " Error in " + location.getMessage() + ": " + errorCode.getMessage() + " ExceptionCode: " + getExceptionCode();
+        return String.format(Localization.getInstance().getResourceBundle().getString("error.unknown_exception"), message, location.getMessage(), errorCode.getMessage(), getExceptionCode());
     }
 }
