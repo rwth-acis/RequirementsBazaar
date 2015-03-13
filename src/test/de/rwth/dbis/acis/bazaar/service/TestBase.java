@@ -410,6 +410,22 @@ public abstract class TestBase {
 		return null;
 };
 
+    public ClientResponse test_modifyProject(BazaarRequestParams params) {
+        MiniClient c = getClient();
+
+        try {
+            login(c);
+
+            StrSubstitutor substitutor = new StrSubstitutor(params.getQueryParams(), "{", "}");
+            ClientResponse result = c.sendRequest("PUT", mainPath + substitutor.replace("projects/{projectId}"), params.getContentParam());
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail("Exception: " + e);
+        }
+        return null;
+    };
+
     public ClientResponse test_getProjects(BazaarRequestParams params) {
          MiniClient c = getClient();
 
