@@ -22,13 +22,10 @@ package de.rwth.dbis.acis.bazaar.service.exception;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import de.rwth.dbis.acis.bazaar.service.BazaarService;
+import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 import jodd.vtor.Violation;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -73,7 +70,7 @@ public enum ExceptionHandler {
         bazaarException.setErrorCode(ErrorCode.VALIDATION);
         StringBuilder builder = new StringBuilder();
         for (Violation violation : violations) {
-            builder.append("On " + violation.getName() + " constraint violation has been detected, because you sent " + violation.getInvalidValue() + " and the problem: " + violation.toString());
+            builder.append(String.format(Localization.getInstance().getResourceBundle().getString("error.validation"), violation.getName(), violation.getInvalidValue(), violation.toString()));
         }
 
         bazaarException.setMessage(builder.toString());

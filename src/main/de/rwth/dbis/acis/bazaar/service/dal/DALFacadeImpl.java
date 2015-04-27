@@ -28,6 +28,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.repositories.*;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.PrivilegeEnumConverter;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
@@ -135,8 +136,8 @@ public class DALFacadeImpl implements DALFacade {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         project.setDefaultComponentId(null);
         Project newProject = projectRepository.add(project);
-        Component uncategorizedComponent = Component.getBuilder("Uncategorized")
-                .description("Requirements which not belong to any component")
+        Component uncategorizedComponent = Component.getBuilder(Localization.getInstance().getResourceBundle().getString("component.uncategorized.Name"))
+                .description(Localization.getInstance().getResourceBundle().getString("component.uncategorized.Description"))
                 .leaderId(newProject.getLeaderId())
                 .projectId(newProject.getId())
                 .build();

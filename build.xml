@@ -29,7 +29,7 @@
     <property name="junit.report" location="${export}/test_reports" />
 
     <property name="lib" location="lib" />
-	
+
     <path id="libraries">
         <fileset dir="${lib}">
             <include name="**/*.jar"/>
@@ -135,6 +135,7 @@
     <target name="jar" depends="compile_main">
         <jar jarfile="${export.jars}/${service.name}-${service.version}.jar">
             <fileset dir="${tmp.classes}" includes="${service.path}/**" />
+            <fileset dir="src" includes="i18n/**" />
             <manifest>
                 <attribute name="Library-Version" value="${service.version}" />
                 <attribute name="Library-SymbolicName" value="${service.name}" />
@@ -143,6 +144,7 @@
         <!-- Add the same Jar to the Service Directory !-->
         <jar jarfile="${service}/${service.name}-${service.version}.jar">
             <fileset dir="${tmp.classes}" includes="${service.path}/**" />
+            <fileset dir="src" includes="i18n/**" />
             <manifest>
                 <attribute name="Library-Version" value="${service.version}" />
                 <attribute name="Library-SymbolicName" value="${service.name}" />
