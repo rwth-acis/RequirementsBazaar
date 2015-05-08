@@ -95,16 +95,16 @@ VALUES
 ('28','Component 28', 'Component  - Description', '10', '1'),
 ('29','Component 29', 'Component  - Description', '10', '1'),
 ('30','Component 30', 'Component  - Description', '10', '1'),
-('31','Uncategorized P1 ', 'Uncategorized requirements for Project 1 ', '1 ', '1'),
-('32','Uncategorized-P2 ', 'Uncategorized requirements for Project 2 ', '2 ', '1'),
-('33','Uncategorized-P3 ', 'Uncategorized requirements for Project 3 ', '3 ', '1'),
-('34','Uncategorized-P4 ', 'Uncategorized requirements for Project 4 ', '4 ', '2'),
-('35','Uncategorized-P5 ', 'Uncategorized requirements for Project 5 ', '5 ', '3'),
-('36','Uncategorized-P6 ', 'Uncategorized requirements for Project 6 ', '6 ', '4'),
-('37','Uncategorized-P7 ', 'Uncategorized requirements for Project 7 ', '7 ', '5'),
-('38','Uncategorized-P8 ', 'Uncategorized requirements for Project 8 ', '8 ', '6'),
-('39','Uncategorized-P9 ', 'Uncategorized requirements for Project 9 ', '9 ', '7'),
-('40','Uncategorized-P10', 'Uncategorized requirements for Project 10', '10', '8');
+('31','Default P1 ', 'Default component for Project 1 ', '1 ', '1'),
+('32','Default-P2 ', 'Default component for Project 2 ', '2 ', '1'),
+('33','Default-P3 ', 'Default component for Project 3 ', '3 ', '1'),
+('34','Default-P4 ', 'Default component for Project 4 ', '4 ', '2'),
+('35','Default-P5 ', 'Default component for Project 5 ', '5 ', '3'),
+('36','Default-P6 ', 'Default component for Project 6 ', '6 ', '4'),
+('37','Default-P7 ', 'Default component for Project 7 ', '7 ', '5'),
+('38','Default-P8 ', 'Default component for Project 8 ', '8 ', '6'),
+('39','Default-P9 ', 'Default component for Project 9 ', '9 ', '7'),
+('40','Default-P10', 'Default component for Project 10', '10', '8');
 
 UPDATE `reqbaz`.`projects` SET `Default_Components_Id`='31' WHERE `Id`='1 '; 
 UPDATE `reqbaz`.`projects` SET `Default_Components_Id`='32' WHERE `Id`='2 '; 
