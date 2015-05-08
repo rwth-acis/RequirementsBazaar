@@ -34,7 +34,6 @@ public class Project extends EntityBase {
     private final int id;
 
     @NotBlank
-    @MaxLength(255)
     private final String description;
 
     @NotBlank

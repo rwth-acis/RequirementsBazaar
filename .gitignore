@@ -34,3 +34,4 @@ etc/ivy/ivy.jar
 .idea/workspace.xml
 node-storage/
 .idea/
+etc/de.rwth.dbis.acis.bazaar.service.BazaarService.properties
