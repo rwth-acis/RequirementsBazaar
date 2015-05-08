@@ -359,6 +359,7 @@ public class BazaarService extends Service {
             if (!authorized)
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.create"));
 
+            projectToCreate.setLeaderId(internalUserId);
 
             int projectId = dalFacade.createProject(projectToCreate);
             JsonObject idJson = new JsonObject();
