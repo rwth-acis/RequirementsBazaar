@@ -178,7 +178,14 @@ public class BazaarService extends Service {
         }
         else if (agent.getUserData() != null){
             JsonObject userDataJson = new JsonParser().parse(agent.getUserData().toString()).getAsJsonObject();
-            String agentPicture= userDataJson.getAsJsonPrimitive("picture").getAsString();
+            JsonPrimitive pictureJson = userDataJson.getAsJsonPrimitive("picture");
+            String agentPicture;
+
+            if (pictureJson == null)
+                agentPicture = profileImage;
+            else
+                agentPicture = pictureJson.getAsString();
+
             if (agentPicture != null && !agentPicture.isEmpty())
                 profileImage = agentPicture;
             String givenNameData= userDataJson.getAsJsonPrimitive("given_name").getAsString();
