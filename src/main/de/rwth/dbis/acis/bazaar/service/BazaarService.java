@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service;
 
 import com.google.gson.*;
+import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.DeleteResponse;
@@ -118,10 +119,11 @@ public class BazaarService extends Service {
                 try {
                     dalFacade = createConnection();
                     AuthorizationManager.SyncPrivileges(dalFacade);
+                } catch (CommunicationsException commEx) {
+                    ExceptionHandler.getInstance().convertAndThrowException(commEx, ExceptionLocation.BAZAARSERVICE, ErrorCode.DB_COMM, Localization.getInstance().getResourceBundle().getString("error.db_comm"));
                 } catch (Exception ex) {
                     ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.privilige_sync"));
-                }
-                finally {
+                } finally {
                     closeConnection(dalFacade);
                 }
             }
@@ -152,6 +154,9 @@ public class BazaarService extends Service {
             for (BazaarFunctionRegistrator functionRegistrator : functionRegistrators) {
                 functionRegistrator.registerFunction(functions);
             }
+        }
+        catch (BazaarException bazaarEx) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarEx);
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.registrators"));
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
@@ -224,6 +229,7 @@ public class BazaarService extends Service {
     }
 
     private void closeConnection(DALFacade dalFacade) {
+        if (dalFacade == null) return;
         Connection dbConnection = dalFacade.getConnection();
         if (dbConnection != null) {
             try {
