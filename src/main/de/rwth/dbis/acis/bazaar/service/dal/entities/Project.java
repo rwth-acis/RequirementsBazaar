@@ -34,7 +34,6 @@ public class Project extends EntityBase {
     private final int id;
 
     @NotBlank
-    @MaxLength(255)
     private final String description;
 
     @NotBlank
@@ -50,11 +49,15 @@ public class Project extends EntityBase {
         return leaderId;
     }
 
+    public void setLeaderId(int leaderId) {
+        this.leaderId = leaderId;
+    }
+
     public ProjectVisibility getVisibility() {
         return visibility;
     }
 
-    private final int leaderId;
+    private int leaderId;
 
     private Integer defaultComponentId;
 

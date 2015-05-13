@@ -143,7 +143,7 @@ public class DALFacadeImpl implements DALFacade {
                 .build();
         int defaultComponentId = createComponent(uncategorizedComponent);
         newProject.setDefaultComponentId(defaultComponentId);
-        //TODO
+        //TODO concurrency transaction
         projectRepository.update(newProject);
         return newProject.getId();
     }
