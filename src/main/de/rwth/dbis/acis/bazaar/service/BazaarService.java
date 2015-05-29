@@ -270,7 +270,9 @@ public class BazaarService extends Service {
     /**
      * This method returns the list of projects on the server.
      *
-     * @return a list of projects.
+     * @param page page number
+     * @param perPage number of projects by page
+     * @return Response with projects as a JSON array.
      */
     @GET
     @Path("projects")
@@ -278,8 +280,8 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of projects on the server.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "List of projects")
-////            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "List of projects."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String getProjects(
             @QueryParam(name = "page", defaultValue = "0") int page,
@@ -329,16 +331,16 @@ public class BazaarService extends Service {
     /**
      * This method allows to create a new project.
      *
-     * @return
+     * @param project project as a JSON object
+     * @return Response
      */
     @POST
     @Path("projects")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new project.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns the id if creation was successful")
-////            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns the id if creation was successful."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String createProject(@ContentParam String project) {
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -381,16 +383,16 @@ public class BazaarService extends Service {
     /**
      * This method allows to retrieve a certain project.
      *
-     * @param projectId the id of the project to retrieve
-     * @return the details of a certain project.
+     * @param projectId id of the project to retrieve
+     * @return Response with a project as a JSON object.
      */
     @GET
     @Path("projects/{projectId}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     @Summary("This method allows to retrieve a certain project.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns the detailed view of a certain project.")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns the detailed view of a certain project."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String getProject(@PathParam("projectId") int projectId) {
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -433,14 +435,18 @@ public class BazaarService extends Service {
     /**
      * Allows to update a certain project.
      *
-     * @param projectId the id of the project to update.
-     * @param project   the project information the id should be updated
-     * @return a JSON string containing whether the operation was successful or
-     * not.
+     * @param projectId id of the project to update
+     * @param project updated project as a JSON object
+     * @return Response
      */
     @PUT
     @Path("projects/{projectId}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Summary("This method allows to update a certain project.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Returns a success message."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
+    })
     public String updateProject(@PathParam("projectId") int projectId, @ContentParam String project) {
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
         if(registratorErrors != null) return registratorErrors;
@@ -504,15 +510,17 @@ public class BazaarService extends Service {
     /**
      * This method returns the list of components under a given project.
      *
-     * @return a list of components.
+     * @param page page number
+     * @param perPage number of projects by page
+     * @return Response with components as a JSON array.
      */
     @GET
     @Path("projects/{projectId}/components")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of components under a given project.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns a list of components for a given project")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns a list of components for a given project."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String getComponents(
             @PathParam("projectId") int projectId,
@@ -563,7 +571,9 @@ public class BazaarService extends Service {
     /**
      * This method allows to create a new component under a given a project.
      *
-     * @return
+     * @param projectId id of the project to add the new component
+     * @param component component as a JSON object
+     * @return Response
      */
     @POST
     @Path("projects/{projectId}/components")
@@ -571,8 +581,8 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new component under a given a project.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns the id if creation was successful")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns the id if creation was successful."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String createComponent(@PathParam("projectId") int projectId, @ContentParam String component) {
         long userId = ((UserAgent) getActiveAgent()).getId();
@@ -617,17 +627,17 @@ public class BazaarService extends Service {
     /**
      * This method allows to retrieve a certain component under a project.
      *
-     * @param projectId   the id of the project
-     * @param componentId the id of the component under a given project
-     * @return the details of a certain component.
+     * @param projectId id of the project
+     * @param componentId id of the component under a given project
+     * @return Response with a component as a JSON object.
      */
     @GET
     @Path("projects/{projectId}/components/{componentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to retrieve a certain component under a project.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns the details of a certain component.")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns the details of a certain component."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String getComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
@@ -672,14 +682,19 @@ public class BazaarService extends Service {
     /**
      * Allows to update a certain component under a project.
      *
-     * @param projectId   the id of the project
-     * @param componentId the id of the component under a given project
-     * @return a JSON string containing whether the operation was successful or
-     * not.
+     * @param projectId id of the project
+     * @param componentId id of the component under a given project
+     * @param component updated component as a JSON object
+     * @return Response
      */
     @PUT
     @Path("projects/{projectId}/components/{componentId}")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Summary("This method allows to update a certain component under a project.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Returns a success message."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
+    })
     public String updateComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId, @ContentParam String component) {
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
         if(registratorErrors != null) return registratorErrors;
@@ -713,13 +728,19 @@ public class BazaarService extends Service {
         return resultJSON;
     }
 
+    /**
+     * Allows to delete a component under a project.
+     *
+     * @param projectId id of the project
+     * @param componentId id of the component to delete
+     * @return Response
+     */
     @DELETE
     @Path("projects/{projectId}/components/{componentId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Summary("Deletes a component under a project by id")
+    @Summary("Deletes a component under a project.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns a success message."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String deleteComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
@@ -771,16 +792,18 @@ public class BazaarService extends Service {
     /**
      * This method returns the list of requirements for a specific project.
      *
-     * @param projectId the ID of the project to retrieve requirements for.
-     * @return a list of requirements
+     * @param projectId id of the project to retrieve requirements for
+     * @param page page number
+     * @param perPage number of projects by page
+     * @return Response with requirements as a JSON array.
      */
     @GET
     @Path("projects/{projectId}/requirements")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of requirements for a specific project.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns a list of requirements for a given project")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns a list of requirements for a given project"),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String getRequirementsByProject(@PathParam("projectId") int projectId,
                                            @QueryParam(name = "page", defaultValue = "0") int page,
@@ -830,17 +853,19 @@ public class BazaarService extends Service {
     /**
      * This method returns the list of requirements for a specific component.
      *
-     * @param projectId   the ID of the project to retrieve requirements for.
-     * @param componentId the id of the component under a given project
-     * @return a list of requirements
+     * @param projectId id of the project to retrieve requirements for
+     * @param componentId id of the component under a given project
+     * @param page page number
+     * @param perPage number of projects by page
+     * @return Response with requirements as a JSON array.
      */
     @GET
     @Path("projects/{projectId}/components/{componentId}/requirements")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of requirements for a specific component.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns a list of requirements for a given component")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns a list of requirements for a given component"),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String getRequirementsByComponent(@PathParam("projectId") int projectId,
                                              @PathParam("componentId") int componentId,
@@ -892,9 +917,10 @@ public class BazaarService extends Service {
     /**
      * This method allows to create a new requirement.
      *
-     * @param projectId   the ID of the project to create the requirement in.
-     * @param componentId the id of the component under a given project
-     * @return true if the creation was successful, otherwise false
+     * @param projectId id of the project to create the requirement in
+     * @param componentId id of the component under a given project
+     * @param requirement requirement as a JSON object
+     * @return Response
      */
     @POST
     @Path("projects/{projectId}/components/{componentId}/requirements")
@@ -902,8 +928,8 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns id if creation was successful")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns id if creation was successful"),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String createRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
                                     @ContentParam String requirement) {
@@ -951,20 +977,20 @@ public class BazaarService extends Service {
     }
 
     /**
-     * This method returns a specific requirement within a project.
+     * This method returns a specific requirement within a project and component.
      *
-     * @param projectId     the ID of the project of the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement to retrieve.
-     * @return a specific requirement.
+     * @param projectId id of the project of the requirement
+     * @param componentId id of the component under a given project
+     * @param requirementId id of the requirement to retrieve
+     * @return Response with requirement as a JSON object.
      */
     @GET
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method returns a specific requirement within a project.")
+    @Summary("This method returns a specific requirement within a project and component.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns a requirement")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns a requirement"),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String getRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
                                  @PathParam("requirementId") int requirementId) {
@@ -1007,15 +1033,22 @@ public class BazaarService extends Service {
     }
     
     /**
-     * This method updates a specific requirement within a project.
+     * This method updates a specific requirement within a project and component.
      *
-     * @param projectId     the ID of the project of the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement to update.
-     * @return the updated requirement.
+     * @param projectId id of the project of the requirement
+     * @param componentId id of the component under a given project
+     * @param requirementId id of the requirement to update
+     * @param requirement requirement as a JSON object
+     * @return Response
      */
     @PUT
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Summary("This method updates a specific requirement within a project and component.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Returns a success message."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
+    })
     public String updateRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
                                     @PathParam("requirementId") int requirementId,
                                     @ContentParam String requirement) 
@@ -1053,20 +1086,19 @@ public class BazaarService extends Service {
     }
 
     /**
-     * This method deletes a specific requirement within a project.
+     * This method deletes a specific requirement within a project and component.
      *
-     * @param projectId     the ID of the project of the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement to delete.
-     * @return the updated requirement.
+     * @param projectId id of the project of the requirement
+     * @param componentId id of the component under a given project
+     * @param requirementId id of the requirement to delete
+     * @return Response
      */
     @DELETE
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method deletes a specific requirement within a project.")
+    @Summary("This method deletes a specific requirement within a project and component.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns a success message."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String deleteRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
                                     @PathParam("requirementId") int requirementId) {
@@ -1102,21 +1134,19 @@ public class BazaarService extends Service {
     }
 
     /**
-     * This method add the current user to the developers list of a given requirement
+     * This method add the current user to the developers list of a given requirement.
      *
-     * @param projectId     the ID of the project of the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement.
-     * @return
+     * @param projectId id of the project of the requirement
+     * @param componentId id of the component under a given project
+     * @param requirementId id of the requirement
+     * @return Response
      */
     @POST
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/developers")
-    //@Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method add the current user to the developers list of a given requirement")
+    @Summary("This method add the current user to the developers list of a given requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success : true} if creation was successful")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns a success message."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String addUserToDevelopers(@PathParam("projectId") int projectId,
                                       @PathParam("componentId") int componentId,
@@ -1155,20 +1185,19 @@ public class BazaarService extends Service {
     }
 
     /**
-     * This method remove the current user from a developers list of a given requirement
+     * This method remove the current user from a developers list of a given requirement.
      *
-     * @param projectId     the ID of the project of the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement.
-     * @return
+     * @param projectId id of the project of the requirement
+     * @param componentId id of the component under a given project
+     * @param requirementId id of the requirement
+     * @return Response
      */
     @DELETE
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/developers")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method remove the current user from a developers list of a given requirement")
+    @Summary("This method remove the current user from a developers list of a given requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns a success message."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String removeUserFromDevelopers(@PathParam("projectId") int projectId,
                                            @PathParam("componentId") int componentId,
@@ -1204,21 +1233,19 @@ public class BazaarService extends Service {
     }
 
     /**
-     * This method add the current user to the followers list of a given requirement
+     * This method add the current user to the followers list of a given requirement.
      *
-     * @param projectId     the ID of the project of the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement.
-     * @return
+     * @param projectId id of the project of the requirement
+     * @param componentId id of the component under a given project
+     * @param requirementId id of the requirement
+     * @return Response
      */
     @POST
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/followers")
-    //@Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method add the current user to the followers list of a given requirement")
+    @Summary("This method add the current user to the followers list of a given requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success : true} if creation was successful")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns a success message."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String addUserToFollowers(@PathParam("projectId") int projectId,
                                      @PathParam("componentId") int componentId,
@@ -1257,20 +1284,19 @@ public class BazaarService extends Service {
     }
 
     /**
-     * This method removes the current user from a followers list of a given requirement
+     * This method removes the current user from a followers list of a given requirement.
      *
-     * @param projectId     the ID of the project of the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement.
-     * @return
+     * @param projectId id of the project of the requirement
+     * @param componentId id of the component under a given project
+     * @param requirementId id of the requirement
+     * @return Response
      */
     @DELETE
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/followers")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method removes the current user from a followers list of a given requirement")
+    @Summary("This method removes the current user from a followers list of a given requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns a success message."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String removeUserFromFollowers(@PathParam("projectId") int projectId,
                                           @PathParam("componentId") int componentId,
@@ -1308,19 +1334,18 @@ public class BazaarService extends Service {
     /**
      * This method creates a vote for the given requirement in the name of the current user.
      *
-     * @param projectId     the ID of the project of the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement.
-     * @return
+     * @param projectId id of the project of the requirement
+     * @param componentId  id of the component under a given project
+     * @param requirementId id of the requirement
+     * @param direction "up" or "down" vote direction
+     * @return Response
      */
     @POST
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/vote")
-    //@Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method creates a vote for the given requirement in the name of the current user.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success : true} if creation was successful")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns a success message."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String addVote(@PathParam("projectId") int projectId,
                           @PathParam("componentId") int componentId,
@@ -1365,20 +1390,19 @@ public class BazaarService extends Service {
 
 
     /**
-     * This method removes the vote of the given requirement made by the current user
+     * This method removes the vote of the given requirement made by the current user.
      *
-     * @param projectId     the ID of the project of the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement.
-     * @return
+     * @param projectId id of the project of the requirement
+     * @param componentId id of the component under a given project
+     * @param requirementId id of the requirement
+     * @return Response
      */
     @DELETE
     @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/vote")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method removes the vote of the given requirement made by the current user")
+    @Summary("This method removes the vote of the given requirement made by the current user.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns a success message."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String removeVote(@PathParam("projectId") int projectId,
                              @PathParam("componentId") int componentId,
@@ -1420,18 +1444,20 @@ public class BazaarService extends Service {
     /**
      * This method returns the list of comments for a specific requirement.
      *
-     * @param projectId     the ID of the project for the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement, which was commented.
-     * @return a list of comments
+     * @param projectId id of the project for the requirement
+     * @param componentId  id of the component under a given project
+     * @param requirementId id of the requirement, which was commented
+     * @param page page number
+     * @param perPage number of projects by page
+     * @return Response with comments as a JSON array.
      */
     @GET
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of comments for a specific requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns list of comments for the given requirement")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns a list of comments for a given requirement."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String getComments(@PathParam("projectId") int projectId,
                               @PathParam("componentId") int componentId,
@@ -1484,17 +1510,18 @@ public class BazaarService extends Service {
     /**
      * This method allows to retrieve a certain component under a project.
      *
-     * @param projectId   the id of the project
-     * @param componentId the id of the component under a given project
-     * @return the details of a certain component.
+     * @param projectId id of the project
+     * @param componentId id of the component under a given project
+     * @param commentId id of the comment
+     * @return Response with comment as a JSON object.
      */
     @GET
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments/{commentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to retrieve a certain component under a project.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns the details of a certain component.")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns the details of a certain comment."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String getComment(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId, @PathParam("commentId") int commentId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
@@ -1538,19 +1565,19 @@ public class BazaarService extends Service {
     /**
      * This method allows to create a new comment for a requirement.
      *
-     * @param projectId     the ID of the project for the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement, which was commented.
-     * @return true if the creation was successful, otherwise false
+     * @param projectId id of the project for the requirement
+     * @param componentId id of the component under a given project
+     * @param requirementId id of the requirement, which was commented
+     * @param comment comment as JSON object
+     * @return Response
      */
     @POST
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new comment for a requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns the id if creation was successful")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns a success message."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String createComment(@PathParam("projectId") int projectId,
                                 @PathParam("componentId") int componentId,
@@ -1622,19 +1649,18 @@ public class BazaarService extends Service {
     /**
      * This method deletes a specific comment within a requirement.
      *
-     * @param projectId     the ID of the project for the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement, which was commented.
-     * @param commentId     the ID of the comment, which should be deleted.
-     * @return the updated requirement.
+     * @param projectId id of the project for the requirement
+     * @param componentId id of the component under a given project
+     * @param requirementId id of the requirement, which was commented
+     * @param commentId id of the comment, which should be deleted
+     * @return Response
      */
     @DELETE
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments/{commentId}")
-    @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method deletes a specific comment within a requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns a success message."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String deleteComment(@PathParam("projectId") int projectId,
                                 @PathParam("componentId") int componentId,
@@ -1699,19 +1725,20 @@ public class BazaarService extends Service {
     /**
      * This method allows to create a new attachment for a requirement.
      *
-     * @param projectId     the ID of the project for the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement, which is extended by the attachment.
-     * @return true if the creation was successful, otherwise false
+     * @param projectId id of the project for the requirement
+     * @param componentId id of the component under a given project
+     * @param requirementId id of the requirement, which is extended by the attachment
+     * @param attachmentType type of attachment
+     * @param attachment attachment as JSON object
+     * @return Response
      */
     @POST
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new attachment for a requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns the id if creation was successful")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns the id if creation was successful."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String createAttachment(@PathParam("projectId") int projectId,
                                    @PathParam("componentId") int componentId,
@@ -1799,19 +1826,18 @@ public class BazaarService extends Service {
     /**
      * This method deletes a specific attachment within a requirement.
      *
-     * @param projectId     the ID of the project for the requirement.
-     * @param componentId   the id of the component under a given project
-     * @param requirementId the ID of the requirement, which was commented.
-     * @param attachmentId  the ID of the attachment, which should be deleted.
-     * @return the updated requirement.
+     * @param projectId id of the project for the requirement
+     * @param componentId  id of the component under a given project
+     * @param requirementId id of the requirement, which was commented
+     * @param attachmentId id of the attachment, which should be deleted
+     * @return Response
      */
     @DELETE
     @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments/{attachmentId}")
-    @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method deletes a specific attachment within a requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns {success : true} if deletion was successful")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns a success message."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String deleteAttachment(@PathParam("projectId") int projectId,
                                    @PathParam("componentId") int componentId,
@@ -1867,18 +1893,18 @@ public class BazaarService extends Service {
 //    }
 
     /**
-     * Returns user data by ID
+     * Returns user data by id.
      *
-     * @param userId the id of the user to be returned.
-     * @return a JSON string of the user data specified by the id.
+     * @param userId the id of the user to be returned
+     * @return Response with user as a JSON object.
      */
     @GET
     @Path("users/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("Returns user data by ID")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns user data by ID")
-//            @ApiResponse(code = 200, message = "Returns error handling JSON if error occurred")
+            @ApiResponse(code = 200, message = "Returns user data by id."),
+            @ApiResponse(code = 500, message = "Internal server problems.")
     })
     public String getUser(@PathParam("userId") int userId) {
         // TODO: check whether the current user may request this project
