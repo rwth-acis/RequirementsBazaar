@@ -51,7 +51,6 @@ import jodd.vtor.Vtor;
 import org.jooq.SQLDialect;
 
 
-
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
@@ -132,7 +131,7 @@ public class BazaarService extends Service {
         functionRegistrators.add(new BazaarFunctionRegistrator() {
             @Override
             public void registerFunction(EnumSet<BazaarFunction> functions) {
-                if (functions.contains(BazaarFunction.VALIDATION)){
+                if (functions.contains(BazaarFunction.VALIDATION)) {
                     createValidators();
                 }
             }
@@ -141,7 +140,7 @@ public class BazaarService extends Service {
         functionRegistrators.add(new BazaarFunctionRegistrator() {
             @Override
             public void registerFunction(EnumSet<BazaarFunction> functions) throws Exception {
-                if (functions.contains(BazaarFunction.USER_FIRST_LOGIN_HANDLING)){
+                if (functions.contains(BazaarFunction.USER_FIRST_LOGIN_HANDLING)) {
                     registerUserAtFirstLogin();
                 }
             }
@@ -154,8 +153,7 @@ public class BazaarService extends Service {
             for (BazaarFunctionRegistrator functionRegistrator : functionRegistrators) {
                 functionRegistrator.registerFunction(functions);
             }
-        }
-        catch (BazaarException bazaarEx) {
+        } catch (BazaarException bazaarEx) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarEx);
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.registrators"));
@@ -178,10 +176,9 @@ public class BazaarService extends Service {
         String familyName = null;
 
         //TODO how to check if the user is anonymous?
-        if(agent.getLoginName().equals("anonymous")) {
+        if (agent.getLoginName().equals("anonymous")) {
             agent.setEmail("anonymous@requirements-bazaar.org");
-        }
-        else if (agent.getUserData() != null){
+        } else if (agent.getUserData() != null) {
             JsonObject userDataJson = new JsonParser().parse(agent.getUserData().toString()).getAsJsonObject();
             JsonPrimitive pictureJson = userDataJson.getAsJsonPrimitive("picture");
             String agentPicture;
@@ -193,10 +190,10 @@ public class BazaarService extends Service {
 
             if (agentPicture != null && !agentPicture.isEmpty())
                 profileImage = agentPicture;
-            String givenNameData= userDataJson.getAsJsonPrimitive("given_name").getAsString();
+            String givenNameData = userDataJson.getAsJsonPrimitive("given_name").getAsString();
             if (givenNameData != null && !givenNameData.isEmpty())
                 givenName = givenNameData;
-            String familyNameData= userDataJson.getAsJsonPrimitive("family_name").getAsString();
+            String familyNameData = userDataJson.getAsJsonPrimitive("family_name").getAsString();
             if (familyNameData != null && !familyNameData.isEmpty())
                 familyName = familyNameData;
         }
@@ -213,16 +210,16 @@ public class BazaarService extends Service {
                     userBuilder = userBuilder.lastName(familyName);
                 User user = userBuilder.admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).profileImage(profileImage).build();
                 int userId = dalFacade.createUser(user);
-                dalFacade.addUserToRole(userId,"SystemAdmin",null);
+                dalFacade.addUserToRole(userId, "SystemAdmin", null);
             }
         } catch (Exception ex) {
             ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.first_login"));
-        }
-        finally {
+        } finally {
             closeConnection(dalFacade);
         }
 
     }
+
     private DALFacade createConnection() throws Exception {
         Connection dbConnection = DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
         return new DALFacadeImpl(dbConnection, SQLDialect.MYSQL);
@@ -259,7 +256,7 @@ public class BazaarService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse getSwaggerApiDeclaration(@PathParam("tlr") String tlr) {
         //TODO parameter localhsot
-        return RESTMapper.getSwaggerApiDeclaration(this.getClass(), tlr, "http://"+swaggerHost+":8080/bazaar/");
+        return RESTMapper.getSwaggerApiDeclaration(this.getClass(), tlr, "http://" + swaggerHost + ":8080/bazaar/");
     }
 
 
@@ -270,7 +267,7 @@ public class BazaarService extends Service {
     /**
      * This method returns the list of projects on the server.
      *
-     * @param page page number
+     * @param page    page number
      * @param perPage number of projects by page
      * @return Response with projects as a JSON array.
      */
@@ -289,7 +286,7 @@ public class BazaarService extends Service {
 
         Serializable userData = ((UserAgent) getActiveAgent()).getUserData();
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         // if the user is not logged in, return all the public projects.
         UserAgent agent = (UserAgent) getActiveAgent();
 
@@ -308,7 +305,7 @@ public class BazaarService extends Service {
             } else {
                 // return public projects and the ones the user belongs to
                 long userId = agent.getId();
-                projects = dalFacade.listPublicAndAuthorizedProjects(pageInfo,userId);
+                projects = dalFacade.listPublicAndAuthorizedProjects(pageInfo, userId);
             }
 
             resultJSON = gson.toJson(projects);// return only public projects
@@ -324,8 +321,6 @@ public class BazaarService extends Service {
 
         return resultJSON;
     }
-
-
 
 
     /**
@@ -344,7 +339,7 @@ public class BazaarService extends Service {
     })
     public String createProject(@ContentParam String project) {
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         long userId = ((UserAgent) getActiveAgent()).getId();
         String resultJSON = "{\"success\" : \"true\"}";
         DALFacade dalFacade = null;
@@ -396,7 +391,7 @@ public class BazaarService extends Service {
     })
     public String getProject(@PathParam("projectId") int projectId) {
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         long userId = ((UserAgent) getActiveAgent()).getId();
         String resultJSON = "{}";
         DALFacade dalFacade = null;
@@ -410,8 +405,7 @@ public class BazaarService extends Service {
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
 
-            }
-            else {
+            } else {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PROJECT, String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
@@ -436,7 +430,7 @@ public class BazaarService extends Service {
      * Allows to update a certain project.
      *
      * @param projectId id of the project to update
-     * @param project updated project as a JSON object
+     * @param project   updated project as a JSON object
      * @return Response
      */
     @PUT
@@ -449,7 +443,7 @@ public class BazaarService extends Service {
     })
     public String updateProject(@PathParam("projectId") int projectId, @ContentParam String project) {
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         long userId = ((UserAgent) getActiveAgent()).getId();
         String resultJSON = "{\"success\" : \"true\"}";
         DALFacade dalFacade = null;
@@ -510,7 +504,7 @@ public class BazaarService extends Service {
     /**
      * This method returns the list of components under a given project.
      *
-     * @param page page number
+     * @param page    page number
      * @param perPage number of projects by page
      * @return Response with components as a JSON array.
      */
@@ -528,7 +522,7 @@ public class BazaarService extends Service {
             @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         // Otherwise return all the user can see.
         String resultJSON = "[]";
         DALFacade dalFacade = null;
@@ -542,13 +536,12 @@ public class BazaarService extends Service {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             if (dalFacade.isProjectPublic(projectId)) {
 
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMPONENT,String.valueOf(projectId), dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMPONENT, String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
 
-            }
-            else {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMPONENT,String.valueOf(projectId), dalFacade);
+            } else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMPONENT, String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
             }
@@ -589,7 +582,7 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may create a new project
         // TODO: check whether all required parameters are entered
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         String resultJSON = "{\"success\" : \"true\"}";
         DALFacade dalFacade = null;
         try {
@@ -601,7 +594,7 @@ public class BazaarService extends Service {
 
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_COMPONENT,String.valueOf(componentToCreate.getProjectId()), dalFacade);
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_COMPONENT, String.valueOf(componentToCreate.getProjectId()), dalFacade);
             if (!authorized)
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.create"));
 
@@ -627,7 +620,7 @@ public class BazaarService extends Service {
     /**
      * This method allows to retrieve a certain component under a project.
      *
-     * @param projectId id of the project
+     * @param projectId   id of the project
      * @param componentId id of the component under a given project
      * @return Response with a component as a JSON object.
      */
@@ -642,7 +635,7 @@ public class BazaarService extends Service {
     public String getComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         String resultJSON = "{}";
         DALFacade dalFacade = null;
         try {
@@ -652,14 +645,12 @@ public class BazaarService extends Service {
             if (dalFacade.isComponentPublic(componentId)) {
 
 
-
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMPONENT,String.valueOf(componentById.getProjectId()), dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMPONENT, String.valueOf(componentById.getProjectId()), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
 
-            }
-            else {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMPONENT,String.valueOf(componentById.getProjectId()), dalFacade);
+            } else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMPONENT, String.valueOf(componentById.getProjectId()), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
             }
@@ -682,9 +673,9 @@ public class BazaarService extends Service {
     /**
      * Allows to update a certain component under a project.
      *
-     * @param projectId id of the project
+     * @param projectId   id of the project
      * @param componentId id of the component under a given project
-     * @param component updated component as a JSON object
+     * @param component   updated component as a JSON object
      * @return Response
      */
     @PUT
@@ -697,7 +688,7 @@ public class BazaarService extends Service {
     })
     public String updateComponent(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId, @ContentParam String component) {
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         long userId = ((UserAgent) getActiveAgent()).getId();
         String resultJSON = "{\"success\" : \"true\"}";
         DALFacade dalFacade = null;
@@ -731,7 +722,7 @@ public class BazaarService extends Service {
     /**
      * Allows to delete a component under a project.
      *
-     * @param projectId id of the project
+     * @param projectId   id of the project
      * @param componentId id of the component to delete
      * @return Response
      */
@@ -746,7 +737,7 @@ public class BazaarService extends Service {
         long userId = ((UserAgent) getActiveAgent()).getId();
 
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         String resultJSON = "{\"success\" : \"true\"}";
         DALFacade dalFacade = null;
         try {
@@ -754,7 +745,7 @@ public class BazaarService extends Service {
 
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_COMPONENT,String.valueOf(projectId), dalFacade);
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_COMPONENT, String.valueOf(projectId), dalFacade);
             if (!authorized)
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.modify"));
 
@@ -769,7 +760,7 @@ public class BazaarService extends Service {
                         ExceptionLocation.BAZAARSERVICE,
                         ErrorCode.CANNOTDELETE,
                         MessageFormat.format(Localization.getInstance().getResourceBundle().getString("error.authorization.component.delete"), componentId)
-                        );
+                );
             }
 
         } catch (BazaarException bex) {
@@ -793,8 +784,8 @@ public class BazaarService extends Service {
      * This method returns the list of requirements for a specific project.
      *
      * @param projectId id of the project to retrieve requirements for
-     * @param page page number
-     * @param perPage number of projects by page
+     * @param page      page number
+     * @param perPage   number of projects by page
      * @return Response with requirements as a JSON array.
      */
     @GET
@@ -812,7 +803,7 @@ public class BazaarService extends Service {
         long userId = ((UserAgent) getActiveAgent()).getId();
         String resultJSON = "[]";
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
@@ -824,13 +815,12 @@ public class BazaarService extends Service {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             if (dalFacade.isProjectPublic(projectId)) {
 
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT,String.valueOf(projectId), dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
 
-            }
-            else {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT,String.valueOf(projectId), dalFacade);
+            } else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT, String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
             }
@@ -853,10 +843,10 @@ public class BazaarService extends Service {
     /**
      * This method returns the list of requirements for a specific component.
      *
-     * @param projectId id of the project to retrieve requirements for
+     * @param projectId   id of the project to retrieve requirements for
      * @param componentId id of the component under a given project
-     * @param page page number
-     * @param perPage number of projects by page
+     * @param page        page number
+     * @param perPage     number of projects by page
      * @return Response with requirements as a JSON array.
      */
     @GET
@@ -875,7 +865,7 @@ public class BazaarService extends Service {
         long userId = ((UserAgent) getActiveAgent()).getId();
         String resultJSON = "[]";
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
@@ -888,13 +878,12 @@ public class BazaarService extends Service {
             //TODO use components requirementId not the one it is sent for security context info
             if (dalFacade.isComponentPublic(componentId)) {
 
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT,String.valueOf(projectId), dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
 
-            }
-            else {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT,String.valueOf(projectId), dalFacade);
+            } else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT, String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
             }
@@ -917,7 +906,7 @@ public class BazaarService extends Service {
     /**
      * This method allows to create a new requirement.
      *
-     * @param projectId id of the project to create the requirement in
+     * @param projectId   id of the project to create the requirement in
      * @param componentId id of the component under a given project
      * @param requirement requirement as a JSON object
      * @return Response
@@ -935,7 +924,7 @@ public class BazaarService extends Service {
                                     @ContentParam String requirement) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
@@ -979,8 +968,8 @@ public class BazaarService extends Service {
     /**
      * This method returns a specific requirement within a project and component.
      *
-     * @param projectId id of the project of the requirement
-     * @param componentId id of the component under a given project
+     * @param projectId     id of the project of the requirement
+     * @param componentId   id of the component under a given project
      * @param requirementId id of the requirement to retrieve
      * @return Response with requirement as a JSON object.
      */
@@ -998,7 +987,7 @@ public class BazaarService extends Service {
 
         String resultJSON = "{}";
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
@@ -1006,12 +995,11 @@ public class BazaarService extends Service {
             RequirementEx requirementById = dalFacade.getRequirementById(requirementId);
             if (dalFacade.isRequirementPublic(requirementId)) {
 
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT,String.valueOf(requirementById.getProjectId()), dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, String.valueOf(requirementById.getProjectId()), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
 
-            }
-            else {
+            } else {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT, String.valueOf(requirementById.getProjectId()), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
@@ -1031,14 +1019,14 @@ public class BazaarService extends Service {
 
         return resultJSON;
     }
-    
+
     /**
      * This method updates a specific requirement within a project and component.
      *
-     * @param projectId id of the project of the requirement
-     * @param componentId id of the component under a given project
+     * @param projectId     id of the project of the requirement
+     * @param componentId   id of the component under a given project
      * @param requirementId id of the requirement to update
-     * @param requirement requirement as a JSON object
+     * @param requirement   requirement as a JSON object
      * @return Response
      */
     @PUT
@@ -1051,10 +1039,9 @@ public class BazaarService extends Service {
     })
     public String updateRequirement(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId,
                                     @PathParam("requirementId") int requirementId,
-                                    @ContentParam String requirement) 
-    {
+                                    @ContentParam String requirement) {
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         long userId = ((UserAgent) getActiveAgent()).getId();
         String resultJSON = "{\"success\" : \"true\"}";
         DALFacade dalFacade = null;
@@ -1088,8 +1075,8 @@ public class BazaarService extends Service {
     /**
      * This method deletes a specific requirement within a project and component.
      *
-     * @param projectId id of the project of the requirement
-     * @param componentId id of the component under a given project
+     * @param projectId     id of the project of the requirement
+     * @param componentId   id of the component under a given project
      * @param requirementId id of the requirement to delete
      * @return Response
      */
@@ -1105,7 +1092,7 @@ public class BazaarService extends Service {
         long userId = ((UserAgent) getActiveAgent()).getId();
         String resultJSON = "{\"success\" : \"true\"}";
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
@@ -1113,7 +1100,7 @@ public class BazaarService extends Service {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
             //Todo use requirement's projectId for serurity context, not the one sent from client
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT,Arrays.asList(String.valueOf(projectId), String.valueOf(requirementId)), dalFacade);
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, Arrays.asList(String.valueOf(projectId), String.valueOf(requirementId)), dalFacade);
             if (!authorized)
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.delete"));
 
@@ -1136,13 +1123,13 @@ public class BazaarService extends Service {
     /**
      * This method add the current user to the developers list of a given requirement.
      *
-     * @param projectId id of the project of the requirement
-     * @param componentId id of the component under a given project
+     * @param projectId     id of the project of the requirement
+     * @param componentId   id of the component under a given project
      * @param requirementId id of the requirement
      * @return Response
      */
     @POST
-    @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/developers")
+    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/developers")
     @Summary("This method add the current user to the developers list of a given requirement.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a success message."),
@@ -1153,7 +1140,7 @@ public class BazaarService extends Service {
                                       @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
@@ -1187,13 +1174,13 @@ public class BazaarService extends Service {
     /**
      * This method remove the current user from a developers list of a given requirement.
      *
-     * @param projectId id of the project of the requirement
-     * @param componentId id of the component under a given project
+     * @param projectId     id of the project of the requirement
+     * @param componentId   id of the component under a given project
      * @param requirementId id of the requirement
      * @return Response
      */
     @DELETE
-    @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/developers")
+    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/developers")
     @Summary("This method remove the current user from a developers list of a given requirement.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a success message."),
@@ -1204,7 +1191,7 @@ public class BazaarService extends Service {
                                            @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
@@ -1235,13 +1222,13 @@ public class BazaarService extends Service {
     /**
      * This method add the current user to the followers list of a given requirement.
      *
-     * @param projectId id of the project of the requirement
-     * @param componentId id of the component under a given project
+     * @param projectId     id of the project of the requirement
+     * @param componentId   id of the component under a given project
      * @param requirementId id of the requirement
      * @return Response
      */
     @POST
-    @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/followers")
+    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/followers")
     @Summary("This method add the current user to the followers list of a given requirement.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a success message."),
@@ -1252,7 +1239,7 @@ public class BazaarService extends Service {
                                      @PathParam("requirementId") int requirementId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         // TODO: check whether the current user may create a new requirement
         // TODO: check whether all required parameters are entered
 
@@ -1286,13 +1273,13 @@ public class BazaarService extends Service {
     /**
      * This method removes the current user from a followers list of a given requirement.
      *
-     * @param projectId id of the project of the requirement
-     * @param componentId id of the component under a given project
+     * @param projectId     id of the project of the requirement
+     * @param componentId   id of the component under a given project
      * @param requirementId id of the requirement
      * @return Response
      */
     @DELETE
-    @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/followers")
+    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/followers")
     @Summary("This method removes the current user from a followers list of a given requirement.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a success message."),
@@ -1307,7 +1294,7 @@ public class BazaarService extends Service {
 
         String resultJSON = "{\"success\" : \"true\"}";
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
@@ -1334,10 +1321,10 @@ public class BazaarService extends Service {
     /**
      * This method creates a vote for the given requirement in the name of the current user.
      *
-     * @param projectId id of the project of the requirement
-     * @param componentId  id of the component under a given project
+     * @param projectId     id of the project of the requirement
+     * @param componentId   id of the component under a given project
      * @param requirementId id of the requirement
-     * @param direction "up" or "down" vote direction
+     * @param direction     "up" or "down" vote direction
      * @return Response
      */
     @POST
@@ -1355,7 +1342,7 @@ public class BazaarService extends Service {
         long userId = ((UserAgent) getActiveAgent()).getId();
 
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         String resultJSON = "";
         try {
@@ -1392,13 +1379,13 @@ public class BazaarService extends Service {
     /**
      * This method removes the vote of the given requirement made by the current user.
      *
-     * @param projectId id of the project of the requirement
-     * @param componentId id of the component under a given project
+     * @param projectId     id of the project of the requirement
+     * @param componentId   id of the component under a given project
      * @param requirementId id of the requirement
      * @return Response
      */
     @DELETE
-    @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/vote")
+    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/vote")
     @Summary("This method removes the vote of the given requirement made by the current user.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a success message."),
@@ -1413,7 +1400,7 @@ public class BazaarService extends Service {
 
         String resultJSON = "{\"success\" : \"true\"}";
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
@@ -1444,11 +1431,11 @@ public class BazaarService extends Service {
     /**
      * This method returns the list of comments for a specific requirement.
      *
-     * @param projectId id of the project for the requirement
-     * @param componentId  id of the component under a given project
+     * @param projectId     id of the project for the requirement
+     * @param componentId   id of the component under a given project
      * @param requirementId id of the requirement, which was commented
-     * @param page page number
-     * @param perPage number of projects by page
+     * @param page          page number
+     * @param perPage       number of projects by page
      * @return Response with comments as a JSON array.
      */
     @GET
@@ -1468,7 +1455,7 @@ public class BazaarService extends Service {
 
         String resultJSON = "[]";
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             PageInfo pageInfo = new PageInfo(page, perPage);
@@ -1480,13 +1467,12 @@ public class BazaarService extends Service {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             if (dalFacade.isRequirementPublic(requirementId)) {
 
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT,String.valueOf(projectId), dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT, String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
 
-            }
-            else {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMMENT,String.valueOf(projectId), dalFacade);
+            } else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMMENT, String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.read"));
             }
@@ -1510,9 +1496,9 @@ public class BazaarService extends Service {
     /**
      * This method allows to retrieve a certain component under a project.
      *
-     * @param projectId id of the project
+     * @param projectId   id of the project
      * @param componentId id of the component under a given project
-     * @param commentId id of the comment
+     * @param commentId   id of the comment
      * @return Response with comment as a JSON object.
      */
     @GET
@@ -1526,7 +1512,7 @@ public class BazaarService extends Service {
     public String getComment(@PathParam("projectId") int projectId, @PathParam("componentId") int componentId, @PathParam("commentId") int commentId) {
         long userId = ((UserAgent) getActiveAgent()).getId();
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         String resultJSON = "{}";
         DALFacade dalFacade = null;
         try {
@@ -1535,13 +1521,12 @@ public class BazaarService extends Service {
             Comment commentById = dalFacade.getCommentById(commentId);
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             if (dalFacade.isComponentPublic(componentId)) {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT,String.valueOf(projectId), dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT, String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
 
-            }
-            else {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMMENT,String.valueOf(projectId), dalFacade);
+            } else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMMENT, String.valueOf(projectId), dalFacade);
                 if (!authorized)
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.read"));
             }
@@ -1565,10 +1550,10 @@ public class BazaarService extends Service {
     /**
      * This method allows to create a new comment for a requirement.
      *
-     * @param projectId id of the project for the requirement
-     * @param componentId id of the component under a given project
+     * @param projectId     id of the project for the requirement
+     * @param componentId   id of the component under a given project
      * @param requirementId id of the requirement, which was commented
-     * @param comment comment as JSON object
+     * @param comment       comment as JSON object
      * @return Response
      */
     @POST
@@ -1589,7 +1574,7 @@ public class BazaarService extends Service {
 
         String resultJSON = "{\"success\" : \"true\"}";
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
@@ -1599,7 +1584,7 @@ public class BazaarService extends Service {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
             //Todo use requirement's projectId for serurity context, not the one sent from client
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_COMMENT,String.valueOf(projectId), dalFacade);
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_COMMENT, String.valueOf(projectId), dalFacade);
             if (!authorized)
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.create"));
 
@@ -1649,10 +1634,10 @@ public class BazaarService extends Service {
     /**
      * This method deletes a specific comment within a requirement.
      *
-     * @param projectId id of the project for the requirement
-     * @param componentId id of the component under a given project
+     * @param projectId     id of the project for the requirement
+     * @param componentId   id of the component under a given project
      * @param requirementId id of the requirement, which was commented
-     * @param commentId id of the comment, which should be deleted
+     * @param commentId     id of the comment, which should be deleted
      * @return Response
      */
     @DELETE
@@ -1670,14 +1655,14 @@ public class BazaarService extends Service {
         long userId = ((UserAgent) getActiveAgent()).getId();
         String resultJSON = "{\"success\" : \"true\"}";
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
 
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             //Todo use requirement's projectId for serurity context, not the one sent from client
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_COMMENT,Arrays.asList(String.valueOf(commentId),String.valueOf(projectId)), dalFacade);
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_COMMENT, Arrays.asList(String.valueOf(commentId), String.valueOf(projectId)), dalFacade);
             if (!authorized)
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.modify"));
 
@@ -1725,11 +1710,11 @@ public class BazaarService extends Service {
     /**
      * This method allows to create a new attachment for a requirement.
      *
-     * @param projectId id of the project for the requirement
-     * @param componentId id of the component under a given project
-     * @param requirementId id of the requirement, which is extended by the attachment
+     * @param projectId      id of the project for the requirement
+     * @param componentId    id of the component under a given project
+     * @param requirementId  id of the requirement, which is extended by the attachment
      * @param attachmentType type of attachment
-     * @param attachment attachment as JSON object
+     * @param attachment     attachment as JSON object
      * @return Response
      */
     @POST
@@ -1751,7 +1736,7 @@ public class BazaarService extends Service {
 
         String resultJSON = "{\"success\" : \"true\"}";
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             Gson gson = new Gson();
@@ -1826,10 +1811,10 @@ public class BazaarService extends Service {
     /**
      * This method deletes a specific attachment within a requirement.
      *
-     * @param projectId id of the project for the requirement
-     * @param componentId  id of the component under a given project
+     * @param projectId     id of the project for the requirement
+     * @param componentId   id of the component under a given project
      * @param requirementId id of the requirement, which was commented
-     * @param attachmentId id of the attachment, which should be deleted
+     * @param attachmentId  id of the attachment, which should be deleted
      * @return Response
      */
     @DELETE
@@ -1847,14 +1832,14 @@ public class BazaarService extends Service {
 
         String resultJSON = "{\"success\" : \"true\"}";
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
 
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             //Todo use requirement's projectId for serurity context, not the one sent from client
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_ATTACHMENT,Arrays.asList(String.valueOf(attachmentId),String.valueOf(projectId)), dalFacade);
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_ATTACHMENT, Arrays.asList(String.valueOf(attachmentId), String.valueOf(projectId)), dalFacade);
             if (!authorized)
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.attachment.modify"));
 
@@ -1901,7 +1886,7 @@ public class BazaarService extends Service {
     @GET
     @Path("users/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("Returns user data by ID")
+    @Summary("Returns user data by ID.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns user data by id."),
             @ApiResponse(code = 500, message = "Internal server problems.")
@@ -1910,7 +1895,7 @@ public class BazaarService extends Service {
         // TODO: check whether the current user may request this project
         String resultJSON = "{}";
         String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-        if(registratorErrors != null) return registratorErrors;
+        if (registratorErrors != null) return registratorErrors;
         DALFacade dalFacade = null;
         try {
             dalFacade = createConnection();
