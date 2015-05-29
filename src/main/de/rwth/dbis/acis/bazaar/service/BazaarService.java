@@ -272,8 +272,8 @@ public class BazaarService extends Service {
      * @return Response with projects as a JSON array.
      */
     @GET
-    @Path("projects")
-    @ResourceListApi(description = "Requirement Bazaar API")
+    @Path("/projects")
+    @ResourceListApi(description = "Projects API")
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method returns the list of projects on the server.")
     @ApiResponses(value = {
@@ -1863,19 +1863,20 @@ public class BazaarService extends Service {
      * USERS
      **********************************/
 
-    // TODO SHOULD IT EXISTS?
-//    /**
-//     * Retrieves a list of all users.
-//     *
-//     * @return a JSON encoded list of all users.
-//     */
-//    @GET
-//    @Path("users")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public String getUsers() {
-//        // TODO: check if the admin user wants to retrieve all users.
-//
-//    }
+     //TODO SHOULD IT EXISTS?
+    /**
+     * Retrieves a list of all users.
+     *
+     * @return a JSON encoded list of all users.
+     */
+    @GET
+    @Path("/users")
+    @ResourceListApi(description = "Users API")
+    @Produces(MediaType.APPLICATION_JSON)
+    public String getUsers() {
+        // TODO: check if the admin user wants to retrieve all users.
+        return null;
+    }
 
     /**
      * Returns user data by id.
