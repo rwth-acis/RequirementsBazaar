@@ -42,10 +42,6 @@ import java.util.*;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQUIREMENTS;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Tags.TAGS;
 
-/**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/9/2014
- */
 public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, RequirementsRecord> implements RequirementRepository {
     /**
      * @param jooq DSLContext object to initialize JOOQ connection. For more see JOOQ documentation.
@@ -60,7 +56,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
         try {
             entries = new ArrayList<Requirement>();
             List<Record> queryResults;
-            
+
             Votes votes = Votes.VOTES.as("votes");
             Votes userVotes = Votes.VOTES.as("userVotes");
 
@@ -71,8 +67,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .select(REQUIREMENTS.LEAD_DEVELOPER_ID)
                     .select(REQUIREMENTS.CREATOR_ID)
                     .select(REQUIREMENTS.PROJECT_ID)
-                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE,0)).as("upVotes"))
-                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE,1)).as("downVotes"))
+                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE, 0)).as("upVotes"))
+                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE, 1)).as("downVotes"))
                     .select(userVotes.IS_UPVOTE.as("userVoted"))
                     .from(REQUIREMENTS)
                     .leftOuterJoin(votes).on(votes.REQUIREMENT_ID.eq(REQUIREMENTS.ID))
@@ -86,7 +82,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
             for (Record queryResult : queryResults) {
                 RequirementsRecord requirementsRecord = queryResult.into(RequirementsRecord.class);
-                Requirement.Builder entryBuilder = ((RequirementTransformator)transformator).mapToEntityBuilder(requirementsRecord);
+                Requirement.Builder entryBuilder = ((RequirementTransformator) transformator).mapToEntityBuilder(requirementsRecord);
                 entryBuilder.upVotes(queryResult.getValue("upVotes", Integer.class));
                 entryBuilder.downVotes(queryResult.getValue("downVotes", Integer.class));
                 entryBuilder.userVoted(transformToUserVoted(queryResult.getValue("userVoted", Integer.class)));
@@ -104,9 +100,14 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
         if (userVotedInt == null)
             return UserVote.NO_VOTE;
         switch (userVotedInt) {
-            case 0: userVoted = UserVote.DOWN_VOTE; break;
-            case 1: userVoted = UserVote.UP_VOTE; break;
-            default: userVoted = UserVote.NO_VOTE;
+            case 0:
+                userVoted = UserVote.DOWN_VOTE;
+                break;
+            case 1:
+                userVoted = UserVote.UP_VOTE;
+                break;
+            default:
+                userVoted = UserVote.NO_VOTE;
         }
         return userVoted;
     }
@@ -129,8 +130,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .select(REQUIREMENTS.LEAD_DEVELOPER_ID)
                     .select(REQUIREMENTS.CREATOR_ID)
                     .select(REQUIREMENTS.PROJECT_ID)
-                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE,0)).as("upVotes"))
-                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE,1)).as("downVotes"))
+                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE, 0)).as("upVotes"))
+                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE, 1)).as("downVotes"))
                     .select(userVotes.IS_UPVOTE.as("userVoted"))
                     .from(REQUIREMENTS)
                     .join(TAGS).on(TAGS.REQUIREMENTS_ID.eq(REQUIREMENTS.ID))
@@ -145,7 +146,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
             for (Record queryResult : queryResults) {
                 RequirementsRecord requirementsRecord = queryResult.into(RequirementsRecord.class);
-                Requirement.Builder entryBuilder = ((RequirementTransformator)transformator).mapToEntityBuilder(requirementsRecord);
+                Requirement.Builder entryBuilder = ((RequirementTransformator) transformator).mapToEntityBuilder(requirementsRecord);
                 entryBuilder.upVotes(queryResult.getValue("upVotes", Integer.class));
                 entryBuilder.downVotes(queryResult.getValue("downVotes", Integer.class));
                 entryBuilder.userVoted(transformToUserVoted(queryResult.getValue("userVoted", Integer.class)));

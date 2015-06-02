@@ -23,10 +23,6 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 import java.util.Date;
 import java.util.List;
 
-/**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/15/2014
- */
 public class RequirementEx extends Requirement {
 
     private RequirementEx(BuilderEx builder) {

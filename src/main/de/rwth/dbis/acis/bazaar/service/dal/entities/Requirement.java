@@ -8,21 +8,17 @@ import jodd.vtor.constraint.*;
 import java.util.Date;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/9/2014
+ * Requirement entity
  */
 public class Requirement extends EntityBase {
     @Min(-1)
     private final int id;
 
-
     @NotBlank
     @MaxLength(50)
     private final String title;
 
-
     private final Date creation_time;
-
 
     private final String description;
 
@@ -172,9 +168,8 @@ public class Requirement extends EntityBase {
             return this;
         }
 
-        public Builder userVoted(UserVote userVoted)
-        {
-            this.userVoted=userVoted;
+        public Builder userVoted(UserVote userVoted) {
+            this.userVoted = userVoted;
             return this;
         }
     }

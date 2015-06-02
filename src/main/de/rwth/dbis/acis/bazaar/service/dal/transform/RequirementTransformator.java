@@ -30,10 +30,6 @@ import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQU
 
 import java.util.*;
 
-/**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/9/2014
- */
 public class RequirementTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord> {
     @Override
     public RequirementsRecord createRecord(Requirement entry) {
@@ -109,7 +105,6 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
                         .or(REQUIREMENTS.DESCRIPTION.likeIgnoreCase(likeExpression))
         );
     }
-
 
 
 }
