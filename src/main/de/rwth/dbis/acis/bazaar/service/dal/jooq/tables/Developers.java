@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Developers extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.DevelopersRecord> {
 
-	private static final long serialVersionUID = -561836428;
+	private static final long serialVersionUID = 2088197911;
 
 	/**
 	 * The singleton instance of <code>reqbaz.developers</code>
@@ -90,6 +90,14 @@ public class Developers extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar
 	@Override
 	public java.util.List<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.DevelopersRecord>> getKeys() {
 		return java.util.Arrays.<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.DevelopersRecord>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_DEVELOPERS_PRIMARY);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public java.util.List<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.DevelopersRecord, ?>> getReferences() {
+		return java.util.Arrays.<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.DevelopersRecord, ?>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.DEVELOPER_REQUIREMENT, de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.DEVELOPER_USER);
 	}
 
 	/**

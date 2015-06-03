@@ -22,6 +22,8 @@ public class Requirement extends EntityBase {
 
     private final String description;
 
+    private final Date realized;
+
     @Min(-1)
     private final int projectId;
     @Min(-1)
@@ -68,11 +70,9 @@ public class Requirement extends EntityBase {
 
     protected Requirement(Builder builder) {
         this.id = builder.id;
-
         this.description = builder.description;
-
         this.title = builder.title;
-
+        this.realized = builder.realized;
         this.projectId = builder.projectId;
         this.leadDeveloperId = builder.leadDeveloperId;
         this.creatorId = builder.creatorId;
@@ -95,10 +95,9 @@ public class Requirement extends EntityBase {
     public static class Builder {
 
         private int id;
-
         private String description;
-
         private String title;
+        private Date realized;
         private int projectId;
         private int leadDeveloperId;
         private int creatorId;
@@ -113,6 +112,11 @@ public class Requirement extends EntityBase {
 
         public Builder description(String description) {
             this.description = description;
+            return this;
+        }
+
+        public Builder realized(Date realized) {
+            this.realized(realized);
             return this;
         }
 

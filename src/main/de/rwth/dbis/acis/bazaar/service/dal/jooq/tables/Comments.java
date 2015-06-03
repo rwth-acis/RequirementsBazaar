@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Comments extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord> {
 
-	private static final long serialVersionUID = 1011948645;
+	private static final long serialVersionUID = -350120718;
 
 	/**
 	 * The singleton instance of <code>reqbaz.comments</code>
@@ -95,6 +95,14 @@ public class Comments extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.s
 	@Override
 	public java.util.List<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord>> getKeys() {
 		return java.util.Arrays.<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_COMMENTS_PRIMARY);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public java.util.List<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord, ?>> getReferences() {
+		return java.util.Arrays.<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord, ?>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.COMMENT_REQUIREMENT, de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.COMMENT_USER);
 	}
 
 	/**

@@ -101,6 +101,7 @@ CREATE TABLE IF NOT EXISTS requirements (
   Id                INT          NOT NULL  AUTO_INCREMENT,
   title             VARCHAR(255) NOT NULL,
   description       TEXT         NULL,
+  realized          TIMESTAMP    NULL,
   creation_time     TIMESTAMP    NOT NULL,
   Lead_developer_Id INT          NOT NULL,
   Creator_Id        INT          NOT NULL,

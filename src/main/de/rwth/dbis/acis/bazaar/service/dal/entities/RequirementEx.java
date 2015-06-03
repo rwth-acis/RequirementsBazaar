@@ -107,6 +107,12 @@ public class RequirementEx extends Requirement {
         }
 
         @Override
+        public BuilderEx realized(Date realized) {
+            super.realized(realized);
+            return this;
+        }
+
+        @Override
         public BuilderEx id(int id) {
             super.id(id);
             return this;

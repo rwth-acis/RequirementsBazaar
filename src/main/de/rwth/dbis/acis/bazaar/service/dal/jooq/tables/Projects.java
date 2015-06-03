@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Projects extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord> {
 
-	private static final long serialVersionUID = 921456119;
+	private static final long serialVersionUID = -65934782;
 
 	/**
 	 * The singleton instance of <code>reqbaz.projects</code>
@@ -100,6 +100,14 @@ public class Projects extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.s
 	@Override
 	public java.util.List<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord>> getKeys() {
 		return java.util.Arrays.<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_PROJECTS_PRIMARY);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public java.util.List<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord, ?>> getReferences() {
+		return java.util.Arrays.<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord, ?>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.PROJECTS_USERS, de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.PROJECTS_COMPONENTS);
 	}
 
 	/**

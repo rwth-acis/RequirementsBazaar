@@ -105,6 +105,4 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
                         .or(REQUIREMENTS.DESCRIPTION.likeIgnoreCase(likeExpression))
         );
     }
-
-
 }

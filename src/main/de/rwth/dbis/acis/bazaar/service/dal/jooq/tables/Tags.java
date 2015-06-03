@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Tags extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.TagsRecord> {
 
-	private static final long serialVersionUID = -44243962;
+	private static final long serialVersionUID = 657730631;
 
 	/**
 	 * The singleton instance of <code>reqbaz.tags</code>
@@ -85,6 +85,14 @@ public class Tags extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.servi
 	@Override
 	public java.util.List<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.TagsRecord>> getKeys() {
 		return java.util.Arrays.<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.TagsRecord>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_TAGS_PRIMARY);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public java.util.List<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.TagsRecord, ?>> getReferences() {
+		return java.util.Arrays.<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.TagsRecord, ?>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.TAGS_COMPONENTS, de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.TAGS_REQUIREMENTS);
 	}
 
 	/**
