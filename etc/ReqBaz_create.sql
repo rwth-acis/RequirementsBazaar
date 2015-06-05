@@ -1,16 +1,10 @@
--- Created by Vertabelo (http://vertabelo.com)
--- Script type: create
--- Scope: [tables, references, sequences, views, procedures]
--- Generated at Thu Mar 05 20:06:24 UTC 2015
-
-
 SET FOREIGN_KEY_CHECKS = 0;
 
 -- tables
 -- Table attachments
 CREATE TABLE IF NOT EXISTS attachments (
-  Id             INT          NOT NULL  AUTO_INCREMENT,
-  creation_time  TIMESTAMP    NOT NULL,
+  Id             INT          NOT NULL AUTO_INCREMENT,
+  creation_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   Requirement_Id INT          NOT NULL,
   User_Id        INT          NOT NULL,
   title          VARCHAR(255) NOT NULL,
@@ -31,7 +25,7 @@ CREATE TABLE IF NOT EXISTS attachments (
 CREATE TABLE IF NOT EXISTS comments (
   Id             INT       NOT NULL  AUTO_INCREMENT,
   message        TEXT      NOT NULL,
-  creation_time  TIMESTAMP NOT NULL,
+  creation_time  TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
   Requirement_Id INT       NOT NULL,
   User_Id        INT       NOT NULL,
   CONSTRAINT comments_pk PRIMARY KEY (Id),
@@ -57,7 +51,7 @@ CREATE TABLE IF NOT EXISTS developers (
   Id             INT       NOT NULL  AUTO_INCREMENT,
   Requirement_Id INT       NOT NULL,
   User_Id        INT       NOT NULL,
-  creation_time  TIMESTAMP NOT NULL,
+  creation_time  TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT developers_pk PRIMARY KEY (Id),
   CONSTRAINT Developer_Requirement FOREIGN KEY Developer_Requirement (Requirement_Id) REFERENCES requirements (Id)
     ON DELETE CASCADE,
@@ -69,7 +63,7 @@ CREATE TABLE IF NOT EXISTS followers (
   Id             INT       NOT NULL  AUTO_INCREMENT,
   Requirement_Id INT       NOT NULL,
   User_Id        INT       NOT NULL,
-  creation_time  TIMESTAMP NULL,
+  creation_time  TIMESTAMP NULL      DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT followers_pk PRIMARY KEY (Id),
   CONSTRAINT Follower_Requirement FOREIGN KEY Follower_Requirement (Requirement_Id) REFERENCES requirements (Id)
     ON DELETE CASCADE,
@@ -101,8 +95,8 @@ CREATE TABLE IF NOT EXISTS requirements (
   Id                INT          NOT NULL  AUTO_INCREMENT,
   title             VARCHAR(255) NOT NULL,
   description       TEXT         NULL,
-  realized          TIMESTAMP    NULL,
-  creation_time     TIMESTAMP    NOT NULL,
+  realized          TIMESTAMP    NULL      DEFAULT NULL,
+  creation_time     TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP,
   Lead_developer_Id INT          NOT NULL,
   Creator_Id        INT          NOT NULL,
   Project_Id        INT          NOT NULL,
@@ -188,12 +182,11 @@ CREATE TABLE IF NOT EXISTS votes (
   is_upvote      BOOLEAN   NOT NULL,
   Requirement_Id INT       NOT NULL,
   User_Id        INT       NOT NULL,
-  creation_time  TIMESTAMP NOT NULL,
+  creation_time  TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT votes_pk PRIMARY KEY (Id),
   CONSTRAINT Votes_Requirement FOREIGN KEY Votes_Requirement (Requirement_Id) REFERENCES requirements (Id)
     ON DELETE CASCADE,
   CONSTRAINT Votes_User FOREIGN KEY Votes_User (User_Id) REFERENCES users (Id)
 );
-
 
 SET FOREIGN_KEY_CHECKS = 1;

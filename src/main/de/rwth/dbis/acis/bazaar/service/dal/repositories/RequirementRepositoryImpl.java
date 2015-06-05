@@ -124,11 +124,6 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             Votes votes = Votes.VOTES.as("votes");
             Votes userVotes = Votes.VOTES.as("userVotes");
 
-            // TODO remove this tmpResulte
-            RequirementsRecord tmpResulte = jooq.selectFrom(REQUIREMENTS)
-                    .where(REQUIREMENTS.ID.equal(1))
-                    .fetchAny();
-
             queryResults = jooq.select(REQUIREMENTS.ID)
                     .select(REQUIREMENTS.TITLE)
                     .select(REQUIREMENTS.DESCRIPTION)
@@ -192,21 +187,21 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             Result<Record> queryResult = jooq.selectFrom(
                     REQUIREMENTS
                             .leftOuterJoin(Comments.COMMENTS).on(Comments.COMMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
-//                            .leftOuterJoin(Attachments.ATTACHMENTS).on(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
-//
-//                            .leftOuterJoin(Followers.FOLLOWERS).on(Followers.FOLLOWERS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
-//                            .leftOuterJoin(followerUsers).on(Followers.FOLLOWERS.USER_ID.equal(followerUsers.ID))
-//
-//                            .leftOuterJoin(Developers.DEVELOPERS).on(Developers.DEVELOPERS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
-//                            .leftOuterJoin(developerUsers).on(Developers.DEVELOPERS.USER_ID.equal(developerUsers.ID))
-//
-//                            .join(creatorUser).on(creatorUser.ID.equal(REQUIREMENTS.CREATOR_ID))
-//                            .join(leadDeveloperUser).on(leadDeveloperUser.ID.equal(REQUIREMENTS.LEAD_DEVELOPER_ID))
-//
-//                            .leftOuterJoin(contributorUsers).on(Attachments.ATTACHMENTS.USER_ID.equal(contributorUsers.ID))
-//
-//                            .leftOuterJoin(TAGS).on(TAGS.REQUIREMENTS_ID.equal(REQUIREMENTS.ID))
-//                            .leftOuterJoin(Components.COMPONENTS).on(Components.COMPONENTS.ID.equal(TAGS.COMPONENTS_ID))
+                            .leftOuterJoin(Attachments.ATTACHMENTS).on(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+
+                            .leftOuterJoin(Followers.FOLLOWERS).on(Followers.FOLLOWERS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                            .leftOuterJoin(followerUsers).on(Followers.FOLLOWERS.USER_ID.equal(followerUsers.ID))
+
+                            .leftOuterJoin(Developers.DEVELOPERS).on(Developers.DEVELOPERS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                            .leftOuterJoin(developerUsers).on(Developers.DEVELOPERS.USER_ID.equal(developerUsers.ID))
+
+                            .join(creatorUser).on(creatorUser.ID.equal(REQUIREMENTS.CREATOR_ID))
+                            .join(leadDeveloperUser).on(leadDeveloperUser.ID.equal(REQUIREMENTS.LEAD_DEVELOPER_ID))
+
+                            .leftOuterJoin(contributorUsers).on(Attachments.ATTACHMENTS.USER_ID.equal(contributorUsers.ID))
+
+                            .leftOuterJoin(TAGS).on(TAGS.REQUIREMENTS_ID.equal(REQUIREMENTS.ID))
+                            .leftOuterJoin(Components.COMPONENTS).on(Components.COMPONENTS.ID.equal(TAGS.COMPONENTS_ID))
             )
                     .where(transformator.getTableId().equal(id))
                     .fetch();

@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Requirements extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord> {
 
-	private static final long serialVersionUID = -652767393;
+	private static final long serialVersionUID = -218239517;
 
 	/**
 	 * The singleton instance of <code>reqbaz.requirements</code>
@@ -44,7 +44,7 @@ public class Requirements extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.baza
 	/**
 	 * The column <code>reqbaz.requirements.realized</code>.
 	 */
-	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord, java.sql.Timestamp> REALIZED = createField("realized", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord, java.sql.Timestamp> REALIZED = createField("realized", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
 
 	/**
 	 * The column <code>reqbaz.requirements.creation_time</code>.

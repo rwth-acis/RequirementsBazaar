@@ -37,7 +37,9 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
 //        record.setId(entry.getId());
         record.setDescription(entry.getDescription());
         record.setTitle(entry.getTitle());
-        record.setRealized(new java.sql.Timestamp(entry.getRealized().getTime()));
+        if (entry.getRealized() != null) {
+            record.setRealized(new java.sql.Timestamp(entry.getRealized().getTime()));
+        }
         record.setCreationTime(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         record.setLeadDeveloperId(entry.getLeadDeveloperId());
         record.setCreatorId(entry.getCreatorId());
