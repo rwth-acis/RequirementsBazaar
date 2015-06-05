@@ -63,7 +63,7 @@ CREATE TABLE IF NOT EXISTS followers (
   Id             INT       NOT NULL  AUTO_INCREMENT,
   Requirement_Id INT       NOT NULL,
   User_Id        INT       NOT NULL,
-  creation_time  TIMESTAMP NULL      DEFAULT CURRENT_TIMESTAMP,
+  creation_time  TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT followers_pk PRIMARY KEY (Id),
   CONSTRAINT Follower_Requirement FOREIGN KEY Follower_Requirement (Requirement_Id) REFERENCES requirements (Id)
     ON DELETE CASCADE,
