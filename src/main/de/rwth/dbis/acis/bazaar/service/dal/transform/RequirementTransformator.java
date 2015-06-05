@@ -37,8 +37,8 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
 //        record.setId(entry.getId());
         record.setDescription(entry.getDescription());
         record.setTitle(entry.getTitle());
+        record.setRealized(new java.sql.Timestamp(entry.getRealized().getTime()));
         record.setCreationTime(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
-
         record.setLeadDeveloperId(entry.getLeadDeveloperId());
         record.setCreatorId(entry.getCreatorId());
         record.setProjectId(entry.getProjectId());
@@ -50,6 +50,7 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
         return Requirement.getBuilder(record.getTitle())
                 .description(record.getDescription())
                 .id(record.getId())
+                .realized(record.getRealized())
                 .creationTime(record.getCreationTime())
                 .leadDeveloperId(record.getLeadDeveloperId())
                 .projectId(record.getProjectId())
@@ -82,6 +83,7 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
         return new HashMap<Field, Object>() {{
             put(REQUIREMENTS.DESCRIPTION, entry.getDescription());
             put(REQUIREMENTS.TITLE, entry.getTitle());
+            put(REQUIREMENTS.REALIZED, entry.getRealized());
         }};
     }
 

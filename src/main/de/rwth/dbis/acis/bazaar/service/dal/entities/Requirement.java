@@ -36,6 +36,10 @@ public class Requirement extends EntityBase {
     @Min(-1)
     private int creatorId;
 
+    public Date getRealized() {
+        return realized;
+    }
+
     public Date getCreation_time() {
         return creation_time;
     }
@@ -115,11 +119,6 @@ public class Requirement extends EntityBase {
             return this;
         }
 
-        public Builder realized(Date realized) {
-            this.realized(realized);
-            return this;
-        }
-
         public Builder id(int id) {
             this.id = id;
             return this;
@@ -154,6 +153,11 @@ public class Requirement extends EntityBase {
 
         public Builder creatorId(int userId) {
             this.creatorId = userId;
+            return this;
+        }
+
+        public Builder realized(Date realized) {
+            this.realized = realized;
             return this;
         }
 
