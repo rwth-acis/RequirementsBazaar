@@ -97,7 +97,7 @@ public interface DALFacade {
     /**
      * @param project data to be created.
      */
-    public int createProject(Project project) throws Exception;
+    public Project createProject(Project project) throws Exception;
 
     //TODO delete? Should it delete its components and reqs? What should happen after deletion?
 
@@ -107,7 +107,7 @@ public interface DALFacade {
      *
      * @param modifiedProject holds the modified data of the project identified by its id. Just only direct project data will be modified, relations not!
      */
-    public void modifyProject(Project modifiedProject) throws Exception;
+    public Project modifyProject(Project modifiedProject) throws Exception;
 
     /**
      * Returns if a project is public or not
@@ -160,7 +160,7 @@ public interface DALFacade {
      * @param requirement to be added to the database.
      * @param componentId
      */
-    public int createRequirement(Requirement requirement, int componentId) throws BazaarException;
+    public RequirementEx createRequirement(Requirement requirement, int componentId) throws Exception;
 
     /**
      * Modifies the requirement in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
@@ -168,14 +168,14 @@ public interface DALFacade {
      *
      * @param modifiedRequirement hold the modified data
      */
-    public void modifyRequirement(Requirement modifiedRequirement) throws Exception;
+    public RequirementEx modifyRequirement(Requirement modifiedRequirement) throws Exception;
 
     /**
      * This method deletes a requirement with its assets: All of its comments and attachments and connections to users, projects or components.
      *
      * @param requirementId which identifies the requirement to delete.
      */
-    public DeleteResponse deleteRequirementById(int requirementId) throws Exception;
+    public RequirementEx deleteRequirementById(int requirementId) throws Exception;
 
 
     /**
@@ -199,7 +199,7 @@ public interface DALFacade {
     /**
      * @param component to be added to the database.
      */
-    public int createComponent(Component component) throws BazaarException;
+    public Component createComponent(Component component) throws BazaarException;
 
     /**
      * Modifies the component in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
@@ -214,7 +214,7 @@ public interface DALFacade {
      */
     public Component getComponentById(int componentId) throws Exception;
 
-    public void modifyComponent(Component component) throws Exception;
+    public Component modifyComponent(Component component) throws Exception;
 
 
     /**
@@ -222,7 +222,7 @@ public interface DALFacade {
      *
      * @param componentId for the component to be deleted
      */
-    public DeleteResponse deleteComponentById(int componentId) throws Exception;
+    public Component deleteComponentById(int componentId) throws Exception;
 
     /**
      * Returns true if component belongs to a public project

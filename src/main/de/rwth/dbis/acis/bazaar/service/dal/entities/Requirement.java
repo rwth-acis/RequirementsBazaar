@@ -27,9 +27,9 @@ public class Requirement extends EntityBase {
     private final String description;
 
     @Min(-1)
-    private final int projectId;
+    private int projectId;
     @Min(-1)
-    private final int leadDeveloperId;
+    private int leadDeveloperId;
 
     private final int upVotes;
     private final int downVotes;
@@ -58,8 +58,16 @@ public class Requirement extends EntityBase {
         return projectId;
     }
 
+    public void setProjectId(int projectId) {
+        this.projectId = projectId;
+    }
+
     public int getLeadDeveloperId() {
         return leadDeveloperId;
+    }
+
+    public void setLeadDeveloperId(int leadDeveloperId) {
+        this.leadDeveloperId = leadDeveloperId;
     }
 
     public int getCreatorId() {

@@ -207,7 +207,9 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .fetch();
 
             if (queryResult == null || queryResult.size() == 0) {
-                throw new Exception("No " + transformator.getRecordClass() + " found with id: " + id);
+                ExceptionHandler.getInstance().convertAndThrowException(
+                        new Exception("No " + transformator.getRecordClass() + " found with id: " + id),
+                         ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
             }
 
             //Filling up Requirement fields
