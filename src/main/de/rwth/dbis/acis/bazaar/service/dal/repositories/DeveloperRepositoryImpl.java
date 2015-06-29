@@ -81,12 +81,15 @@ public class DeveloperRepositoryImpl extends RepositoryImpl<Developer, Developer
         DevelopersRecord record = jooq.selectFrom(DEVELOPERS)
                 .where(DEVELOPERS.USER_ID.equal(developer.getUserId()).and(DEVELOPERS.REQUIREMENT_ID.equal(developer.getRequirementId())))
                 .fetchOne();
-
         if (record != null){
             return CreationStatus.UNCHANGED;
         }
         else {
-            this.add(developer);
+            try {
+                this.add(developer);
+            } catch (Exception ex) {
+                ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
+            }
             return CreationStatus.CREATED;
         }
     }

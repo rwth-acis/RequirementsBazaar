@@ -22,7 +22,6 @@ package de.rwth.dbis.acis.bazaar.service.dal;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.DeleteResponse;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.repositories.*;
@@ -274,21 +273,18 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public int createAttachment(Attachment attachment) throws BazaarException {
+    public Attachment createAttachment(Attachment attachment) throws BazaarException {
         attachmentRepository = (attachmentRepository != null) ? attachmentRepository : new AttachmentRepositoryImpl(dslContext);
         Attachment newAttachment = attachmentRepository.add(attachment);
-        return newAttachment.getId();
+        return newAttachment;
     }
 
     @Override
-    public DeleteResponse deleteAttachmentById(int attachmentId) throws Exception {
+    public Attachment deleteAttachmentById(int attachmentId) throws Exception {
         attachmentRepository = (attachmentRepository != null) ? attachmentRepository : new AttachmentRepositoryImpl(dslContext);
-
         Attachment attachment = attachmentRepository.findById(attachmentId);
-
         attachmentRepository.delete(attachmentId);
-
-        return new DeleteResponse(true, attachment.getId(), attachment.getTitle());
+        return attachment;
     }
 
     @Override
@@ -304,21 +300,18 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public int createComment(Comment comment) throws BazaarException {
+    public Comment createComment(Comment comment) throws BazaarException {
         commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
         Comment newComment = commentRepository.add(comment);
-        return newComment.getId();
+        return newComment;
     }
 
     @Override
-    public DeleteResponse deleteCommentById(int commentId) throws Exception {
+    public Comment deleteCommentById(int commentId) throws Exception {
         commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
-
         Comment comment = commentRepository.findById(commentId);
-
         commentRepository.delete(commentId);
-
-        return new DeleteResponse(true, comment.getId(), comment.getMessage());
+        return comment;
     }
 
     @Override

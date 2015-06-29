@@ -22,7 +22,6 @@ package de.rwth.dbis.acis.bazaar.service.dal;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.DeleteResponse;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -239,12 +238,12 @@ public interface DALFacade {
     /**
      * @param attachment object, which holds the data should be persisted
      */
-    public int createAttachment(Attachment attachment) throws BazaarException;
+    public Attachment createAttachment(Attachment attachment) throws BazaarException;
 
     /**
      * @param attachmentId id of the attachment should be deleted
      */
-    public DeleteResponse deleteAttachmentById(int attachmentId) throws Exception;
+    public Attachment deleteAttachmentById(int attachmentId) throws Exception;
 
     //endregion
 
@@ -267,12 +266,12 @@ public interface DALFacade {
     /**
      * @param comment which holds the data for the new comment.
      */
-    public int createComment(Comment comment) throws BazaarException;
+    public Comment createComment(Comment comment) throws BazaarException;
 
     /**
      * @param commentId to identify the comment to be deleted
      */
-    public DeleteResponse deleteCommentById(int commentId) throws Exception;
+    public Comment deleteCommentById(int commentId) throws Exception;
 
     //endregion
 
