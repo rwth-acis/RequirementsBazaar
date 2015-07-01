@@ -22,7 +22,6 @@ package de.rwth.dbis.acis.bazaar.service.dal;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.DeleteResponse;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.repositories.*;
@@ -132,7 +131,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public int createProject(Project project) throws Exception {
+    public Project createProject(Project project) throws Exception {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         project.setDefaultComponentId(null);
         Project newProject = projectRepository.add(project);
@@ -141,17 +140,17 @@ public class DALFacadeImpl implements DALFacade {
                 .leaderId(newProject.getLeaderId())
                 .projectId(newProject.getId())
                 .build();
-        int defaultComponentId = createComponent(uncategorizedComponent);
-        newProject.setDefaultComponentId(defaultComponentId);
+        Component defaultComponent = createComponent(uncategorizedComponent);
+        newProject.setDefaultComponentId(defaultComponent.getId());
         //TODO concurrency transaction
         projectRepository.update(newProject);
-        return newProject.getId();
+        return newProject;
     }
 
     @Override
-    public void modifyProject(Project modifiedProject) throws Exception {
+    public Project modifyProject(Project modifiedProject) throws Exception {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
-        projectRepository.update(modifiedProject);
+        return projectRepository.update(modifiedProject);
     }
 
     @Override
@@ -191,27 +190,30 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public int createRequirement(Requirement requirement, int componentId) throws BazaarException {
+    public RequirementEx createRequirement(Requirement requirement) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         Requirement newRequirement = requirementRepository.add(requirement);
-        addComponentTag(newRequirement.getId(),componentId);
-        return newRequirement.getId();
+        for (Component component : requirement.getComponents()) {
+            addComponentTag(newRequirement.getId(), component.getId());
+        }
+        return getRequirementById(newRequirement.getId());
     }
 
     @Override
-    public void modifyRequirement(Requirement modifiedRequirement) throws Exception {
+    public RequirementEx modifyRequirement(Requirement modifiedRequirement) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         requirementRepository.update(modifiedRequirement);
+        return getRequirementById(modifiedRequirement.getId());
     }
 
     @Override
-    public DeleteResponse deleteRequirementById(int requirementId) throws Exception {
+    public RequirementEx deleteRequirementById(int requirementId) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
 
         //TODO it's a very heavy call for very little
         RequirementEx requirement = requirementRepository.findById(requirementId);
         requirementRepository.delete(requirementId);
-        return new DeleteResponse(true, requirement.getId(), requirement.getTitle());
+        return requirement;
     }
 
     @Override
@@ -227,10 +229,10 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public int createComponent(Component component) throws BazaarException {
+    public Component createComponent(Component component) throws BazaarException {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
         Component newComponent = componentRepository.add(component);
-        return newComponent.getId();
+        return newComponent;
     }
 
     @Override
@@ -240,13 +242,13 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public void modifyComponent(Component component) throws Exception {
+    public Component modifyComponent(Component component) throws Exception {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
-        componentRepository.update(component);
+        return componentRepository.update(component);
     }
 
     @Override
-    public DeleteResponse deleteComponentById(int componentId) throws Exception {
+    public Component deleteComponentById(int componentId) throws Exception {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
 
         //Get requirements for the component in question
@@ -262,8 +264,8 @@ public class DALFacadeImpl implements DALFacade {
             addComponentTag(requirement.getId(),projectById.getDefaultComponentId());
         }
 
-        componentRepository.delete(componentId);
-        return new DeleteResponse(true, componentById.getId(), componentById.getName());
+        Component deletedComponent = componentRepository.delete(componentId);
+        return deletedComponent;
     }
 
     @Override
@@ -273,21 +275,18 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public int createAttachment(Attachment attachment) throws BazaarException {
+    public Attachment createAttachment(Attachment attachment) throws BazaarException {
         attachmentRepository = (attachmentRepository != null) ? attachmentRepository : new AttachmentRepositoryImpl(dslContext);
         Attachment newAttachment = attachmentRepository.add(attachment);
-        return newAttachment.getId();
+        return newAttachment;
     }
 
     @Override
-    public DeleteResponse deleteAttachmentById(int attachmentId) throws Exception {
+    public Attachment deleteAttachmentById(int attachmentId) throws Exception {
         attachmentRepository = (attachmentRepository != null) ? attachmentRepository : new AttachmentRepositoryImpl(dslContext);
-
         Attachment attachment = attachmentRepository.findById(attachmentId);
-
         attachmentRepository.delete(attachmentId);
-
-        return new DeleteResponse(true, attachment.getId(), attachment.getTitle());
+        return attachment;
     }
 
     @Override
@@ -303,21 +302,18 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public int createComment(Comment comment) throws BazaarException {
+    public Comment createComment(Comment comment) throws BazaarException {
         commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
         Comment newComment = commentRepository.add(comment);
-        return newComment.getId();
+        return newComment;
     }
 
     @Override
-    public DeleteResponse deleteCommentById(int commentId) throws Exception {
+    public Comment deleteCommentById(int commentId) throws Exception {
         commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
-
         Comment comment = commentRepository.findById(commentId);
-
         commentRepository.delete(commentId);
-
-        return new DeleteResponse(true, comment.getId(), comment.getMessage());
+        return comment;
     }
 
     @Override

@@ -76,8 +76,12 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
     @Override
     public Map<Field, Object> getUpdateMap(final Component entry) {
         return new HashMap<Field, Object>() {{
-            put(COMPONENTS.DESCRIPTION, entry.getDescription());
-            put(COMPONENTS.NAME, entry.getName());
+            if (entry.getDescription() != null) {
+                put(COMPONENTS.DESCRIPTION, entry.getDescription());
+            }
+            if (entry.getName() != null) {
+                put(COMPONENTS.NAME, entry.getName());
+            }
         }};
     }
 

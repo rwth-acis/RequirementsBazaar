@@ -112,6 +112,10 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
             returnComment = convertToCommentWithUser(record);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        } catch (NullPointerException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(
+                    new Exception("No " + transformator.getRecordClass() + " found with id: " + id),
+                    ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
         }
         return returnComment;
     }

@@ -79,11 +79,21 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
     @Override
     public Map<Field, Object> getUpdateMap(final Project entry) {
         return new HashMap<Field, Object>() {{
-            put(PROJECTS.DESCRIPTION, entry.getDescription());
-            put(PROJECTS.NAME, entry.getName());
-            put(PROJECTS.LEADER_ID, entry.getLeaderId());
-            put(PROJECTS.DEFAULT_COMPONENTS_ID, entry.getDefaultComponentId());
-            put(PROJECTS.VISIBILITY,entry.getVisibility().asChar());
+            if (entry.getDescription() != null) {
+                put(PROJECTS.DESCRIPTION, entry.getDescription());
+            }
+            if (entry.getName() != null) {
+                put(PROJECTS.NAME, entry.getName());
+            }
+            if (entry.getLeaderId() != 0) {
+                put(PROJECTS.LEADER_ID, entry.getLeaderId());
+            }
+            if (entry.getDefaultComponentId() != null) {
+                put(PROJECTS.DEFAULT_COMPONENTS_ID, entry.getDefaultComponentId());
+            }
+            if (entry.getVisibility() != null) {
+                put(PROJECTS.VISIBILITY, entry.getVisibility().asChar());
+            }
         }};
 
     }

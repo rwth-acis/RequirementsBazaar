@@ -104,7 +104,11 @@ public class VoteRepostitoryImpl extends RepositoryImpl<Vote, VotesRecord> imple
             }
         }
         else {
-            this.add(vote);
+            try {
+                this.add(vote);
+            } catch (Exception ex) {
+                ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
+            }
             return CreationStatus.CREATED;
         }
     }

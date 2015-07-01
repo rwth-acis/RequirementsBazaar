@@ -85,7 +85,11 @@ public class FollowerRepositoryImpl extends RepositoryImpl<Follower, FollowersRe
             return CreationStatus.UNCHANGED;
         }
         else {
-            this.add(follower);
+            try {
+                this.add(follower);
+            } catch (Exception ex) {
+                ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
+            }
             return CreationStatus.CREATED;
         }
     }

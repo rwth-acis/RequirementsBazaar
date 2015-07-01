@@ -6,6 +6,7 @@ import jodd.vtor.constraint.*;
 
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -15,21 +16,22 @@ public class Requirement extends EntityBase {
     @Min(-1)
     private final int id;
 
-
     @NotBlank
     @MaxLength(50)
     private final String title;
 
-
     private final Date creation_time;
-
 
     private final String description;
 
+    @NotNull(profiles = {"create"})
+    @Size(min = 1, profiles = {"create"})
+    private List<Component> components;
+
     @Min(-1)
-    private final int projectId;
+    private int projectId;
     @Min(-1)
-    private final int leadDeveloperId;
+    private int leadDeveloperId;
 
     private final int upVotes;
     private final int downVotes;
@@ -46,6 +48,14 @@ public class Requirement extends EntityBase {
         return description;
     }
 
+    public List<Component> getComponents() {
+        return components;
+    }
+
+    public void setComponents(List<Component> components) {
+        this.components = components;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -58,8 +68,16 @@ public class Requirement extends EntityBase {
         return projectId;
     }
 
+    public void setProjectId(int projectId) {
+        this.projectId = projectId;
+    }
+
     public int getLeadDeveloperId() {
         return leadDeveloperId;
+    }
+
+    public void setLeadDeveloperId(int leadDeveloperId) {
+        this.leadDeveloperId = leadDeveloperId;
     }
 
     public int getCreatorId() {
@@ -72,11 +90,8 @@ public class Requirement extends EntityBase {
 
     protected Requirement(Builder builder) {
         this.id = builder.id;
-
         this.description = builder.description;
-
         this.title = builder.title;
-
         this.projectId = builder.projectId;
         this.leadDeveloperId = builder.leadDeveloperId;
         this.creatorId = builder.creatorId;
@@ -97,11 +112,8 @@ public class Requirement extends EntityBase {
     }
 
     public static class Builder {
-
         private int id;
-
         private String description;
-
         private String title;
         private int projectId;
         private int leadDeveloperId;
@@ -172,9 +184,8 @@ public class Requirement extends EntityBase {
             return this;
         }
 
-        public Builder userVoted(UserVote userVoted)
-        {
-            this.userVoted=userVoted;
+        public Builder userVoted(UserVote userVoted) {
+            this.userVoted = userVoted;
             return this;
         }
     }
