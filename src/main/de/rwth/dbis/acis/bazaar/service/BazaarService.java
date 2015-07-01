@@ -1032,7 +1032,7 @@ public class BazaarService extends Service {
      * @return Response with the created requirement as a JSON object.
      */
     @POST
-    @Path("components/{componentId}/requirements")
+    @Path("requirements")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Summary("This method allows to create a new requirement.")
@@ -1042,9 +1042,11 @@ public class BazaarService extends Service {
             @ApiResponse(code = 404, message = "Not found"),
             @ApiResponse(code = 500, message = "Internal server problems")
     })
-    public HttpResponse createRequirement(@PathParam("componentId") int componentId, @ContentParam String requirement) {
+    public HttpResponse createRequirement(@ContentParam String requirement) {
         DALFacade dalFacade = null;
         try {
+            //int componentId = 3;
+
             long userId = ((UserAgent) getActiveAgent()).getId();
             String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registratorErrors != null) {
@@ -1053,28 +1055,33 @@ public class BazaarService extends Service {
             // TODO: check whether the current user may create a new requirement
             // TODO: check whether all required parameters are entered
             dalFacade = createConnection();
-            Component component = dalFacade.getComponentById(componentId);
+            //Component component = dalFacade.getComponentById(componentId);
             Gson gson = new Gson();
             Requirement requirementToCreate = gson.fromJson(requirement, Requirement.class);
-            requirementToCreate.setProjectId(component.getProjectId());
+            //requirementToCreate.setProjectId(component.getProjectId());
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             requirementToCreate.setCreatorId(internalUserId);
             if (requirementToCreate.getLeadDeveloperId() == 0) {
                 requirementToCreate.setLeadDeveloperId(1);
             }
+            vtor.useProfiles("create");
             vtor.validate(requirementToCreate);
             if (vtor.hasViolations()) {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
-            vtor.validate(componentId);
-            if (vtor.hasViolations()) {
-                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+            vtor.resetProfiles();
+            // check if all components are in the same project
+            for (Component component : requirementToCreate.getComponents()) {
+                component = dalFacade.getComponentById(component.getId());
+                if (requirementToCreate.getProjectId() != component.getProjectId()) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.VALIDATION, "Component does not fit with project");
+                }
             }
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_REQUIREMENT, String.valueOf(requirementToCreate.getProjectId()), dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.create"));
             }
-            Requirement createdRequirement = dalFacade.createRequirement(requirementToCreate, componentId);
+            Requirement createdRequirement = dalFacade.createRequirement(requirementToCreate);
             return new HttpResponse(gson.toJson(createdRequirement), 201);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {

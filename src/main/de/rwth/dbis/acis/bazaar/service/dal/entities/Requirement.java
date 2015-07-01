@@ -6,6 +6,7 @@ import jodd.vtor.constraint.*;
 
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -15,16 +16,17 @@ public class Requirement extends EntityBase {
     @Min(-1)
     private final int id;
 
-
     @NotBlank
     @MaxLength(50)
     private final String title;
 
-
     private final Date creation_time;
 
-
     private final String description;
+
+    @NotNull(profiles = {"create"})
+    @Size(min = 1, profiles = {"create"})
+    private List<Component> components;
 
     @Min(-1)
     private int projectId;
@@ -44,6 +46,14 @@ public class Requirement extends EntityBase {
 
     public String getDescription() {
         return description;
+    }
+
+    public List<Component> getComponents() {
+        return components;
+    }
+
+    public void setComponents(List<Component> components) {
+        this.components = components;
     }
 
     public String getTitle() {
@@ -80,11 +90,8 @@ public class Requirement extends EntityBase {
 
     protected Requirement(Builder builder) {
         this.id = builder.id;
-
         this.description = builder.description;
-
         this.title = builder.title;
-
         this.projectId = builder.projectId;
         this.leadDeveloperId = builder.leadDeveloperId;
         this.creatorId = builder.creatorId;
@@ -105,11 +112,8 @@ public class Requirement extends EntityBase {
     }
 
     public static class Builder {
-
         private int id;
-
         private String description;
-
         private String title;
         private int projectId;
         private int leadDeveloperId;
@@ -180,9 +184,8 @@ public class Requirement extends EntityBase {
             return this;
         }
 
-        public Builder userVoted(UserVote userVoted)
-        {
-            this.userVoted=userVoted;
+        public Builder userVoted(UserVote userVoted) {
+            this.userVoted = userVoted;
             return this;
         }
     }

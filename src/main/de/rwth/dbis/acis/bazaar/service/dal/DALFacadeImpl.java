@@ -190,10 +190,12 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public RequirementEx createRequirement(Requirement requirement, int componentId) throws Exception {
+    public RequirementEx createRequirement(Requirement requirement) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         Requirement newRequirement = requirementRepository.add(requirement);
-        addComponentTag(newRequirement.getId(),componentId);
+        for (Component component : requirement.getComponents()) {
+            addComponentTag(newRequirement.getId(), component.getId());
+        }
         return getRequirementById(newRequirement.getId());
     }
 

@@ -267,23 +267,6 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
             builder.contributors(contributorList);
 
-            //Filling up components
-            List<Component> components = new ArrayList<Component>();
-
-            for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(Components.COMPONENTS.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
-                Result<Record> records = entry.getValue();
-                components.add(
-                        Component.getBuilder(records.getValues(Components.COMPONENTS.NAME).get(0))
-                                .projectId(records.getValues(Components.COMPONENTS.PROJECT_ID).get(0))
-                                .id(records.getValues(Components.COMPONENTS.ID).get(0))
-                                .description(records.getValues(Components.COMPONENTS.DESCRIPTION).get(0))
-                                .build()
-                );
-            }
-
-            builder.components(components);
-
             //Filling up attachments
             List<Attachment> attachments = new ArrayList<Attachment>();
 
@@ -314,6 +297,23 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             builder.attachments(attachments);
 
             requirementEx = builder.build();
+
+            //Filling up components
+            List<Component> components = new ArrayList<Component>();
+
+            for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(Components.COMPONENTS.ID).entrySet()) {
+                if (entry.getKey() == null) continue;
+                Result<Record> records = entry.getValue();
+                components.add(
+                        Component.getBuilder(records.getValues(Components.COMPONENTS.NAME).get(0))
+                                .projectId(records.getValues(Components.COMPONENTS.PROJECT_ID).get(0))
+                                .id(records.getValues(Components.COMPONENTS.ID).get(0))
+                                .description(records.getValues(Components.COMPONENTS.DESCRIPTION).get(0))
+                                .build()
+                );
+            }
+
+            requirementEx.setComponents(components);
         } catch (BazaarException be) {
             ExceptionHandler.getInstance().convertAndThrowException(be);
         } catch (Exception e) {
