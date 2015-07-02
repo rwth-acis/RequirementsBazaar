@@ -83,8 +83,12 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
     @Override
     public Map<Field, Object> getUpdateMap(final Requirement entry) {
         return new HashMap<Field, Object>() {{
-            put(REQUIREMENTS.DESCRIPTION, entry.getDescription());
-            put(REQUIREMENTS.TITLE, entry.getTitle());
+            if (entry.getDescription() != null) {
+                put(REQUIREMENTS.DESCRIPTION, entry.getDescription());
+            }
+            if (entry.getTitle() != null) {
+                put(REQUIREMENTS.TITLE, entry.getTitle());
+            }
             put(REQUIREMENTS.REALIZED, entry.getRealized());
         }};
     }

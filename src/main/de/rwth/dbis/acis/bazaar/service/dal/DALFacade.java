@@ -22,7 +22,6 @@ package de.rwth.dbis.acis.bazaar.service.dal;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.DeleteResponse;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -97,7 +96,7 @@ public interface DALFacade {
     /**
      * @param project data to be created.
      */
-    public int createProject(Project project) throws Exception;
+    public Project createProject(Project project) throws Exception;
 
     //TODO delete? Should it delete its components and reqs? What should happen after deletion?
 
@@ -107,7 +106,7 @@ public interface DALFacade {
      *
      * @param modifiedProject holds the modified data of the project identified by its id. Just only direct project data will be modified, relations not!
      */
-    public void modifyProject(Project modifiedProject) throws Exception;
+    public Project modifyProject(Project modifiedProject) throws Exception;
 
     /**
      * Returns if a project is public or not
@@ -153,14 +152,13 @@ public interface DALFacade {
      * @param requirementId the identifier of the requirement should be returned
      * @return the requirement identified by the given id and all of its assets: comments,attachments,followers,developers,creator
      */
-    public RequirementEx getRequirementById(int requirementId) throws Exception;
+    public RequirementEx getRequirementById(int requirementId, int userId) throws Exception;
 
 
     /**
      * @param requirement to be added to the database.
-     * @param componentId
      */
-    public int createRequirement(Requirement requirement, int componentId) throws BazaarException;
+    public RequirementEx createRequirement(Requirement requirement, int userId) throws Exception;
 
     /**
      * Modifies the requirement in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
@@ -168,14 +166,14 @@ public interface DALFacade {
      *
      * @param modifiedRequirement hold the modified data
      */
-    public void modifyRequirement(Requirement modifiedRequirement) throws Exception;
+    public RequirementEx modifyRequirement(Requirement modifiedRequirement, int userId) throws Exception;
 
     /**
      * This method deletes a requirement with its assets: All of its comments and attachments and connections to users, projects or components.
      *
      * @param requirementId which identifies the requirement to delete.
      */
-    public DeleteResponse deleteRequirementById(int requirementId) throws Exception;
+    public RequirementEx deleteRequirementById(int requirementId, int userId) throws Exception;
 
 
     /**
@@ -199,7 +197,7 @@ public interface DALFacade {
     /**
      * @param component to be added to the database.
      */
-    public int createComponent(Component component) throws BazaarException;
+    public Component createComponent(Component component) throws BazaarException;
 
     /**
      * Modifies the component in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
@@ -214,7 +212,7 @@ public interface DALFacade {
      */
     public Component getComponentById(int componentId) throws Exception;
 
-    public void modifyComponent(Component component) throws Exception;
+    public Component modifyComponent(Component component) throws Exception;
 
 
     /**
@@ -222,7 +220,7 @@ public interface DALFacade {
      *
      * @param componentId for the component to be deleted
      */
-    public DeleteResponse deleteComponentById(int componentId) throws Exception;
+    public Component deleteComponentById(int componentId) throws Exception;
 
     /**
      * Returns true if component belongs to a public project
@@ -239,12 +237,12 @@ public interface DALFacade {
     /**
      * @param attachment object, which holds the data should be persisted
      */
-    public int createAttachment(Attachment attachment) throws BazaarException;
+    public Attachment createAttachment(Attachment attachment) throws BazaarException;
 
     /**
      * @param attachmentId id of the attachment should be deleted
      */
-    public DeleteResponse deleteAttachmentById(int attachmentId) throws Exception;
+    public Attachment deleteAttachmentById(int attachmentId) throws Exception;
 
     //endregion
 
@@ -267,12 +265,12 @@ public interface DALFacade {
     /**
      * @param comment which holds the data for the new comment.
      */
-    public int createComment(Comment comment) throws BazaarException;
+    public Comment createComment(Comment comment) throws BazaarException;
 
     /**
      * @param commentId to identify the comment to be deleted
      */
-    public DeleteResponse deleteCommentById(int commentId) throws Exception;
+    public Comment deleteCommentById(int commentId) throws Exception;
 
     //endregion
 

@@ -6,6 +6,7 @@ import jodd.vtor.constraint.*;
 
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Requirement entity
@@ -24,10 +25,14 @@ public class Requirement extends EntityBase {
 
     private final Date realized;
 
+    @NotNull(profiles = {"create"})
+    @Size(min = 1, profiles = {"create"})
+    private List<Component> components;
+
     @Min(-1)
-    private final int projectId;
+    private int projectId;
     @Min(-1)
-    private final int leadDeveloperId;
+    private int leadDeveloperId;
 
     private final int upVotes;
     private final int downVotes;
@@ -48,6 +53,14 @@ public class Requirement extends EntityBase {
         return description;
     }
 
+    public List<Component> getComponents() {
+        return components;
+    }
+
+    public void setComponents(List<Component> components) {
+        this.components = components;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -60,8 +73,16 @@ public class Requirement extends EntityBase {
         return projectId;
     }
 
+    public void setProjectId(int projectId) {
+        this.projectId = projectId;
+    }
+
     public int getLeadDeveloperId() {
         return leadDeveloperId;
+    }
+
+    public void setLeadDeveloperId(int leadDeveloperId) {
+        this.leadDeveloperId = leadDeveloperId;
     }
 
     public int getCreatorId() {
@@ -97,7 +118,6 @@ public class Requirement extends EntityBase {
     }
 
     public static class Builder {
-
         private int id;
         private String description;
         private String title;

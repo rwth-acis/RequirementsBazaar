@@ -30,7 +30,7 @@ import java.util.Date;
  * @since 6/9/2014
  */
 public class Project extends EntityBase {
-    @Min(-1)
+    @Min(0)
     private final int id;
 
     @NotBlank
@@ -40,7 +40,6 @@ public class Project extends EntityBase {
     @MaxLength(50)
     private final String name;
 
-    @NotNull
     private final ProjectVisibility visibility;
 
     private final Date creation_time;
