@@ -2003,7 +2003,7 @@ public class BazaarService extends Service {
     }
 
     /**
-     * This method allows to retrieve a certain user
+     * This method allows to retrieve a certain user.
      *
      * @param userId the id of the user to be returned
      * @return Response with user as a JSON object.
@@ -2011,7 +2011,7 @@ public class BazaarService extends Service {
     @GET
     @Path("users/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method allows to retrieve a certain user")
+    @Summary("This method allows to retrieve a certain user.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a certain user"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -2062,5 +2062,48 @@ public class BazaarService extends Service {
 //        return "{success=false}";
 //    }
 
+    /**
+     * This method allows to retrieve the current user.
+     *
+     * @return Response with user as a JSON object.
+     */
+    @GET
+    @Path("users/current")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Summary("This method allows to retrieve the current user.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Returns the current user"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 404, message = "Not found"),
+            @ApiResponse(code = 500, message = "Internal server problems")
+    })
+    public HttpResponse getCurrentUser() {
+        DALFacade dalFacade = null;
+        try {
+            long userId = ((UserAgent) getActiveAgent()).getId();
+            String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registratorErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
+            }
+            dalFacade = createConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            User user = dalFacade.getUserById(internalUserId);
+            Gson gson = new Gson();
+            return new HttpResponse(gson.toJson(user), 200);
+        } catch (BazaarException bex) {
+            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+            } else {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+            }
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+        } finally {
+            closeConnection(dalFacade);
+        }
+    }
 
 }
