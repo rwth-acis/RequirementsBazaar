@@ -54,6 +54,7 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
                 .id(record.getId())
                 .realized(record.getRealized())
                 .creationTime(record.getCreationTime())
+                .lastupdatedTime(record.getLastupdatedTime())
                 .leadDeveloperId(record.getLeadDeveloperId())
                 .projectId(record.getProjectId())
                 .creatorId(record.getCreatorId());

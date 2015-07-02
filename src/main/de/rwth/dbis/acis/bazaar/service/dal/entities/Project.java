@@ -44,6 +44,8 @@ public class Project extends EntityBase {
 
     private final Date creation_time;
 
+    private final Date lastupdated_time;
+
     public int getLeaderId() {
         return leaderId;
     }
@@ -67,18 +69,13 @@ public class Project extends EntityBase {
      */
     private Project(Builder builder) {
         this.id = builder.id;
-
         this.description = builder.description;
-
         this.name = builder.name;
-
         this.visibility = builder.visibility;
-
         this.leaderId = builder.leaderId;
-
         this.defaultComponentId = builder.defaultComponentId;
-
         this.creation_time = builder.creation_time;
+        this.lastupdated_time = builder.lastupdated_time;
     }
 
     /**
@@ -122,6 +119,7 @@ public class Project extends EntityBase {
         private ProjectVisibility visibility;
         private int leaderId;
         private Date creation_time;
+        private Date lastupdated_time;
         private Integer defaultComponentId;
 
         public Builder(String title) {
@@ -170,8 +168,13 @@ public class Project extends EntityBase {
             return this;
         }
 
-        public Builder creationTime(Date creationTime) {
-            this.creation_time = creationTime;
+        public Builder creationTime(Date creation_time) {
+            this.creation_time = creation_time;
+            return this;
+        }
+
+        public Builder lastupdatedTime(Date lastupdated_time) {
+            this.lastupdated_time = lastupdated_time;
             return this;
         }
     }

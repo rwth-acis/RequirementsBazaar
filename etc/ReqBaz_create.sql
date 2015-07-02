@@ -3,18 +3,19 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- tables
 -- Table attachments
 CREATE TABLE IF NOT EXISTS attachments (
-  Id             INT          NOT NULL AUTO_INCREMENT,
-  creation_time  TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  Requirement_Id INT          NOT NULL,
-  User_Id        INT          NOT NULL,
-  title          VARCHAR(255) NOT NULL,
-  discriminator  CHAR(1)      NOT NULL,
-  file_path      VARCHAR(500) NULL,
-  description    TEXT         NULL,
-  story          TEXT         NULL,
-  subject        VARCHAR(255) NULL,
-  object         VARCHAR(255) NULL,
-  object_desc    VARCHAR(255) NULL,
+  Id               INT          NOT NULL  AUTO_INCREMENT,
+  creation_time    TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+  lastupdated_time TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  Requirement_Id   INT          NOT NULL,
+  User_Id          INT          NOT NULL,
+  title            VARCHAR(255) NOT NULL,
+  discriminator    CHAR(1)      NOT NULL,
+  file_path        VARCHAR(500) NULL,
+  description      TEXT         NULL,
+  story            TEXT         NULL,
+  subject          VARCHAR(255) NULL,
+  object           VARCHAR(255) NULL,
+  object_desc      VARCHAR(255) NULL,
   CONSTRAINT attachments_pk PRIMARY KEY (Id),
   CONSTRAINT Attachement_Requirement FOREIGN KEY Attachement_Requirement (Requirement_Id) REFERENCES requirements (Id)
     ON DELETE CASCADE,
@@ -23,11 +24,12 @@ CREATE TABLE IF NOT EXISTS attachments (
 
 -- Table comments
 CREATE TABLE IF NOT EXISTS comments (
-  Id             INT       NOT NULL  AUTO_INCREMENT,
-  message        TEXT      NOT NULL,
-  creation_time  TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
-  Requirement_Id INT       NOT NULL,
-  User_Id        INT       NOT NULL,
+  Id               INT       NOT NULL  AUTO_INCREMENT,
+  message          TEXT      NOT NULL,
+  creation_time    TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+  lastupdated_time TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  Requirement_Id   INT       NOT NULL,
+  User_Id          INT       NOT NULL,
   CONSTRAINT comments_pk PRIMARY KEY (Id),
   CONSTRAINT Comment_Requirement FOREIGN KEY Comment_Requirement (Requirement_Id) REFERENCES requirements (Id)
     ON DELETE CASCADE,
@@ -36,11 +38,13 @@ CREATE TABLE IF NOT EXISTS comments (
 
 -- Table components
 CREATE TABLE IF NOT EXISTS components (
-  Id          INT          NOT NULL  AUTO_INCREMENT,
-  name        VARCHAR(255) NOT NULL,
-  description TEXT         NOT NULL,
-  Project_Id  INT          NOT NULL,
-  Leader_Id   INT          NOT NULL,
+  Id               INT          NOT NULL  AUTO_INCREMENT,
+  name             VARCHAR(255) NOT NULL,
+  description      TEXT         NOT NULL,
+  creation_time    TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+  lastupdated_time TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  Project_Id       INT          NOT NULL,
+  Leader_Id        INT          NOT NULL,
   CONSTRAINT components_pk PRIMARY KEY (Id),
   CONSTRAINT Component_Project FOREIGN KEY Component_Project (Project_Id) REFERENCES projects (Id),
   CONSTRAINT Components_Users FOREIGN KEY Components_Users (Leader_Id) REFERENCES users (Id)
@@ -83,6 +87,8 @@ CREATE TABLE IF NOT EXISTS projects (
   name                  VARCHAR(255) NOT NULL,
   description           TEXT         NOT NULL,
   visibility            CHAR(1)      NOT NULL,
+  creation_time         TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+  lastupdated_time      TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   Leader_Id             INT          NOT NULL,
   Default_Components_Id INT          NULL,
   CONSTRAINT projects_pk PRIMARY KEY (Id),
@@ -97,6 +103,7 @@ CREATE TABLE IF NOT EXISTS requirements (
   description       TEXT         NULL,
   realized          TIMESTAMP    NULL      DEFAULT NULL,
   creation_time     TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+  lastupdated_time  TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   Lead_developer_Id INT          NOT NULL,
   Creator_Id        INT          NOT NULL,
   Project_Id        INT          NOT NULL,

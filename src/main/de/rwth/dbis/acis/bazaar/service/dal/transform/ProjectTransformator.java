@@ -58,6 +58,8 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
                 .leaderId(record.getLeaderId())
                 .defaultComponentId(record.getDefaultComponentsId())
                 .visibility(Project.ProjectVisibility.getVisibility(record.getVisibility()))
+                .creationTime(record.getCreationTime())
+                .lastupdatedTime(record.getLastupdatedTime())
                 .build();
     }
 
@@ -95,7 +97,6 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
                 put(PROJECTS.VISIBILITY, entry.getVisibility().asChar());
             }
         }};
-
     }
 
     @Override

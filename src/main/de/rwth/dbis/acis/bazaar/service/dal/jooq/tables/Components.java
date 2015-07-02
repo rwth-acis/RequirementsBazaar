@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Components extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentsRecord> {
 
-	private static final long serialVersionUID = 70611203;
+	private static final long serialVersionUID = 2046179571;
 
 	/**
 	 * The singleton instance of <code>reqbaz.components</code>
@@ -40,6 +40,16 @@ public class Components extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar
 	 * The column <code>reqbaz.components.description</code>.
 	 */
 	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentsRecord, java.lang.String> DESCRIPTION = createField("description", org.jooq.impl.SQLDataType.CLOB.length(65535).nullable(false), this, "");
+
+	/**
+	 * The column <code>reqbaz.components.creation_time</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentsRecord, java.sql.Timestamp> CREATION_TIME = createField("creation_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
+
+	/**
+	 * The column <code>reqbaz.components.lastupdated_time</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentsRecord, java.sql.Timestamp> LASTUPDATED_TIME = createField("lastupdated_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * The column <code>reqbaz.components.Project_Id</code>.
