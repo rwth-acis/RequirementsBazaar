@@ -60,7 +60,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
         try {
             entries = new ArrayList<Requirement>();
             List<Record> queryResults;
-            
+
             Votes votes = Votes.VOTES.as("votes");
             Votes userVotes = Votes.VOTES.as("userVotes");
 
@@ -71,8 +71,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .select(REQUIREMENTS.LEAD_DEVELOPER_ID)
                     .select(REQUIREMENTS.CREATOR_ID)
                     .select(REQUIREMENTS.PROJECT_ID)
-                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE,0)).as("upVotes"))
-                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE,1)).as("downVotes"))
+                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE, 0)).as("upVotes"))
+                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE, 1)).as("downVotes"))
                     .select(userVotes.IS_UPVOTE.as("userVoted"))
                     .from(REQUIREMENTS)
                     .leftOuterJoin(votes).on(votes.REQUIREMENT_ID.eq(REQUIREMENTS.ID))
@@ -86,7 +86,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
             for (Record queryResult : queryResults) {
                 RequirementsRecord requirementsRecord = queryResult.into(RequirementsRecord.class);
-                Requirement.Builder entryBuilder = ((RequirementTransformator)transformator).mapToEntityBuilder(requirementsRecord);
+                Requirement.Builder entryBuilder = ((RequirementTransformator) transformator).mapToEntityBuilder(requirementsRecord);
                 entryBuilder.upVotes(queryResult.getValue("upVotes", Integer.class));
                 entryBuilder.downVotes(queryResult.getValue("downVotes", Integer.class));
                 entryBuilder.userVoted(transformToUserVoted(queryResult.getValue("userVoted", Integer.class)));
@@ -104,9 +104,14 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
         if (userVotedInt == null)
             return UserVote.NO_VOTE;
         switch (userVotedInt) {
-            case 0: userVoted = UserVote.DOWN_VOTE; break;
-            case 1: userVoted = UserVote.UP_VOTE; break;
-            default: userVoted = UserVote.NO_VOTE;
+            case 0:
+                userVoted = UserVote.DOWN_VOTE;
+                break;
+            case 1:
+                userVoted = UserVote.UP_VOTE;
+                break;
+            default:
+                userVoted = UserVote.NO_VOTE;
         }
         return userVoted;
     }
@@ -129,8 +134,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .select(REQUIREMENTS.LEAD_DEVELOPER_ID)
                     .select(REQUIREMENTS.CREATOR_ID)
                     .select(REQUIREMENTS.PROJECT_ID)
-                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE,0)).as("upVotes"))
-                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE,1)).as("downVotes"))
+                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE, 0)).as("upVotes"))
+                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE, 1)).as("downVotes"))
                     .select(userVotes.IS_UPVOTE.as("userVoted"))
                     .from(REQUIREMENTS)
                     .join(TAGS).on(TAGS.REQUIREMENTS_ID.eq(REQUIREMENTS.ID))
@@ -145,7 +150,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
             for (Record queryResult : queryResults) {
                 RequirementsRecord requirementsRecord = queryResult.into(RequirementsRecord.class);
-                Requirement.Builder entryBuilder = ((RequirementTransformator)transformator).mapToEntityBuilder(requirementsRecord);
+                Requirement.Builder entryBuilder = ((RequirementTransformator) transformator).mapToEntityBuilder(requirementsRecord);
                 entryBuilder.upVotes(queryResult.getValue("upVotes", Integer.class));
                 entryBuilder.downVotes(queryResult.getValue("downVotes", Integer.class));
                 entryBuilder.userVoted(transformToUserVoted(queryResult.getValue("userVoted", Integer.class)));
@@ -176,7 +181,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     }
 
     @Override
-    public RequirementEx findById(int id) throws Exception {
+    public RequirementEx findById(int id, int userId) throws Exception {
         RequirementEx requirementEx = null;
         try {
             Users followerUsers = Users.USERS.as("followerUsers");
@@ -184,32 +189,35 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             Users creatorUser = Users.USERS.as("creatorUser");
             Users leadDeveloperUser = Users.USERS.as("leadDeveloperUser");
             Users contributorUsers = Users.USERS.as("contributorUsers");
-            Result<Record> queryResult = jooq.selectFrom(
-                    REQUIREMENTS
-                            .leftOuterJoin(Comments.COMMENTS).on(Comments.COMMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
-                            .leftOuterJoin(Attachments.ATTACHMENTS).on(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+            Votes votes = Votes.VOTES.as("votes");
+            Votes userVotes = Votes.VOTES.as("userVotes");
 
-                            .leftOuterJoin(Followers.FOLLOWERS).on(Followers.FOLLOWERS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
-                            .leftOuterJoin(followerUsers).on(Followers.FOLLOWERS.USER_ID.equal(followerUsers.ID))
+            Result<Record> queryResult = jooq.select()
+                    .from(REQUIREMENTS)
+                    .leftOuterJoin(Comments.COMMENTS).on(Comments.COMMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                    .leftOuterJoin(Attachments.ATTACHMENTS).on(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
 
-                            .leftOuterJoin(Developers.DEVELOPERS).on(Developers.DEVELOPERS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
-                            .leftOuterJoin(developerUsers).on(Developers.DEVELOPERS.USER_ID.equal(developerUsers.ID))
+                    .leftOuterJoin(Followers.FOLLOWERS).on(Followers.FOLLOWERS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                    .leftOuterJoin(followerUsers).on(Followers.FOLLOWERS.USER_ID.equal(followerUsers.ID))
 
-                            .join(creatorUser).on(creatorUser.ID.equal(REQUIREMENTS.CREATOR_ID))
-                            .join(leadDeveloperUser).on(leadDeveloperUser.ID.equal(REQUIREMENTS.LEAD_DEVELOPER_ID))
+                    .leftOuterJoin(Developers.DEVELOPERS).on(Developers.DEVELOPERS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                    .leftOuterJoin(developerUsers).on(Developers.DEVELOPERS.USER_ID.equal(developerUsers.ID))
 
-                            .leftOuterJoin(contributorUsers).on(Attachments.ATTACHMENTS.USER_ID.equal(contributorUsers.ID))
+                    .join(creatorUser).on(creatorUser.ID.equal(REQUIREMENTS.CREATOR_ID))
+                    .join(leadDeveloperUser).on(leadDeveloperUser.ID.equal(REQUIREMENTS.LEAD_DEVELOPER_ID))
 
-                            .leftOuterJoin(TAGS).on(TAGS.REQUIREMENTS_ID.equal(REQUIREMENTS.ID))
-                            .leftOuterJoin(Components.COMPONENTS).on(Components.COMPONENTS.ID.equal(TAGS.COMPONENTS_ID))
-            )
+                    .leftOuterJoin(contributorUsers).on(Attachments.ATTACHMENTS.USER_ID.equal(contributorUsers.ID))
+
+                    .leftOuterJoin(TAGS).on(TAGS.REQUIREMENTS_ID.equal(REQUIREMENTS.ID))
+                    .leftOuterJoin(Components.COMPONENTS).on(Components.COMPONENTS.ID.equal(TAGS.COMPONENTS_ID))
+
                     .where(transformator.getTableId().equal(id))
                     .fetch();
 
             if (queryResult == null || queryResult.size() == 0) {
                 ExceptionHandler.getInstance().convertAndThrowException(
                         new Exception("No " + transformator.getRecordClass() + " found with id: " + id),
-                         ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
+                        ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
             }
 
             //Filling up Requirement fields
@@ -254,7 +262,6 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             builder.followers(followers);
 
             //Filling up contributors
-
             List<User> contributorList = new ArrayList<User>();
 
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(contributorUsers.ID).entrySet()) {
@@ -295,6 +302,20 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             }
 
             builder.attachments(attachments);
+
+            //Filling up votes
+            Result<Record> voteQueryResult = jooq.select(DSL.count(DSL.nullif(votes.IS_UPVOTE, 0)).as("upVotes"))
+                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE, 1)).as("downVotes"))
+                    .select(userVotes.IS_UPVOTE.as("userVoted"))
+                    .from(REQUIREMENTS)
+                    .leftOuterJoin(votes).on(votes.REQUIREMENT_ID.eq(REQUIREMENTS.ID))
+                    .leftOuterJoin(userVotes).on(userVotes.REQUIREMENT_ID.eq(REQUIREMENTS.ID).and(userVotes.USER_ID.eq(userId)))
+                    .where(transformator.getTableId().equal(id))
+                    .fetch();
+
+            builder.upVotes(voteQueryResult.get(0).getValue("upVotes", Integer.class));
+            builder.downVotes(voteQueryResult.get(0).getValue("downVotes", Integer.class));
+            builder.userVoted(transformToUserVoted(voteQueryResult.get(0).getValue("userVoted", Integer.class)));
 
             requirementEx = builder.build();
 

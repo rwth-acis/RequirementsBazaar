@@ -152,13 +152,13 @@ public interface DALFacade {
      * @param requirementId the identifier of the requirement should be returned
      * @return the requirement identified by the given id and all of its assets: comments,attachments,followers,developers,creator
      */
-    public RequirementEx getRequirementById(int requirementId) throws Exception;
+    public RequirementEx getRequirementById(int requirementId, int userId) throws Exception;
 
 
     /**
      * @param requirement to be added to the database.
      */
-    public RequirementEx createRequirement(Requirement requirement) throws Exception;
+    public RequirementEx createRequirement(Requirement requirement, int userId) throws Exception;
 
     /**
      * Modifies the requirement in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
@@ -166,14 +166,14 @@ public interface DALFacade {
      *
      * @param modifiedRequirement hold the modified data
      */
-    public RequirementEx modifyRequirement(Requirement modifiedRequirement) throws Exception;
+    public RequirementEx modifyRequirement(Requirement modifiedRequirement, int userId) throws Exception;
 
     /**
      * This method deletes a requirement with its assets: All of its comments and attachments and connections to users, projects or components.
      *
      * @param requirementId which identifies the requirement to delete.
      */
-    public RequirementEx deleteRequirementById(int requirementId) throws Exception;
+    public RequirementEx deleteRequirementById(int requirementId, int userId) throws Exception;
 
 
     /**

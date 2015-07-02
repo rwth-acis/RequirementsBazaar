@@ -994,7 +994,7 @@ public class BazaarService extends Service {
             }
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            RequirementEx requirement = dalFacade.getRequirementById(requirementId);
+            RequirementEx requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             if (dalFacade.isRequirementPublic(requirementId)) {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, String.valueOf(requirement.getProjectId()), dalFacade);
                 if (!authorized) {
@@ -1027,7 +1027,6 @@ public class BazaarService extends Service {
     /**
      * This method allows to create a new requirement.
      *
-     * @param componentId id of the component under a given project
      * @param requirement requirement as a JSON object
      * @return Response with the created requirement as a JSON object.
      */
@@ -1045,8 +1044,6 @@ public class BazaarService extends Service {
     public HttpResponse createRequirement(@ContentParam String requirement) {
         DALFacade dalFacade = null;
         try {
-            //int componentId = 3;
-
             long userId = ((UserAgent) getActiveAgent()).getId();
             String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registratorErrors != null) {
@@ -1055,10 +1052,8 @@ public class BazaarService extends Service {
             // TODO: check whether the current user may create a new requirement
             // TODO: check whether all required parameters are entered
             dalFacade = createConnection();
-            //Component component = dalFacade.getComponentById(componentId);
             Gson gson = new Gson();
             Requirement requirementToCreate = gson.fromJson(requirement, Requirement.class);
-            //requirementToCreate.setProjectId(component.getProjectId());
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             requirementToCreate.setCreatorId(internalUserId);
             if (requirementToCreate.getLeadDeveloperId() == 0) {
@@ -1081,7 +1076,7 @@ public class BazaarService extends Service {
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.create"));
             }
-            Requirement createdRequirement = dalFacade.createRequirement(requirementToCreate);
+            Requirement createdRequirement = dalFacade.createRequirement(requirementToCreate, internalUserId);
             return new HttpResponse(gson.toJson(createdRequirement), 201);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -1140,7 +1135,7 @@ public class BazaarService extends Service {
             if (requirementToUpdate.getId() != 0 && requirementId != requirementToUpdate.getId()) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
             }
-            RequirementEx updatedRequirement = dalFacade.modifyRequirement(requirementToUpdate);
+            RequirementEx updatedRequirement = dalFacade.modifyRequirement(requirementToUpdate, internalUserId);
             return new HttpResponse(gson.toJson(updatedRequirement), 200);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -1184,14 +1179,14 @@ public class BazaarService extends Service {
             }
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            RequirementEx requirementToDelete = dalFacade.getRequirementById(requirementId);
+            RequirementEx requirementToDelete = dalFacade.getRequirementById(requirementId, internalUserId);
             Project project = dalFacade.getProjectById(requirementToDelete.getProjectId());
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, Arrays.asList(String.valueOf(project.getId()), String.valueOf(requirementId)), dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.delete"));
             }
             Gson gson = new Gson();
-            RequirementEx deletedRequirement = dalFacade.deleteRequirementById(requirementId);
+            RequirementEx deletedRequirement = dalFacade.deleteRequirementById(requirementId, internalUserId);
             return new HttpResponse(gson.toJson(deletedRequirement), 200);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -1242,7 +1237,7 @@ public class BazaarService extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.develop.create"));
             }
             dalFacade.wantToDevelop(internalUserId, requirementId);
-            Requirement requirement = dalFacade.getRequirementById(requirementId);
+            Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
             return new HttpResponse(gson.toJson(requirement), 200);
         } catch (BazaarException bex) {
@@ -1294,7 +1289,7 @@ public class BazaarService extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.develop.delete"));
             }
             dalFacade.notWantToDevelop(internalUserId, requirementId);
-            Requirement requirement = dalFacade.getRequirementById(requirementId);
+            Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
             return new HttpResponse(gson.toJson(requirement), 200);
         } catch (BazaarException bex) {
@@ -1346,7 +1341,7 @@ public class BazaarService extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.follow.create"));
             }
             dalFacade.follow(internalUserId, requirementId);
-            Requirement requirement = dalFacade.getRequirementById(requirementId);
+            Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
             return new HttpResponse(gson.toJson(requirement), 200);
         } catch (BazaarException bex) {
@@ -1398,7 +1393,7 @@ public class BazaarService extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.follow.delete"));
             }
             dalFacade.unFollow(internalUserId, requirementId);
-            Requirement requirement = dalFacade.getRequirementById(requirementId);
+            Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
             return new HttpResponse(gson.toJson(requirement), 200);
         } catch (BazaarException bex) {
@@ -1454,7 +1449,7 @@ public class BazaarService extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.create"));
             }
             dalFacade.vote(internalUserId, requirementId, direction.equals("up"));
-            Requirement requirement = dalFacade.getRequirementById(requirementId);
+            Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
             return new HttpResponse(gson.toJson(requirement), 200);
         } catch (BazaarException bex) {
@@ -1506,7 +1501,7 @@ public class BazaarService extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.delete"));
             }
             dalFacade.unVote(internalUserId, requirementId);
-            Requirement requirement = dalFacade.getRequirementById(requirementId);
+            Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
             return new HttpResponse(gson.toJson(requirement), 200);
         } catch (BazaarException bex) {
@@ -1576,7 +1571,7 @@ public class BazaarService extends Service {
             dalFacade = createConnection();
             //Todo use requirement's projectId for serurity context, not the one sent from client
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            Requirement requirement = dalFacade.getRequirementById(requirementId);
+            Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Project project = dalFacade.getProjectById(requirement.getProjectId());
             if (dalFacade.isRequirementPublic(requirementId)) {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT, String.valueOf(project.getId()), dalFacade);
@@ -1635,7 +1630,7 @@ public class BazaarService extends Service {
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Comment comment = dalFacade.getCommentById(commentId);
-            Requirement requirement = dalFacade.getRequirementById(comment.getRequirementId());
+            Requirement requirement = dalFacade.getRequirementById(comment.getRequirementId(), internalUserId);
             if (dalFacade.isProjectPublic(requirement.getProjectId())) {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT, String.valueOf(requirement.getProjectId()), dalFacade);
                 if (!authorized) {
@@ -1697,7 +1692,7 @@ public class BazaarService extends Service {
             Comment commentToCreate = gson.fromJson(comment, Comment.class);
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            Requirement requirement = dalFacade.getRequirementById(commentToCreate.getRequirementId());
+            Requirement requirement = dalFacade.getRequirementById(commentToCreate.getRequirementId(), internalUserId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_COMMENT, String.valueOf(requirement.getProjectId()), dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.create"));
@@ -1776,7 +1771,7 @@ public class BazaarService extends Service {
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Comment commentToDelete = dalFacade.getCommentById(commentId);
-            Requirement requirement = dalFacade.getRequirementById(commentToDelete.getRequirementId());
+            Requirement requirement = dalFacade.getRequirementById(commentToDelete.getRequirementId(), internalUserId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_COMMENT, Arrays.asList(String.valueOf(commentId), String.valueOf(requirement.getProjectId())), dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.modify"));
@@ -1875,7 +1870,7 @@ public class BazaarService extends Service {
             }
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            Requirement requirement = dalFacade.getRequirementById(attachmentToCreate.getRequirementId());
+            Requirement requirement = dalFacade.getRequirementById(attachmentToCreate.getRequirementId(), internalUserId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_ATTACHMENT, String.valueOf(requirement.getProjectId()), dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.attachment.create"));
@@ -1963,7 +1958,7 @@ public class BazaarService extends Service {
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             // TODO check requirement
-            Requirement requirement = dalFacade.getRequirementById(attachmentId);
+            Requirement requirement = dalFacade.getRequirementById(attachmentId, internalUserId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_ATTACHMENT, Arrays.asList(String.valueOf(attachmentId), String.valueOf(requirement.getProjectId())), dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.attachment.modify"));

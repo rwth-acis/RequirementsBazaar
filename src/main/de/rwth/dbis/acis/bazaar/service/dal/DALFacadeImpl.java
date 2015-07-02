@@ -184,34 +184,34 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public RequirementEx getRequirementById(int requirementId) throws Exception {
+    public RequirementEx getRequirementById(int requirementId, int userId) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
-        return requirementRepository.findById(requirementId);
+        return requirementRepository.findById(requirementId, userId);
     }
 
     @Override
-    public RequirementEx createRequirement(Requirement requirement) throws Exception {
+    public RequirementEx createRequirement(Requirement requirement, int userId) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         Requirement newRequirement = requirementRepository.add(requirement);
         for (Component component : requirement.getComponents()) {
             addComponentTag(newRequirement.getId(), component.getId());
         }
-        return getRequirementById(newRequirement.getId());
+        return getRequirementById(newRequirement.getId(), userId);
     }
 
     @Override
-    public RequirementEx modifyRequirement(Requirement modifiedRequirement) throws Exception {
+    public RequirementEx modifyRequirement(Requirement modifiedRequirement, int userId) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         requirementRepository.update(modifiedRequirement);
-        return getRequirementById(modifiedRequirement.getId());
+        return getRequirementById(modifiedRequirement.getId(), userId);
     }
 
     @Override
-    public RequirementEx deleteRequirementById(int requirementId) throws Exception {
+    public RequirementEx deleteRequirementById(int requirementId, int userId) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
 
         //TODO it's a very heavy call for very little
-        RequirementEx requirement = requirementRepository.findById(requirementId);
+        RequirementEx requirement = requirementRepository.findById(requirementId, userId);
         requirementRepository.delete(requirementId);
         return requirement;
     }
