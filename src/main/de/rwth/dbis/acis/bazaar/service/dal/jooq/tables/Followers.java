@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Followers extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord> {
 
-	private static final long serialVersionUID = -151644244;
+	private static final long serialVersionUID = -1574948115;
 
 	/**
 	 * The singleton instance of <code>reqbaz.followers</code>
@@ -44,7 +44,7 @@ public class Followers extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.
 	/**
 	 * The column <code>reqbaz.followers.creation_time</code>.
 	 */
-	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord, java.sql.Timestamp> CREATION_TIME = createField("creation_time", org.jooq.impl.SQLDataType.TIMESTAMP.defaulted(true), this, "");
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord, java.sql.Timestamp> CREATION_TIME = createField("creation_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * Create a <code>reqbaz.followers</code> table reference

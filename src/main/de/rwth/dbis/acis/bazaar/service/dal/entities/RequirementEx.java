@@ -135,6 +135,12 @@ public class RequirementEx extends Requirement {
             return this;
         }
 
+        @Override
+        public BuilderEx lastupdatedTime(Date lastupdatedTime) {
+            super.lastupdatedTime(lastupdatedTime);
+            return this;
+        }
+
         public BuilderEx leadDeveloper(User leadDeveloper) {
             this.leadDeveloper = leadDeveloper;
             return this;

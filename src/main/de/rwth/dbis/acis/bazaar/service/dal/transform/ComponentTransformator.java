@@ -55,6 +55,8 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
                 .projectId(record.getProjectId())
                 .id(record.getId())
                 .leaderId(record.getLeaderId())
+                .creationTime(record.getCreationTime())
+                .lastupdated_time(record.getLastupdatedTime())
                 .build();
     }
 

@@ -21,6 +21,8 @@ public class Requirement extends EntityBase {
 
     private final Date creation_time;
 
+    private final Date lastupdated_time;
+
     private final String description;
 
     private final Date realized;
@@ -47,6 +49,10 @@ public class Requirement extends EntityBase {
 
     public Date getCreation_time() {
         return creation_time;
+    }
+
+    public Date getLastupdated_time() {
+        return lastupdated_time;
     }
 
     public String getDescription() {
@@ -102,6 +108,7 @@ public class Requirement extends EntityBase {
         this.leadDeveloperId = builder.leadDeveloperId;
         this.creatorId = builder.creatorId;
         this.creation_time = builder.creation_time;
+        this.lastupdated_time = builder.lastupdated_time;
         this.upVotes = builder.upVotes;
         this.downVotes = builder.downVotes;
         this.userVoted = builder.userVoted;
@@ -126,6 +133,7 @@ public class Requirement extends EntityBase {
         private int leadDeveloperId;
         private int creatorId;
         private Date creation_time;
+        private Date lastupdated_time;
         private int upVotes;
         private int downVotes;
         public UserVote userVoted;
@@ -183,6 +191,11 @@ public class Requirement extends EntityBase {
 
         public Builder creationTime(Date creationTime) {
             this.creation_time = creationTime;
+            return this;
+        }
+
+        public Builder lastupdatedTime(Date lastupdatedTime) {
+            this.lastupdated_time = lastupdatedTime;
             return this;
         }
 

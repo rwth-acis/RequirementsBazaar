@@ -44,6 +44,8 @@ public class Comment extends EntityBase {
 
     private final Date creationTime;
 
+    private final Date lastupdatedTime;
+
     private User creator;
 
     public Comment(Builder builder) {
@@ -52,6 +54,7 @@ public class Comment extends EntityBase {
         this.creatorId = builder.userId;
         this.requirementId = builder.requirementId;
         this.creationTime = builder.creationTime;
+        this.lastupdatedTime = builder.lastupdatedTime;
         this.creator = builder.creator;
     }
 
@@ -79,6 +82,10 @@ public class Comment extends EntityBase {
         return creationTime;
     }
 
+    public Date getLastupdatedTime() {
+        return lastupdatedTime;
+    }
+
     public User getCreator() {
         return creator;
     }
@@ -97,6 +104,7 @@ public class Comment extends EntityBase {
         private int userId;
         private int requirementId;
         public Date creationTime;
+        public Date lastupdatedTime;
         public User creator;
 
 
@@ -121,6 +129,11 @@ public class Comment extends EntityBase {
 
         public Builder creationTime(Date creationTime) {
             this.creationTime = creationTime;
+            return this;
+        }
+
+        public Builder lastupdatedTime(Date lastupdatedTime) {
+            this.lastupdatedTime = lastupdatedTime;
             return this;
         }
 
