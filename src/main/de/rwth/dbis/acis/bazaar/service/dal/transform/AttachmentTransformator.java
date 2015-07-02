@@ -112,7 +112,8 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
                         .creator(record.getUserId())
                         .requirementId(record.getRequirementId())
                         .title(record.getTitle())
-                        .creationTime(new Date(record.getCreationTime().getTime()))
+                        .creationTime(record.getCreationTime())
+                        .lastupdatedTime(record.getLastupdatedTime())
                         .build();
                 break;
             case Log:
@@ -123,7 +124,8 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
                         .creator(record.getUserId())
                         .requirementId(record.getRequirementId())
                         .title(record.getTitle())
-                        .creationTime(new Date(record.getCreationTime().getTime()))
+                        .creationTime(record.getCreationTime())
+                        .lastupdatedTime(record.getLastupdatedTime())
                         .build();
                 break;
             case Image:
@@ -134,7 +136,8 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
                         .creator(record.getUserId())
                         .requirementId(record.getRequirementId())
                         .title(record.getTitle())
-                        .creationTime(new Date(record.getCreationTime().getTime()))
+                        .creationTime(record.getCreationTime())
+                        .lastupdatedTime(record.getLastupdatedTime())
                         .build();
                 break;
             case FreeStory:
@@ -144,7 +147,8 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
                         .creator(record.getUserId())
                         .requirementId(record.getRequirementId())
                         .title(record.getTitle())
-                        .creationTime(new Date(record.getCreationTime().getTime()))
+                        .creationTime(record.getCreationTime())
+                        .lastupdatedTime(record.getLastupdatedTime())
                         .build();
                 break;
             case File:
@@ -155,7 +159,8 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
                         .creator(record.getUserId())
                         .requirementId(record.getRequirementId())
                         .title(record.getTitle())
-                        .creationTime(new Date(record.getCreationTime().getTime()))
+                        .creationTime(record.getCreationTime())
+                        .lastupdatedTime(record.getLastupdatedTime())
                         .build();
                 break;
         }

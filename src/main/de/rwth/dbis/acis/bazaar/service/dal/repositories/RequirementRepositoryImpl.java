@@ -221,6 +221,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .description(queryResult.getValues(REQUIREMENTS.DESCRIPTION).get(0))
                     .realized(queryResult.getValues(REQUIREMENTS.REALIZED).get(0))
                     .creationTime(queryResult.getValues(REQUIREMENTS.CREATION_TIME).get(0))
+                    .lastupdatedTime(queryResult.getValues(REQUIREMENTS.LASTUPDATED_TIME).get(0))
                     .projectId(queryResult.getValues(REQUIREMENTS.PROJECT_ID).get(0))
                     .leadDeveloperId(queryResult.getValues(REQUIREMENTS.LEAD_DEVELOPER_ID).get(0))
                     .creatorId(queryResult.getValues(REQUIREMENTS.CREATOR_ID).get(0));
@@ -281,6 +282,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 AttachmentsRecord record = new AttachmentsRecord(
                         records.getValues(Attachments.ATTACHMENTS.ID).get(0),
                         records.getValues(Attachments.ATTACHMENTS.CREATION_TIME).get(0),
+                        records.getValues(Attachments.ATTACHMENTS.LASTUPDATED_TIME).get(0),
                         records.getValues(Attachments.ATTACHMENTS.REQUIREMENT_ID).get(0),
                         records.getValues(Attachments.ATTACHMENTS.USER_ID).get(0),
                         records.getValues(Attachments.ATTACHMENTS.TITLE).get(0),

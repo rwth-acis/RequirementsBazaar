@@ -42,8 +42,9 @@ public abstract class Attachment extends EntityBase {
     @MaxLength(50)
     private final String title;
 
-
     private final Date creation_time;
+
+    private final Date lastupdated_time;
 
     public Attachment(Builder builder) {
         this.Id = builder.id;
@@ -51,6 +52,7 @@ public abstract class Attachment extends EntityBase {
         this.requirementId = builder.requirementId;
         this.title = builder.title;
         this.creation_time = builder.creation_time;
+        this.lastupdated_time = builder.lastupdated_time;
     }
 
     public int getId() {
@@ -74,12 +76,17 @@ public abstract class Attachment extends EntityBase {
         return creation_time;
     }
 
+    public Date getLastupdated_time() {
+        return lastupdated_time;
+    }
+
     public static abstract class Builder {
         private int id;
         private int creatorId;
         private int requirementId;
         private String title;
         private Date creation_time;
+        private Date lastupdated_time;
 
         public Builder id(int id) {
             this.id = id;
@@ -103,6 +110,11 @@ public abstract class Attachment extends EntityBase {
 
         public Builder creationTime(Date creationTime) {
             this.creation_time = creationTime;
+            return this;
+        }
+
+        public Builder lastupdatedTime(Date lastupdated_time) {
+            this.lastupdated_time = lastupdated_time;
             return this;
         }
 
