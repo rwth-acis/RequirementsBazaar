@@ -30,7 +30,7 @@ import java.util.Date;
  * @since 6/9/2014
  */
 public class Project extends EntityBase {
-    @Min(0)
+    @Min(-1)
     private final int id;
 
     @NotBlank
