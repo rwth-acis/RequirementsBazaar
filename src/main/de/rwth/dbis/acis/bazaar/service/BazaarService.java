@@ -397,7 +397,9 @@ public class BazaarService extends Service {
             Gson gson = new Gson();
             Project projectToCreate = gson.fromJson(project, Project.class);
             vtor.validate(projectToCreate);
-            if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+            if (vtor.hasViolations()) {
+                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+            }
             dalFacade = createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_PROJECT, dalFacade);
