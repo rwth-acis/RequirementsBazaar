@@ -90,6 +90,9 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
             if (entry.getTitle() != null) {
                 put(REQUIREMENTS.TITLE, entry.getTitle());
             }
+            if (entry.getLeadDeveloperId() != 0) {
+                put(REQUIREMENTS.LEAD_DEVELOPER_ID, entry.getLeadDeveloperId());
+            }
             put(REQUIREMENTS.REALIZED, entry.getRealized());
         }};
     }
