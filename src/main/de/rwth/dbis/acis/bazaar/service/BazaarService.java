@@ -61,7 +61,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
  * @author István Koren
  */
 @Path("bazaar")
-@Version("0.1")
+@Version("0.2")
 @ApiInfo(
         title = "Requirements Bazaar",
         description = "Requirements Bazaar project",
