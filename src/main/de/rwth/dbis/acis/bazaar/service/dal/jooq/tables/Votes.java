@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Votes extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord> {
 
-	private static final long serialVersionUID = 228611743;
+	private static final long serialVersionUID = -330381394;
 
 	/**
 	 * The singleton instance of <code>reqbaz.votes</code>
@@ -95,6 +95,14 @@ public class Votes extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.serv
 	@Override
 	public java.util.List<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord>> getKeys() {
 		return java.util.Arrays.<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_VOTES_PRIMARY);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public java.util.List<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord, ?>> getReferences() {
+		return java.util.Arrays.<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord, ?>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.VOTES_REQUIREMENT, de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.VOTES_USER);
 	}
 
 	/**

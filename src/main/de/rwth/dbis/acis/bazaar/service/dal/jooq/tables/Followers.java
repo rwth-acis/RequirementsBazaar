@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Followers extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord> {
 
-	private static final long serialVersionUID = 634288390;
+	private static final long serialVersionUID = -1574948115;
 
 	/**
 	 * The singleton instance of <code>reqbaz.followers</code>
@@ -44,7 +44,7 @@ public class Followers extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.
 	/**
 	 * The column <code>reqbaz.followers.creation_time</code>.
 	 */
-	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord, java.sql.Timestamp> CREATION_TIME = createField("creation_time", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord, java.sql.Timestamp> CREATION_TIME = createField("creation_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * Create a <code>reqbaz.followers</code> table reference
@@ -90,6 +90,14 @@ public class Followers extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.
 	@Override
 	public java.util.List<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord>> getKeys() {
 		return java.util.Arrays.<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_FOLLOWERS_PRIMARY);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public java.util.List<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord, ?>> getReferences() {
+		return java.util.Arrays.<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord, ?>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.FOLLOWER_REQUIREMENT, de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.FOLLOWER_USER);
 	}
 
 	/**

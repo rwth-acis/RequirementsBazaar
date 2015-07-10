@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class RolePrivilege extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolePrivilegeRecord> {
 
-	private static final long serialVersionUID = -750256749;
+	private static final long serialVersionUID = -1974066565;
 
 	/**
 	 * The singleton instance of <code>reqbaz.role_privilege</code>
@@ -85,6 +85,14 @@ public class RolePrivilege extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.baz
 	@Override
 	public java.util.List<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolePrivilegeRecord>> getKeys() {
 		return java.util.Arrays.<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolePrivilegeRecord>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_ROLE_PRIVILEGE_PRIMARY);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public java.util.List<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolePrivilegeRecord, ?>> getReferences() {
+		return java.util.Arrays.<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolePrivilegeRecord, ?>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.ROLE_PRIVILEGE_ROLES, de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.ROLE_PRIVILEGE_PRIVILEGES);
 	}
 
 	/**

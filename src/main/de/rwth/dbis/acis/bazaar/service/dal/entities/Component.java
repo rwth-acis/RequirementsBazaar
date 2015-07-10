@@ -23,6 +23,8 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 import jodd.vtor.constraint.*;
 
+import java.util.Date;
+
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
@@ -39,6 +41,10 @@ public class Component extends EntityBase {
     @NotBlank
     @MaxLength(50)
     private final String name;
+
+    private final Date creation_time;
+
+    private final Date lastupdated_time;
 
     @Min(-1)
     private int leaderId;
@@ -77,14 +83,12 @@ public class Component extends EntityBase {
      */
     private Component(Builder builder) {
         this.id = builder.id;
-
         this.description = builder.description;
-
         this.name = builder.name;
-
         this.projectId = builder.projectId;
-
         this.leaderId = builder.leaderId;
+        this.creation_time = builder.creation_time;
+        this.lastupdated_time = builder.lastupdated_time;
     }
 
 
@@ -105,6 +109,8 @@ public class Component extends EntityBase {
         private String description;
 
         private String name;
+        private Date creation_time;
+        private Date lastupdated_time;
         private int projectId;
         public int leaderId;
 
@@ -146,6 +152,16 @@ public class Component extends EntityBase {
 
         public Builder projectId(int projectId) {
             this.projectId = projectId;
+            return this;
+        }
+
+        public Builder creationTime(Date creation_time) {
+            this.creation_time = creation_time;
+            return this;
+        }
+
+        public Builder lastupdated_time(Date lastupdated_time) {
+            this.lastupdated_time = lastupdated_time;
             return this;
         }
     }

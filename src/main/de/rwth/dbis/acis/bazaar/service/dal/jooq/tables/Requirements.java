@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Requirements extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord> {
 
-	private static final long serialVersionUID = -1012931434;
+	private static final long serialVersionUID = 167100441;
 
 	/**
 	 * The singleton instance of <code>reqbaz.requirements</code>
@@ -42,9 +42,19 @@ public class Requirements extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.baza
 	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord, java.lang.String> DESCRIPTION = createField("description", org.jooq.impl.SQLDataType.CLOB.length(65535), this, "");
 
 	/**
+	 * The column <code>reqbaz.requirements.realized</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord, java.sql.Timestamp> REALIZED = createField("realized", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
+
+	/**
 	 * The column <code>reqbaz.requirements.creation_time</code>.
 	 */
 	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord, java.sql.Timestamp> CREATION_TIME = createField("creation_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
+
+	/**
+	 * The column <code>reqbaz.requirements.lastupdated_time</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord, java.sql.Timestamp> LASTUPDATED_TIME = createField("lastupdated_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * The column <code>reqbaz.requirements.Lead_developer_Id</code>.
@@ -105,6 +115,14 @@ public class Requirements extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.baza
 	@Override
 	public java.util.List<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord>> getKeys() {
 		return java.util.Arrays.<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_REQUIREMENTS_PRIMARY);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public java.util.List<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord, ?>> getReferences() {
+		return java.util.Arrays.<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord, ?>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.LEADDEVELOPER, de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.CREATOR, de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.REQUIREMENT_PROJECT);
 	}
 
 	/**

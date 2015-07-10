@@ -30,10 +30,6 @@ import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQU
 
 import java.util.*;
 
-/**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/9/2014
- */
 public class RequirementTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord> {
     @Override
     public RequirementsRecord createRecord(Requirement entry) {
@@ -41,8 +37,10 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
 //        record.setId(entry.getId());
         record.setDescription(entry.getDescription());
         record.setTitle(entry.getTitle());
+        if (entry.getRealized() != null) {
+            record.setRealized(new java.sql.Timestamp(entry.getRealized().getTime()));
+        }
         record.setCreationTime(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
-
         record.setLeadDeveloperId(entry.getLeadDeveloperId());
         record.setCreatorId(entry.getCreatorId());
         record.setProjectId(entry.getProjectId());
@@ -54,7 +52,9 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
         return Requirement.getBuilder(record.getTitle())
                 .description(record.getDescription())
                 .id(record.getId())
+                .realized(record.getRealized())
                 .creationTime(record.getCreationTime())
+                .lastupdatedTime(record.getLastupdatedTime())
                 .leadDeveloperId(record.getLeadDeveloperId())
                 .projectId(record.getProjectId())
                 .creatorId(record.getCreatorId());
@@ -84,8 +84,16 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
     @Override
     public Map<Field, Object> getUpdateMap(final Requirement entry) {
         return new HashMap<Field, Object>() {{
-            put(REQUIREMENTS.DESCRIPTION, entry.getDescription());
-            put(REQUIREMENTS.TITLE, entry.getTitle());
+            if (entry.getDescription() != null) {
+                put(REQUIREMENTS.DESCRIPTION, entry.getDescription());
+            }
+            if (entry.getTitle() != null) {
+                put(REQUIREMENTS.TITLE, entry.getTitle());
+            }
+            if (entry.getLeadDeveloperId() != 0) {
+                put(REQUIREMENTS.LEAD_DEVELOPER_ID, entry.getLeadDeveloperId());
+            }
+            put(REQUIREMENTS.REALIZED, entry.getRealized());
         }};
     }
 
@@ -109,7 +117,4 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
                         .or(REQUIREMENTS.DESCRIPTION.likeIgnoreCase(likeExpression))
         );
     }
-
-
-
 }

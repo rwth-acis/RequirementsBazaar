@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Projects extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord> {
 
-	private static final long serialVersionUID = 921456119;
+	private static final long serialVersionUID = -694816984;
 
 	/**
 	 * The singleton instance of <code>reqbaz.projects</code>
@@ -45,6 +45,16 @@ public class Projects extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.s
 	 * The column <code>reqbaz.projects.visibility</code>.
 	 */
 	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord, java.lang.String> VISIBILITY = createField("visibility", org.jooq.impl.SQLDataType.CHAR.length(1).nullable(false), this, "");
+
+	/**
+	 * The column <code>reqbaz.projects.creation_time</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord, java.sql.Timestamp> CREATION_TIME = createField("creation_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
+
+	/**
+	 * The column <code>reqbaz.projects.lastupdated_time</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord, java.sql.Timestamp> LASTUPDATED_TIME = createField("lastupdated_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * The column <code>reqbaz.projects.Leader_Id</code>.
@@ -100,6 +110,14 @@ public class Projects extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.s
 	@Override
 	public java.util.List<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord>> getKeys() {
 		return java.util.Arrays.<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_PROJECTS_PRIMARY);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public java.util.List<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord, ?>> getReferences() {
+		return java.util.Arrays.<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord, ?>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.PROJECTS_USERS, de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.PROJECTS_COMPONENTS);
 	}
 
 	/**

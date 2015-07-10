@@ -29,6 +29,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
+import org.jooq.impl.DSL;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -186,7 +187,7 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
         } catch (BazaarException ex) {
             ExceptionHandler.getInstance().convertAndThrowException(ex);
         } catch (Exception e) {
-            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
         }
 
         return transformator.mapToEntity(queryResult);

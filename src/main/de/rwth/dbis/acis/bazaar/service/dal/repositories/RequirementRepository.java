@@ -27,10 +27,6 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.util.List;
 
-/**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/9/2014
- */
 public interface RequirementRepository extends Repository<Requirement> {
 
     List<Requirement> findAllByProject(int projectId, Pageable pageable, int userId) throws BazaarException;
@@ -39,6 +35,5 @@ public interface RequirementRepository extends Repository<Requirement> {
 
     public boolean belongsToPublicProject(int id) throws BazaarException;
 
-    @Override
-    RequirementEx findById(int id) throws Exception;
+    RequirementEx findById(int id, int userId) throws Exception;
 }

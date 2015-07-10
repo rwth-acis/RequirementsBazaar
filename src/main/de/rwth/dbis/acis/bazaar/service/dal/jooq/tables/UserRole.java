@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class UserRole extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRoleRecord> {
 
-	private static final long serialVersionUID = -417779326;
+	private static final long serialVersionUID = 794609706;
 
 	/**
 	 * The singleton instance of <code>reqbaz.user_role</code>
@@ -90,6 +90,14 @@ public class UserRole extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.s
 	@Override
 	public java.util.List<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRoleRecord>> getKeys() {
 		return java.util.Arrays.<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRoleRecord>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_ROLE_PRIMARY);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public java.util.List<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRoleRecord, ?>> getReferences() {
+		return java.util.Arrays.<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRoleRecord, ?>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.USER_ROLE_ROLES, de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.USER_ROLE_USERS);
 	}
 
 	/**

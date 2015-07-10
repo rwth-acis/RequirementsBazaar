@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Attachments extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord> {
 
-	private static final long serialVersionUID = -1336357178;
+	private static final long serialVersionUID = 1060023319;
 
 	/**
 	 * The singleton instance of <code>reqbaz.attachments</code>
@@ -35,6 +35,11 @@ public class Attachments extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaa
 	 * The column <code>reqbaz.attachments.creation_time</code>.
 	 */
 	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord, java.sql.Timestamp> CREATION_TIME = createField("creation_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
+
+	/**
+	 * The column <code>reqbaz.attachments.lastupdated_time</code>.
+	 */
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord, java.sql.Timestamp> LASTUPDATED_TIME = createField("lastupdated_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * The column <code>reqbaz.attachments.Requirement_Id</code>.
@@ -130,6 +135,14 @@ public class Attachments extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaa
 	@Override
 	public java.util.List<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord>> getKeys() {
 		return java.util.Arrays.<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_ATTACHMENTS_PRIMARY);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public java.util.List<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord, ?>> getReferences() {
+		return java.util.Arrays.<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord, ?>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.ATTACHEMENT_REQUIREMENT, de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.ATTACHEMENT_USER);
 	}
 
 	/**

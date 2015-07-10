@@ -6,30 +6,35 @@ import jodd.vtor.constraint.*;
 
 
 import java.util.Date;
+import java.util.List;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/9/2014
+ * Requirement entity
  */
 public class Requirement extends EntityBase {
     @Min(-1)
     private final int id;
 
-
     @NotBlank
     @MaxLength(50)
     private final String title;
 
-
     private final Date creation_time;
 
+    private final Date lastupdated_time;
 
     private final String description;
 
+    private final Date realized;
+
+    @NotNull(profiles = {"create"})
+    @Size(min = 1, profiles = {"create"})
+    private List<Component> components;
+
     @Min(-1)
-    private final int projectId;
+    private int projectId;
     @Min(-1)
-    private final int leadDeveloperId;
+    private int leadDeveloperId;
 
     private final int upVotes;
     private final int downVotes;
@@ -38,12 +43,28 @@ public class Requirement extends EntityBase {
     @Min(-1)
     private int creatorId;
 
+    public Date getRealized() {
+        return realized;
+    }
+
     public Date getCreation_time() {
         return creation_time;
     }
 
+    public Date getLastupdated_time() {
+        return lastupdated_time;
+    }
+
     public String getDescription() {
         return description;
+    }
+
+    public List<Component> getComponents() {
+        return components;
+    }
+
+    public void setComponents(List<Component> components) {
+        this.components = components;
     }
 
     public String getTitle() {
@@ -58,8 +79,16 @@ public class Requirement extends EntityBase {
         return projectId;
     }
 
+    public void setProjectId(int projectId) {
+        this.projectId = projectId;
+    }
+
     public int getLeadDeveloperId() {
         return leadDeveloperId;
+    }
+
+    public void setLeadDeveloperId(int leadDeveloperId) {
+        this.leadDeveloperId = leadDeveloperId;
     }
 
     public int getCreatorId() {
@@ -72,15 +101,14 @@ public class Requirement extends EntityBase {
 
     protected Requirement(Builder builder) {
         this.id = builder.id;
-
         this.description = builder.description;
-
         this.title = builder.title;
-
+        this.realized = builder.realized;
         this.projectId = builder.projectId;
         this.leadDeveloperId = builder.leadDeveloperId;
         this.creatorId = builder.creatorId;
         this.creation_time = builder.creation_time;
+        this.lastupdated_time = builder.lastupdated_time;
         this.upVotes = builder.upVotes;
         this.downVotes = builder.downVotes;
         this.userVoted = builder.userVoted;
@@ -97,16 +125,15 @@ public class Requirement extends EntityBase {
     }
 
     public static class Builder {
-
         private int id;
-
         private String description;
-
         private String title;
+        private Date realized;
         private int projectId;
         private int leadDeveloperId;
         private int creatorId;
         private Date creation_time;
+        private Date lastupdated_time;
         private int upVotes;
         private int downVotes;
         public UserVote userVoted;
@@ -157,8 +184,18 @@ public class Requirement extends EntityBase {
             return this;
         }
 
+        public Builder realized(Date realized) {
+            this.realized = realized;
+            return this;
+        }
+
         public Builder creationTime(Date creationTime) {
             this.creation_time = creationTime;
+            return this;
+        }
+
+        public Builder lastupdatedTime(Date lastupdatedTime) {
+            this.lastupdated_time = lastupdatedTime;
             return this;
         }
 
@@ -172,9 +209,8 @@ public class Requirement extends EntityBase {
             return this;
         }
 
-        public Builder userVoted(UserVote userVoted)
-        {
-            this.userVoted=userVoted;
+        public Builder userVoted(UserVote userVoted) {
+            this.userVoted = userVoted;
             return this;
         }
     }

@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class RoleRole extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RoleRoleRecord> {
 
-	private static final long serialVersionUID = -1043156208;
+	private static final long serialVersionUID = -739269043;
 
 	/**
 	 * The singleton instance of <code>reqbaz.role_role</code>
@@ -85,6 +85,14 @@ public class RoleRole extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.s
 	@Override
 	public java.util.List<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RoleRoleRecord>> getKeys() {
 		return java.util.Arrays.<org.jooq.UniqueKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RoleRoleRecord>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_ROLE_ROLE_PRIMARY);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public java.util.List<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RoleRoleRecord, ?>> getReferences() {
+		return java.util.Arrays.<org.jooq.ForeignKey<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RoleRoleRecord, ?>>asList(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.ROLE_CHILD, de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.ROLE_PARENT);
 	}
 
 	/**
