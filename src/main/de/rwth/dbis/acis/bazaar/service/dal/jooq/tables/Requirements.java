@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Requirements extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord> {
 
-	private static final long serialVersionUID = 167100441;
+	private static final long serialVersionUID = -1147081827;
 
 	/**
 	 * The singleton instance of <code>reqbaz.requirements</code>
@@ -54,7 +54,7 @@ public class Requirements extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.baza
 	/**
 	 * The column <code>reqbaz.requirements.lastupdated_time</code>.
 	 */
-	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord, java.sql.Timestamp> LASTUPDATED_TIME = createField("lastupdated_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord, java.sql.Timestamp> LASTUPDATED_TIME = createField("lastupdated_time", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
 
 	/**
 	 * The column <code>reqbaz.requirements.Lead_developer_Id</code>.
