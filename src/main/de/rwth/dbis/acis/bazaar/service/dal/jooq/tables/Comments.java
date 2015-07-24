@@ -11,7 +11,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Comments extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord> {
 
-	private static final long serialVersionUID = 2130477508;
+	private static final long serialVersionUID = -1225014848;
 
 	/**
 	 * The singleton instance of <code>reqbaz.comments</code>
@@ -44,7 +44,7 @@ public class Comments extends org.jooq.impl.TableImpl<de.rwth.dbis.acis.bazaar.s
 	/**
 	 * The column <code>reqbaz.comments.lastupdated_time</code>.
 	 */
-	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord, java.sql.Timestamp> LASTUPDATED_TIME = createField("lastupdated_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaulted(true), this, "");
+	public final org.jooq.TableField<de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord, java.sql.Timestamp> LASTUPDATED_TIME = createField("lastupdated_time", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
 
 	/**
 	 * The column <code>reqbaz.comments.Requirement_Id</code>.

@@ -27,10 +27,7 @@ import org.jooq.*;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Components.COMPONENTS;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -43,8 +40,9 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
         record.setDescription(entry.getDescription());
         record.setName(entry.getName());
         record.setProjectId(entry.getProjectId());
-//        record.setId(entry.getId());
         record.setLeaderId(entry.getLeaderId());
+        record.setCreationTime(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+        record.setLastupdatedTime(record.getCreationTime());
         return record;
     }
 
@@ -77,7 +75,7 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
 
     @Override
     public Map<Field, Object> getUpdateMap(final Component entry) {
-        return new HashMap<Field, Object>() {{
+        HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
             if (entry.getDescription() != null) {
                 put(COMPONENTS.DESCRIPTION, entry.getDescription());
             }
@@ -85,6 +83,10 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
                 put(COMPONENTS.NAME, entry.getName());
             }
         }};
+        if (!updateMap.isEmpty()) {
+            updateMap.put(COMPONENTS.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+        }
+        return updateMap;
     }
 
     @Override
