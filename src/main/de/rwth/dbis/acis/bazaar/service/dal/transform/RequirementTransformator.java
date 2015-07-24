@@ -41,6 +41,7 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
             record.setRealized(new java.sql.Timestamp(entry.getRealized().getTime()));
         }
         record.setCreationTime(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+        record.setLastupdatedTime(record.getCreationTime());
         record.setLeadDeveloperId(entry.getLeadDeveloperId());
         record.setCreatorId(entry.getCreatorId());
         record.setProjectId(entry.getProjectId());
@@ -83,7 +84,7 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
 
     @Override
     public Map<Field, Object> getUpdateMap(final Requirement entry) {
-        return new HashMap<Field, Object>() {{
+        HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
             if (entry.getDescription() != null) {
                 put(REQUIREMENTS.DESCRIPTION, entry.getDescription());
             }
@@ -95,6 +96,10 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
             }
             put(REQUIREMENTS.REALIZED, entry.getRealized());
         }};
+        if (!updateMap.isEmpty()) {
+            updateMap.put(REQUIREMENTS.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+        }
+        return updateMap;
     }
 
     @Override

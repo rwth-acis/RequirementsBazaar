@@ -41,9 +41,8 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
     @Override
     public AttachmentsRecord createRecord(Attachment entity) {
         AttachmentsRecord attachmentsRecord = new AttachmentsRecord();
-
-//        attachmentsRecord.setId(entity.getId());
         attachmentsRecord.setCreationTime(new Timestamp(entity.getCreation_time().getTime()));
+        attachmentsRecord.setLastupdatedTime(attachmentsRecord.getCreationTime());
         attachmentsRecord.setRequirementId(entity.getRequirementId());
         attachmentsRecord.setUserId(entity.getCreatorId());
         attachmentsRecord.setTitle(entity.getTitle());
@@ -185,11 +184,15 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
 
     @Override
     public Map<Field, Object> getUpdateMap(final Attachment entity) {
-        return new HashMap<Field, Object>() {{
+        HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
             put(ATTACHMENTS.USER_ID, entity.getCreatorId());
             put(ATTACHMENTS.TITLE, entity.getTitle());
             put(ATTACHMENTS.REQUIREMENT_ID, entity.getRequirementId());
         }};
+        if (!updateMap.isEmpty()) {
+            updateMap.put(ATTACHMENTS.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+        }
+        return updateMap;
     }
 
     @Override

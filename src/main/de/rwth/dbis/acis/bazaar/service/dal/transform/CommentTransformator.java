@@ -38,11 +38,11 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
     @Override
     public CommentsRecord createRecord(Comment entity) {
         CommentsRecord record = new CommentsRecord();
-//        record.setId(entity.getId());
         record.setUserId(entity.getCreatorId());
         record.setMessage(entity.getMessage());
         record.setRequirementId(entity.getRequirementId());
         record.setCreationTime(new Timestamp(Calendar.getInstance().getTime().getTime()));
+        record.setLastupdatedTime(record.getCreationTime());
         return record;
     }
 
@@ -74,11 +74,15 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
 
     @Override
     public Map<Field, Object> getUpdateMap(final Comment entity) {
-        return new HashMap<Field, Object>() {{
+        HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
             put(COMMENTS.REQUIREMENT_ID, entity.getRequirementId());
             put(COMMENTS.USER_ID, entity.getCreatorId());
             put(COMMENTS.MESSAGE, entity.getMessage());
         }};
+        if (!updateMap.isEmpty()) {
+            updateMap.put(COMMENTS.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+        }
+        return updateMap;
     }
 
     @Override

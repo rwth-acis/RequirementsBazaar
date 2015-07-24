@@ -28,10 +28,7 @@ import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS
 
 import org.jooq.*;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -41,12 +38,13 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
     @Override
     public ProjectsRecord createRecord(Project entry) {
         ProjectsRecord record = new ProjectsRecord();
-//        record.setId(entry.getId());
         record.setDescription(entry.getDescription());
         record.setName(entry.getName());
         record.setLeaderId(entry.getLeaderId());
         record.setVisibility(entry.getVisibility().asChar());
         record.setDefaultComponentsId(entry.getDefaultComponentId());
+        record.setCreationTime(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+        record.setLastupdatedTime(record.getCreationTime());
         return record;
     }
 
@@ -80,7 +78,7 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
 
     @Override
     public Map<Field, Object> getUpdateMap(final Project entry) {
-        return new HashMap<Field, Object>() {{
+        HashMap<Field, Object> updateMap =  new HashMap<Field, Object>() {{
             if (entry.getDescription() != null) {
                 put(PROJECTS.DESCRIPTION, entry.getDescription());
             }
@@ -97,6 +95,10 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
                 put(PROJECTS.VISIBILITY, entry.getVisibility().asChar());
             }
         }};
+        if (!updateMap.isEmpty()) {
+            updateMap.put(PROJECTS.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+        }
+        return updateMap;
     }
 
     @Override
