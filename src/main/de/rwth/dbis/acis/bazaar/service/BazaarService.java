@@ -33,6 +33,7 @@ import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Service;
 import i5.las2peer.restMapper.HttpResponse;
 import i5.las2peer.restMapper.MediaType;
+import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.Version;
 import i5.las2peer.security.UserAgent;
 
@@ -69,7 +70,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
  *
  * @author István Koren
  */
-@Path("bazaar")
+@Path("/bazaar")
 @Version("0.2")
 @Api
 @SwaggerDefinition(
@@ -99,6 +100,22 @@ public class BazaarService extends Service {
 
     private Vtor vtor;
     private List<BazaarFunctionRegistrator> functionRegistrators;
+
+    /**
+     * This method is needed for every RESTful application in LAS2peer.
+     *
+     * @return the mapping to the REST interface.
+     */
+    public String getRESTMapping() {
+        String result = "";
+        try {
+            result = RESTMapper.getMethodsAsXML(this.getClass());
+        } catch (Exception e) {
+
+            e.printStackTrace();
+        }
+        return result;
+    }
 
     public BazaarService() throws Exception {
 
@@ -258,6 +275,7 @@ public class BazaarService extends Service {
         if (swagger == null) {
             return new HttpResponse("Swagger API declaration not available!", HttpURLConnection.HTTP_NOT_FOUND);
         }
+        swagger.getDefinitions().clear();
         try {
             return new HttpResponse(Json.mapper().writeValueAsString(swagger), HttpURLConnection.HTTP_OK);
         } catch (JsonProcessingException e) {
@@ -387,7 +405,7 @@ public class BazaarService extends Service {
      * @return Response with the created project as a JSON object.
      */
     @POST
-    @Path("projects")
+    @Path("/projects")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to create a new project")
@@ -439,7 +457,7 @@ public class BazaarService extends Service {
      * @return Response with the updated project as a JSON object.
      */
     @PUT
-    @Path("projects/{projectId}")
+    @Path("/projects/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to update a certain project.")
@@ -493,7 +511,7 @@ public class BazaarService extends Service {
 
     //TODO DELETE PROJECT, DID WE WANT IT
 //    @DELETE
-//    @Path("projects/{projectId}")
+//    @Path("/projects/{projectId}")
 //    @Produces(MediaType.APPLICATION_JSON)
 //    public String deleteProject(@PathParam("projectId") int projectId) {
 //        // TODO: check if user can delete this project
@@ -526,7 +544,7 @@ public class BazaarService extends Service {
      * @return Response with components as a JSON array.
      */
     @GET
-    @Path("projects/{projectId}/components")
+    @Path("/projects/{projectId}/components")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method returns the list of components under a given project.")
     @ApiResponses(value = {
@@ -593,7 +611,7 @@ public class BazaarService extends Service {
      * @return Response with a component as a JSON object.
      */
     @GET
-    @Path("components/{componentId}")
+    @Path("/components/{componentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to retrieve a certain component.")
     @ApiResponses(value = {
@@ -649,7 +667,7 @@ public class BazaarService extends Service {
      * @return Response with the created project as a JSON object.
      */
     @POST
-    @Path("components")
+    @Path("/components")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to create a new component under a given a project.")
@@ -701,7 +719,7 @@ public class BazaarService extends Service {
      * @return Response with the updated component as a JSON object.
      */
     @PUT
-    @Path("components/{componentId}")
+    @Path("/components/{componentId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to update a certain component.")
@@ -760,7 +778,7 @@ public class BazaarService extends Service {
      * @return Response with deleted component as a JSON object.
      */
     @DELETE
-    @Path("components/{componentId}")
+    @Path("/components/{componentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method deletes a specific component.")
     @ApiResponses(value = {
@@ -825,7 +843,7 @@ public class BazaarService extends Service {
      * @return Response with requirements as a JSON array.
      */
     @GET
-    @Path("projects/{projectId}/requirements")
+    @Path("/projects/{projectId}/requirements")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method returns the list of requirements for a specific project.")
     @ApiResponses(value = {
@@ -893,7 +911,7 @@ public class BazaarService extends Service {
      * @return Response with requirements as a JSON array.
      */
     @GET
-    @Path("components/{componentId}/requirements")
+    @Path("/components/{componentId}/requirements")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method returns the list of requirements for a specific component.")
     @ApiResponses(value = {
@@ -961,7 +979,7 @@ public class BazaarService extends Service {
      * @return Response with requirement as a JSON object.
      */
     @GET
-    @Path("requirements/{requirementId}")
+    @Path("/requirements/{requirementId}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method returns a specific requirement.")
     @ApiResponses(value = {
@@ -1017,7 +1035,7 @@ public class BazaarService extends Service {
      * @return Response with the created requirement as a JSON object.
      */
     @POST
-    @Path("requirements")
+    @Path("/requirements")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to create a new requirement.")
@@ -1088,7 +1106,7 @@ public class BazaarService extends Service {
      * @return Response with updated requirement as a JSON object.
      */
     @PUT
-    @Path("requirements/{requirementId}")
+    @Path("/requirements/{requirementId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method updates a specific requirement.")
@@ -1147,7 +1165,7 @@ public class BazaarService extends Service {
      * @return Response with the deleted requirement as a JSON object.
      */
     @DELETE
-    @Path("requirements/{requirementId}")
+    @Path("/requirements/{requirementId}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method deletes a specific requirement.")
     @ApiResponses(value = {
@@ -1198,7 +1216,7 @@ public class BazaarService extends Service {
      * @return Response with requirement as a JSON object.
      */
     @POST
-    @Path("requirements/{requirementId}/developers")
+    @Path("/requirements/{requirementId}/developers")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method add the current user to the developers list of a given requirement.")
     @ApiResponses(value = {
@@ -1250,7 +1268,7 @@ public class BazaarService extends Service {
      * @return Response with requirement as a JSON object.
      */
     @DELETE
-    @Path("requirements/{requirementId}/developers")
+    @Path("/requirements/{requirementId}/developers")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method remove the current user from a developers list of a given requirement.")
     @ApiResponses(value = {
@@ -1302,7 +1320,7 @@ public class BazaarService extends Service {
      * @return Response with requirement as a JSON object.
      */
     @POST
-    @Path("requirements/{requirementId}/followers")
+    @Path("/requirements/{requirementId}/followers")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method add the current user to the followers list of a given requirement.")
     @ApiResponses(value = {
@@ -1354,7 +1372,7 @@ public class BazaarService extends Service {
      * @return Response with requirement as a JSON object.
      */
     @DELETE
-    @Path("requirements/{requirementId}/followers")
+    @Path("/requirements/{requirementId}/followers")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method removes the current user from a followers list of a given requirement.")
     @ApiResponses(value = {
@@ -1407,7 +1425,7 @@ public class BazaarService extends Service {
      * @return Response with requirement as a JSON object.
      */
     @POST
-    @Path("requirements/{requirementId}/vote")
+    @Path("/requirements/{requirementId}/vote")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method creates a vote for the given requirement in the name of the current user.")
     @ApiResponses(value = {
@@ -1462,7 +1480,7 @@ public class BazaarService extends Service {
      * @return Response with requirement as a JSON object.
      */
     @DELETE
-    @Path("requirements/{requirementId}/vote")
+    @Path("/requirements/{requirementId}/vote")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method removes the vote of the given requirement made by the current user.")
     @ApiResponses(value = {
@@ -1520,7 +1538,7 @@ public class BazaarService extends Service {
      * @return Response with comments as a JSON array.
      */
     @GET
-    @Path("requirements/{requirementId}/comments")
+    @Path("/requirements/{requirementId}/comments")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method returns the list of comments for a specific requirement.")
     @ApiResponses(value = {
@@ -1584,7 +1602,7 @@ public class BazaarService extends Service {
      * @return Response with comment as a JSON object.
      */
     @GET
-    @Path("comments/{commentId}")
+    @Path("/comments/{commentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to retrieve a certain comment")
     @ApiResponses(value = {
@@ -1642,7 +1660,7 @@ public class BazaarService extends Service {
      * @return Response with the created comment as JSON object.
      */
     @POST
-    @Path("comments")
+    @Path("/comments")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to create a new comment.")
@@ -1709,7 +1727,7 @@ public class BazaarService extends Service {
 //     * @return the updated requirement.
 //     */
 //    @PUT
-//    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments/{commentId}")
+//    @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments/{commentId}")
 //    public String updateComment(@PathParam("projectId") int projectId,
 //                                @PathParam("componentId") int componentId,
 //                                @PathParam("requirementId") int requirementId,
@@ -1724,7 +1742,7 @@ public class BazaarService extends Service {
      * @return Response with the deleted comment as a JSON object.
      */
     @DELETE
-    @Path("comments/{commentId}")
+    @Path("/comments/{commentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method deletes a specific comment.")
     @ApiResponses(value = {
@@ -1783,7 +1801,7 @@ public class BazaarService extends Service {
 //     * @return a list of attachments
 //     */
 //    @GET
-//    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments")
+//    @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments")
 //    @Produces(MediaType.APPLICATION_JSON)
 //    public String getAttachments(@PathParam("projectId") int projectId,
 //                                 @PathParam("componentId") int componentId,
@@ -1801,7 +1819,7 @@ public class BazaarService extends Service {
      * @return Response with the created attachment as JSON object.
      */
     @POST
-    @Path("attachments")
+    @Path("/attachments")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to create a new attachment.")
@@ -1865,7 +1883,7 @@ public class BazaarService extends Service {
 //     * @return a specific attachment.
 //     */
 //    @GET
-//    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments/{attachmentId}")
+//    @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments/{attachmentId}")
 //    public String getAttachment(@PathParam("projectId") int projectId,
 //                                @PathParam("componentId") int componentId,
 //                                @PathParam("requirementId") int requirementId,
@@ -1884,7 +1902,7 @@ public class BazaarService extends Service {
 //     * @return ??.
 //     */
 //    @PUT
-//    @Path("projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments/{attachmentId}")
+//    @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/attachments/{attachmentId}")
 //    public String updateAttachment(@PathParam("projectId") int projectId,
 //                                   @PathParam("componentId") int componentId,
 //                                   @PathParam("requirementId") int requirementId,
@@ -1899,7 +1917,7 @@ public class BazaarService extends Service {
      * @return Response with the deleted attachment as a JSON object.
      */
     @DELETE
-    @Path("attachments/{attachmentId}")
+    @Path("/attachments/{attachmentId}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method deletes a specific attachment.")
     @ApiResponses(value = {
@@ -1954,7 +1972,7 @@ public class BazaarService extends Service {
      * @return Response with user as a JSON object.
      */
     @GET
-    @Path("users/{userId}")
+    @Path("/users/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to retrieve a certain user.")
     @ApiResponses(value = {
@@ -2000,7 +2018,7 @@ public class BazaarService extends Service {
 //     * not.
 //     */
 //    @PUT
-//    @Path("users/{userId}")
+//    @Path("/users/{userId}")
 //    @Produces(MediaType.APPLICATION_JSON)
 //    public String updateUser(@PathParam("userId") int userId) {
 //        // TODO: check if user can change this project
@@ -2013,7 +2031,7 @@ public class BazaarService extends Service {
      * @return Response with user as a JSON object.
      */
     @GET
-    @Path("users/current")
+    @Path("/users/current")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to retrieve the current user.")
     @ApiResponses(value = {
