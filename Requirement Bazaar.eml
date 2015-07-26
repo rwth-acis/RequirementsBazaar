@@ -1,20 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component inheritJdk="true">
 	<exclude-output/>
-	<contentEntry url="file://$MODULE_DIR$">
-		<testFolder url="file://$MODULE_DIR$/src/test"/>
-	</contentEntry>
+	<contentEntry url="file://$MODULE_DIR$"/>
 	<lib name="hamcrest-core-1.3.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/hamcrest-core-1.3.jar!/"/>
 	</lib>
-	<lib name="las2peer-0.3-SNAPSHOT.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/las2peer-0.3-SNAPSHOT.jar!/"/>
+	<lib name="las2peer-0.4-SNAPSHOT.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/las2peer-0.4-SNAPSHOT.jar!/"/>
 	</lib>
-	<lib name="las2peer-rest-mapper-0.3-SNAPSHOT.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/las2peer-rest-mapper-0.3-SNAPSHOT.jar!/"/>
+	<lib name="las2peer-rest-mapper-0.4-SNAPSHOT.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/las2peer-rest-mapper-0.4-SNAPSHOT.jar!/"/>
 	</lib>
-	<lib name="las2peer-web-connector-0.3-SNAPSHOT.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/las2peer-web-connector-0.3-SNAPSHOT.jar!/"/>
+	<lib name="las2peer-web-connector-0.4-SNAPSHOT.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/las2peer-web-connector-0.4-SNAPSHOT.jar!/"/>
 	</lib>
 	<lib name="junit-4.11.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/junit-4.11.jar!/"/>
@@ -54,9 +52,6 @@
 	<lib name="commons-codec-1.9.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/commons-codec-1.9.jar!/"/>
 	</lib>
-	<lib name="commons-io-2.2.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/commons-io-2.2.jar!/"/>
-	</lib>
 	<lib name="commons-lang3-3.3.1.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/commons-lang3-3.3.1.jar!/"/>
 	</lib>
@@ -68,6 +63,33 @@
 	</lib>
 	<lib name="i5-simpleXML-0.2.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/i5-simpleXML-0.2.jar!/"/>
+	</lib>
+	<lib name="jackson-annotations-2.4.2.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jackson-annotations-2.4.2.jar!/"/>
+	</lib>
+	<lib name="jackson-core-2.4.2.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jackson-core-2.4.2.jar!/"/>
+	</lib>
+	<lib name="jackson-databind-2.4.2.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jackson-databind-2.4.2.jar!/"/>
+	</lib>
+	<lib name="jackson-dataformat-xml-2.4.2.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jackson-dataformat-xml-2.4.2.jar!/"/>
+	</lib>
+	<lib name="jackson-dataformat-yaml-2.4.2.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jackson-dataformat-yaml-2.4.2.jar!/"/>
+	</lib>
+	<lib name="jackson-datatype-joda-2.4.2.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jackson-datatype-joda-2.4.2.jar!/"/>
+	</lib>
+	<lib name="jackson-jaxrs-base-2.4.2.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jackson-jaxrs-base-2.4.2.jar!/"/>
+	</lib>
+	<lib name="jackson-jaxrs-json-provider-2.4.2.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jackson-jaxrs-json-provider-2.4.2.jar!/"/>
+	</lib>
+	<lib name="jackson-module-jaxb-annotations-2.4.2.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jackson-module-jaxb-annotations-2.4.2.jar!/"/>
 	</lib>
 	<lib name="integration-1.6.1.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/integration-1.6.1.jar!/"/>
@@ -96,6 +118,9 @@
 	<lib name="jooq-codegen-3.4.2.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jooq-codegen-3.4.2.jar!/"/>
 	</lib>
+	<lib name="jsr311-api-1.1.1.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/jsr311-api-1.1.1.jar!/"/>
+	</lib>
 	<lib name="lang-tag-1.4.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/lang-tag-1.4.jar!/"/>
 	</lib>
@@ -114,17 +139,17 @@
 	<lib name="persistence-api-1.0.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/persistence-api-1.0.jar!/"/>
 	</lib>
-	<lib name="portlet-api-1.0.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/portlet-api-1.0.jar!/"/>
+	<lib name="swagger-annotations-1.5.0.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/swagger-annotations-1.5.0.jar!/"/>
 	</lib>
-	<lib name="servlet-api-2.4.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/servlet-api-2.4.jar!/"/>
+	<lib name="swagger-core-1.5.0.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/swagger-core-1.5.0.jar!/"/>
 	</lib>
-	<lib name="slf4j-api-1.6.1.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/slf4j-api-1.6.1.jar!/"/>
+	<lib name="swagger-jaxrs-1.5.0.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/swagger-jaxrs-1.5.0.jar!/"/>
 	</lib>
-	<lib name="validation-api-1.1.0.Alpha1.jar" scope="COMPILE">
-		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/validation-api-1.1.0.Alpha1.jar!/"/>
+	<lib name="swagger-models-1.5.0.jar" scope="COMPILE">
+		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/swagger-models-1.5.0.jar!/"/>
 	</lib>
 	<lib name="xpp3-1.1.4c.jar" scope="COMPILE">
 		<relative-module-cls project-related="jar://$PROJECT_DIR$/lib/xpp3-1.1.4c.jar!/"/>

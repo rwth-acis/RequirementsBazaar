@@ -22,6 +22,7 @@ package de.rwth.dbis.acis.bazaar.service;
 
 import com.google.gson.*;
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
+
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
@@ -32,11 +33,19 @@ import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Service;
 import i5.las2peer.restMapper.HttpResponse;
 import i5.las2peer.restMapper.MediaType;
-import i5.las2peer.restMapper.RESTMapper;
-import i5.las2peer.restMapper.annotations.*;
-import i5.las2peer.restMapper.annotations.swagger.*;
+import i5.las2peer.restMapper.annotations.Version;
 import i5.las2peer.security.UserAgent;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
+import io.swagger.annotations.*;
+import io.swagger.jaxrs.config.DefaultReaderConfig;
+import io.swagger.jaxrs.Reader;
+import io.swagger.models.Swagger;
+import io.swagger.util.Json;
+import javax.ws.rs.*;
+
+import java.net.HttpURLConnection;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -61,43 +70,35 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
  * @author István Koren
  */
 @Path("bazaar")
-@Version("0.1")
-@ApiInfo(
-        title = "Requirements Bazaar",
-        description = "Requirements Bazaar project",
-        termsOfServiceUrl = "http://requirements-bazaar.org",
-        contact = "info@requirements-bazaar.org",
-        license = "Apache2",
-        licenseUrl = "http://requirements-bazaar.org/license"
-)
+@Version("0.2")
+@Api
+@SwaggerDefinition(
+        info = @Info(
+                title = "Requirements Bazaar",
+                version = "0.2",
+                description = "Requirements Bazaar project",
+                termsOfService = "http://requirements-bazaar.org",
+                contact = @Contact(
+                        name = "Requirements Bazaar Dev Team",
+                        url = "http://requirements-bazaar.org",
+                        email = "info@requirements-bazaar.org"
+                ),
+                license = @License(
+                        name = "Apache2",
+                        url = "http://requirements-bazaar.org/license"
+                )
+        ))
 public class BazaarService extends Service {
 
     //CONFIG PROPERTIES
     protected String dbUserName;
     protected String dbPassword;
     protected String dbUrl;
-    protected String swaggerHost;
     protected String lang;
     protected String country;
 
     private Vtor vtor;
     private List<BazaarFunctionRegistrator> functionRegistrators;
-
-    /**
-     * This method is needed for every RESTful application in LAS2peer.
-     *
-     * @return the mapping to the REST interface.
-     */
-    public String getRESTMapping() {
-        String result = "";
-        try {
-            result = RESTMapper.getMethodsAsXML(this.getClass());
-        } catch (Exception e) {
-
-            e.printStackTrace();
-        }
-        return result;
-    }
 
     public BazaarService() throws Exception {
 
@@ -235,24 +236,34 @@ public class BazaarService extends Service {
         }
     }
 
-    /**
-     * *******************************
+     /********************************
      * SWAGGER
-     * ********************************
+     * ******************************/
+
+    /**
+     * Returns the API documentation of all annotated resources
+     * for purposes of Swagger documentation.
+     *
+     * @return The resource's documentation.
      */
-
     @GET
-    @Path("api-docs")
+    @Path("/swagger.json")
     @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse getSwaggerResourceListing() {
-        return RESTMapper.getSwaggerResourceListing(this.getClass());
-    }
-
-    @GET
-    @Path("api-docs/{tlr}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse getSwaggerApiDeclaration(@PathParam("tlr") String tlr) {
-        return RESTMapper.getSwaggerApiDeclaration(this.getClass(), tlr, "http://" + swaggerHost + ":8080/bazaar/");
+    public HttpResponse getSwaggerJSON() {
+        // TODO scan all resource classes
+        //DefaultReaderConfig readerConfig = new DefaultReaderConfig();
+        //readerConfig.setScanAllResources(true);
+        //Swagger swagger = new Reader(new Swagger(), readerConfig).read(this.getClass());
+        Swagger swagger = new Reader(new Swagger()).read(this.getClass());
+        if (swagger == null) {
+            return new HttpResponse("Swagger API declaration not available!", HttpURLConnection.HTTP_NOT_FOUND);
+        }
+        try {
+            return new HttpResponse(Json.mapper().writeValueAsString(swagger), HttpURLConnection.HTTP_OK);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return new HttpResponse(e.getMessage(), HttpURLConnection.HTTP_INTERNAL_ERROR);
+        }
     }
 
 
@@ -269,17 +280,16 @@ public class BazaarService extends Service {
      */
     @GET
     @Path("/projects")
-    @ResourceListApi(description = "Projects API")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method returns the list of projects on the server.")
+    @ApiOperation(value = "This method returns the list of projects on the server.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "List of projects"),
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 500, message = "Internal server problems")
     })
     public HttpResponse getProjects(
-            @QueryParam(name = "page", defaultValue = "0") int page,
-            @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
+            @ApiParam(value = "Page number", required = false) @DefaultValue("1") @QueryParam("page") int page,
+            @ApiParam(value = "Elements of project by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
         DALFacade dalFacade = null;
         try {
             String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -321,9 +331,9 @@ public class BazaarService extends Service {
      * @return Response with a project as a JSON object.
      */
     @GET
-    @Path("projects/{projectId}")
+    @Path("/projects/{projectId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method allows to retrieve a certain project.")
+    @ApiOperation(value = "This method allows to retrieve a certain project.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a certain project"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -380,13 +390,13 @@ public class BazaarService extends Service {
     @Path("projects")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method allows to create a new project")
+    @ApiOperation(value = "This method allows to create a new project")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the created project"),
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 500, message = "Internal server problems")
     })
-    public HttpResponse createProject(@ContentParam String project) {
+    public HttpResponse createProject(@ApiParam(value = "Project entity as JSON", required = true) String project) {
         DALFacade dalFacade = null;
         try {
             String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -432,14 +442,15 @@ public class BazaarService extends Service {
     @Path("projects/{projectId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method allows to update a certain project.")
+    @ApiOperation(value = "This method allows to update a certain project.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the updated project"),
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 404, message = "Not found"),
             @ApiResponse(code = 500, message = "Internal server problems")
     })
-    public HttpResponse updateProject(@PathParam("projectId") int projectId, @ContentParam String project) {
+    public HttpResponse updateProject(@PathParam("projectId") int projectId,
+                                      @ApiParam(value = "Project entity as JSON", required = true) String project) {
         DALFacade dalFacade = null;
         try {
             String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -508,19 +519,6 @@ public class BazaarService extends Service {
      **********************************/
 
     /**
-     * Retrieves a list of all components.
-     *
-     * @return a JSON encoded list of all components.
-     */
-    @GET
-    @Path("/components")
-    @ResourceListApi(description = "Components API")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse getComponents() {
-        return new HttpResponse(new String(), 500);
-    }
-
-    /**
      * This method returns the list of components under a given project.
      *
      * @param page    page number
@@ -530,7 +528,7 @@ public class BazaarService extends Service {
     @GET
     @Path("projects/{projectId}/components")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method returns the list of components under a given project.")
+    @ApiOperation(value = "This method returns the list of components under a given project.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a list of components for a given project"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -539,8 +537,8 @@ public class BazaarService extends Service {
     })
     public HttpResponse getComponentsByProject(
             @PathParam("projectId") int projectId,
-            @QueryParam(name = "page", defaultValue = "0") int page,
-            @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
+            @ApiParam(value = "Page number", required = false) @DefaultValue("1") @QueryParam("page") int page,
+            @ApiParam(value = "Elements of components by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
         DALFacade dalFacade = null;
         try {
             long userId = ((UserAgent) getActiveAgent()).getId();
@@ -597,7 +595,7 @@ public class BazaarService extends Service {
     @GET
     @Path("components/{componentId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method allows to retrieve a certain component.")
+    @ApiOperation(value = "This method allows to retrieve a certain component.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a certain component"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -654,13 +652,13 @@ public class BazaarService extends Service {
     @Path("components")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method allows to create a new component under a given a project.")
+    @ApiOperation(value = "This method allows to create a new component under a given a project.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the created component"),
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 500, message = "Internal server problems")
     })
-    public HttpResponse createComponent(@ContentParam String component) {
+    public HttpResponse createComponent(@ApiParam(value = "Component entity as JSON", required = true) String component) {
         DALFacade dalFacade = null;
         try {
             long userId = ((UserAgent) getActiveAgent()).getId();
@@ -706,14 +704,15 @@ public class BazaarService extends Service {
     @Path("components/{componentId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method allows to update a certain component.")
+    @ApiOperation(value = "This method allows to update a certain component.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the updated component"),
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 404, message = "Not found"),
             @ApiResponse(code = 500, message = "Internal server problems")
     })
-    public HttpResponse updateComponent(@PathParam("componentId") int componentId, @ContentParam String component) {
+    public HttpResponse updateComponent(@PathParam("componentId") int componentId,
+                                        @ApiParam(value = "Tag entity as JSON", required = true) String component) {
         DALFacade dalFacade = null;
         try {
             String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -763,7 +762,7 @@ public class BazaarService extends Service {
     @DELETE
     @Path("components/{componentId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method deletes a specific component.")
+    @ApiOperation(value = "This method deletes a specific component.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the deleted component"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -818,19 +817,6 @@ public class BazaarService extends Service {
      **********************************/
 
     /**
-     * Retrieves a list of all requirements.
-     *
-     * @return a JSON encoded list of all requirements.
-     */
-    @GET
-    @Path("/requirements")
-    @ResourceListApi(description = "Requirements API")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse getRequirements() {
-        return new HttpResponse(new String(), 500);
-    }
-
-    /**
      * This method returns the list of requirements for a specific project.
      *
      * @param projectId id of the project to retrieve requirements for
@@ -841,7 +827,7 @@ public class BazaarService extends Service {
     @GET
     @Path("projects/{projectId}/requirements")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method returns the list of requirements for a specific project.")
+    @ApiOperation(value = "This method returns the list of requirements for a specific project.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a list of requirements for a given project"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -849,8 +835,8 @@ public class BazaarService extends Service {
             @ApiResponse(code = 500, message = "Internal server problems")
     })
     public HttpResponse getRequirementsByProject(@PathParam("projectId") int projectId,
-                                                 @QueryParam(name = "page", defaultValue = "0") int page,
-                                                 @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
+                                                 @ApiParam(value = "Page number", required = false) @DefaultValue("1") @QueryParam("page") int page,
+                                                 @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
         DALFacade dalFacade = null;
         try {
             long userId = ((UserAgent) getActiveAgent()).getId();
@@ -909,7 +895,7 @@ public class BazaarService extends Service {
     @GET
     @Path("components/{componentId}/requirements")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method returns the list of requirements for a specific component.")
+    @ApiOperation(value = "This method returns the list of requirements for a specific component.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a list of requirements for a given project"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -917,8 +903,8 @@ public class BazaarService extends Service {
             @ApiResponse(code = 500, message = "Internal server problems")
     })
     public HttpResponse getRequirementsByComponent(@PathParam("componentId") int componentId,
-                                                   @QueryParam(name = "page", defaultValue = "0") int page,
-                                                   @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
+                                                   @ApiParam(value = "Page number", required = false) @DefaultValue("1") @QueryParam("page") int page,
+                                                   @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
         DALFacade dalFacade = null;
         try {
             long userId = ((UserAgent) getActiveAgent()).getId();
@@ -977,7 +963,7 @@ public class BazaarService extends Service {
     @GET
     @Path("requirements/{requirementId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method returns a specific requirement.")
+    @ApiOperation(value = "This method returns a specific requirement.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a certain requirement"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -1034,14 +1020,14 @@ public class BazaarService extends Service {
     @Path("requirements")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method allows to create a new requirement.")
+    @ApiOperation(value = "This method allows to create a new requirement.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the created requirement"),
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 404, message = "Not found"),
             @ApiResponse(code = 500, message = "Internal server problems")
     })
-    public HttpResponse createRequirement(@ContentParam String requirement) {
+    public HttpResponse createRequirement(@ApiParam(value = "Requirement entity as JSON", required = true) String requirement) {
         DALFacade dalFacade = null;
         try {
             long userId = ((UserAgent) getActiveAgent()).getId();
@@ -1105,14 +1091,15 @@ public class BazaarService extends Service {
     @Path("requirements/{requirementId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method updates a specific requirement.")
+    @ApiOperation(value = "This method updates a specific requirement.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the updated requirement"),
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 404, message = "Not found"),
             @ApiResponse(code = 500, message = "Internal server problems")
     })
-    public HttpResponse updateRequirement(@PathParam("requirementId") int requirementId, @ContentParam String requirement) {
+    public HttpResponse updateRequirement(@PathParam("requirementId") int requirementId,
+                                          @ApiParam(value = "Requirement entity as JSON", required = true) String requirement) {
         DALFacade dalFacade = null;
         try {
             String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -1162,7 +1149,7 @@ public class BazaarService extends Service {
     @DELETE
     @Path("requirements/{requirementId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method deletes a specific requirement.")
+    @ApiOperation(value = "This method deletes a specific requirement.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the deleted requirement"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -1213,7 +1200,7 @@ public class BazaarService extends Service {
     @POST
     @Path("requirements/{requirementId}/developers")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method add the current user to the developers list of a given requirement.")
+    @ApiOperation(value = "This method add the current user to the developers list of a given requirement.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the requirement"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -1265,7 +1252,7 @@ public class BazaarService extends Service {
     @DELETE
     @Path("requirements/{requirementId}/developers")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method remove the current user from a developers list of a given requirement.")
+    @ApiOperation(value = "This method remove the current user from a developers list of a given requirement.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the requirement"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -1317,7 +1304,7 @@ public class BazaarService extends Service {
     @POST
     @Path("requirements/{requirementId}/followers")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method add the current user to the followers list of a given requirement.")
+    @ApiOperation(value = "This method add the current user to the followers list of a given requirement.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the requirement"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -1369,7 +1356,7 @@ public class BazaarService extends Service {
     @DELETE
     @Path("requirements/{requirementId}/followers")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method removes the current user from a followers list of a given requirement.")
+    @ApiOperation(value = "This method removes the current user from a followers list of a given requirement.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the requirement"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -1422,7 +1409,7 @@ public class BazaarService extends Service {
     @POST
     @Path("requirements/{requirementId}/vote")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method creates a vote for the given requirement in the name of the current user.")
+    @ApiOperation(value = "This method creates a vote for the given requirement in the name of the current user.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the requirement"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -1430,7 +1417,7 @@ public class BazaarService extends Service {
             @ApiResponse(code = 500, message = "Internal server problems")
     })
     public HttpResponse addVote(@PathParam("requirementId") int requirementId,
-                                @QueryParam(name = "direction", defaultValue = "up") String direction) {
+                                @ApiParam(value = "Vote direction", allowableValues = "up, down") @DefaultValue("up") @QueryParam("direction") String direction) {
         DALFacade dalFacade = null;
         try {
             long userId = ((UserAgent) getActiveAgent()).getId();
@@ -1477,7 +1464,7 @@ public class BazaarService extends Service {
     @DELETE
     @Path("requirements/{requirementId}/vote")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method removes the vote of the given requirement made by the current user.")
+    @ApiOperation(value = "This method removes the vote of the given requirement made by the current user.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the requirement"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -1525,19 +1512,6 @@ public class BazaarService extends Service {
      **********************************/
 
     /**
-     * Retrieves a list of all comments.
-     *
-     * @return a JSON encoded list of all comments.
-     */
-    @GET
-    @Path("/comments")
-    @ResourceListApi(description = "Comments API")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse getComments() {
-        return new HttpResponse(new String(), 500);
-    }
-
-    /**
      * This method returns the list of comments for a specific requirement.
      *
      * @param requirementId id of the requirement, which was commented
@@ -1548,7 +1522,7 @@ public class BazaarService extends Service {
     @GET
     @Path("requirements/{requirementId}/comments")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method returns the list of comments for a specific requirement.")
+    @ApiOperation(value = "This method returns the list of comments for a specific requirement.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a list of comments for a given requirement"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -1556,8 +1530,8 @@ public class BazaarService extends Service {
             @ApiResponse(code = 500, message = "Internal server problems")
     })
     public HttpResponse getComments(@PathParam("requirementId") int requirementId,
-                                    @QueryParam(name = "page", defaultValue = "0") int page,
-                                    @QueryParam(name = "per_page", defaultValue = "10") int perPage) {
+                                    @ApiParam(value = "Page number", required = false) @DefaultValue("1") @QueryParam("page") int page,
+                                    @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
         DALFacade dalFacade = null;
         try {
             long userId = ((UserAgent) getActiveAgent()).getId();
@@ -1612,7 +1586,7 @@ public class BazaarService extends Service {
     @GET
     @Path("comments/{commentId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method allows to retrieve a certain comment")
+    @ApiOperation(value = "This method allows to retrieve a certain comment")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a certain comment"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -1671,14 +1645,14 @@ public class BazaarService extends Service {
     @Path("comments")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method allows to create a new comment.")
+    @ApiOperation(value = "This method allows to create a new comment.")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Returns the created comment"),
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 404, message = "Not found"),
             @ApiResponse(code = 500, message = "Internal server problems")
     })
-    public HttpResponse createComment(@ContentParam String comment) {
+    public HttpResponse createComment(@ApiParam(value = "Comment entity as JSON", required = true) String comment) {
         DALFacade dalFacade = null;
         try {
             long userId = ((UserAgent) getActiveAgent()).getId();
@@ -1752,7 +1726,7 @@ public class BazaarService extends Service {
     @DELETE
     @Path("comments/{commentId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method deletes a specific comment.")
+    @ApiOperation(value = "This method deletes a specific comment.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the deleted comment"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -1820,19 +1794,6 @@ public class BazaarService extends Service {
 //    }
 
     /**
-     * Retrieves a list of all attachments.
-     *
-     * @return a JSON encoded list of all attachments.
-     */
-    @GET
-    @Path("/attachments")
-    @ResourceListApi(description = "Attachments API")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse getAttachments() {
-        return new HttpResponse(new String(), 500);
-    }
-
-    /**
      * This method allows to create a new attachment.
      *
      * @param attachmentType type of attachment
@@ -1843,15 +1804,15 @@ public class BazaarService extends Service {
     @Path("attachments")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method allows to create a new attachment.")
+    @ApiOperation(value = "This method allows to create a new attachment.")
     @ApiResponses(value = {
             @ApiResponse(code = 201, message = "Returns the created comment"),
             @ApiResponse(code = 401, message = "Unauthorized"),
             @ApiResponse(code = 404, message = "Not found"),
             @ApiResponse(code = 500, message = "Internal server problems")
     })
-    public HttpResponse createAttachment(@QueryParam(name = "attachmentType", defaultValue = "U") String attachmentType,
-                                         @ContentParam String attachment) {
+    public HttpResponse createAttachment(@ApiParam(value = "Attachment type", allowableValues = "U") @DefaultValue("U") @QueryParam("attachmentType") String attachmentType,
+                                           @ApiParam(value = "Attachment entity as JSON", required = true) String attachment) {
         DALFacade dalFacade = null;
         try {
             long userId = ((UserAgent) getActiveAgent()).getId();
@@ -1940,7 +1901,7 @@ public class BazaarService extends Service {
     @DELETE
     @Path("attachments/{attachmentId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method deletes a specific attachment.")
+    @ApiOperation(value = "This method deletes a specific attachment.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the deleted attachment"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -1986,22 +1947,6 @@ public class BazaarService extends Service {
      * USERS
      **********************************/
 
-    //TODO SHOULD IT EXISTS?
-
-    /**
-     * Retrieves a list of all users.
-     *
-     * @return a JSON encoded list of all users.
-     */
-    @GET
-    @Path("/users")
-    @ResourceListApi(description = "Users API")
-    @Produces(MediaType.APPLICATION_JSON)
-    public String getUsers() {
-        // TODO: check if the admin user wants to retrieve all users.
-        return null;
-    }
-
     /**
      * This method allows to retrieve a certain user.
      *
@@ -2011,7 +1956,7 @@ public class BazaarService extends Service {
     @GET
     @Path("users/{userId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method allows to retrieve a certain user.")
+    @ApiOperation(value = "This method allows to retrieve a certain user.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns a certain user"),
             @ApiResponse(code = 401, message = "Unauthorized"),
@@ -2070,7 +2015,7 @@ public class BazaarService extends Service {
     @GET
     @Path("users/current")
     @Produces(MediaType.APPLICATION_JSON)
-    @Summary("This method allows to retrieve the current user.")
+    @ApiOperation(value = "This method allows to retrieve the current user.")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Returns the current user"),
             @ApiResponse(code = 401, message = "Unauthorized"),
