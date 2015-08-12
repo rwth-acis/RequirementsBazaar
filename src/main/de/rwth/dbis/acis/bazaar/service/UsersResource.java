@@ -41,15 +41,7 @@ import java.util.List;
 @Api(value = "/users", description = "Users resource")
 public class UsersResource extends Service {
 
-    //CONFIG PROPERTIES
-    protected String dbUserName;
-    protected String dbPassword;
-    protected String dbUrl;
-    protected String lang;
-    protected String country;
-
-    private Vtor vtor;
-    private List<BazaarFunctionRegistrator> functionRegistrators;
+    private BazaarService bazaarService;
 
     /**
      * This method is needed for every RESTful application in LAS2peer.
@@ -68,133 +60,7 @@ public class UsersResource extends Service {
     }
 
     public UsersResource() throws Exception {
-
-        functionRegistrators = new ArrayList<BazaarFunctionRegistrator>();
-        functionRegistrators.add(new BazaarFunctionRegistrator() {
-            @Override
-            public void registerFunction(EnumSet<BazaarFunction> functions) throws BazaarException {
-                DALFacade dalFacade = null;
-                try {
-                    dalFacade = createConnection();
-                    AuthorizationManager.SyncPrivileges(dalFacade);
-                } catch (CommunicationsException commEx) {
-                    ExceptionHandler.getInstance().convertAndThrowException(commEx, ExceptionLocation.BAZAARSERVICE, ErrorCode.DB_COMM, Localization.getInstance().getResourceBundle().getString("error.db_comm"));
-                } catch (Exception ex) {
-                    ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.privilige_sync"));
-                } finally {
-                    closeConnection(dalFacade);
-                }
-            }
-        });
-
-        functionRegistrators.add(new BazaarFunctionRegistrator() {
-            @Override
-            public void registerFunction(EnumSet<BazaarFunction> functions) {
-                if (functions.contains(BazaarFunction.VALIDATION)) {
-                    createValidators();
-                }
-            }
-        });
-
-        functionRegistrators.add(new BazaarFunctionRegistrator() {
-            @Override
-            public void registerFunction(EnumSet<BazaarFunction> functions) throws Exception {
-                if (functions.contains(BazaarFunction.USER_FIRST_LOGIN_HANDLING)) {
-                    registerUserAtFirstLogin();
-                }
-            }
-        });
-    }
-
-    private String notifyRegistrators(EnumSet<BazaarFunction> functions) {
-        String resultJSON = null;
-        try {
-            for (BazaarFunctionRegistrator functionRegistrator : functionRegistrators) {
-                functionRegistrator.registerFunction(functions);
-            }
-        } catch (BazaarException bazaarEx) {
-            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarEx);
-        } catch (Exception ex) {
-            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.registrators"));
-            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
-        }
-        return resultJSON;
-    }
-
-    private void createValidators() {
-        vtor = new Vtor();
-    }
-
-    private void registerUserAtFirstLogin() throws Exception {
-        UserAgent agent = (UserAgent) getActiveAgent();
-
-        if (agent.getEmail() == null) agent.setEmail("NO.EMAIL@WARNING.COM");
-
-        String profileImage = "https://api.learning-layers.eu/profile.png";
-        String givenName = null;
-        String familyName = null;
-
-        //TODO how to check if the user is anonymous?
-        if (agent.getLoginName().equals("anonymous")) {
-            agent.setEmail("anonymous@requirements-bazaar.org");
-        } else if (agent.getUserData() != null) {
-            JsonObject userDataJson = new JsonParser().parse(agent.getUserData().toString()).getAsJsonObject();
-            JsonPrimitive pictureJson = userDataJson.getAsJsonPrimitive("picture");
-            String agentPicture;
-
-            if (pictureJson == null)
-                agentPicture = profileImage;
-            else
-                agentPicture = pictureJson.getAsString();
-
-            if (agentPicture != null && !agentPicture.isEmpty())
-                profileImage = agentPicture;
-            String givenNameData = userDataJson.getAsJsonPrimitive("given_name").getAsString();
-            if (givenNameData != null && !givenNameData.isEmpty())
-                givenName = givenNameData;
-            String familyNameData = userDataJson.getAsJsonPrimitive("family_name").getAsString();
-            if (familyNameData != null && !familyNameData.isEmpty())
-                familyName = familyNameData;
-        }
-
-        DALFacade dalFacade = null;
-        try {
-            dalFacade = createConnection();
-            Integer userIdByLAS2PeerId = dalFacade.getUserIdByLAS2PeerId(agent.getId());
-            if (userIdByLAS2PeerId == null) {
-                User.Builder userBuilder = User.geBuilder(agent.getEmail());
-                if (givenName != null)
-                    userBuilder = userBuilder.firstName(givenName);
-                if (familyName != null)
-                    userBuilder = userBuilder.lastName(familyName);
-                User user = userBuilder.admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).profileImage(profileImage).build();
-                int userId = dalFacade.createUser(user);
-                dalFacade.addUserToRole(userId, "SystemAdmin", null);
-            }
-        } catch (Exception ex) {
-            ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.first_login"));
-        } finally {
-            closeConnection(dalFacade);
-        }
-
-    }
-
-    private DALFacade createConnection() throws Exception {
-        Connection dbConnection = DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
-        return new DALFacadeImpl(dbConnection, SQLDialect.MYSQL);
-    }
-
-    private void closeConnection(DALFacade dalFacade) {
-        if (dalFacade == null) return;
-        Connection dbConnection = dalFacade.getConnection();
-        if (dbConnection != null) {
-            try {
-                dbConnection.close();
-                System.out.println("Database connection closed!");
-            } catch (SQLException ignore) {
-                System.out.println("Could not close db connection!");
-            }
-        }
+        bazaarService = new BazaarService();
     }
 
     /**
@@ -217,11 +83,11 @@ public class UsersResource extends Service {
         DALFacade dalFacade = null;
         try {
             // TODO: check whether the current user may request this project
-            String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            dalFacade = createConnection();
+            dalFacade = bazaarService.createConnection();
             User user = dalFacade.getUserById(userId);
             Gson gson = new Gson();
             return new HttpResponse(gson.toJson(user), 200);
@@ -237,7 +103,7 @@ public class UsersResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
         } finally {
-            closeConnection(dalFacade);
+            bazaarService.closeConnection(dalFacade);
         }
     }
 
@@ -276,11 +142,11 @@ public class UsersResource extends Service {
         DALFacade dalFacade = null;
         try {
             long userId = ((UserAgent) getActiveAgent()).getId();
-            String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            dalFacade = createConnection();
+            dalFacade = bazaarService.createConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             User user = dalFacade.getUserById(internalUserId);
             Gson gson = new Gson();
@@ -297,9 +163,8 @@ public class UsersResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
         } finally {
-            closeConnection(dalFacade);
+            bazaarService.closeConnection(dalFacade);
         }
     }
-
 
 }
