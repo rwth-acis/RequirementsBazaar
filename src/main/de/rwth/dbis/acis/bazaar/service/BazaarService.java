@@ -40,10 +40,6 @@ import i5.las2peer.security.UserAgent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import io.swagger.annotations.*;
-import io.swagger.jaxrs.config.DefaultReaderConfig;
-import io.swagger.jaxrs.Reader;
-import io.swagger.models.Swagger;
-import io.swagger.util.Json;
 import javax.ws.rs.*;
 
 import java.net.HttpURLConnection;
@@ -253,38 +249,6 @@ public class BazaarService extends Service {
         }
     }
 
-     /********************************
-     * SWAGGER
-     * ******************************/
-
-    /**
-     * Returns the API documentation of all annotated resources
-     * for purposes of Swagger documentation.
-     *
-     * @return The resource's documentation.
-     */
-    @GET
-    @Path("/swagger.json")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse getSwaggerJSON() {
-        // TODO scan all resource classes
-        //DefaultReaderConfig readerConfig = new DefaultReaderConfig();
-        //readerConfig.setScanAllResources(true);
-        //Swagger swagger = new Reader(new Swagger(), readerConfig).read(this.getClass());
-        Swagger swagger = new Reader(new Swagger()).read(this.getClass());
-        if (swagger == null) {
-            return new HttpResponse("Swagger API declaration not available!", HttpURLConnection.HTTP_NOT_FOUND);
-        }
-        swagger.getDefinitions().clear();
-        try {
-            return new HttpResponse(Json.mapper().writeValueAsString(swagger), HttpURLConnection.HTTP_OK);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return new HttpResponse(e.getMessage(), HttpURLConnection.HTTP_INTERNAL_ERROR);
-        }
-    }
-
-
     /**********************************
      * PROJECTS
      **********************************/
@@ -306,7 +270,7 @@ public class BazaarService extends Service {
             @ApiResponse(code = 500, message = "Internal server problems")
     })
     public HttpResponse getProjects(
-            @ApiParam(value = "Page number", required = false) @DefaultValue("1") @QueryParam("page") int page,
+            @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
             @ApiParam(value = "Elements of project by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
         DALFacade dalFacade = null;
         try {
@@ -555,7 +519,7 @@ public class BazaarService extends Service {
     })
     public HttpResponse getComponentsByProject(
             @PathParam("projectId") int projectId,
-            @ApiParam(value = "Page number", required = false) @DefaultValue("1") @QueryParam("page") int page,
+            @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
             @ApiParam(value = "Elements of components by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
         DALFacade dalFacade = null;
         try {
@@ -853,7 +817,7 @@ public class BazaarService extends Service {
             @ApiResponse(code = 500, message = "Internal server problems")
     })
     public HttpResponse getRequirementsByProject(@PathParam("projectId") int projectId,
-                                                 @ApiParam(value = "Page number", required = false) @DefaultValue("1") @QueryParam("page") int page,
+                                                 @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
                                                  @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
         DALFacade dalFacade = null;
         try {
@@ -921,7 +885,7 @@ public class BazaarService extends Service {
             @ApiResponse(code = 500, message = "Internal server problems")
     })
     public HttpResponse getRequirementsByComponent(@PathParam("componentId") int componentId,
-                                                   @ApiParam(value = "Page number", required = false) @DefaultValue("1") @QueryParam("page") int page,
+                                                   @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
                                                    @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
         DALFacade dalFacade = null;
         try {
@@ -1548,7 +1512,7 @@ public class BazaarService extends Service {
             @ApiResponse(code = 500, message = "Internal server problems")
     })
     public HttpResponse getComments(@PathParam("requirementId") int requirementId,
-                                    @ApiParam(value = "Page number", required = false) @DefaultValue("1") @QueryParam("page") int page,
+                                    @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
                                     @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
         DALFacade dalFacade = null;
         try {
@@ -1945,114 +1909,6 @@ public class BazaarService extends Service {
             Attachment deletedAttachment = dalFacade.deleteAttachmentById(attachmentId);
             Gson gson = new Gson();
             return new HttpResponse(gson.toJson(deletedAttachment), 200);
-        } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
-            } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
-            }
-        } catch (Exception ex) {
-            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
-        } finally {
-            closeConnection(dalFacade);
-        }
-    }
-
-    /**********************************
-     * USERS
-     **********************************/
-
-    /**
-     * This method allows to retrieve a certain user.
-     *
-     * @param userId the id of the user to be returned
-     * @return Response with user as a JSON object.
-     */
-    @GET
-    @Path("/users/{userId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "This method allows to retrieve a certain user.")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns a certain user"),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not found"),
-            @ApiResponse(code = 500, message = "Internal server problems")
-    })
-    public HttpResponse getUser(@PathParam("userId") int userId) {
-        DALFacade dalFacade = null;
-        try {
-            // TODO: check whether the current user may request this project
-            String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registratorErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
-            }
-            dalFacade = createConnection();
-            User user = dalFacade.getUserById(userId);
-            Gson gson = new Gson();
-            return new HttpResponse(gson.toJson(user), 200);
-        } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
-            } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
-            }
-        } catch (Exception ex) {
-            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
-        } finally {
-            closeConnection(dalFacade);
-        }
-    }
-
-    //TODO UPDATE?
-//    /**
-//     * Allows to update a certain project.
-//     *
-//     * @param userId the id of the user to update.
-//     * @return a JSON string containing whether the operation was successful or
-//     * not.
-//     */
-//    @PUT
-//    @Path("/users/{userId}")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public String updateUser(@PathParam("userId") int userId) {
-//        // TODO: check if user can change this project
-//        return "{success=false}";
-//    }
-
-    /**
-     * This method allows to retrieve the current user.
-     *
-     * @return Response with user as a JSON object.
-     */
-    @GET
-    @Path("/users/current")
-    @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "This method allows to retrieve the current user.")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns the current user"),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not found"),
-            @ApiResponse(code = 500, message = "Internal server problems")
-    })
-    public HttpResponse getCurrentUser() {
-        DALFacade dalFacade = null;
-        try {
-            long userId = ((UserAgent) getActiveAgent()).getId();
-            String registratorErrors = notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registratorErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
-            }
-            dalFacade = createConnection();
-            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            User user = dalFacade.getUserById(internalUserId);
-            Gson gson = new Gson();
-            return new HttpResponse(gson.toJson(user), 200);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
