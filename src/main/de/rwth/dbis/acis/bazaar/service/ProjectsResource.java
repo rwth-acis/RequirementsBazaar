@@ -2,6 +2,7 @@ package de.rwth.dbis.acis.bazaar.service;
 
 import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Component;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.PrivilegeEnum;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
@@ -294,5 +295,75 @@ public class ProjectsResource extends Service {
 //
 //        return resultJSON;
 //    }
+
+    /**
+     * This method returns the list of components under a given project.
+     *
+     * @param projectId id of the project
+     * @param page    page number
+     * @param perPage number of projects by page
+     * @return Response with components as a JSON array.
+     */
+    @GET
+    @Path("/{projectId}/components")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "This method returns the list of components under a given project.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Returns a list of components for a given project"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 404, message = "Not found"),
+            @ApiResponse(code = 500, message = "Internal server problems")
+    })
+    public HttpResponse getComponentsByProject(
+            @PathParam("projectId") int projectId,
+            @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
+            @ApiParam(value = "Elements of components by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
+        DALFacade dalFacade = null;
+        try {
+            long userId = ((UserAgent) getActiveAgent()).getId();
+            String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registratorErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
+            }
+            Gson gson = new Gson();
+            PageInfo pageInfo = new PageInfo(page, perPage);
+            Vtor vtor = bazaarService.getValidators();
+            vtor.validate(pageInfo);
+            if (vtor.hasViolations()) {
+                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+            }
+            dalFacade = bazaarService.createConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            if (dalFacade.getProjectById(projectId) == null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.NOT_FOUND, String.format(Localization.getInstance().getResourceBundle().getString("error.resource.notfound"), "component"));
+            }
+            if (dalFacade.isProjectPublic(projectId)) {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMPONENT, String.valueOf(projectId), dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
+                }
+            } else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMPONENT, String.valueOf(projectId), dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
+                }
+            }
+            List<Component> components = dalFacade.listComponentsByProjectId(projectId, pageInfo);
+            return new HttpResponse(gson.toJson(components), 200);
+        } catch (BazaarException bex) {
+            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+            } else {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+            }
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+        } finally {
+            bazaarService.closeConnection(dalFacade);
+        }
+    }
 
 }

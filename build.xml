@@ -274,6 +274,7 @@ agent-user-${las2peer_user.name}.xml;${las2peer_user.password}
 			<arg value='startService(\"de.rwth.dbis.acis.bazaar.service.BazaarService\",\"SampleServicePass\")'/>
             <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.UsersResource\",\"SampleServicePass\")'/>
             <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.ProjectsResource\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.ComponentsResource\",\"SampleServicePass\")'/>
             <arg value='startWebConnector'/>
 		</java>
 	</target>
