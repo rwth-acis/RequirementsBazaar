@@ -4,6 +4,7 @@ package de.rwth.dbis.acis.bazaar.service;
 import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -22,6 +23,7 @@ import jodd.vtor.Vtor;
 import javax.ws.rs.*;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 
 @Path("/bazaar/requirements")
 @Api(value = "/requirements", description = "Requirements resource")
@@ -589,6 +591,73 @@ public class RequirementsResource extends Service {
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
             return new HttpResponse(gson.toJson(requirement), 200);
+        } catch (BazaarException bex) {
+            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+            } else {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+            }
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+        } finally {
+            bazaarService.closeConnection(dalFacade);
+        }
+    }
+
+    /**
+     * This method returns the list of comments for a specific requirement.
+     *
+     * @param requirementId id of the requirement, which was commented
+     * @param page          page number
+     * @param perPage       number of projects by page
+     * @return Response with comments as a JSON array.
+     */
+    @GET
+    @Path("/{requirementId}/comments")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "This method returns the list of comments for a specific requirement.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Returns a list of comments for a given requirement"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 404, message = "Not found"),
+            @ApiResponse(code = 500, message = "Internal server problems")
+    })
+    public HttpResponse getComments(@PathParam("requirementId") int requirementId,
+                                    @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
+                                    @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
+        DALFacade dalFacade = null;
+        try {
+            long userId = ((UserAgent) getActiveAgent()).getId();
+            String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registratorErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
+            }
+            PageInfo pageInfo = new PageInfo(page, perPage);
+            Vtor vtor = bazaarService.getValidators();
+            vtor.validate(pageInfo);
+            if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+            dalFacade = bazaarService.createConnection();
+            //Todo use requirement's projectId for serurity context, not the one sent from client
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
+            Project project = dalFacade.getProjectById(requirement.getProjectId());
+            if (dalFacade.isRequirementPublic(requirementId)) {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT, String.valueOf(project.getId()), dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
+                }
+            } else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMMENT, String.valueOf(project.getId()), dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.read"));
+                }
+            }
+            List<Comment> comments = dalFacade.listCommentsByRequirementId(requirementId, pageInfo);
+            Gson gson = new Gson();
+            return new HttpResponse(gson.toJson(comments), 200);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
