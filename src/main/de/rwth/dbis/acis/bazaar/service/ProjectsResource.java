@@ -5,6 +5,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Component;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.PrivilegeEnum;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
@@ -350,6 +351,75 @@ public class ProjectsResource extends Service {
             }
             List<Component> components = dalFacade.listComponentsByProjectId(projectId, pageInfo);
             return new HttpResponse(gson.toJson(components), 200);
+        } catch (BazaarException bex) {
+            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+            } else {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+            }
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+        } finally {
+            bazaarService.closeConnection(dalFacade);
+        }
+    }
+
+    /**
+     * This method returns the list of requirements for a specific project.
+     *
+     * @param projectId id of the project to retrieve requirements for
+     * @param page      page number
+     * @param perPage   number of projects by page
+     * @return Response with requirements as a JSON array.
+     */
+    @GET
+    @Path("/{projectId}/requirements")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "This method returns the list of requirements for a specific project.")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Returns a list of requirements for a given project"),
+            @ApiResponse(code = 401, message = "Unauthorized"),
+            @ApiResponse(code = 404, message = "Not found"),
+            @ApiResponse(code = 500, message = "Internal server problems")
+    })
+    public HttpResponse getRequirementsByProject(@PathParam("projectId") int projectId,
+                                                 @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
+                                                 @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
+        DALFacade dalFacade = null;
+        try {
+            long userId = ((UserAgent) getActiveAgent()).getId();
+            String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registratorErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
+            }
+            Gson gson = new Gson();
+            PageInfo pageInfo = new PageInfo(page, perPage);
+            Vtor vtor = bazaarService.getValidators();
+            vtor.validate(pageInfo);
+            if (vtor.hasViolations()) {
+                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+            }
+            dalFacade = bazaarService.createConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            if (dalFacade.getProjectById(projectId) == null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.NOT_FOUND, String.format(Localization.getInstance().getResourceBundle().getString("error.resource.notfound"), "ressource"));
+            }
+            if (dalFacade.isProjectPublic(projectId)) {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, String.valueOf(projectId), dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
+                }
+            } else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT, String.valueOf(projectId), dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
+                }
+            }
+            List<Requirement> requirements = dalFacade.listRequirementsByProject(projectId, pageInfo, internalUserId);
+            return new HttpResponse(gson.toJson(requirements), 200);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
