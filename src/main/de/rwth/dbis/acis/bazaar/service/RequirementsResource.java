@@ -674,4 +674,41 @@ public class RequirementsResource extends Service {
         }
     }
 
+//    /**
+//     * This method returns the list of attachments for a specific requirement.
+//     *
+//     * @param projectId     the ID of the project for the requirement.
+//     * @param componentId   the id of the component under a given project
+//     * @param requirementId the ID of the requirement, whose attachments should be returned.
+//     * @return a list of attachments
+//     */
+//    @GET
+//    @Path("/{requirementId}/attachments")
+//    @Produces(MediaType.APPLICATION_JSON)
+//    public String getAttachments(@PathParam("projectId") int projectId,
+//                                 @PathParam("componentId") int componentId,
+//                                 @PathParam("requirementId") int requirementId,
+//                                 @QueryParam(name = "page", defaultValue = "0")  int page,
+//                                 @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
+//
+//    }
+
+//    /**
+//     * This method returns a specific attachment within a requirement.
+//     *
+//     * @param projectId     the ID of the project for the requirement.
+//     * @param componentId   the id of the component under a given project
+//     * @param requirementId the ID of the requirement, which was commented.
+//     * @param attachmentId  the ID of the attachment, which should be returned.
+//     * @return a specific attachment.
+//     */
+//    @GET
+//    @Path("/{requirementId}/attachments/{attachmentId}")
+//    public String getAttachment(@PathParam("projectId") int projectId,
+//                                @PathParam("componentId") int componentId,
+//                                @PathParam("requirementId") int requirementId,
+//                                @PathParam("attachmentId") int attachmentId) {
+//
+//    }
+
 }
