@@ -21,6 +21,7 @@ import jodd.vtor.Violation;
 import jodd.vtor.Vtor;
 
 import javax.ws.rs.*;
+import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -62,10 +63,10 @@ public class RequirementsResource extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method returns a specific requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns a certain requirement"),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not found"),
-            @ApiResponse(code = 500, message = "Internal server problems")
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain requirement"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse getRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
@@ -90,18 +91,18 @@ public class RequirementsResource extends Service {
                 }
             }
             Gson gson = new Gson();
-            return new HttpResponse(gson.toJson(requirement), 200);
+            return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
             } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
             }
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
             bazaarService.closeConnection(dalFacade);
         }
@@ -119,10 +120,10 @@ public class RequirementsResource extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to create a new requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns the created requirement"),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not found"),
-            @ApiResponse(code = 500, message = "Internal server problems")
+            @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created requirement"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse createRequirement(@ApiParam(value = "Requirement entity as JSON", required = true) String requirement) {
         DALFacade dalFacade = null;
@@ -161,18 +162,18 @@ public class RequirementsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.create"));
             }
             Requirement createdRequirement = dalFacade.createRequirement(requirementToCreate, internalUserId);
-            return new HttpResponse(gson.toJson(createdRequirement), 201);
+            return new HttpResponse(gson.toJson(createdRequirement), HttpURLConnection.HTTP_CREATED);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
             } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
             }
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
             bazaarService.closeConnection(dalFacade);
         }
@@ -191,10 +192,10 @@ public class RequirementsResource extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method updates a specific requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns the updated requirement"),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not found"),
-            @ApiResponse(code = 500, message = "Internal server problems")
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the updated requirement"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse updateRequirement(@PathParam("requirementId") int requirementId,
                                           @ApiParam(value = "Requirement entity as JSON", required = true) String requirement) {
@@ -222,18 +223,18 @@ public class RequirementsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
             }
             RequirementEx updatedRequirement = dalFacade.modifyRequirement(requirementToUpdate, internalUserId);
-            return new HttpResponse(gson.toJson(updatedRequirement), 200);
+            return new HttpResponse(gson.toJson(updatedRequirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
             } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
             }
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
             bazaarService.closeConnection(dalFacade);
         }
@@ -250,10 +251,10 @@ public class RequirementsResource extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method deletes a specific requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns the deleted requirement"),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not found"),
-            @ApiResponse(code = 500, message = "Internal server problems")
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the deleted requirement"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse deleteRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
@@ -273,18 +274,18 @@ public class RequirementsResource extends Service {
             }
             Gson gson = new Gson();
             RequirementEx deletedRequirement = dalFacade.deleteRequirementById(requirementId, internalUserId);
-            return new HttpResponse(gson.toJson(deletedRequirement), 200);
+            return new HttpResponse(gson.toJson(deletedRequirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
             } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
             }
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
             bazaarService.closeConnection(dalFacade);
         }
@@ -301,10 +302,10 @@ public class RequirementsResource extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method add the current user to the developers list of a given requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns the requirement"),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not found"),
-            @ApiResponse(code = 500, message = "Internal server problems")
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse addUserToDevelopers(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
@@ -325,18 +326,18 @@ public class RequirementsResource extends Service {
             dalFacade.wantToDevelop(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
-            return new HttpResponse(gson.toJson(requirement), 200);
+            return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
             } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
             }
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
             bazaarService.closeConnection(dalFacade);
         }
@@ -353,10 +354,10 @@ public class RequirementsResource extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method remove the current user from a developers list of a given requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns the requirement"),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not found"),
-            @ApiResponse(code = 500, message = "Internal server problems")
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse removeUserFromDevelopers(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
@@ -377,18 +378,18 @@ public class RequirementsResource extends Service {
             dalFacade.notWantToDevelop(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
-            return new HttpResponse(gson.toJson(requirement), 200);
+            return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
             } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
             }
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
             bazaarService.closeConnection(dalFacade);
         }
@@ -405,10 +406,10 @@ public class RequirementsResource extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method add the current user to the followers list of a given requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns the requirement"),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not found"),
-            @ApiResponse(code = 500, message = "Internal server problems")
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse addUserToFollowers(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
@@ -429,18 +430,18 @@ public class RequirementsResource extends Service {
             dalFacade.follow(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
-            return new HttpResponse(gson.toJson(requirement), 200);
+            return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
             } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
             }
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
             bazaarService.closeConnection(dalFacade);
         }
@@ -457,10 +458,10 @@ public class RequirementsResource extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method removes the current user from a followers list of a given requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns the requirement"),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not found"),
-            @ApiResponse(code = 500, message = "Internal server problems")
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse removeUserFromFollowers(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
@@ -481,18 +482,18 @@ public class RequirementsResource extends Service {
             dalFacade.unFollow(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
-            return new HttpResponse(gson.toJson(requirement), 200);
+            return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
             } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
             }
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
             bazaarService.closeConnection(dalFacade);
         }
@@ -510,10 +511,10 @@ public class RequirementsResource extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method creates a vote for the given requirement in the name of the current user.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns the requirement"),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not found"),
-            @ApiResponse(code = 500, message = "Internal server problems")
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse addVote(@PathParam("requirementId") int requirementId,
                                 @ApiParam(value = "Vote direction", allowableValues = "up, down") @DefaultValue("up") @QueryParam("direction") String direction) {
@@ -538,18 +539,18 @@ public class RequirementsResource extends Service {
             dalFacade.vote(internalUserId, requirementId, direction.equals("up"));
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
-            return new HttpResponse(gson.toJson(requirement), 200);
+            return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
             } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
             }
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
             bazaarService.closeConnection(dalFacade);
         }
@@ -566,10 +567,10 @@ public class RequirementsResource extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method removes the vote of the given requirement made by the current user.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns the requirement"),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not found"),
-            @ApiResponse(code = 500, message = "Internal server problems")
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse removeVote(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
@@ -590,18 +591,18 @@ public class RequirementsResource extends Service {
             dalFacade.unVote(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
-            return new HttpResponse(gson.toJson(requirement), 200);
+            return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
             } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
             }
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
             bazaarService.closeConnection(dalFacade);
         }
@@ -620,10 +621,10 @@ public class RequirementsResource extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method returns the list of comments for a specific requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns a list of comments for a given requirement"),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not found"),
-            @ApiResponse(code = 500, message = "Internal server problems")
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of comments for a given requirement"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse getComments(@PathParam("requirementId") int requirementId,
                                     @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
@@ -657,18 +658,18 @@ public class RequirementsResource extends Service {
             }
             List<Comment> comments = dalFacade.listCommentsByRequirementId(requirementId, pageInfo);
             Gson gson = new Gson();
-            return new HttpResponse(gson.toJson(comments), 200);
+            return new HttpResponse(gson.toJson(comments), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
             } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
             }
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
             bazaarService.closeConnection(dalFacade);
         }

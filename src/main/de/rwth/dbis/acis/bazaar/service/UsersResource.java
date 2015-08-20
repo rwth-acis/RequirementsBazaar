@@ -30,6 +30,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import java.net.HttpURLConnection;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -74,10 +75,10 @@ public class UsersResource extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to retrieve a certain user.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns a certain user"),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not found"),
-            @ApiResponse(code = 500, message = "Internal server problems")
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain user"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse getUser(@PathParam("userId") int userId) {
         DALFacade dalFacade = null;
@@ -90,18 +91,18 @@ public class UsersResource extends Service {
             dalFacade = bazaarService.createConnection();
             User user = dalFacade.getUserById(userId);
             Gson gson = new Gson();
-            return new HttpResponse(gson.toJson(user), 200);
+            return new HttpResponse(gson.toJson(user), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
             } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
             }
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
             bazaarService.closeConnection(dalFacade);
         }
@@ -133,10 +134,10 @@ public class UsersResource extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to retrieve the current user.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns the current user"),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not found"),
-            @ApiResponse(code = 500, message = "Internal server problems")
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the current user"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse getCurrentUser() {
         DALFacade dalFacade = null;
@@ -150,18 +151,18 @@ public class UsersResource extends Service {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             User user = dalFacade.getUserById(internalUserId);
             Gson gson = new Gson();
-            return new HttpResponse(gson.toJson(user), 200);
+            return new HttpResponse(gson.toJson(user), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
             } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
             }
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
             bazaarService.closeConnection(dalFacade);
         }

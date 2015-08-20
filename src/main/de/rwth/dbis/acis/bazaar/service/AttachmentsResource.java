@@ -21,6 +21,7 @@ import io.swagger.annotations.*;
 import jodd.vtor.Vtor;
 
 import javax.ws.rs.*;
+import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.EnumSet;
 
@@ -63,10 +64,10 @@ public class AttachmentsResource extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to create a new attachment.")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Returns the created comment"),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not found"),
-            @ApiResponse(code = 500, message = "Internal server problems")
+            @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created comment"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse createAttachment(@ApiParam(value = "Attachment type", allowableValues = "U") @DefaultValue("U") @QueryParam("attachmentType") String attachmentType,
                                          @ApiParam(value = "Attachment entity as JSON", required = true) String attachment) {
@@ -95,18 +96,18 @@ public class AttachmentsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.attachment.create"));
             }
             Attachment createdAttachment = dalFacade.createAttachment(attachmentToCreate);
-            return new HttpResponse(gson.toJson(createdAttachment), 201);
+            return new HttpResponse(gson.toJson(createdAttachment), HttpURLConnection.HTTP_CREATED);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
             } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
             }
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
             bazaarService.closeConnection(dalFacade);
         }
@@ -142,10 +143,10 @@ public class AttachmentsResource extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method deletes a specific attachment.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns the deleted attachment"),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not found"),
-            @ApiResponse(code = 500, message = "Internal server problems")
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the deleted attachment"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse deleteAttachment(@PathParam("attachmentId") int attachmentId) {
         DALFacade dalFacade = null;
@@ -165,18 +166,18 @@ public class AttachmentsResource extends Service {
             }
             Attachment deletedAttachment = dalFacade.deleteAttachmentById(attachmentId);
             Gson gson = new Gson();
-            return new HttpResponse(gson.toJson(deletedAttachment), 200);
+            return new HttpResponse(gson.toJson(deletedAttachment), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
             } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
             }
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
             bazaarService.closeConnection(dalFacade);
         }

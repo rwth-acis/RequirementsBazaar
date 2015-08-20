@@ -20,6 +20,7 @@ import io.swagger.annotations.*;
 import jodd.vtor.Vtor;
 
 import javax.ws.rs.*;
+import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.EnumSet;
 
@@ -60,10 +61,10 @@ public class CommentsResource extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to retrieve a certain comment")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns a certain comment"),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not found"),
-            @ApiResponse(code = 500, message = "Internal server problems")
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain comment"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse getComment(@PathParam("commentId") int commentId) {
         DALFacade dalFacade = null;
@@ -89,18 +90,18 @@ public class CommentsResource extends Service {
                 }
             }
             Gson gson = new Gson();
-            return new HttpResponse(gson.toJson(comment), 200);
+            return new HttpResponse(gson.toJson(comment), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
             } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
             }
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
             bazaarService.closeConnection(dalFacade);
         }
@@ -118,10 +119,10 @@ public class CommentsResource extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to create a new comment.")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Returns the created comment"),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not found"),
-            @ApiResponse(code = 500, message = "Internal server problems")
+            @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created comment"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse createComment(@ApiParam(value = "Comment entity as JSON", required = true) String comment) {
         DALFacade dalFacade = null;
@@ -149,18 +150,18 @@ public class CommentsResource extends Service {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
             Comment createdComment = dalFacade.createComment(commentToCreate);
-            return new HttpResponse(gson.toJson(createdComment), 201);
+            return new HttpResponse(gson.toJson(createdComment), HttpURLConnection.HTTP_CREATED);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
             } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
             }
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
             bazaarService.closeConnection(dalFacade);
         }
@@ -200,10 +201,10 @@ public class CommentsResource extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method deletes a specific comment.")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Returns the deleted comment"),
-            @ApiResponse(code = 401, message = "Unauthorized"),
-            @ApiResponse(code = 404, message = "Not found"),
-            @ApiResponse(code = 500, message = "Internal server problems")
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the deleted comment"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse deleteComment(@PathParam("commentId") int commentId) {
         DALFacade dalFacade = null;
@@ -224,18 +225,18 @@ public class CommentsResource extends Service {
             }
             Gson gson = new Gson();
             Comment deletedComment = dalFacade.deleteCommentById(commentId);
-            return new HttpResponse(gson.toJson(deletedComment), 200);
+            return new HttpResponse(gson.toJson(deletedComment), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 401);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 404);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
             } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), 500);
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
             }
         } catch (Exception ex) {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), 500);
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
             bazaarService.closeConnection(dalFacade);
         }
