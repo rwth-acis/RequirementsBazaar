@@ -47,10 +47,11 @@ import java.net.HttpURLConnection;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.*;
 
-import jodd.vtor.Violation;
+import io.swagger.jaxrs.Reader;
+import io.swagger.models.Swagger;
+import io.swagger.util.Json;
 import jodd.vtor.Vtor;
 import org.jooq.SQLDialect;
 
@@ -251,6 +252,37 @@ public class BazaarService extends Service {
             } catch (SQLException ignore) {
                 System.out.println("Could not close db connection!");
             }
+        }
+    }
+
+    /**
+     * Returns the API documentation of all annotated resources
+     * for purposes of Swagger documentation.
+     *
+     * @return The resource's documentation.
+     */
+    @GET
+    @Path("/swagger.json")
+    @Produces(MediaType.APPLICATION_JSON)
+    public HttpResponse getSwaggerJSON() {
+        Set<Class<?>> classes = new HashSet<>();
+        classes.add(this.getClass());
+        classes.add(UsersResource.class);
+        classes.add(ProjectsResource.class);
+        classes.add(ComponentsResource.class);
+        classes.add(RequirementsResource.class);
+        classes.add(CommentsResource.class);
+        classes.add(AttachmentsResource.class);
+        Swagger swagger = new Reader(new Swagger()).read(classes);
+        if (swagger == null) {
+            return new HttpResponse("Swagger API declaration not available!", HttpURLConnection.HTTP_NOT_FOUND);
+        }
+        swagger.getDefinitions().clear();
+        try {
+            return new HttpResponse(Json.mapper().writeValueAsString(swagger), HttpURLConnection.HTTP_OK);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return new HttpResponse(e.getMessage(), HttpURLConnection.HTTP_INTERNAL_ERROR);
         }
     }
 
