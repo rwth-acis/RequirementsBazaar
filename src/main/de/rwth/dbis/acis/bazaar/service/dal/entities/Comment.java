@@ -36,7 +36,7 @@ public class Comment extends EntityBase {
     private final int Id;
 
     @NotBlank
-    @MaxLength(255)
+    @MaxLength(65536)
     private final String message;
 
     @Min(-1)
