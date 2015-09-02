@@ -265,7 +265,7 @@ public class BazaarService extends Service {
     @Path("/swagger.json")
     @Produces(MediaType.APPLICATION_JSON)
     public HttpResponse getSwaggerJSON() {
-        Set<Class<?>> classes = new HashSet<>();
+        Set<Class<?>> classes = new HashSet<Class<?>>();
         classes.add(this.getClass());
         classes.add(UsersResource.class);
         classes.add(ProjectsResource.class);
