@@ -17,6 +17,7 @@ import i5.las2peer.api.Service;
 import i5.las2peer.restMapper.HttpResponse;
 import i5.las2peer.restMapper.MediaType;
 import i5.las2peer.restMapper.RESTMapper;
+import i5.las2peer.restMapper.annotations.ContentParam;
 import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
 import jodd.vtor.Vtor;
@@ -178,7 +179,7 @@ public class ProjectsResource extends Service {
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public HttpResponse createProject(@ApiParam(value = "Project entity as JSON", required = true) String project) {
+    public HttpResponse createProject(@ApiParam(value = "Project entity as JSON", required = true) @ContentParam String project) {
         DALFacade dalFacade = null;
         try {
             String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -233,7 +234,7 @@ public class ProjectsResource extends Service {
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse updateProject(@PathParam("projectId") int projectId,
-                                      @ApiParam(value = "Project entity as JSON", required = true) String project) {
+                                      @ApiParam(value = "Project entity as JSON", required = true) @ContentParam String project) {
         DALFacade dalFacade = null;
         try {
             String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
