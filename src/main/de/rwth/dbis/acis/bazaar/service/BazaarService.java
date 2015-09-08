@@ -86,7 +86,11 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
                         name = "Apache2",
                         url = "http://requirements-bazaar.org/license"
                 )
-        ))
+        ),
+        host = "requirements-bazaar.org",
+        basePath = "",
+        schemes = SwaggerDefinition.Scheme.HTTPS
+)
 public class BazaarService extends Service {
 
     //CONFIG PROPERTIES
