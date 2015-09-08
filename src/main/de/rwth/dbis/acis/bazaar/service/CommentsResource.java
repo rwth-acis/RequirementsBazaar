@@ -25,7 +25,7 @@ import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.EnumSet;
 
-@Path("/comments")
+@Path("/bazaar/comments")
 @Api(value = "/comments", description = "Comments resource")
 public class CommentsResource extends Service {
 

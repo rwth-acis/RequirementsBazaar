@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
-@Path("/requirements")
+@Path("/bazaar/requirements")
 @Api(value = "/requirements", description = "Requirements resource")
 public class RequirementsResource extends Service {
 

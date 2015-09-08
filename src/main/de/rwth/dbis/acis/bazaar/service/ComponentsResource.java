@@ -28,7 +28,7 @@ import java.text.MessageFormat;
 import java.util.EnumSet;
 import java.util.List;
 
-@Path("/components")
+@Path("/bazaar/components")
 @Api(value = "/components", description = "Components resource")
 public class ComponentsResource extends Service {
 

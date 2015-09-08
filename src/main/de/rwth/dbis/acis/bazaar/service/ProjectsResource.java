@@ -27,7 +27,7 @@ import java.net.HttpURLConnection;
 import java.util.EnumSet;
 import java.util.List;
 
-@Path("/projects")
+@Path("/bazaar/projects")
 @Api(value = "/projects", description = "Projects resource")
 public class ProjectsResource extends Service {
 
