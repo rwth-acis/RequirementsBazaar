@@ -38,7 +38,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
-@Path("/bazaar/users")
+@Path("/users")
 @Api(value = "/users", description = "Users resource")
 public class UsersResource extends Service {
 

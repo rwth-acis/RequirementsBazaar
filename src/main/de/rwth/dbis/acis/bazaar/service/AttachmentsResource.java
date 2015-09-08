@@ -26,7 +26,7 @@ import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.EnumSet;
 
-@Path("/bazaar/attachments")
+@Path("/attachments")
 @Api(value = "/attachments", description = "Attachments resource")
 public class AttachmentsResource extends Service {
 

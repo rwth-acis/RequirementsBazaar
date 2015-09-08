@@ -88,7 +88,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
                 )
         ),
         host = "requirements-bazaar.org",
-        basePath = "",
+        basePath = "/bazaar",
         schemes = SwaggerDefinition.Scheme.HTTPS
 )
 public class BazaarService extends Service {
