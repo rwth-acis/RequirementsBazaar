@@ -15,6 +15,7 @@ import i5.las2peer.api.Service;
 import i5.las2peer.restMapper.HttpResponse;
 import i5.las2peer.restMapper.MediaType;
 import i5.las2peer.restMapper.RESTMapper;
+import i5.las2peer.restMapper.annotations.ContentParam;
 import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
 import jodd.vtor.Violation;
@@ -125,7 +126,7 @@ public class RequirementsResource extends Service {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public HttpResponse createRequirement(@ApiParam(value = "Requirement entity as JSON", required = true) String requirement) {
+    public HttpResponse createRequirement(@ApiParam(value = "Requirement entity as JSON", required = true) @ContentParam String requirement) {
         DALFacade dalFacade = null;
         try {
             long userId = ((UserAgent) getActiveAgent()).getId();
@@ -198,7 +199,7 @@ public class RequirementsResource extends Service {
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse updateRequirement(@PathParam("requirementId") int requirementId,
-                                          @ApiParam(value = "Requirement entity as JSON", required = true) String requirement) {
+                                          @ApiParam(value = "Requirement entity as JSON", required = true) @ContentParam String requirement) {
         DALFacade dalFacade = null;
         try {
             String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
