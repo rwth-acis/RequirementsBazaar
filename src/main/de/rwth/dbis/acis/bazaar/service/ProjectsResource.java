@@ -200,11 +200,7 @@ public class ProjectsResource extends Service {
             }
             projectToCreate.setLeaderId(internalUserId);
             Project createdProject = dalFacade.createProject(projectToCreate);
-
-            Object result = this.invokeServiceMethod("de.rwth.dbis.acis.activitytracker.service.ActivityTrackerService",
-                    "serviceMethodOne", new Serializable[]{});
-
-            bazaarService.sendActivityOverRMI(createdProject.getCreation_time(), Activity.ActivityAction.CREATE, createdProject.getId(),
+            bazaarService.sendActivityOverRMI(this, createdProject.getCreation_time(), Activity.ActivityAction.CREATE, createdProject.getId(),
                     Activity.DataType.PROJECT, internalUserId);
             return new HttpResponse(gson.toJson(createdProject), HttpURLConnection.HTTP_CREATED);
         } catch (BazaarException bex) {
@@ -265,6 +261,8 @@ public class ProjectsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
             }
             Project updatedProject = dalFacade.modifyProject(projectToUpdate);
+            bazaarService.sendActivityOverRMI(this, updatedProject.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedProject.getId(),
+                    Activity.DataType.PROJECT, internalUserId);
             return new HttpResponse(gson.toJson(updatedProject), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {

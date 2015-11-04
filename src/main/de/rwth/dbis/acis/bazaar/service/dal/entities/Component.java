@@ -60,6 +60,14 @@ public class Component extends EntityBase {
         return id;
     }
 
+    public Date getCreation_time() {
+        return creation_time;
+    }
+
+    public Date getLastupdated_time() {
+        return  lastupdated_time;
+    }
+
     public String getDescription() {
         return description;
     }

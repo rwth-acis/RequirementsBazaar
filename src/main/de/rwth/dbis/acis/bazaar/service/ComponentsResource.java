@@ -2,10 +2,7 @@ package de.rwth.dbis.acis.bazaar.service;
 
 import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Component;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.PrivilegeEnum;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
@@ -151,6 +148,8 @@ public class ComponentsResource extends Service {
             }
             componentToCreate.setLeaderId(internalUserId);
             Component createdComponent = dalFacade.createComponent(componentToCreate);
+            bazaarService.sendActivityOverRMI(this, createdComponent.getCreation_time(), Activity.ActivityAction.CREATE, createdComponent.getId(),
+                    Activity.DataType.COMPONENT, internalUserId);
             return new HttpResponse(gson.toJson(createdComponent), HttpURLConnection.HTTP_CREATED);
         } catch (BazaarException bex) {
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
@@ -206,6 +205,8 @@ public class ComponentsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
             }
             updatedComponent = dalFacade.modifyComponent(updatedComponent);
+            bazaarService.sendActivityOverRMI(this, updatedComponent.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedComponent.getId(),
+                    Activity.DataType.COMPONENT, internalUserId);
             return new HttpResponse(gson.toJson(updatedComponent), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -265,6 +266,8 @@ public class ComponentsResource extends Service {
             }
             Gson gson = new Gson();
             Component deletedComponent = dalFacade.deleteComponentById(componentId);
+            bazaarService.sendActivityOverRMI(this, deletedComponent.getLastupdated_time(), Activity.ActivityAction.DELETE, deletedComponent.getId(),
+                    Activity.DataType.COMPONENT, internalUserId);
             return new HttpResponse(gson.toJson(deletedComponent), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {

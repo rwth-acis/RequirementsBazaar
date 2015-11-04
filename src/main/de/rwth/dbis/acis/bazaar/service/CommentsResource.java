@@ -2,6 +2,7 @@ package de.rwth.dbis.acis.bazaar.service;
 
 import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.PrivilegeEnum;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
@@ -151,6 +152,8 @@ public class CommentsResource extends Service {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
             Comment createdComment = dalFacade.createComment(commentToCreate);
+            bazaarService.sendActivityOverRMI(this, createdComment.getCreationTime(), Activity.ActivityAction.CREATE, createdComment.getId(),
+                    Activity.DataType.COMMENT, internalUserId);
             return new HttpResponse(gson.toJson(createdComment), HttpURLConnection.HTTP_CREATED);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -226,6 +229,8 @@ public class CommentsResource extends Service {
             }
             Gson gson = new Gson();
             Comment deletedComment = dalFacade.deleteCommentById(commentId);
+            bazaarService.sendActivityOverRMI(this, deletedComment.getCreationTime(), Activity.ActivityAction.DELETE, deletedComment.getId(),
+                    Activity.DataType.COMMENT, internalUserId);
             return new HttpResponse(gson.toJson(deletedComment), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {

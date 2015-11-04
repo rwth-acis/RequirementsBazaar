@@ -246,7 +246,7 @@ public class BazaarService extends Service {
         }
     }
 
-    public void sendActivityOverRMI(Date creationTime, Activity.ActivityAction activityAction,
+    public void sendActivityOverRMI(Service service, Date creationTime, Activity.ActivityAction activityAction,
                                     int dataId, Activity.DataType dataType, int userId) {
         if (!activityTrackerService.isEmpty()) {
             try {
@@ -258,11 +258,8 @@ public class BazaarService extends Service {
                 activityBuilder = activityBuilder.dataType(dataType);
                 activityBuilder = activityBuilder.userUrl(baseURL + "users" + "/" + String.valueOf(userId));
                 Activity activity = activityBuilder.build();
-                //Object result = this.invokeServiceMethod(activityTrackerService,
-                //       "createActivity", new Serializable[]{gson.toJson(activity)});
-
-                Object result = this.invokeServiceMethod("de.rwth.dbis.acis.activitytracker.service.ActivityTrackerService",
-                        "serviceMethodOne", new Serializable[]{});
+                Object result = service.invokeServiceMethod(activityTrackerService,
+                       "createActivity", new Serializable[]{gson.toJson(activity)});
                 if (((HttpResponse) result).getStatus() != HttpURLConnection.HTTP_CREATED) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.NETWORK, ErrorCode.RMI_ERROR, "");
                 }
