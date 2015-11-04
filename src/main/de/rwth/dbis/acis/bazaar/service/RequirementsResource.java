@@ -164,6 +164,8 @@ public class RequirementsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.create"));
             }
             Requirement createdRequirement = dalFacade.createRequirement(requirementToCreate, internalUserId);
+            bazaarService.sendActivityOverRMI(this, createdRequirement.getCreation_time(), Activity.ActivityAction.CREATE, createdRequirement.getId(),
+                    Activity.DataType.REQUIREMENT, internalUserId);
             return new HttpResponse(gson.toJson(createdRequirement), HttpURLConnection.HTTP_CREATED);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -225,6 +227,8 @@ public class RequirementsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
             }
             RequirementEx updatedRequirement = dalFacade.modifyRequirement(requirementToUpdate, internalUserId);
+            bazaarService.sendActivityOverRMI(this, updatedRequirement.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedRequirement.getId(),
+                    Activity.DataType.REQUIREMENT, internalUserId);
             return new HttpResponse(gson.toJson(updatedRequirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -276,6 +280,8 @@ public class RequirementsResource extends Service {
             }
             Gson gson = new Gson();
             RequirementEx deletedRequirement = dalFacade.deleteRequirementById(requirementId, internalUserId);
+            bazaarService.sendActivityOverRMI(this, deletedRequirement.getLastupdated_time(), Activity.ActivityAction.DELETE, deletedRequirement.getId(),
+                    Activity.DataType.REQUIREMENT, internalUserId);
             return new HttpResponse(gson.toJson(deletedRequirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {

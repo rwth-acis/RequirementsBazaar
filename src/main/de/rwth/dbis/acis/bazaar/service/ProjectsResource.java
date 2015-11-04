@@ -2,10 +2,7 @@ package de.rwth.dbis.acis.bazaar.service;
 
 import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Component;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.PrivilegeEnum;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
@@ -18,12 +15,15 @@ import i5.las2peer.restMapper.HttpResponse;
 import i5.las2peer.restMapper.MediaType;
 import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.ContentParam;
+import i5.las2peer.security.Context;
 import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
 import jodd.vtor.Vtor;
 
 import javax.ws.rs.*;
+import java.io.Serializable;
 import java.net.HttpURLConnection;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -200,6 +200,8 @@ public class ProjectsResource extends Service {
             }
             projectToCreate.setLeaderId(internalUserId);
             Project createdProject = dalFacade.createProject(projectToCreate);
+            bazaarService.sendActivityOverRMI(this, createdProject.getCreation_time(), Activity.ActivityAction.CREATE, createdProject.getId(),
+                    Activity.DataType.PROJECT, internalUserId);
             return new HttpResponse(gson.toJson(createdProject), HttpURLConnection.HTTP_CREATED);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -259,6 +261,8 @@ public class ProjectsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
             }
             Project updatedProject = dalFacade.modifyProject(projectToUpdate);
+            bazaarService.sendActivityOverRMI(this, updatedProject.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedProject.getId(),
+                    Activity.DataType.PROJECT, internalUserId);
             return new HttpResponse(gson.toJson(updatedProject), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -303,8 +307,8 @@ public class ProjectsResource extends Service {
      * This method returns the list of components under a given project.
      *
      * @param projectId id of the project
-     * @param page    page number
-     * @param perPage number of projects by page
+     * @param page      page number
+     * @param perPage   number of projects by page
      * @return Response with components as a JSON array.
      */
     @GET
