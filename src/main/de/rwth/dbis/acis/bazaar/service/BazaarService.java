@@ -35,6 +35,7 @@ import i5.las2peer.restMapper.HttpResponse;
 import i5.las2peer.restMapper.MediaType;
 import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.Version;
+import i5.las2peer.security.Context;
 import i5.las2peer.security.UserAgent;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -43,7 +44,10 @@ import io.swagger.annotations.*;
 
 import javax.ws.rs.*;
 
+import java.io.Serializable;
 import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -99,6 +103,8 @@ public class BazaarService extends Service {
     protected String dbUrl;
     protected String lang;
     protected String country;
+    protected String baseURL;
+    protected String activityTrackerService;
 
     private Vtor vtor;
     private List<BazaarFunctionRegistrator> functionRegistrators;
@@ -238,7 +244,32 @@ public class BazaarService extends Service {
         } finally {
             closeConnection(dalFacade);
         }
+    }
 
+    public void sendActivityOverRMI(Date creationTime, Activity.ActivityAction activityAction,
+                                    int dataId, Activity.DataType dataType, int userId) {
+        if (!activityTrackerService.isEmpty()) {
+            try {
+                Gson gson = new Gson();
+                Activity.Builder activityBuilder = Activity.getBuilder();
+                activityBuilder = activityBuilder.creationTime(creationTime);
+                activityBuilder = activityBuilder.activityAction(activityAction);
+                activityBuilder = activityBuilder.dataUrl(baseURL + dataType.toString().toLowerCase() + "s" + "/" + String.valueOf(dataId));
+                activityBuilder = activityBuilder.dataType(dataType);
+                activityBuilder = activityBuilder.userUrl(baseURL + "users" + "/" + String.valueOf(userId));
+                Activity activity = activityBuilder.build();
+                //Object result = this.invokeServiceMethod(activityTrackerService,
+                //       "createActivity", new Serializable[]{gson.toJson(activity)});
+
+                Object result = this.invokeServiceMethod("de.rwth.dbis.acis.activitytracker.service.ActivityTrackerService",
+                        "serviceMethodOne", new Serializable[]{});
+                if (((HttpResponse) result).getStatus() != HttpURLConnection.HTTP_CREATED) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.NETWORK, ErrorCode.RMI_ERROR, "");
+                }
+            } catch (Exception ex) {
+                Context.logError(this, "Could not send activity with RMI call to ActivityTracker");
+            }
+        }
     }
 
     public DALFacade createConnection() throws Exception {
