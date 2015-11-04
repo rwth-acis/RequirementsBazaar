@@ -28,7 +28,8 @@ public enum ExceptionLocation {
     REPOSITORY("01", "Repository"),
     TRANSFORMATOR("02", "Transformators"),
     DALFACADE("03", "DAL facade implementation"),
-    BAZAARSERVICE("04", "Bazaar service");
+    BAZAARSERVICE("04", "Bazaar service"),
+    NETWORK("5", "Network");
 
     private final String code;
     private final String message;
