@@ -32,6 +32,7 @@ import java.util.List;
 public class ProjectsResource extends Service {
 
     private BazaarService bazaarService;
+    private final String resourcePath = "projects";
 
     /**
      * This method is needed for every RESTful application in LAS2peer.
@@ -201,7 +202,7 @@ public class ProjectsResource extends Service {
             projectToCreate.setLeaderId(internalUserId);
             Project createdProject = dalFacade.createProject(projectToCreate);
             bazaarService.sendActivityOverRMI(this, createdProject.getCreation_time(), Activity.ActivityAction.CREATE, createdProject.getId(),
-                    Activity.DataType.PROJECT, internalUserId);
+                    Activity.DataType.PROJECT, resourcePath, internalUserId);
             return new HttpResponse(gson.toJson(createdProject), HttpURLConnection.HTTP_CREATED);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -262,7 +263,7 @@ public class ProjectsResource extends Service {
             }
             Project updatedProject = dalFacade.modifyProject(projectToUpdate);
             bazaarService.sendActivityOverRMI(this, updatedProject.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedProject.getId(),
-                    Activity.DataType.PROJECT, internalUserId);
+                    Activity.DataType.PROJECT, resourcePath, internalUserId);
             return new HttpResponse(gson.toJson(updatedProject), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
