@@ -31,6 +31,7 @@ import java.util.EnumSet;
 public class CommentsResource extends Service {
 
     private BazaarService bazaarService;
+    private final String resourcePath = "comments";
 
     /**
      * This method is needed for every RESTful application in LAS2peer.
@@ -153,7 +154,7 @@ public class CommentsResource extends Service {
             }
             Comment createdComment = dalFacade.createComment(commentToCreate);
             bazaarService.sendActivityOverRMI(this, createdComment.getCreationTime(), Activity.ActivityAction.CREATE, createdComment.getId(),
-                    Activity.DataType.COMMENT, internalUserId);
+                    Activity.DataType.COMMENT, resourcePath, internalUserId);
             return new HttpResponse(gson.toJson(createdComment), HttpURLConnection.HTTP_CREATED);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -230,7 +231,7 @@ public class CommentsResource extends Service {
             Gson gson = new Gson();
             Comment deletedComment = dalFacade.deleteCommentById(commentId);
             bazaarService.sendActivityOverRMI(this, deletedComment.getCreationTime(), Activity.ActivityAction.DELETE, deletedComment.getId(),
-                    Activity.DataType.COMMENT, internalUserId);
+                    Activity.DataType.COMMENT, resourcePath, internalUserId);
             return new HttpResponse(gson.toJson(deletedComment), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {

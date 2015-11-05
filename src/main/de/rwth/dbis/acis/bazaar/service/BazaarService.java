@@ -247,14 +247,16 @@ public class BazaarService extends Service {
     }
 
     public void sendActivityOverRMI(Service service, Date creationTime, Activity.ActivityAction activityAction,
-                                    int dataId, Activity.DataType dataType, int userId) {
+                                    int dataId, Activity.DataType dataType, String resourcePath, int userId) {
         if (!activityTrackerService.isEmpty()) {
             try {
                 Gson gson = new Gson();
                 Activity.Builder activityBuilder = Activity.getBuilder();
                 activityBuilder = activityBuilder.creationTime(creationTime);
                 activityBuilder = activityBuilder.activityAction(activityAction);
-                activityBuilder = activityBuilder.dataUrl(baseURL + dataType.toString().toLowerCase() + "s" + "/" + String.valueOf(dataId));
+                if (activityAction != Activity.ActivityAction.DELETE) {
+                    activityBuilder = activityBuilder.dataUrl(baseURL + resourcePath + "/" + String.valueOf(dataId));
+                }
                 activityBuilder = activityBuilder.dataType(dataType);
                 activityBuilder = activityBuilder.userUrl(baseURL + "users" + "/" + String.valueOf(userId));
                 Activity activity = activityBuilder.build();

@@ -95,7 +95,9 @@ public class Activity extends EntityBase {
         REQUIREMENT,
         COMMENT,
         ATTACHMENT,
-        VOTE
+        VOTE,
+        FOLLOW,
+        DEVELOP
     }
 
     public enum ActivityAction {
