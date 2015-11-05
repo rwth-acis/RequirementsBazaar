@@ -27,6 +27,50 @@ UPDATE `reqbaz`.`projects`
 SET `Default_Components_Id` = '2'
 WHERE `Id` = '2 ';
 
+REPLACE INTO `reqbaz`.`requirements`
+(`Id`, `title`, `description`, `Lead_developer_Id`, `Creator_Id`, `Project_Id`)
+VALUES
+  ('1', 'Requirement ', 'Requirement - Description', '1', '1', '1'),
+  ('2', 'Requirement ', 'Requirement - Description', '1', '1', '1'),
+  ('3', 'Requirement ', 'Requirement - Description', '2', '1', '1'),
+  ('4', 'Requirement ', 'Requirement - Description', '2', '1', '1');
+
+REPLACE INTO `reqbaz`.`followers`
+(`Id`, `Requirement_Id`, `User_Id`)
+VALUES
+  ('1', '1', '1'),
+  ('2', '1', '1'),
+  ('3', '2', '1');
+
+REPLACE INTO `reqbaz`.`developers`
+(`Id`, `Requirement_Id`, `User_Id`)
+VALUES
+  ('1', '1', '1'),
+  ('2', '1', '1');
+
+REPLACE INTO `reqbaz`.`tags`
+(`Id`, `Components_Id`, `Requirements_Id`)
+VALUES
+  ('1', '1', '1'),
+  ('2', '1', '2'),
+  ('3', '2', '3'),
+  ('4', '2', '4');
+
+REPLACE INTO `reqbaz`.`comments`
+(`Id`, `message`, `Requirement_Id`, `User_Id`)
+VALUES
+  ('1', 'Comment', '1', '1'),
+  ('2', 'Comment', '2', '1'),
+  ('3', 'Comment', '2', '1'),
+  ('4', 'Comment', '3', '1');
+
+REPLACE INTO `reqbaz`.`votes`
+(`Id`, `is_upvote`, `Requirement_Id`, `User_Id`)
+VALUES
+  ('1', '1', '1', '1'),
+  ('2', '1', '2', '1'),
+  ('3', '1', '2', '1'),
+  ('4', '1', '3', '1');
 
 REPLACE INTO `roles` (`Id`, `name`) VALUES
   (1, 'Anonymous'),
@@ -61,7 +105,6 @@ REPLACE INTO `privileges` (`Id`, `name`) VALUES
   (24, 'Delete_FOLLOW'),
   (25, 'Create_DEVELOP'),
   (26, 'Delete_DEVELOP');
-
 
 REPLACE INTO `role_privilege` (`Id`, `Roles_Id`, `Privileges_Id`) VALUES
   (1, 1, 3),

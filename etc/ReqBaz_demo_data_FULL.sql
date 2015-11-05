@@ -46,7 +46,6 @@ VALUES
   ('40', 'Max40', 'Mustermann40', 'Max@Mustermann40.de', '0', '40', 'MaxMustermann40', 'https://api.learning-layers.eu/profile.png'),
   ('41', NULL, NULL, 'anonymous@requirements-bazaar.org', '0', '-1722613621014065292', 'anonymous', 'https://api.learning-layers.eu/profile.png');
 
-
 REPLACE INTO `reqbaz`.`projects`
 (`Id`, `name`, `description`, `visibility`, `Leader_Id`, `Default_Components_Id`)
 VALUES
@@ -62,7 +61,6 @@ VALUES
   ('9', 'Project 9', 'Project 9 - Description - This project is not visible - leader MaxMustermann7', '-', '7', NULL),
   ('10', 'Project 10', 'Project 10 - Description - This project is not visible - leader MaxMustermann8', '-', '8',
    NULL);
-
 
 REPLACE INTO `reqbaz`.`components`
 (`Id`, `name`, `description`, `Project_Id`, `Leader_Id`)
@@ -139,7 +137,6 @@ UPDATE `reqbaz`.`projects`
 SET `Default_Components_Id` = '40'
 WHERE `Id` = '10';
 
-
 REPLACE INTO `reqbaz`.`requirements`
 (`Id`, `title`, `description`, `Lead_developer_Id`, `Creator_Id`, `Project_Id`)
 VALUES
@@ -184,7 +181,6 @@ VALUES
   ('39', 'Requirement ', 'Requirement - Description', '15', '3', '2'),
   ('40', 'Requirement ', 'Requirement - Description', '16', '3', '2');
 
-
 REPLACE INTO `reqbaz`.`followers`
 (`Id`, `Requirement_Id`, `User_Id`)
 VALUES
@@ -209,7 +205,6 @@ VALUES
   ('19', '2', '29'),
   ('20', '2', '1');
 
-
 REPLACE INTO `reqbaz`.`developers`
 (`Id`, `Requirement_Id`, `User_Id`)
 VALUES
@@ -233,7 +228,6 @@ VALUES
   ('18', '4', '10'),
   ('19', '5', '11'),
   ('20', '6', '12');
-
 
 REPLACE INTO `reqbaz`.`tags`
 (`Id`, `Components_Id`, `Requirements_Id`)
@@ -279,6 +273,63 @@ VALUES
   ('43', '5', '39'),
   ('44', '5', '40');
 
+REPLACE INTO `reqbaz`.`comments`
+(`Id`, `message`, `Requirement_Id`, `User_Id`)
+VALUES
+  ('1', 'Comment', '1', '1'),
+  ('2', 'Comment', '2', '1'),
+  ('3', 'Comment', '2', '1'),
+  ('4', 'Comment', '3', '1'),
+  ('5', 'Comment', '4', '2'),
+  ('6', 'Comment', '5', '2'),
+  ('7', 'Comment', '5', '2'),
+  ('8', 'Comment', '5', '1'),
+  ('9', 'Comment', '6', '2'),
+  ('10', 'Comment', '6', '3'),
+  ('11', 'Comment', '6', '4'),
+  ('12', 'Comment', '6', '2'),
+  ('13', 'Comment', '7', '3'),
+  ('14', 'Comment', '8', '4'),
+  ('15', 'Comment', '9', '2'),
+  ('16', 'Comment', '10', '3'),
+  ('17', 'Comment', '10', '4'),
+  ('18', 'Comment', '11', '2'),
+  ('19', 'Comment', '12', '2'),
+  ('20', 'Comment', '12', '3'),
+  ('21', 'Comment', '13', '4'),
+  ('22', 'Comment', '14', '2'),
+  ('23', 'Comment', '15', '3'),
+  ('24', 'Comment', '16', '4'),
+  ('25', 'Comment', '17', '2'),
+  ('26', 'Comment', '18', '3'),
+  ('27', 'Comment', '19', '4'),
+  ('28', 'Comment', '20', '2');
+
+REPLACE INTO `reqbaz`.`votes`
+(`Id`, `is_upvote`, `Requirement_Id`, `User_Id`)
+VALUES
+  ('1', '1', '1', '1'),
+  ('2', '1', '2', '1'),
+  ('3', '1', '1', '2'),
+  ('4', '1', '2', '2'),
+  ('5', '1', '3', '2'),
+  ('6', '1', '2', '3'),
+  ('7', '1', '3', '3'),
+  ('8', '1', '4', '4'),
+  ('9', '1', '5', '5'),
+  ('10', '1', '6', '6'),
+  ('11', '1', '7', '6'),
+  ('12', '1', '7', '7'),
+  ('13', '1', '8', '6'),
+  ('14', '1', '9', '6'),
+  ('15', '1', '10', '7'),
+  ('16', '1', '11', '6'),
+  ('17', '1', '12', '6'),
+  ('18', '1', '13', '7'),
+  ('19', '1', '14', '6'),
+  ('20', '1', '15', '6'),
+  ('21', '1', '16', '7');
+
 REPLACE INTO `roles` (`Id`, `name`) VALUES
   (1, 'Anonymous'),
   (2, 'LoggedInUser'),
@@ -313,7 +364,6 @@ REPLACE INTO `privileges` (`Id`, `name`) VALUES
   (25, 'Create_DEVELOP'),
   (26, 'Delete_DEVELOP');
 
-
 REPLACE INTO `role_privilege` (`Id`, `Roles_Id`, `Privileges_Id`) VALUES
   (1, 1, 3),
   (2, 1, 7),
@@ -345,7 +395,6 @@ REPLACE INTO `role_privilege` (`Id`, `Roles_Id`, `Privileges_Id`) VALUES
   (28, 4, 24),
   (29, 4, 25),
   (30, 4, 26);
-
 
 REPLACE INTO `role_role` (`Id`, `Child_Id`, `Parent_Id`) VALUES
   (1, 2, 1),
