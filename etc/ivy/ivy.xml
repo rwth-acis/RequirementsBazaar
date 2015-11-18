@@ -5,7 +5,7 @@
 		<artifact type="jar" ext="jar" conf="default"/>
 	</publications>
     <dependencies>
-        <dependency org="i5" name="las2peer" rev="0.4-SNAPSHOT" changing="true"/>
+        <dependency org="i5" name="las2peer" rev="0.4.0" changing="true"/>
         <dependency org="i5" name="las2peer-web-connector" rev="0.4-SNAPSHOT" changing="true"/>
         <dependency org="org.jooq" name="jooq" rev="3.4.2"/>
         <dependency org="org.jooq" name="jooq-codegen" rev="3.4.2"/>
