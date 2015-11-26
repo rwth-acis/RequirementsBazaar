@@ -28,6 +28,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecor
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.AttachmentTransformator;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementTransformator;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -226,23 +227,26 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .leadDeveloperId(queryResult.getValues(REQUIREMENTS.LEAD_DEVELOPER_ID).get(0))
                     .creatorId(queryResult.getValues(REQUIREMENTS.CREATOR_ID).get(0));
 
+            UserTransformator userTransformator = new UserTransformator();
             //Filling up Creator
             builder.creator(
-                    getUserFromRecords(creatorUser, queryResult)
+                    userTransformator.getEntityFromRecord(queryResult.get(0))
             );
 
             //Filling up LeadDeveloper
             builder.leadDeveloper(
-                    getUserFromRecords(leadDeveloperUser, queryResult)
+                    userTransformator.getEntityFromRecord(queryResult.get(0))
             );
 
             //Filling up developers list
             List<User> devList = new ArrayList<User>();
+
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(developerUsers.ID).entrySet()) {
                 if (entry.getKey() == null) continue;
                 Result<Record> records = entry.getValue();
                 devList.add(
-                        getUserFromRecords(developerUsers, records)
+                        userTransformator.getEntityFromRecord(records.get(0))
+                        //getUserFromRecords(developerUsers, records)
                 );
             }
             builder.developers(devList);
@@ -253,7 +257,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 if (entry.getKey() == null) continue;
                 Result<Record> records = entry.getValue();
                 followers.add(
-                        getUserFromRecords(followerUsers, records)
+                        userTransformator.getEntityFromRecord(records.get(0))
                 );
             }
             builder.followers(followers);
@@ -265,10 +269,9 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 if (entry.getKey() == null) continue;
                 Result<Record> records = entry.getValue();
                 contributorList.add(
-                        getUserFromRecords(contributorUsers, records)
+                        userTransformator.getEntityFromRecord(records.get(0))
                 );
             }
-
             builder.contributors(contributorList);
 
             //Filling up attachments
@@ -295,10 +298,9 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                         records.getValues(Attachments.ATTACHMENTS.OBJECT_DESC).get(0)
                 );
                 attachments.add(
-                        attachmentTransform.mapToEntity(record)
+                        attachmentTransform.getEntityFromTableRecord(record)
                 );
             }
-
             builder.attachments(attachments);
 
             //Filling up votes
@@ -331,25 +333,13 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                                 .build()
                 );
             }
-
             requirementEx.setComponents(components);
+
         } catch (BazaarException be) {
             ExceptionHandler.getInstance().convertAndThrowException(be);
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return requirementEx;
-    }
-
-    private User getUserFromRecords(Users creatorUser, Result<Record> queryResult) {
-        return User.geBuilder(queryResult.getValues(creatorUser.EMAIL).get(0))
-                .id(queryResult.getValues(creatorUser.ID).get(0))
-                .admin(queryResult.getValues(creatorUser.ADMIN).get(0) != 0)
-                .firstName(queryResult.getValues(creatorUser.FIRST_NAME).get(0))
-                .lastName(queryResult.getValues(creatorUser.LAST_NAME).get(0))
-                .las2peerId(queryResult.getValues(creatorUser.LAS2PEER_ID).get(0))
-                .userName(queryResult.getValues(creatorUser.USER_NAME).get(0))
-                .profileImage(queryResult.getValues(creatorUser.PROFILE_IMAGE).get(0))
-                .build();
     }
 }

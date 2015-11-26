@@ -47,7 +47,7 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
     }
 
     @Override
-    public Comment mapToEntity(CommentsRecord record) {
+    public Comment getEntityFromTableRecord(CommentsRecord record) {
         return Comment.getBuilder(record.getMessage())
                 .id(record.getId())
                 .requirementId(record.getRequirementId())
@@ -55,6 +55,11 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
                 .creationTime(record.getCreationTime())
                 .lastupdatedTime(record.getLastupdatedTime())
                 .build();
+    }
+
+    @Override
+    public Comment getEntityFromRecord(Record record) {
+        return null;
     }
 
     @Override

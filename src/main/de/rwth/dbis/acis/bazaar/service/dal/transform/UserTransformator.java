@@ -22,6 +22,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord;
 import org.jooq.*;
 
@@ -40,7 +41,6 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
     @Override
     public UsersRecord createRecord(User entity) {
         UsersRecord record = new UsersRecord();
-//        record.setId(entity.getId());
         record.setLas2peerId(entity.getLas2peerId());
         record.setAdmin((byte) (entity.getAdmin() ? 1 : 0));
         record.setEmail(entity.geteMail());
@@ -52,7 +52,7 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
     }
 
     @Override
-    public User mapToEntity(UsersRecord record) {
+    public User getEntityFromTableRecord(UsersRecord record) {
         return User.geBuilder(record.getEmail())
                 .id(record.getId())
                 .admin(record.getAdmin() != 0)
@@ -61,6 +61,19 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
                 .las2peerId(record.getLas2peerId())
                 .profileImage(record.getProfileImage())
                 .userName(record.getUserName())
+                .build();
+    }
+
+    @Override
+    public User getEntityFromRecord(Record record) {
+        return User.geBuilder(record.getValue(Users.USERS.EMAIL))
+                .id(record.getValue(Users.USERS.ID))
+                .admin(record.getValue(Users.USERS.ADMIN) != 0)
+                .firstName(record.getValue(Users.USERS.FIRST_NAME))
+                .lastName(record.getValue(Users.USERS.LAST_NAME))
+                .las2peerId(record.getValue(Users.USERS.LAS2PEER_ID))
+                .userName(record.getValue(Users.USERS.USER_NAME))
+                .profileImage(record.getValue(Users.USERS.PROFILE_IMAGE))
                 .build();
     }
 

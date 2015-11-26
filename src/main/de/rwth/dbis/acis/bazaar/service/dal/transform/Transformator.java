@@ -45,8 +45,13 @@ public interface Transformator<E, R extends Record> {
      * @param record which holds the data from the database
      * @return an entity filled up with data from the record
      */
-    E mapToEntity(R record);
+    E getEntityFromTableRecord(R record);
 
+    /**
+     * @param record which holds the data from the database (after joining tables)
+     * @return an entity filled up with data from the record
+     */
+    E getEntityFromRecord(Record record);
 
     /**
      * @return the JOOQ table representation, which holds all the records

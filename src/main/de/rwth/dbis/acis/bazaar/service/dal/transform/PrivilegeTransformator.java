@@ -51,10 +51,15 @@ public class PrivilegeTransformator implements Transformator<de.rwth.dbis.acis.b
     }
 
     @Override
-    public Privilege mapToEntity(PrivilegesRecord record) {
+    public Privilege getEntityFromTableRecord(PrivilegesRecord record) {
         return Privilege.getBuilder(new PrivilegeEnumConverter().from(record.getName()))
                 .id(record.getId())
                 .build();
+    }
+
+    @Override
+    public Privilege getEntityFromRecord(Record record) {
+        return null;
     }
 
     @Override

@@ -97,7 +97,7 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
     }
 
     @Override
-    public Attachment mapToEntity(AttachmentsRecord record) {
+    public Attachment getEntityFromTableRecord(AttachmentsRecord record) {
         Attachment entity = null;
         AttachmentType type = AttachmentType.getEnum(record.getDiscriminator());
 
@@ -165,6 +165,11 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
         }
 
         return entity;
+    }
+
+    @Override
+    public Attachment getEntityFromRecord(Record record) {
+        return null;
     }
 
     @Override

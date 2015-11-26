@@ -21,10 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Privilege;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privileges;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.PrivilegesRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolesRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.PrivilegeTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
@@ -52,6 +49,6 @@ public class PrivilegeRepostitoryImpl extends RepositoryImpl<Privilege, Privileg
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
 
-        return privilege == null ? null : new PrivilegeTransformator().mapToEntity(privilege);
+        return privilege == null ? null : new PrivilegeTransformator().getEntityFromTableRecord(privilege);
     }
 }

@@ -49,6 +49,8 @@ public class Component extends EntityBase {
     @Min(-1)
     private int leaderId;
 
+    private User leader;
+
     @Min(-1)
     private final int projectId;
 
@@ -82,6 +84,10 @@ public class Component extends EntityBase {
 
     public void setLeaderId(int leaderId) {
         this.leaderId = leaderId;
+    }
+
+    public void setLeader(User leader) {
+        this.leader = leader;
     }
 
     /**

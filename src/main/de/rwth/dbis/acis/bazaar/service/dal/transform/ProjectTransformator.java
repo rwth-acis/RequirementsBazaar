@@ -49,7 +49,7 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
     }
 
     @Override
-    public Project mapToEntity(ProjectsRecord record) {
+    public Project getEntityFromTableRecord(ProjectsRecord record) {
         return Project.getBuilder(record.getName())
                 .description(record.getDescription())
                 .id(record.getId())
@@ -58,6 +58,19 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
                 .visibility(Project.ProjectVisibility.getVisibility(record.getVisibility()))
                 .creationTime(record.getCreationTime())
                 .lastupdatedTime(record.getLastupdatedTime())
+                .build();
+    }
+
+    @Override
+    public Project getEntityFromRecord(Record record) {
+        return Project.getBuilder(record.getValue(PROJECTS.NAME))
+                .id(record.getValue(PROJECTS.ID))
+                .description(record.getValue(PROJECTS.DESCRIPTION))
+                .visibility(Project.ProjectVisibility.getVisibility(record.getValue(PROJECTS.VISIBILITY)))
+                .leaderId(record.getValue(PROJECTS.LEADER_ID))
+                .defaultComponentId(record.getValue(PROJECTS.DEFAULT_COMPONENTS_ID))
+                .creationTime(record.getValue(PROJECTS.CREATION_TIME))
+                .lastupdatedTime(record.getValue(PROJECTS.LASTUPDATED_TIME))
                 .build();
     }
 

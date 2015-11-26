@@ -35,10 +35,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
 import org.jooq.Record;
-import org.jooq.Record1;
-import org.jooq.Result;
 import org.jooq.exception.DataAccessException;
-import org.jooq.impl.DSL;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -86,7 +83,7 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
 
     private Comment convertToCommentWithUser(Record record) {
         CommentsRecord commentsRecord = record.into(CommentsRecord.class);
-        Comment entry = transformator.mapToEntity(commentsRecord);
+        Comment entry = transformator.getEntityFromTableRecord(commentsRecord);
         User creator = User.geBuilder(record.getValue(USERS.EMAIL))
                 .userName(record.getValue(USERS.USER_NAME))
                 .profileImage(record.getValue(USERS.PROFILE_IMAGE))

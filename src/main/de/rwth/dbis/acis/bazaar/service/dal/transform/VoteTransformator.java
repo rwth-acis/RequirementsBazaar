@@ -40,7 +40,6 @@ public class VoteTransformator implements de.rwth.dbis.acis.bazaar.service.dal.t
     @Override
     public VotesRecord createRecord(Vote entity) {
         VotesRecord record = new VotesRecord();
-//        record.setId(entity.getId());
         record.setUserId(entity.getUserId());
         record.setRequirementId(entity.getRequirementId());
         record.setIsUpvote((byte) (entity.isUpvote() ? 1 : 0));
@@ -48,13 +47,18 @@ public class VoteTransformator implements de.rwth.dbis.acis.bazaar.service.dal.t
     }
 
     @Override
-    public Vote mapToEntity(VotesRecord record) {
+    public Vote getEntityFromTableRecord(VotesRecord record) {
         return Vote.getBuilder()
                 .id(record.getId())
                 .userId(record.getUserId())
                 .requirementId(record.getRequirementId())
                 .isUpvote(record.getIsUpvote() != 0)
                 .build();
+    }
+
+    @Override
+    public Vote getEntityFromRecord(Record record) {
+        return null;
     }
 
     @Override

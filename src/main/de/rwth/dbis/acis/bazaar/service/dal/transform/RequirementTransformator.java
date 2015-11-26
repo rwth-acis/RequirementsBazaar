@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementEx;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord;
 import org.jooq.*;
@@ -34,7 +35,6 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
     @Override
     public RequirementsRecord createRecord(Requirement entry) {
         RequirementsRecord record = new RequirementsRecord();
-//        record.setId(entry.getId());
         record.setDescription(entry.getDescription());
         record.setTitle(entry.getTitle());
         if (entry.getRealized() != null) {
@@ -62,7 +62,21 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
     }
 
     @Override
-    public Requirement mapToEntity(RequirementsRecord record) {
+    public Requirement getEntityFromRecord(Record record) {
+        return Requirement.getBuilder(record.getValue(REQUIREMENTS.TITLE))
+                .id(record.getValue(REQUIREMENTS.ID))
+                .description(record.getValue(REQUIREMENTS.DESCRIPTION))
+                .realized(record.getValue(REQUIREMENTS.REALIZED))
+                .creationTime(record.getValue(REQUIREMENTS.CREATION_TIME))
+                .lastupdatedTime(record.getValue(REQUIREMENTS.LASTUPDATED_TIME))
+                .projectId(record.getValue(REQUIREMENTS.PROJECT_ID))
+                .leadDeveloperId(record.getValue(REQUIREMENTS.LEAD_DEVELOPER_ID))
+                .creatorId(record.getValue(REQUIREMENTS.CREATOR_ID))
+                .build();
+    }
+
+    @Override
+    public Requirement getEntityFromTableRecord(RequirementsRecord record) {
         return mapToEntityBuilder(record)
                 .build();
     }

@@ -47,12 +47,17 @@ public class DeveloperTransformator implements Transformator<de.rwth.dbis.acis.b
     }
 
     @Override
-    public Developer mapToEntity(DevelopersRecord record) {
+    public Developer getEntityFromTableRecord(DevelopersRecord record) {
         return Developer.getBuilder()
                 .id(record.getId())
                 .userId(record.getUserId())
                 .requirementId(record.getRequirementId())
                 .build();
+    }
+
+    @Override
+    public Developer getEntityFromRecord(Record record) {
+        return null;
     }
 
     @Override

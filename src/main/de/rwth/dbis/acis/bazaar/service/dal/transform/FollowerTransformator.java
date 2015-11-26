@@ -40,19 +40,23 @@ public class FollowerTransformator implements Transformator<de.rwth.dbis.acis.ba
     @Override
     public FollowersRecord createRecord(Follower entity) {
         FollowersRecord record = new FollowersRecord();
-//        record.setId(entity.getId());
         record.setRequirementId(entity.getRequirementId());
         record.setUserId(entity.getUserId());
         return record;
     }
 
     @Override
-    public Follower mapToEntity(FollowersRecord record) {
+    public Follower getEntityFromTableRecord(FollowersRecord record) {
         return Follower.getBuilder()
                 .id(record.getId())
                 .userId(record.getUserId())
                 .requirementId(record.getRequirementId())
                 .build();
+    }
+
+    @Override
+    public Follower getEntityFromRecord(Record record) {
+        return null;
     }
 
     @Override

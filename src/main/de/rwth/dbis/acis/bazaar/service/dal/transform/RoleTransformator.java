@@ -48,10 +48,15 @@ public class RoleTransformator implements Transformator<Role,RolesRecord> {
     }
 
     @Override
-    public Role mapToEntity(RolesRecord record) {
+    public Role getEntityFromTableRecord(RolesRecord record) {
         return Role.getBuilder(record.getName())
                 .id(record.getId())
                 .build();
+    }
+
+    @Override
+    public Role getEntityFromRecord(Record record) {
+        return null;
     }
 
     @Override

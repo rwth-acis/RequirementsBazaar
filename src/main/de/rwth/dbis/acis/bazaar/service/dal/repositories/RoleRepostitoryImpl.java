@@ -25,7 +25,6 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.*;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolesRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRoleRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.CommentTransformator;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.PrivilegeEnumConverter;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.RoleTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -101,7 +100,7 @@ public class RoleRepostitoryImpl extends RepositoryImpl<Role, RolesRecord> imple
             if (rolesRecord == null) {
                 throw new Exception("No " + transformator.getRecordClass() + " found with name: " + roleName);
             }
-            role = transformator.mapToEntity(rolesRecord);
+            role = transformator.getEntityFromTableRecord(rolesRecord);
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }

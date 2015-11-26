@@ -47,7 +47,7 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
     }
 
     @Override
-    public Component mapToEntity(ComponentsRecord record) {
+    public Component getEntityFromTableRecord(ComponentsRecord record) {
         return Component.getBuilder(record.getName())
                 .description(record.getDescription())
                 .projectId(record.getProjectId())
@@ -55,6 +55,18 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
                 .leaderId(record.getLeaderId())
                 .creationTime(record.getCreationTime())
                 .lastupdated_time(record.getLastupdatedTime())
+                .build();
+    }
+
+    @Override
+    public Component getEntityFromRecord(Record record) {
+        return Component.getBuilder(record.getValue(COMPONENTS.NAME))
+                .description(record.getValue(COMPONENTS.DESCRIPTION))
+                .projectId(record.getValue(COMPONENTS.PROJECT_ID))
+                .id(record.getValue(COMPONENTS.ID))
+                .leaderId(record.getValue(COMPONENTS.LEADER_ID))
+                .creationTime(record.getValue(COMPONENTS.CREATION_TIME))
+                .lastupdated_time(record.getValue(COMPONENTS.LASTUPDATED_TIME))
                 .build();
     }
 
