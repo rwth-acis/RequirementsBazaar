@@ -21,7 +21,9 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 
-import jodd.vtor.constraint.*;
+import jodd.vtor.constraint.MaxLength;
+import jodd.vtor.constraint.Min;
+import jodd.vtor.constraint.NotBlank;
 
 import java.util.Date;
 
@@ -49,6 +51,8 @@ public class Component extends EntityBase {
     @Min(-1)
     private int leaderId;
 
+    private User leader;
+
     @Min(-1)
     private final int projectId;
 
@@ -65,7 +69,7 @@ public class Component extends EntityBase {
     }
 
     public Date getLastupdated_time() {
-        return  lastupdated_time;
+        return lastupdated_time;
     }
 
     public String getDescription() {
@@ -82,6 +86,10 @@ public class Component extends EntityBase {
 
     public void setLeaderId(int leaderId) {
         this.leaderId = leaderId;
+    }
+
+    public void setLeader(User leader) {
+        this.leader = leader;
     }
 
     /**

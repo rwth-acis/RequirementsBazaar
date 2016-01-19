@@ -20,7 +20,7 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.EntityBase;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.Transformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -29,7 +29,6 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
-import org.jooq.impl.DSL;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +66,7 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
                     .returning()
                     .fetchOne();
 
-            transformedEntity = transformator.mapToEntity(persisted);
+            transformedEntity = transformator.getEntityFromTableRecord(persisted);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN, e.getMessage());
         }
@@ -109,7 +108,7 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
             List<R> queryResults = jooq.selectFrom(transformator.getTable()).fetchInto(transformator.getRecordClass());
 
             for (R queryResult : queryResults) {
-                E entry = transformator.mapToEntity(queryResult);
+                E entry = transformator.getEntityFromTableRecord(queryResult);
                 entries.add(entry);
             }
         } catch (DataAccessException e) {
@@ -132,7 +131,7 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
                     .fetchInto(transformator.getRecordClass());
 
             for (R queryResult : queryResults) {
-                E entry = transformator.mapToEntity(queryResult);
+                E entry = transformator.getEntityFromTableRecord(queryResult);
                 entries.add(entry);
             }
         } catch (DataAccessException e) {
@@ -157,7 +156,7 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
                     .fetchInto(transformator.getRecordClass());
 
             for (R queryResult : queryResults) {
-                E entry = transformator.mapToEntity(queryResult);
+                E entry = transformator.getEntityFromTableRecord(queryResult);
                 entries.add(entry);
             }
         } catch (BazaarException ex) {
@@ -190,7 +189,7 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
         }
 
-        return transformator.mapToEntity(queryResult);
+        return transformator.getEntityFromTableRecord(queryResult);
     }
 
     /**
@@ -209,10 +208,10 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
             for (Map.Entry<Field, Object> item : map.entrySet()) {
                 Field key = item.getKey();
                 Object value = item.getValue();
-                if(moreStep == null)
+                if (moreStep == null)
                     moreStep = update.set(key, value);
                 else
-                    moreStep.set(key,value);
+                    moreStep.set(key, value);
             }
             assert moreStep != null;
             moreStep.where(transformator.getTableId().equal(entity.getId())).execute();

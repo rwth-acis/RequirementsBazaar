@@ -131,7 +131,7 @@ public interface DALFacade {
      * @param userId
      * @return the requirements under the given project in a paginated way
      */
-    public List<Requirement> listRequirementsByProject(int projectId, Pageable pageable, int userId) throws BazaarException;
+    public List<RequirementEx> listRequirementsByProject(int projectId, Pageable pageable, int userId) throws BazaarException;
 
     /**
      * @param componentId the id of the component we are looking in
@@ -139,7 +139,7 @@ public interface DALFacade {
      * @param userId
      * @return the requirements under the given component in a paginated way
      */
-    public List<Requirement> listRequirementsByComponent(int componentId, Pageable pageable, int userId) throws BazaarException;
+    public List<RequirementEx> listRequirementsByComponent(int componentId, Pageable pageable, int userId) throws BazaarException;
 
     /**
      * @param searchTerm the text, which is used to search. Search is case insensitive.
@@ -265,7 +265,7 @@ public interface DALFacade {
     /**
      * @param comment which holds the data for the new comment.
      */
-    public Comment createComment(Comment comment) throws BazaarException;
+    public Comment createComment(Comment comment) throws BazaarException, Exception;
 
     /**
      * @param commentId to identify the comment to be deleted
@@ -382,8 +382,6 @@ public interface DALFacade {
     public void createPrivilegeIfNotExists(PrivilegeEnum privilege) throws BazaarException;
 
     public void addUserToRole(int userId, String roleName, String context) throws BazaarException;
-
-
 
 
     //endregion

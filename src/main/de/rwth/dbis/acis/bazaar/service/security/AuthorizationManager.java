@@ -24,7 +24,6 @@ import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Privilege;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.PrivilegeEnum;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.util.EnumSet;
@@ -50,14 +49,14 @@ public class AuthorizationManager {
     public boolean isAuthorized(int userId, PrivilegeEnum privilege, DALFacade facade) throws BazaarException {
         List<Role> userRoles = facade.getRolesByUserId(userId, null);
 
-        return isAuthorized(userRoles,privilege,facade);
+        return isAuthorized(userRoles, privilege, facade);
 
     }
 
     public boolean isAuthorized(int userId, PrivilegeEnum privilege, String context, DALFacade facade) throws BazaarException {
         List<Role> userRoles = facade.getRolesByUserId(userId, context);
 
-        return isAuthorized(userRoles,privilege,facade);
+        return isAuthorized(userRoles, privilege, facade);
 
     }
 
@@ -65,13 +64,12 @@ public class AuthorizationManager {
     public boolean isAuthorized(List<Role> userRoles, PrivilegeEnum privilege, DALFacade facade) throws BazaarException {
         if (userRoles == null || userRoles.isEmpty()) return false;
         for (Role role : userRoles) {
-            if (hasPrivilege(role, privilege)){
+            if (hasPrivilege(role, privilege)) {
                 return true;
-            }
-            else {
+            } else {
                 List<Role> parents = facade.getParentsForRole(role.getId());
-                if (parents != null && !parents.isEmpty()){
-                    if(isAuthorized(parents, privilege, facade))
+                if (parents != null && !parents.isEmpty()) {
+                    if (isAuthorized(parents, privilege, facade))
                         return true;
                 }
             }
@@ -81,10 +79,9 @@ public class AuthorizationManager {
 
     public boolean hasPrivilege(Role role, PrivilegeEnum demandedPrivilege) {
         List<Privilege> privileges = role.getPrivileges();
-        if (privileges != null && !privileges.isEmpty())
-        {
+        if (privileges != null && !privileges.isEmpty()) {
             for (Privilege privilege : privileges) {
-                if(privilege.getName() == demandedPrivilege)
+                if (privilege.getName() == demandedPrivilege)
                     return true;
             }
         }

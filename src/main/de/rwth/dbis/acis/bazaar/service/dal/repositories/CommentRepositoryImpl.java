@@ -22,23 +22,21 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.CommentTransformator;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
 import org.jooq.Record;
-import org.jooq.Record1;
-import org.jooq.Result;
 import org.jooq.exception.DataAccessException;
-import org.jooq.impl.DSL;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,10 +44,6 @@ import java.util.List;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments.COMMENTS;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS;
 
-/**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/23/2014
- */
 public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecord> implements CommentRepository {
 
     /**
@@ -74,7 +68,7 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
                     .fetch();
 
             for (Record record : queryResults) {
-                Comment entry = convertToCommentWithUser(record);
+                Comment entry = convertToCommentWithUser(record, creatorUser);
                 entries.add(entry);
             }
         } catch (DataAccessException e) {
@@ -84,19 +78,12 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
         return entries;
     }
 
-    private Comment convertToCommentWithUser(Record record) {
+    private Comment convertToCommentWithUser(Record record, Users creatorUser) {
         CommentsRecord commentsRecord = record.into(CommentsRecord.class);
-        Comment entry = transformator.mapToEntity(commentsRecord);
-        User creator = User.geBuilder(record.getValue(USERS.EMAIL))
-                .userName(record.getValue(USERS.USER_NAME))
-                .profileImage(record.getValue(USERS.PROFILE_IMAGE))
-                .admin(record.getValue(USERS.ADMIN) == 1)
-                .firstName(record.getValue(USERS.FIRST_NAME))
-                .lastName(record.getValue(USERS.LAST_NAME))
-                .id(record.getValue(USERS.ID))
-                .las2peerId(record.getValue(USERS.LAS2PEER_ID))
-                .build();
-        entry.setCreator(creator);
+        Comment entry = transformator.getEntityFromTableRecord(commentsRecord);
+        UserTransformator userTransformator = new UserTransformator();
+        UsersRecord usersRecord = record.into(creatorUser);
+        entry.setCreator(userTransformator.getEntityFromTableRecord(usersRecord));
         return entry;
     }
 
@@ -109,7 +96,7 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
                     .join(creatorUser).on(creatorUser.ID.equal(COMMENTS.USER_ID)))
                     .where(transformator.getTableId().equal(id))
                     .fetchOne();
-            returnComment = convertToCommentWithUser(record);
+            returnComment = convertToCommentWithUser(record, creatorUser);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         } catch (NullPointerException e) {

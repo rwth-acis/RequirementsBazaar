@@ -23,22 +23,15 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Developer;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.DevelopersRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.DeveloperTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
-import org.jooq.Field;
-import org.jooq.UpdateSetFirstStep;
-import org.jooq.UpdateSetMoreStep;
 import org.jooq.exception.DataAccessException;
 
-import java.util.Map;
-
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Developers.DEVELOPERS;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Votes.VOTES;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -81,10 +74,9 @@ public class DeveloperRepositoryImpl extends RepositoryImpl<Developer, Developer
         DevelopersRecord record = jooq.selectFrom(DEVELOPERS)
                 .where(DEVELOPERS.USER_ID.equal(developer.getUserId()).and(DEVELOPERS.REQUIREMENT_ID.equal(developer.getRequirementId())))
                 .fetchOne();
-        if (record != null){
+        if (record != null) {
             return CreationStatus.UNCHANGED;
-        }
-        else {
+        } else {
             try {
                 this.add(developer);
             } catch (Exception ex) {

@@ -4,7 +4,6 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.UserVote;
 import jodd.vtor.constraint.*;
 
-
 import java.util.Date;
 import java.util.List;
 

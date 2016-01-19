@@ -23,18 +23,14 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord;
-
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS;
-
 import org.jooq.*;
 
 import java.util.*;
 
-/**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/9/2014
- */
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS;
+
 public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Project, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord> {
+
     @Override
     public ProjectsRecord createRecord(Project entry) {
         ProjectsRecord record = new ProjectsRecord();
@@ -49,7 +45,7 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
     }
 
     @Override
-    public Project mapToEntity(ProjectsRecord record) {
+    public Project getEntityFromTableRecord(ProjectsRecord record) {
         return Project.getBuilder(record.getName())
                 .description(record.getDescription())
                 .id(record.getId())
@@ -78,7 +74,7 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
 
     @Override
     public Map<Field, Object> getUpdateMap(final Project entry) {
-        HashMap<Field, Object> updateMap =  new HashMap<Field, Object>() {{
+        HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
             if (entry.getDescription() != null) {
                 put(PROJECTS.DESCRIPTION, entry.getDescription());
             }

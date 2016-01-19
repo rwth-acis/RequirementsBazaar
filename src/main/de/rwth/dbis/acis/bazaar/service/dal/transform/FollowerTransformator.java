@@ -25,12 +25,12 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord;
 import org.jooq.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Followers.FOLLOWERS;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Followers.FOLLOWERS;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -40,14 +40,13 @@ public class FollowerTransformator implements Transformator<de.rwth.dbis.acis.ba
     @Override
     public FollowersRecord createRecord(Follower entity) {
         FollowersRecord record = new FollowersRecord();
-//        record.setId(entity.getId());
         record.setRequirementId(entity.getRequirementId());
         record.setUserId(entity.getUserId());
         return record;
     }
 
     @Override
-    public Follower mapToEntity(FollowersRecord record) {
+    public Follower getEntityFromTableRecord(FollowersRecord record) {
         return Follower.getBuilder()
                 .id(record.getId())
                 .userId(record.getUserId())

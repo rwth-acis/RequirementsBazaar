@@ -25,12 +25,12 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.DevelopersRecord;
 import org.jooq.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Developers.DEVELOPERS;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Developers.DEVELOPERS;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -47,7 +47,7 @@ public class DeveloperTransformator implements Transformator<de.rwth.dbis.acis.b
     }
 
     @Override
-    public Developer mapToEntity(DevelopersRecord record) {
+    public Developer getEntityFromTableRecord(DevelopersRecord record) {
         return Developer.getBuilder()
                 .id(record.getId())
                 .userId(record.getUserId())

@@ -21,7 +21,6 @@
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord;
 import org.jooq.*;
 
 import java.util.Collection;
@@ -45,7 +44,7 @@ public interface Transformator<E, R extends Record> {
      * @param record which holds the data from the database
      * @return an entity filled up with data from the record
      */
-    E mapToEntity(R record);
+    E getEntityFromTableRecord(R record);
 
 
     /**

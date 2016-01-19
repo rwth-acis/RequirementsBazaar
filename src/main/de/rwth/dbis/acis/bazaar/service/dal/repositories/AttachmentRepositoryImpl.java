@@ -34,8 +34,6 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments.COMMENTS;
-
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/22/2014

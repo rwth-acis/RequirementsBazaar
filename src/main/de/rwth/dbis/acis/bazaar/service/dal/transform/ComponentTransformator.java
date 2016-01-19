@@ -25,9 +25,9 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentsRecord;
 import org.jooq.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Components.COMPONENTS;
-
 import java.util.*;
+
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Components.COMPONENTS;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -47,7 +47,7 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
     }
 
     @Override
-    public Component mapToEntity(ComponentsRecord record) {
+    public Component getEntityFromTableRecord(ComponentsRecord record) {
         return Component.getBuilder(record.getName())
                 .description(record.getDescription())
                 .projectId(record.getProjectId())

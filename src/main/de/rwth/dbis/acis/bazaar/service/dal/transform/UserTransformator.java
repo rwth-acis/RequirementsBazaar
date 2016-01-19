@@ -22,25 +22,21 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord;
 import org.jooq.*;
-
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/23/2014
- */
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS;
+
 public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.User, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord> {
     @Override
     public UsersRecord createRecord(User entity) {
         UsersRecord record = new UsersRecord();
-//        record.setId(entity.getId());
         record.setLas2peerId(entity.getLas2peerId());
         record.setAdmin((byte) (entity.getAdmin() ? 1 : 0));
         record.setEmail(entity.geteMail());
@@ -52,7 +48,7 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
     }
 
     @Override
-    public User mapToEntity(UsersRecord record) {
+    public User getEntityFromTableRecord(UsersRecord record) {
         return User.geBuilder(record.getEmail())
                 .id(record.getId())
                 .admin(record.getAdmin() != 0)
@@ -61,6 +57,18 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
                 .las2peerId(record.getLas2peerId())
                 .profileImage(record.getProfileImage())
                 .userName(record.getUserName())
+                .build();
+    }
+
+    public User getEntityFromQueryResult(Users user, Result<Record> queryResult) {
+        return User.geBuilder(queryResult.getValues(user.EMAIL).get(0))
+                .id(queryResult.getValues(user.ID).get(0))
+                .admin(queryResult.getValues(user.ADMIN).get(0) != 0)
+                .firstName(queryResult.getValues(user.FIRST_NAME).get(0))
+                .lastName(queryResult.getValues(user.LAST_NAME).get(0))
+                .las2peerId(queryResult.getValues(user.LAS2PEER_ID).get(0))
+                .userName(queryResult.getValues(user.USER_NAME).get(0))
+                .profileImage(queryResult.getValues(user.PROFILE_IMAGE).get(0))
                 .build();
     }
 
