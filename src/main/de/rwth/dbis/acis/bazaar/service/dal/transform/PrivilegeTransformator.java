@@ -21,12 +21,9 @@
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Privilege;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.PrivilegeEnum;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privileges;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.PrivilegesRecord;
 import org.jooq.*;
-import org.jooq.impl.EnumConverter;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,14 +31,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privileges.PRIVILEGES;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Roles.ROLES;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 2/18/2015
  */
-public class PrivilegeTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Privilege,de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.PrivilegesRecord> {
+public class PrivilegeTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Privilege, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.PrivilegesRecord> {
     @Override
     public PrivilegesRecord createRecord(Privilege entity) {
         PrivilegesRecord record = new PrivilegesRecord();
@@ -55,11 +51,6 @@ public class PrivilegeTransformator implements Transformator<de.rwth.dbis.acis.b
         return Privilege.getBuilder(new PrivilegeEnumConverter().from(record.getName()))
                 .id(record.getId())
                 .build();
-    }
-
-    @Override
-    public Privilege getEntityFromRecord(Record record) {
-        return null;
     }
 
     @Override

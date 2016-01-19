@@ -24,7 +24,6 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.AttachmentType;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord;
-
 import org.jooq.*;
 
 import java.sql.Timestamp;
@@ -165,11 +164,6 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
         }
 
         return entity;
-    }
-
-    @Override
-    public Attachment getEntityFromRecord(Record record) {
-        return null;
     }
 
     @Override

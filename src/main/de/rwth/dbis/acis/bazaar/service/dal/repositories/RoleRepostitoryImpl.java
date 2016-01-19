@@ -65,9 +65,9 @@ public class RoleRepostitoryImpl extends RepositoryImpl<Role, RolesRecord> imple
                             .leftOuterJoin(privilegesTable).on(privilegesTable.ID.eq(RolePrivilege.ROLE_PRIVILEGE.PRIVILEGES_ID))
             ).where(UserRole.USER_ROLE.USERS_ID.equal(userId).and(UserRole.USER_ROLE.CONTEXT_INFO.eq(context).or(UserRole.USER_ROLE.CONTEXT_INFO.isNull()))).fetch();
 
-            if (queryResult!= null && !queryResult.isEmpty()) {
+            if (queryResult != null && !queryResult.isEmpty()) {
                 roles = new ArrayList<Role>();
-                convertToRoles(roles,rolesTable,privilegesTable,queryResult);
+                convertToRoles(roles, rolesTable, privilegesTable, queryResult);
             }
 
         } catch (Exception e) {
@@ -122,9 +122,9 @@ public class RoleRepostitoryImpl extends RepositoryImpl<Role, RolesRecord> imple
                             .leftOuterJoin(privilegesTable).on(privilegesTable.ID.eq(RolePrivilege.ROLE_PRIVILEGE.PRIVILEGES_ID))
             ).where(RoleRole.ROLE_ROLE.CHILD_ID.equal(roleId)).fetch();
 
-            if (queryResult!= null && !queryResult.isEmpty()) {
+            if (queryResult != null && !queryResult.isEmpty()) {
                 roles = new ArrayList<Role>();
-                convertToRoles(roles,rolesTable,privilegesTable,queryResult);
+                convertToRoles(roles, rolesTable, privilegesTable, queryResult);
             }
 
         } catch (Exception e) {

@@ -25,10 +25,10 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord;
 import org.jooq.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments.COMMENTS;
-
 import java.sql.Timestamp;
 import java.util.*;
+
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments.COMMENTS;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -55,11 +55,6 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
                 .creationTime(record.getCreationTime())
                 .lastupdatedTime(record.getLastupdatedTime())
                 .build();
-    }
-
-    @Override
-    public Comment getEntityFromRecord(Record record) {
-        return null;
     }
 
     @Override

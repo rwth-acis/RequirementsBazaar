@@ -33,12 +33,15 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
-import org.jooq.*;
+import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.Result;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQUIREMENTS;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Tags.TAGS;
@@ -52,29 +55,11 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     }
 
     @Override
-    public List<Requirement> findAllByProject(int projectId, Pageable pageable, int userId) throws BazaarException {
-        List<Requirement> entries = null;
+    public List<RequirementEx> findAllByProject(int projectId, Pageable pageable, int userId) throws BazaarException {
+        List<RequirementEx> entries = null;
         try {
-            entries = new ArrayList<Requirement>();
-            List<Record> queryResults;
-
-            Votes votes = Votes.VOTES.as("votes");
-            Votes userVotes = Votes.VOTES.as("userVotes");
-
-            queryResults = jooq.select(REQUIREMENTS.ID)
-                    .select(REQUIREMENTS.TITLE)
-                    .select(REQUIREMENTS.DESCRIPTION)
-                    .select(REQUIREMENTS.REALIZED)
-                    .select(REQUIREMENTS.CREATION_TIME)
-                    .select(REQUIREMENTS.LEAD_DEVELOPER_ID)
-                    .select(REQUIREMENTS.CREATOR_ID)
-                    .select(REQUIREMENTS.PROJECT_ID)
-                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE, 0)).as("upVotes"))
-                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE, 1)).as("downVotes"))
-                    .select(userVotes.IS_UPVOTE.as("userVoted"))
-                    .from(REQUIREMENTS)
-                    .leftOuterJoin(votes).on(votes.REQUIREMENT_ID.eq(REQUIREMENTS.ID))
-                    .leftOuterJoin(userVotes).on(userVotes.REQUIREMENT_ID.eq(REQUIREMENTS.ID).and(userVotes.USER_ID.eq(userId)))
+            entries = new ArrayList<RequirementEx>();
+            List<RequirementsRecord> queryResults = jooq.selectFrom(REQUIREMENTS)
                     .where(REQUIREMENTS.PROJECT_ID.eq(projectId))
                     .groupBy(REQUIREMENTS.ID)
                     .orderBy(REQUIREMENTS.CREATION_TIME.desc(), REQUIREMENTS.ID.desc())
@@ -82,18 +67,14 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .offset(pageable.getOffset())
                     .fetch();
 
-            for (Record queryResult : queryResults) {
-                RequirementsRecord requirementsRecord = queryResult.into(RequirementsRecord.class);
-                Requirement.Builder entryBuilder = ((RequirementTransformator) transformator).mapToEntityBuilder(requirementsRecord);
-                entryBuilder.upVotes(queryResult.getValue("upVotes", Integer.class));
-                entryBuilder.downVotes(queryResult.getValue("downVotes", Integer.class));
-                entryBuilder.userVoted(transformToUserVoted(queryResult.getValue("userVoted", Integer.class)));
-                entries.add(entryBuilder.build());
+            for (RequirementsRecord queryResult : queryResults) {
+                entries.add(findById(queryResult.getId(), userId));
             }
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
-
         return entries;
     }
 
@@ -115,31 +96,13 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     }
 
     @Override
-    public List<Requirement> findAllByComponent(int componentId, Pageable pageable, int userId) throws BazaarException {
-        List<Requirement> entries = null;
+    public List<RequirementEx> findAllByComponent(int componentId, Pageable pageable, int userId) throws BazaarException {
+        List<RequirementEx> entries = null;
         try {
-            entries = new ArrayList<Requirement>();
+            entries = new ArrayList<RequirementEx>();
 
-            List<Record> queryResults;
-
-            Votes votes = Votes.VOTES.as("votes");
-            Votes userVotes = Votes.VOTES.as("userVotes");
-
-            queryResults = jooq.select(REQUIREMENTS.ID)
-                    .select(REQUIREMENTS.TITLE)
-                    .select(REQUIREMENTS.DESCRIPTION)
-                    .select(REQUIREMENTS.REALIZED)
-                    .select(REQUIREMENTS.CREATION_TIME)
-                    .select(REQUIREMENTS.LEAD_DEVELOPER_ID)
-                    .select(REQUIREMENTS.CREATOR_ID)
-                    .select(REQUIREMENTS.PROJECT_ID)
-                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE, 0)).as("upVotes"))
-                    .select(DSL.count(DSL.nullif(votes.IS_UPVOTE, 1)).as("downVotes"))
-                    .select(userVotes.IS_UPVOTE.as("userVoted"))
-                    .from(REQUIREMENTS)
-                    .join(TAGS).on(TAGS.REQUIREMENTS_ID.eq(REQUIREMENTS.ID))
-                    .leftOuterJoin(votes).on(votes.REQUIREMENT_ID.eq(REQUIREMENTS.ID))
-                    .leftOuterJoin(userVotes).on(userVotes.REQUIREMENT_ID.eq(REQUIREMENTS.ID).and(userVotes.USER_ID.eq(userId)))
+            List<Record> queryResults = jooq.selectFrom(REQUIREMENTS
+                    .join(TAGS).on(TAGS.REQUIREMENTS_ID.eq(REQUIREMENTS.ID)))
                     .where(TAGS.COMPONENTS_ID.eq(componentId))
                     .groupBy(REQUIREMENTS.ID)
                     .orderBy(REQUIREMENTS.CREATION_TIME.desc(), REQUIREMENTS.ID.desc())
@@ -149,13 +112,11 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
             for (Record queryResult : queryResults) {
                 RequirementsRecord requirementsRecord = queryResult.into(RequirementsRecord.class);
-                Requirement.Builder entryBuilder = ((RequirementTransformator) transformator).mapToEntityBuilder(requirementsRecord);
-                entryBuilder.upVotes(queryResult.getValue("upVotes", Integer.class));
-                entryBuilder.downVotes(queryResult.getValue("downVotes", Integer.class));
-                entryBuilder.userVoted(transformToUserVoted(queryResult.getValue("userVoted", Integer.class)));
-                entries.add(entryBuilder.build());
+                entries.add(findById(requirementsRecord.getId(), userId));
             }
         } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return entries;
@@ -230,12 +191,12 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             UserTransformator userTransformator = new UserTransformator();
             //Filling up Creator
             builder.creator(
-                    userTransformator.getEntityFromRecord(queryResult.get(0))
+                    userTransformator.getEntityFromQueryResult(creatorUser, queryResult)
             );
 
             //Filling up LeadDeveloper
             builder.leadDeveloper(
-                    userTransformator.getEntityFromRecord(queryResult.get(0))
+                    userTransformator.getEntityFromQueryResult(leadDeveloperUser, queryResult)
             );
 
             //Filling up developers list
@@ -245,8 +206,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 if (entry.getKey() == null) continue;
                 Result<Record> records = entry.getValue();
                 devList.add(
-                        userTransformator.getEntityFromRecord(records.get(0))
-                        //getUserFromRecords(developerUsers, records)
+                        userTransformator.getEntityFromQueryResult(developerUsers, records)
                 );
             }
             builder.developers(devList);
@@ -257,7 +217,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 if (entry.getKey() == null) continue;
                 Result<Record> records = entry.getValue();
                 followers.add(
-                        userTransformator.getEntityFromRecord(records.get(0))
+                        userTransformator.getEntityFromQueryResult(followerUsers, records)
                 );
             }
             builder.followers(followers);
@@ -269,7 +229,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 if (entry.getKey() == null) continue;
                 Result<Record> records = entry.getValue();
                 contributorList.add(
-                        userTransformator.getEntityFromRecord(records.get(0))
+                        userTransformator.getEntityFromQueryResult(contributorUsers, records)
                 );
             }
             builder.contributors(contributorList);

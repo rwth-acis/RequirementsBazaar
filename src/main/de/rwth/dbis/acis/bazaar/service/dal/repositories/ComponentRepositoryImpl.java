@@ -26,6 +26,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentsRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.ComponentTransformator;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -40,12 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Components.COMPONENTS;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS;
 
-/**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/9/2014
- */
 public class ComponentRepositoryImpl extends RepositoryImpl<Component, ComponentsRecord> implements ComponentRepository {
     /**
      * @param jooq DSLContext object to initialize JOOQ connection. For more see JOOQ documentation.
@@ -71,9 +67,11 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                         ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
             }
 
-            component = transformator.getEntityFromRecord(queryResult);
+            ComponentsRecord componentsRecord = queryResult.into(COMPONENTS);
+            component = transformator.getEntityFromTableRecord(componentsRecord);
             UserTransformator userTransformator = new UserTransformator();
-            component.setLeader(userTransformator.getEntityFromRecord(queryResult));
+            UsersRecord usersRecord = queryResult.into(leaderUser);
+            component.setLeader(userTransformator.getEntityFromTableRecord(usersRecord));
 
         } catch (BazaarException be) {
             ExceptionHandler.getInstance().convertAndThrowException(be);
@@ -88,9 +86,10 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
         List<Component> components = null;
         try {
             components = new ArrayList<Component>();
+            Users leaderUser = Users.USERS.as("leaderUser");
 
             List<Record> queryResults = jooq.selectFrom(COMPONENTS
-                    .join(Users.USERS).on(COMPONENTS.LEADER_ID.equal(Users.USERS.ID)))
+                    .join(leaderUser).on(leaderUser.ID.equal(COMPONENTS.LEADER_ID)))
                     .where(COMPONENTS.PROJECT_ID.equal(projectId))
                     .orderBy(transformator.getSortFields(pageable.getSortDirection()))
                     .limit(pageable.getPageSize())
@@ -98,9 +97,11 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                     .fetch();
 
             for (Record queryResult : queryResults) {
-                Component component = transformator.getEntityFromRecord(queryResult);
+                ComponentsRecord componentsRecord = queryResult.into(COMPONENTS);
+                Component component = transformator.getEntityFromTableRecord(componentsRecord);
                 UserTransformator userTransformator = new UserTransformator();
-                component.setLeader(userTransformator.getEntityFromRecord(queryResult));
+                UsersRecord usersRecord = queryResult.into(leaderUser);
+                component.setLeader(userTransformator.getEntityFromTableRecord(usersRecord));
                 components.add(component);
             }
         } catch (DataAccessException e) {

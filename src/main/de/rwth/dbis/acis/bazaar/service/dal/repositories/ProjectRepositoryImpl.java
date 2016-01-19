@@ -21,12 +21,12 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.ProjectTransformator;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -71,9 +71,11 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                         ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
             }
 
-            project = transformator.getEntityFromRecord(queryResult);
+            ProjectsRecord projectsRecord = queryResult.into(PROJECTS);
+            project = transformator.getEntityFromTableRecord(projectsRecord);
             UserTransformator userTransformator = new UserTransformator();
-            project.setLeader(userTransformator.getEntityFromRecord(queryResult));
+            UsersRecord usersRecord = queryResult.into(leaderUser);
+            project.setLeader(userTransformator.getEntityFromTableRecord(usersRecord));
 
         } catch (BazaarException be) {
             ExceptionHandler.getInstance().convertAndThrowException(be);
@@ -88,9 +90,10 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
         List<Project> projects = null;
         try {
             projects = new ArrayList<Project>();
+            Users leaderUser = Users.USERS.as("leaderUser");
 
             List<Record> queryResults = jooq.selectFrom(PROJECTS
-                .join(Users.USERS).on(PROJECTS.LEADER_ID.equal(Users.USERS.ID)))
+                    .join(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID)))
                     .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar()))
                     .orderBy(transformator.getSortFields(pageable.getSortDirection()))
                     .limit(pageable.getPageSize())
@@ -98,9 +101,11 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                     .fetch();
 
             for (Record queryResult : queryResults) {
-                Project project = transformator.getEntityFromRecord(queryResult);
+                ProjectsRecord projectsRecord = queryResult.into(PROJECTS);
+                Project project = transformator.getEntityFromTableRecord(projectsRecord);
                 UserTransformator userTransformator = new UserTransformator();
-                project.setLeader(userTransformator.getEntityFromRecord(queryResult));
+                UsersRecord usersRecord = queryResult.into(leaderUser);
+                project.setLeader(userTransformator.getEntityFromTableRecord(usersRecord));
                 projects.add(project);
             }
         } catch (Exception e) {
@@ -114,10 +119,11 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
         List<Project> projects = null;
         try {
             projects = new ArrayList<Project>();
+            Users leaderUser = Users.USERS.as("leaderUser");
 
             //TODO only authorized projects?
             List<Record> queryResults = jooq.selectFrom(PROJECTS
-                    .join(Users.USERS).on(PROJECTS.LEADER_ID.equal(Users.USERS.ID)))
+                    .join(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID)))
 //                    .leftOuterJoin(AUTHORIZATIONS).on(AUTHORIZATIONS.PROJECT_ID.equal(PROJECTS.ID))
 //                    .join(USERS).on(AUTHORIZATIONS.USER_ID.equal(USERS.ID))
 //                    .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar())
@@ -127,9 +133,11 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                     .fetch();
 
             for (Record queryResult : queryResults) {
-                Project project = transformator.getEntityFromRecord(queryResult);
+                ProjectsRecord projectsRecord = queryResult.into(PROJECTS);
+                Project project = transformator.getEntityFromTableRecord(projectsRecord);
                 UserTransformator userTransformator = new UserTransformator();
-                project.setLeader(userTransformator.getEntityFromRecord(queryResult));
+                UsersRecord usersRecord = queryResult.into(leaderUser);
+                project.setLeader(userTransformator.getEntityFromTableRecord(usersRecord));
                 projects.add(project);
             }
         } catch (DataAccessException e) {

@@ -44,7 +44,7 @@ public class PrivilegeRepostitoryImpl extends RepositoryImpl<Privilege, Privileg
     public Privilege findByName(String privilegeName) throws BazaarException {
         PrivilegesRecord privilege = null;
         try {
-            privilege =jooq.selectFrom(PRIVILEGES).where(PRIVILEGES.NAME.equal(privilegeName)).fetchOne();
+            privilege = jooq.selectFrom(PRIVILEGES).where(PRIVILEGES.NAME.equal(privilegeName)).fetchOne();
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }

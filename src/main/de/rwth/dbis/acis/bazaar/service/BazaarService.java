@@ -20,10 +20,16 @@
 
 package de.rwth.dbis.acis.bazaar.service;
 
-import com.google.gson.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
-
-import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
+import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -37,32 +43,22 @@ import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.Version;
 import i5.las2peer.security.Context;
 import i5.las2peer.security.UserAgent;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import io.swagger.annotations.*;
-
-import javax.ws.rs.*;
-
-import java.io.Serializable;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.*;
-
 import io.swagger.jaxrs.Reader;
 import io.swagger.models.Swagger;
 import io.swagger.util.Json;
 import jodd.vtor.Vtor;
 import org.jooq.SQLDialect;
 
-
-import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
-import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.*;
 
 
 /**
@@ -261,7 +257,7 @@ public class BazaarService extends Service {
                 activityBuilder = activityBuilder.userUrl(baseURL + "users" + "/" + String.valueOf(userId));
                 Activity activity = activityBuilder.build();
                 Object result = service.invokeServiceMethod(activityTrackerService,
-                       "createActivity", new Serializable[]{gson.toJson(activity)});
+                        "createActivity", new Serializable[]{gson.toJson(activity)});
                 if (((HttpResponse) result).getStatus() != HttpURLConnection.HTTP_CREATED) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.NETWORK, ErrorCode.RMI_ERROR, "");
                 }

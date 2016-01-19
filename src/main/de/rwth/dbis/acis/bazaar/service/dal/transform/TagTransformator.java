@@ -25,12 +25,12 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.TagsRecord;
 import org.jooq.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Tags.TAGS;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Tags.TAGS;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -51,11 +51,6 @@ public class TagTransformator implements Transformator<de.rwth.dbis.acis.bazaar.
                 .id(record.getId())
                 .requirementId(record.getRequirementsId())
                 .build();
-    }
-
-    @Override
-    public Tag getEntityFromRecord(Record record) {
-        return null;
     }
 
     @Override

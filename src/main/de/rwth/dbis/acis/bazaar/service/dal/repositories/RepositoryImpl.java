@@ -20,7 +20,7 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.EntityBase;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.Transformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -208,10 +208,10 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
             for (Map.Entry<Field, Object> item : map.entrySet()) {
                 Field key = item.getKey();
                 Object value = item.getValue();
-                if(moreStep == null)
+                if (moreStep == null)
                     moreStep = update.set(key, value);
                 else
-                    moreStep.set(key,value);
+                    moreStep.set(key, value);
             }
             assert moreStep != null;
             moreStep.where(transformator.getTableId().equal(entity.getId())).execute();

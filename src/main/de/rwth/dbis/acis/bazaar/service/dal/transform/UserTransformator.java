@@ -26,17 +26,13 @@ import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord;
 import org.jooq.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS;
-
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/23/2014
- */
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS;
+
 public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.User, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord> {
     @Override
     public UsersRecord createRecord(User entity) {
@@ -64,16 +60,15 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
                 .build();
     }
 
-    @Override
-    public User getEntityFromRecord(Record record) {
-        return User.geBuilder(record.getValue(Users.USERS.EMAIL))
-                .id(record.getValue(Users.USERS.ID))
-                .admin(record.getValue(Users.USERS.ADMIN) != 0)
-                .firstName(record.getValue(Users.USERS.FIRST_NAME))
-                .lastName(record.getValue(Users.USERS.LAST_NAME))
-                .las2peerId(record.getValue(Users.USERS.LAS2PEER_ID))
-                .userName(record.getValue(Users.USERS.USER_NAME))
-                .profileImage(record.getValue(Users.USERS.PROFILE_IMAGE))
+    public User getEntityFromQueryResult(Users user, Result<Record> queryResult) {
+        return User.geBuilder(queryResult.getValues(user.EMAIL).get(0))
+                .id(queryResult.getValues(user.ID).get(0))
+                .admin(queryResult.getValues(user.ADMIN).get(0) != 0)
+                .firstName(queryResult.getValues(user.FIRST_NAME).get(0))
+                .lastName(queryResult.getValues(user.LAST_NAME).get(0))
+                .las2peerId(queryResult.getValues(user.LAS2PEER_ID).get(0))
+                .userName(queryResult.getValues(user.USER_NAME).get(0))
+                .profileImage(queryResult.getValues(user.PROFILE_IMAGE).get(0))
                 .build();
     }
 

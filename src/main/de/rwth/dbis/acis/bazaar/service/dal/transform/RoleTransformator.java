@@ -20,7 +20,6 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolesRecord;
@@ -37,7 +36,7 @@ import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Roles.ROLES;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 2/17/2015
  */
-public class RoleTransformator implements Transformator<Role,RolesRecord> {
+public class RoleTransformator implements Transformator<Role, RolesRecord> {
 
     @Override
     public RolesRecord createRecord(Role entity) {
@@ -55,13 +54,8 @@ public class RoleTransformator implements Transformator<Role,RolesRecord> {
     }
 
     @Override
-    public Role getEntityFromRecord(Record record) {
-        return null;
-    }
-
-    @Override
     public Table<RolesRecord> getTable() {
-       return ROLES;
+        return ROLES;
     }
 
     @Override
