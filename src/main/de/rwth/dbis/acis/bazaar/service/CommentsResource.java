@@ -152,6 +152,7 @@ public class CommentsResource extends Service {
             if (vtor.hasViolations()) {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
+            dalFacade.follow(internalUserId, requirement.getId());
             Comment createdComment = dalFacade.createComment(commentToCreate);
             bazaarService.sendActivityOverRMI(this, createdComment.getCreationTime(), Activity.ActivityAction.CREATE, createdComment.getId(),
                     Activity.DataType.COMMENT, resourcePath, internalUserId);

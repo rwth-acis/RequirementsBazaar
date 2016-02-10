@@ -4,6 +4,7 @@ package de.rwth.dbis.acis.bazaar.service;
 import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -165,6 +166,8 @@ public class RequirementsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.create"));
             }
             Requirement createdRequirement = dalFacade.createRequirement(requirementToCreate, internalUserId);
+            dalFacade.follow(internalUserId, createdRequirement.getId());
+            createdRequirement = dalFacade.getRequirementById(createdRequirement.getId(), internalUserId);
             bazaarService.sendActivityOverRMI(this, createdRequirement.getCreation_time(), Activity.ActivityAction.CREATE, createdRequirement.getId(),
                     Activity.DataType.REQUIREMENT, resourcePath, internalUserId);
             return new HttpResponse(gson.toJson(createdRequirement), HttpURLConnection.HTTP_CREATED);
@@ -227,6 +230,7 @@ public class RequirementsResource extends Service {
             if (requirementToUpdate.getId() != 0 && requirementId != requirementToUpdate.getId()) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
             }
+            dalFacade.follow(internalUserId, requirementToUpdate.getId());
             RequirementEx updatedRequirement = dalFacade.modifyRequirement(requirementToUpdate, internalUserId);
             bazaarService.sendActivityOverRMI(this, updatedRequirement.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedRequirement.getId(),
                     Activity.DataType.REQUIREMENT, resourcePath, internalUserId);
@@ -333,10 +337,11 @@ public class RequirementsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.develop.create"));
             }
             dalFacade.wantToDevelop(internalUserId, requirementId);
+            dalFacade.follow(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            Gson gson = new Gson();
             bazaarService.sendActivityOverRMI(this, requirement.getLastupdated_time(), Activity.ActivityAction.CREATE, requirement.getId(),
                     Activity.DataType.DEVELOP, resourcePath, internalUserId);
+            Gson gson = new Gson();
             return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -554,10 +559,13 @@ public class RequirementsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.create"));
             }
             dalFacade.vote(internalUserId, requirementId, direction.equals("up"));
+            if (direction.equals("up")) {
+                dalFacade.follow(internalUserId, requirementId);
+            }
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            Gson gson = new Gson();
             bazaarService.sendActivityOverRMI(this, requirement.getLastupdated_time(), Activity.ActivityAction.CREATE, requirement.getId(),
                     Activity.DataType.VOTE, resourcePath, internalUserId);
+            Gson gson = new Gson();
             return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
