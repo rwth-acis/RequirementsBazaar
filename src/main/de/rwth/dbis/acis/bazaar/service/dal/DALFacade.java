@@ -42,7 +42,7 @@ public interface DALFacade {
     /**
      * @param user which holds the data of the user to be inserted. Id field will be omitted, a new one will be generated.
      */
-    public int createUser(User user) throws BazaarException;
+    public User createUser(User user) throws BazaarException;
 
     /**
      * Modifies the user in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
@@ -50,7 +50,7 @@ public interface DALFacade {
      *
      * @param modifiedUser, which holds the data of the modification for the user in the database identified by the Id field.
      */
-    public void modifyUser(User modifiedUser) throws Exception;
+    public User modifyUser(User modifiedUser) throws Exception;
 
      /* TODO delete? Should it delete its projects? What should happen after deletion? */
 
@@ -199,19 +199,18 @@ public interface DALFacade {
      */
     public Component createComponent(Component component) throws BazaarException;
 
+   /**
+     * @param componentId identifier of the component should be returned
+     * @return the component and all of its data with the given id.
+     */
+    public Component getComponentById(int componentId) throws Exception;
+
     /**
      * Modifies the component in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
      * It does NOT update any relations of the object, just only the direct fields!
      *
      * @param component hold the modified data
      */
-
-    /**
-     * @param componentId identifier of the component should be returned
-     * @return the component and all of its data with the given id.
-     */
-    public Component getComponentById(int componentId) throws Exception;
-
     public Component modifyComponent(Component component) throws Exception;
 
 
@@ -363,18 +362,15 @@ public interface DALFacade {
      */
     public boolean hasUserVotedForRequirement(int userId, int requirementId) throws BazaarException;
 
+    //endregion
 
+    //region Authorization
     /**
      * This method returns all the roles and permissions for the given user
      *
      * @param userId the identifier of the user
      * @return all the roles filled up with parents and permissions
      */
-
-
-    //endregion
-
-    //region Authorization
     public List<Role> getRolesByUserId(int userId, String context) throws BazaarException;
 
     public List<Role> getParentsForRole(int roleId) throws BazaarException;

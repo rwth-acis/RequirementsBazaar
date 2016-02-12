@@ -11,16 +11,12 @@ import i5.las2peer.api.Service;
 import i5.las2peer.restMapper.HttpResponse;
 import i5.las2peer.restMapper.MediaType;
 import i5.las2peer.restMapper.RESTMapper;
+import i5.las2peer.restMapper.annotations.ContentParam;
 import i5.las2peer.security.UserAgent;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
+import jodd.vtor.Vtor;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import java.net.HttpURLConnection;
 import java.util.EnumSet;
 
@@ -94,21 +90,63 @@ public class UsersResource extends Service {
         }
     }
 
-    //TODO UPDATE?
-//    /**
-//     * Allows to update a certain project.
-//     *
-//     * @param userId the id of the user to update.
-//     * @return a JSON string containing whether the operation was successful or
-//     * not.
-//     */
-//    @PUT
-//    @Path("/users/{userId}")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public String updateUser(@PathParam("userId") int userId) {
-//        // TODO: check if user can change this project
-//        return "{success=false}";
-//    }
+    /**
+     * Allows to update a certain user.
+     *
+     * @param userId id of the user to update
+     * @param user   updated user as a JSON object
+     * @return Response with the updated user as a JSON object.
+     */
+    @PUT
+    @Path("/{userId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "This method allows to update the user profile.")
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the updated user"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+    })
+    public HttpResponse updateUser(@PathParam("userId") int userId,
+                                   @ApiParam(value = "User entity as JSON", required = true) @ContentParam String user) {
+        DALFacade dalFacade = null;
+        try {
+            String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registratorErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
+            }
+            long useragentId = ((UserAgent) getActiveAgent()).getId();
+            Gson gson = new Gson();
+            User userToUpdate = gson.fromJson(user, User.class);
+            Vtor vtor = bazaarService.getValidators();
+            vtor.validate(userToUpdate);
+            if (vtor.hasViolations()) {
+                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+            }
+            dalFacade = bazaarService.createConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(useragentId);
+            if(!internalUserId.equals(userId)) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION,
+                        "UserId is not identical with user sending this request.");
+            }
+            User updatedUser = dalFacade.modifyUser(userToUpdate);
+            return new HttpResponse(gson.toJson(updatedUser), HttpURLConnection.HTTP_OK);
+        } catch (BazaarException bex) {
+            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
+            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
+            } else {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
+            }
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
+        } finally {
+            bazaarService.closeConnection(dalFacade);
+        }
+    }
 
     /**
      * This method allows to retrieve the current user.

@@ -4,7 +4,7 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- Table attachments
 CREATE TABLE IF NOT EXISTS attachments (
   Id               INT          NOT NULL  AUTO_INCREMENT,
-  creation_time    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  creation_time    TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP,
   lastupdated_time TIMESTAMP    NULL,
   Requirement_Id   INT          NOT NULL,
   User_Id          INT          NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS attachments (
 CREATE TABLE IF NOT EXISTS comments (
   Id               INT       NOT NULL  AUTO_INCREMENT,
   message          TEXT      NOT NULL,
-  creation_time    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  creation_time    TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
   lastupdated_time TIMESTAMP NULL,
   Requirement_Id   INT       NOT NULL,
   User_Id          INT       NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS components (
   Id               INT          NOT NULL  AUTO_INCREMENT,
   name             VARCHAR(255) NOT NULL,
   description      TEXT         NOT NULL,
-  creation_time    TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  creation_time    TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP,
   lastupdated_time TIMESTAMP    NULL,
   Project_Id       INT          NOT NULL,
   Leader_Id        INT          NOT NULL,
@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS developers (
   Id             INT       NOT NULL  AUTO_INCREMENT,
   Requirement_Id INT       NOT NULL,
   User_Id        INT       NOT NULL,
-  creation_time  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  creation_time  TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT developers_pk PRIMARY KEY (Id),
   CONSTRAINT Developer_Requirement FOREIGN KEY Developer_Requirement (Requirement_Id) REFERENCES requirements (Id)
     ON DELETE CASCADE,
@@ -67,7 +67,7 @@ CREATE TABLE IF NOT EXISTS followers (
   Id             INT       NOT NULL  AUTO_INCREMENT,
   Requirement_Id INT       NOT NULL,
   User_Id        INT       NOT NULL,
-  creation_time  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  creation_time  TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT followers_pk PRIMARY KEY (Id),
   CONSTRAINT Follower_Requirement FOREIGN KEY Follower_Requirement (Requirement_Id) REFERENCES requirements (Id)
     ON DELETE CASCADE,
@@ -87,7 +87,7 @@ CREATE TABLE IF NOT EXISTS projects (
   name                  VARCHAR(255) NOT NULL,
   description           TEXT         NOT NULL,
   visibility            CHAR(1)      NOT NULL,
-  creation_time         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  creation_time         TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP,
   lastupdated_time      TIMESTAMP    NULL,
   Leader_Id             INT          NOT NULL,
   Default_Components_Id INT          NULL,
@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS requirements (
   title             VARCHAR(255) NOT NULL,
   description       TEXT         NULL,
   realized          TIMESTAMP    NULL      DEFAULT NULL,
-  creation_time     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  creation_time     TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP,
   lastupdated_time  TIMESTAMP    NULL,
   Lead_developer_Id INT          NOT NULL,
   Creator_Id        INT          NOT NULL,
@@ -145,7 +145,6 @@ CREATE TABLE IF NOT EXISTS roles (
   UNIQUE KEY Role_idx_1 (name)
 );
 
-
 -- Table tags
 CREATE TABLE IF NOT EXISTS tags (
   Id              INT NOT NULL  AUTO_INCREMENT,
@@ -172,14 +171,18 @@ CREATE TABLE IF NOT EXISTS user_role (
 
 -- Table users
 CREATE TABLE IF NOT EXISTS users (
-  Id            INT          NOT NULL  AUTO_INCREMENT,
-  first_name    VARCHAR(150) NULL,
-  last_name     VARCHAR(150) NULL,
-  email         VARCHAR(255) NOT NULL,
-  admin         BOOLEAN      NOT NULL,
-  Las2peer_Id   BIGINT       NOT NULL,
-  user_name     VARCHAR(255) NULL,
-  profile_image TEXT         NULL,
+  Id                              INT          NOT NULL  AUTO_INCREMENT,
+  first_name                      VARCHAR(150) NULL,
+  last_name                       VARCHAR(150) NULL,
+  email                           VARCHAR(255) NOT NULL,
+  admin                           BOOLEAN      NOT NULL,
+  Las2peer_Id                     BIGINT       NOT NULL,
+  user_name                       VARCHAR(255) NULL,
+  profile_image                   TEXT         NULL,
+  email_project_leader            BOOLEAN      NOT NULL  DEFAULT TRUE,
+  email_component_leader          BOOLEAN      NOT NULL  DEFAULT TRUE,
+  email_requirement_leaddeveloper BOOLEAN      NOT NULL  DEFAULT TRUE,
+  email_follow_requirement        BOOLEAN      NOT NULL  DEFAULT TRUE,
   CONSTRAINT users_pk PRIMARY KEY (Id)
 );
 

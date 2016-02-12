@@ -231,8 +231,9 @@ public class BazaarService extends Service {
                     userBuilder = userBuilder.firstName(givenName);
                 if (familyName != null)
                     userBuilder = userBuilder.lastName(familyName);
-                User user = userBuilder.admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).profileImage(profileImage).build();
-                int userId = dalFacade.createUser(user);
+                User user = userBuilder.admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).profileImage(profileImage)
+                        .emailProjectLeader(true).emailComponentLeader(true).emailRequirementLeaddeveloper(true).emailFollowRequirement(true).build();
+                int userId = dalFacade.createUser(user).getId();
                 dalFacade.addUserToRole(userId, "SystemAdmin", null);
             }
         } catch (Exception ex) {

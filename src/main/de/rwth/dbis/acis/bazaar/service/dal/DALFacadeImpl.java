@@ -83,16 +83,16 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public int createUser(User user) throws BazaarException {
+    public User createUser(User user) throws BazaarException {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
         User newUser = userRepository.add(user);
-        return newUser.getId();
+        return newUser;
     }
 
     @Override
-    public void modifyUser(User modifiedUser) throws Exception {
+    public User modifyUser(User modifiedUser) throws Exception {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
-        userRepository.update(modifiedUser);
+        return userRepository.update(modifiedUser);
     }
 
     @Override
