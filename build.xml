@@ -80,7 +80,7 @@
         <mkdir dir="${log}" />
     </target>
 	
-    <target name="init_compile" depends="init_general, get_deps">
+    <target name="init_compile" depends="init_general">
         <mkdir dir="${tmp.classes}" />
         <mkdir dir="${tmp.junit}" />
     </target>
