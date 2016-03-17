@@ -7,9 +7,9 @@
     <dependencies>
         <dependency org="i5" name="las2peer" rev="0.4.0" changing="true"/>
         <dependency org="i5" name="las2peer-web-connector" rev="0.4-SNAPSHOT" changing="true"/>
-        <dependency org="org.jooq" name="jooq" rev="3.4.2"/>
-        <dependency org="org.jooq" name="jooq-codegen" rev="3.4.2"/>
-        <dependency org="org.jooq" name="jooq-meta" rev="3.4.2"/>
+        <dependency org="org.jooq" name="jooq" rev="3.7.2"/>
+        <dependency org="org.jooq" name="jooq-codegen" rev="3.7.2"/>
+        <dependency org="org.jooq" name="jooq-meta" rev="3.7.2"/>
         <dependency org="com.google.code.gson" name="gson" rev="2.3"/>
         <dependency org="com.googlecode.json-simple" name="json-simple" rev="1.1" />
         <dependency org="mysql" name="mysql-connector-java" rev="5.1.33" />

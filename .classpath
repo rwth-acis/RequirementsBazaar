@@ -10,7 +10,7 @@
 	<classpathentry kind="lib" path="lib/junit-4.11.jar"/>
 	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.7.2.jar" sourcepath="lib/sqlite-jdbc-3.7.2.jar"/>
 	<classpathentry kind="lib" path="lib/gson-2.3.jar"/>
-	<classpathentry kind="lib" path="lib/jooq-3.4.2.jar"/>
+	<classpathentry kind="lib" path="lib/jooq-3.7.2.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.33.jar"/>
 	<classpathentry kind="lib" path="lib/jodd-bean-3.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/jodd-core-3.6.1.jar"/>
@@ -38,8 +38,8 @@
 	<classpathentry kind="lib" path="lib/jdbc-api-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/json-simple-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/json-smart-1.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/jooq-meta-3.4.2.jar"/>
-	<classpathentry kind="lib" path="lib/jooq-codegen-3.4.2.jar"/>
+	<classpathentry kind="lib" path="lib/jooq-meta-3.7.2.jar"/>
+	<classpathentry kind="lib" path="lib/jooq-codegen-3.7.2.jar"/>
 	<classpathentry kind="lib" path="lib/jsr311-api-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/lang-tag-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/nestedvm-1.0.jar"/>
