@@ -70,33 +70,33 @@ public class EmailDispatcher {
                 if (dataType == Activity.DataType.PROJECT) {
                     if (activityAction == Activity.ActivityAction.CREATE) {
                         subject = Localization.getInstance().getResourceBundle().getString("email.subject.project.created");
-                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.project.updated");
+                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.project.created");
                     } else if (activityAction == Activity.ActivityAction.UPDATE) {
-                        subject = Localization.getInstance().getResourceBundle().getString("email.subject.project.created");
+                        subject = Localization.getInstance().getResourceBundle().getString("email.subject.project.updated");
                         bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.project.updated");
                     }
                 } else if (dataType == Activity.DataType.COMPONENT) {
                     if (activityAction == Activity.ActivityAction.CREATE) {
                         subject = Localization.getInstance().getResourceBundle().getString("email.subject.component.created");
-                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.component.updated");
+                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.component.created");
                     } else if (activityAction == Activity.ActivityAction.UPDATE) {
-                        subject = Localization.getInstance().getResourceBundle().getString("email.subject.component.created");
+                        subject = Localization.getInstance().getResourceBundle().getString("email.subject.component.updated");
                         bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.component.updated");
                     }
                 } else if (dataType == Activity.DataType.REQUIREMENT) {
                     if (activityAction == Activity.ActivityAction.CREATE) {
                         subject = Localization.getInstance().getResourceBundle().getString("email.subject.requirement.created");
-                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.requirement.updated");
+                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.requirement.created");
                     } else if (activityAction == Activity.ActivityAction.UPDATE) {
-                        subject = Localization.getInstance().getResourceBundle().getString("email.subject.requirement.created");
+                        subject = Localization.getInstance().getResourceBundle().getString("email.subject.requirement.updated");
                         bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.requirement.updated");
                     }
                 } else if (dataType == Activity.DataType.COMMENT) {
                     if (activityAction == Activity.ActivityAction.CREATE) {
                         subject = Localization.getInstance().getResourceBundle().getString("email.subject.comment.created");
-                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.comment.updated");
+                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.comment.created");
                     } else if (activityAction == Activity.ActivityAction.UPDATE) {
-                        subject = Localization.getInstance().getResourceBundle().getString("email.subject.comment.created");
+                        subject = Localization.getInstance().getResourceBundle().getString("email.subject.comment.updated");
                         bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.comment.updated");
                     }
                 }
