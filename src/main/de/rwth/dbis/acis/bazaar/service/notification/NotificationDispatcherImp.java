@@ -4,6 +4,8 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
 import i5.las2peer.api.Service;
 
 import java.util.Date;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by martin on 15.02.2016.
@@ -12,6 +14,7 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
 
     private ActivityDispatcher activityDispatcher;
     private EmailDispatcher emailDispatcher;
+    ExecutorService executorService = Executors.newCachedThreadPool();
 
     public void setActivityDispatcher(ActivityDispatcher activityDispatcher) {
         this.activityDispatcher = activityDispatcher;
@@ -22,13 +25,19 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
     }
 
     @Override
-    public void dispatchNotification(Service service, Date creationTime, Activity.ActivityAction activityAction, int dataId, Activity.DataType dataType, String resourcePath, int userId) {
-        if (activityDispatcher != null) {
-            activityDispatcher.sendActivityOverRMI(service, creationTime, activityAction, dataId, dataType, resourcePath, userId);
-        }
-        if (emailDispatcher != null && (activityAction == Activity.ActivityAction.CREATE || activityAction == Activity.ActivityAction.UPDATE)) {
-            emailDispatcher.sendEmailNotification(creationTime, activityAction, dataId, dataType, resourcePath, userId);
-        }
+    public void dispatchNotification(final Service service, final Date creationTime, final Activity.ActivityAction activityAction,
+                                     final int dataId, final Activity.DataType dataType,
+                                     final String resourcePath, final int userId) {
+        executorService.execute(new Runnable() {
+            public void run() {
+                if (activityDispatcher != null) {
+                    activityDispatcher.sendActivityOverRMI(service, creationTime, activityAction, dataId, dataType, resourcePath, userId);
+                }
+                if (emailDispatcher != null && (activityAction == Activity.ActivityAction.CREATE || activityAction == Activity.ActivityAction.UPDATE)) {
+                    emailDispatcher.sendEmailNotification(creationTime, activityAction, dataId, dataType, resourcePath, userId);
+                }
+            }
+        });
     }
 
 }

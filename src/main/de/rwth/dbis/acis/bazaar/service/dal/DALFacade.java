@@ -35,9 +35,9 @@ import java.util.List;
  */
 public interface DALFacade {
 
-    //region User
-
     Connection getConnection();
+
+    //region User
 
     /**
      * @param user which holds the data of the user to be inserted. Id field will be omitted, a new one will be generated.
@@ -60,8 +60,32 @@ public interface DALFacade {
      */
     public User getUserById(int userId) throws Exception;
 
-
+    /**
+     * @param las2PeerId the identifier of the user
+     * @return the reqbaz userId of the las2Peer user
+     */
     public Integer getUserIdByLAS2PeerId(long las2PeerId) throws Exception;
+
+    /**
+     *
+     * @param projectId
+     * @return list of users to receive email notification
+     */
+    public List<User> getRecipientListForProject(int projectId) throws BazaarException;
+
+    /**
+     *
+     * @param componentId
+     * @return list of users to receive email notification
+     */
+    public List<User> getRecipientListForComponent(int componentId) throws BazaarException;
+
+    /**
+     *
+     * @param requirementId
+     * @return list of users to receive email notification
+     */
+    public List<User> getRecipientListForRequirement(int requirementId) throws BazaarException;
     //endregion
 
     //region Project

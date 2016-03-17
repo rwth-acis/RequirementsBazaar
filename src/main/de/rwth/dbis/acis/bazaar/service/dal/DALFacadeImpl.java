@@ -108,6 +108,24 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public List<User> getRecipientListForProject(int projectId) throws BazaarException {
+        userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
+        return userRepository.getUsersForProject(projectId);
+    }
+
+    @Override
+    public List<User> getRecipientListForComponent(int componentId) throws BazaarException {
+        userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
+        return userRepository.getUsersForComponent(componentId);
+    }
+
+    @Override
+    public List<User> getRecipientListForRequirement(int requirementId) throws BazaarException {
+        userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
+        return userRepository.getUsersForRequirement(requirementId);
+    }
+
+    @Override
     public List<Project> listPublicProjects(Pageable pageable) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         return projectRepository.findAllPublic(pageable);

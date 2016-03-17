@@ -149,7 +149,7 @@ public class ComponentsResource extends Service {
             }
             componentToCreate.setLeaderId(internalUserId);
             Component createdComponent = dalFacade.createComponent(componentToCreate);
-            bazaarService.sendActivityOverRMI(this, createdComponent.getCreation_time(), Activity.ActivityAction.CREATE, createdComponent.getId(),
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, createdComponent.getCreation_time(), Activity.ActivityAction.CREATE, createdComponent.getId(),
                     Activity.DataType.COMPONENT, resourcePath, internalUserId);
             return new HttpResponse(gson.toJson(createdComponent), HttpURLConnection.HTTP_CREATED);
         } catch (BazaarException bex) {
@@ -206,7 +206,7 @@ public class ComponentsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
             }
             updatedComponent = dalFacade.modifyComponent(updatedComponent);
-            bazaarService.sendActivityOverRMI(this, updatedComponent.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedComponent.getId(),
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, updatedComponent.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedComponent.getId(),
                     Activity.DataType.COMPONENT, resourcePath, internalUserId);
             return new HttpResponse(gson.toJson(updatedComponent), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
@@ -267,7 +267,7 @@ public class ComponentsResource extends Service {
             }
             Gson gson = new Gson();
             Component deletedComponent = dalFacade.deleteComponentById(componentId);
-            bazaarService.sendActivityOverRMI(this, deletedComponent.getLastupdated_time(), Activity.ActivityAction.DELETE, deletedComponent.getId(),
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, deletedComponent.getLastupdated_time(), Activity.ActivityAction.DELETE, deletedComponent.getId(),
                     Activity.DataType.COMPONENT, resourcePath, internalUserId);
             return new HttpResponse(gson.toJson(deletedComponent), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {

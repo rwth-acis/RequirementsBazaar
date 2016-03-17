@@ -35,6 +35,10 @@ import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
+import de.rwth.dbis.acis.bazaar.service.notification.ActivityDispatcher;
+import de.rwth.dbis.acis.bazaar.service.notification.EmailDispatcher;
+import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcher;
+import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcherImp;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Service;
 import i5.las2peer.restMapper.HttpResponse;
@@ -101,9 +105,12 @@ public class BazaarService extends Service {
     protected String country;
     protected String baseURL;
     protected String activityTrackerService;
+    protected String smtpServer;
+    protected String emailFromAddress;
 
     private Vtor vtor;
     private List<BazaarFunctionRegistrator> functionRegistrators;
+    private NotificationDispatcher notificationDispatcher;
 
     /**
      * This method is needed for every RESTful application in LAS2peer.
@@ -164,6 +171,16 @@ public class BazaarService extends Service {
                 }
             }
         });
+
+        notificationDispatcher = new NotificationDispatcherImp();
+        if (! activityTrackerService.isEmpty()) {
+            notificationDispatcher.setActivityDispatcher(new ActivityDispatcher(baseURL, activityTrackerService));
+        }
+        if (! smtpServer.isEmpty()) {
+            Properties props = System.getProperties();
+            props.put("mail.smtp.host", smtpServer);
+            notificationDispatcher.setEmailDispatcher(new EmailDispatcher(this, smtpServer, emailFromAddress, baseURL));
+        }
     }
 
     public String notifyRegistrators(EnumSet<BazaarFunction> functions) {
@@ -187,6 +204,10 @@ public class BazaarService extends Service {
 
     public Vtor getValidators() {
         return vtor;
+    }
+
+    public NotificationDispatcher getNotificationDispatcher() {
+        return notificationDispatcher;
     }
 
     private void registerUserAtFirstLogin() throws Exception {
@@ -240,31 +261,6 @@ public class BazaarService extends Service {
             ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.first_login"));
         } finally {
             closeConnection(dalFacade);
-        }
-    }
-
-    public void sendActivityOverRMI(Service service, Date creationTime, Activity.ActivityAction activityAction,
-                                    int dataId, Activity.DataType dataType, String resourcePath, int userId) {
-        if (!activityTrackerService.isEmpty()) {
-            try {
-                Gson gson = new Gson();
-                Activity.Builder activityBuilder = Activity.getBuilder();
-                activityBuilder = activityBuilder.creationTime(creationTime);
-                activityBuilder = activityBuilder.activityAction(activityAction);
-                if (activityAction != Activity.ActivityAction.DELETE) {
-                    activityBuilder = activityBuilder.dataUrl(baseURL + resourcePath + "/" + String.valueOf(dataId));
-                }
-                activityBuilder = activityBuilder.dataType(dataType);
-                activityBuilder = activityBuilder.userUrl(baseURL + "users" + "/" + String.valueOf(userId));
-                Activity activity = activityBuilder.build();
-                Object result = service.invokeServiceMethod(activityTrackerService,
-                        "createActivity", new Serializable[]{gson.toJson(activity)});
-                if (((HttpResponse) result).getStatus() != HttpURLConnection.HTTP_CREATED) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.NETWORK, ErrorCode.RMI_ERROR, "");
-                }
-            } catch (Exception ex) {
-                Context.logError(this, "Could not send activity with RMI call to ActivityTracker");
-            }
         }
     }
 
