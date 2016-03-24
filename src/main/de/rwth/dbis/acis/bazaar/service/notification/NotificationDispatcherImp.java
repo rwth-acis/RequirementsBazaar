@@ -26,18 +26,24 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
 
     @Override
     public void dispatchNotification(final Service service, final Date creationTime, final Activity.ActivityAction activityAction,
-                                     final int dataId, final Activity.DataType dataType,
-                                     final String resourcePath, final int userId) {
+                                     final int dataId, final Activity.DataType dataType, final int userId) {
+//        executorService.execute(new Runnable() {
+//            public void run() {
+//                if (activityDispatcher != null) {
+//                    activityDispatcher.sendActivityOverRMI(service, creationTime, activityAction, dataId, dataType, userId);
+//                }
+//            }
+//        });
         executorService.execute(new Runnable() {
             public void run() {
-                if (activityDispatcher != null) {
-                    activityDispatcher.sendActivityOverRMI(service, creationTime, activityAction, dataId, dataType, resourcePath, userId);
-                }
                 if (emailDispatcher != null && (activityAction == Activity.ActivityAction.CREATE || activityAction == Activity.ActivityAction.UPDATE)) {
-                    emailDispatcher.sendEmailNotification(creationTime, activityAction, dataId, dataType, resourcePath, userId);
+                    emailDispatcher.sendEmailNotification(creationTime, activityAction, dataId, dataType, userId);
                 }
             }
         });
+        if (activityDispatcher != null) {
+            activityDispatcher.sendActivityOverRMI(service, creationTime, activityAction, dataId, dataType, userId);
+        }
     }
 
 }

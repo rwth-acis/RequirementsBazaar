@@ -27,14 +27,25 @@ public class ActivityDispatcher {
     }
 
     public void sendActivityOverRMI(Service service, Date creationTime, Activity.ActivityAction activityAction,
-                                    int dataId, Activity.DataType dataType, String resourcePath, int userId) {
+                                    int dataId, Activity.DataType dataType, int userId) {
         try {
             Gson gson = new Gson();
             Activity.Builder activityBuilder = Activity.getBuilder();
             activityBuilder = activityBuilder.creationTime(creationTime);
             activityBuilder = activityBuilder.activityAction(activityAction);
+            String resourcePath = null;
+            if (dataType.equals(Activity.DataType.PROJECT)) {
+                resourcePath = "projects";
+            } else if (dataType.equals(Activity.DataType.COMPONENT)) {
+                resourcePath = "components";
+            } else if (dataType.equals(Activity.DataType.REQUIREMENT)) {
+                resourcePath = "requirements";
+            } else if (dataType.equals(Activity.DataType.COMMENT)) {
+                resourcePath = "comments";
+            }
+            resourcePath = resourcePath + "/" + String.valueOf(dataId);
             if (activityAction != Activity.ActivityAction.DELETE) {
-                activityBuilder = activityBuilder.dataUrl(baseURL + resourcePath + "/" + String.valueOf(dataId));
+                activityBuilder = activityBuilder.dataUrl(baseURL + resourcePath);
             }
             activityBuilder = activityBuilder.dataType(dataType);
             activityBuilder = activityBuilder.userUrl(baseURL + "users" + "/" + String.valueOf(userId));
