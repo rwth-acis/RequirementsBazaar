@@ -30,7 +30,6 @@ import java.util.List;
 public class ComponentsResource extends Service {
 
     private BazaarService bazaarService;
-    private final String resourcePath = "components";
 
     /**
      * This method is needed for every RESTful application in LAS2peer.
@@ -150,7 +149,7 @@ public class ComponentsResource extends Service {
             componentToCreate.setLeaderId(internalUserId);
             Component createdComponent = dalFacade.createComponent(componentToCreate);
             bazaarService.getNotificationDispatcher().dispatchNotification(this, createdComponent.getCreation_time(), Activity.ActivityAction.CREATE, createdComponent.getId(),
-                    Activity.DataType.COMPONENT, resourcePath, internalUserId);
+                    Activity.DataType.COMPONENT, internalUserId);
             return new HttpResponse(gson.toJson(createdComponent), HttpURLConnection.HTTP_CREATED);
         } catch (BazaarException bex) {
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
@@ -207,7 +206,7 @@ public class ComponentsResource extends Service {
             }
             updatedComponent = dalFacade.modifyComponent(updatedComponent);
             bazaarService.getNotificationDispatcher().dispatchNotification(this, updatedComponent.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedComponent.getId(),
-                    Activity.DataType.COMPONENT, resourcePath, internalUserId);
+                    Activity.DataType.COMPONENT, internalUserId);
             return new HttpResponse(gson.toJson(updatedComponent), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -268,7 +267,7 @@ public class ComponentsResource extends Service {
             Gson gson = new Gson();
             Component deletedComponent = dalFacade.deleteComponentById(componentId);
             bazaarService.getNotificationDispatcher().dispatchNotification(this, deletedComponent.getLastupdated_time(), Activity.ActivityAction.DELETE, deletedComponent.getId(),
-                    Activity.DataType.COMPONENT, resourcePath, internalUserId);
+                    Activity.DataType.COMPONENT, internalUserId);
             return new HttpResponse(gson.toJson(deletedComponent), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {

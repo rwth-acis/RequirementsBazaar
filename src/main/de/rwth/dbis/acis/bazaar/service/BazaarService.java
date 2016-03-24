@@ -104,6 +104,7 @@ public class BazaarService extends Service {
     protected String lang;
     protected String country;
     protected String baseURL;
+    protected String frontendBaseURL;
     protected String activityTrackerService;
     protected String smtpServer;
     protected String emailFromAddress;
@@ -179,7 +180,7 @@ public class BazaarService extends Service {
         if (! smtpServer.isEmpty()) {
             Properties props = System.getProperties();
             props.put("mail.smtp.host", smtpServer);
-            notificationDispatcher.setEmailDispatcher(new EmailDispatcher(this, smtpServer, emailFromAddress, baseURL));
+            notificationDispatcher.setEmailDispatcher(new EmailDispatcher(this, smtpServer, emailFromAddress, frontendBaseURL));
         }
     }
 
