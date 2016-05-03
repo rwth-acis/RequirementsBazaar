@@ -24,12 +24,12 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/11/2014
  */
-public class Follower extends EntityBase {
+public class RequirementFollower extends EntityBase {
     private final int Id;
     private final int RequirementId;
     private final int UserId;
 
-    public Follower(Builder builder) {
+    public RequirementFollower(Builder builder) {
         Id = builder.id;
         RequirementId = builder.requirementId;
         UserId = builder.userId;
@@ -71,8 +71,8 @@ public class Follower extends EntityBase {
             return this;
         }
 
-        public Follower build() {
-            return new Follower(this);
+        public RequirementFollower build() {
+            return new RequirementFollower(this);
         }
     }
 }

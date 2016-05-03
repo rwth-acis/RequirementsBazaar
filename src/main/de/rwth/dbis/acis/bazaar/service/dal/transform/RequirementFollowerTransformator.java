@@ -20,9 +20,9 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Follower;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementFollower;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementFollowerRecord;
 import org.jooq.*;
 
 import java.util.Arrays;
@@ -30,24 +30,24 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Followers.FOLLOWERS;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementFollower.REQUIREMENT_FOLLOWER;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
-public class FollowerTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Follower, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord> {
+public class RequirementFollowerTransformator implements Transformator<RequirementFollower, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementFollowerRecord> {
     @Override
-    public FollowersRecord createRecord(Follower entity) {
-        FollowersRecord record = new FollowersRecord();
+    public RequirementFollowerRecord createRecord(RequirementFollower entity) {
+        RequirementFollowerRecord record = new RequirementFollowerRecord();
         record.setRequirementId(entity.getRequirementId());
         record.setUserId(entity.getUserId());
         return record;
     }
 
     @Override
-    public Follower getEntityFromTableRecord(FollowersRecord record) {
-        return Follower.getBuilder()
+    public RequirementFollower getEntityFromTableRecord(RequirementFollowerRecord record) {
+        return RequirementFollower.getBuilder()
                 .id(record.getId())
                 .userId(record.getUserId())
                 .requirementId(record.getRequirementId())
@@ -55,25 +55,25 @@ public class FollowerTransformator implements Transformator<de.rwth.dbis.acis.ba
     }
 
     @Override
-    public Table<FollowersRecord> getTable() {
-        return FOLLOWERS;
+    public Table<RequirementFollowerRecord> getTable() {
+        return REQUIREMENT_FOLLOWER;
     }
 
     @Override
-    public TableField<FollowersRecord, Integer> getTableId() {
-        return FOLLOWERS.ID;
+    public TableField<RequirementFollowerRecord, Integer> getTableId() {
+        return REQUIREMENT_FOLLOWER.ID;
     }
 
     @Override
-    public Class<? extends FollowersRecord> getRecordClass() {
-        return FollowersRecord.class;
+    public Class<? extends RequirementFollowerRecord> getRecordClass() {
+        return RequirementFollowerRecord.class;
     }
 
     @Override
-    public Map<Field, Object> getUpdateMap(final Follower entity) {
+    public Map<Field, Object> getUpdateMap(final RequirementFollower entity) {
         return new HashMap<Field, Object>() {{
-            put(FOLLOWERS.REQUIREMENT_ID, entity.getRequirementId());
-            put(FOLLOWERS.USER_ID, entity.getUserId());
+            put(REQUIREMENT_FOLLOWER.REQUIREMENT_ID, entity.getRequirementId());
+            put(REQUIREMENT_FOLLOWER.USER_ID, entity.getUserId());
         }};
     }
 
@@ -81,11 +81,11 @@ public class FollowerTransformator implements Transformator<de.rwth.dbis.acis.ba
     public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
         switch (sortDirection) {
             case DEFAULT:
-                return Arrays.asList(FOLLOWERS.ID.asc());
+                return Arrays.asList(REQUIREMENT_FOLLOWER.ID.asc());
             case ASC:
-                return Arrays.asList(FOLLOWERS.ID.asc());
+                return Arrays.asList(REQUIREMENT_FOLLOWER.ID.asc());
             case DESC:
-                return Arrays.asList(FOLLOWERS.ID.desc());
+                return Arrays.asList(REQUIREMENT_FOLLOWER.ID.desc());
         }
         return null;
     }
@@ -94,6 +94,4 @@ public class FollowerTransformator implements Transformator<de.rwth.dbis.acis.ba
     public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
         throw new Exception("Search is not supported!");
     }
-
-
 }
