@@ -48,6 +48,8 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UsersRecord> implem
         super(jooq, new UserTransformator());
     }
 
+    final byte ONE = 1;
+
     @Override
     public Integer getIdByLas2PeerId(long las2PeerId) throws BazaarException {
         Integer id = null;
@@ -60,44 +62,23 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UsersRecord> implem
     }
 
     @Override
-    public List<User> getUsersForProject(int projectId) throws BazaarException {
+    public List<User> getEmailReceiverForProject(int projectId) throws BazaarException {
         List<User> entries = null;
         try {
             entries = new ArrayList<>();
 
-            // select distinct all project leader
+            // select distinct all project leader and follower
             List<Record> queryResults = jooq.selectDistinct(USERS.fields())
                     .from(USERS
                             .join(Projects.PROJECTS).on(USERS.ID.eq(Projects.PROJECTS.LEADER_ID)))
                     .where(Projects.PROJECTS.ID.eq(projectId))
-                    .fetch();
+                    .and(USERS.EMAIL_LEAD_ITEMS.eq(ONE))
 
-            for (Record queryResult : queryResults) {
-                UsersRecord usersRecord = queryResult.into(UsersRecord.class);
-                entries.add(transformator.getEntityFromTableRecord(usersRecord));
-            }
-        } catch (Exception e) {
-            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
-        }
-        return entries;
-    }
-
-    @Override
-    public List<User> getUsersForComponent(int componentId) throws BazaarException {
-        List<User> entries = null;
-        try {
-            entries = new ArrayList<>();
-
-            // select distinct all project leader union components leader
-            List<Record> queryResults = jooq.selectDistinct(USERS.fields())
-                    .from(USERS
-                            .join(Components.COMPONENTS).on(USERS.ID.eq(Components.COMPONENTS.LEADER_ID)))
-                    .where(Components.COMPONENTS.ID.eq(componentId))
                     .union(jooq.selectDistinct(USERS.fields())
                             .from(USERS
-                                    .join(Projects.PROJECTS).on(USERS.ID.eq(Projects.PROJECTS.LEADER_ID))
-                                    .join(Components.COMPONENTS).on(Components.COMPONENTS.PROJECT_ID.eq(Projects.PROJECTS.ID)))
-                            .where(Components.COMPONENTS.ID.eq(componentId)))
+                                    .join(ProjectFollower.PROJECT_FOLLOWER).on(USERS.ID.eq(ProjectFollower.PROJECT_FOLLOWER.USER_ID)))
+                            .where(ProjectFollower.PROJECT_FOLLOWER.PROJECT_ID.eq(projectId))
+                            .and(USERS.EMAIL_FOLLOW_ITEMS.eq(ONE)))
                     .fetch();
 
             for (Record queryResult : queryResults) {
@@ -111,7 +92,7 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UsersRecord> implem
     }
 
     @Override
-    public List<User> getUsersForRequirement(int requirementId) throws BazaarException {
+    public List<User> getEmailReceiverForComponent(int componentId) throws BazaarException {
         List<User> entries = null;
         try {
             entries = new ArrayList<>();
@@ -119,18 +100,98 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UsersRecord> implem
             // select distinct all followers union project leader union components leader
             List<Record> queryResults = jooq.selectDistinct(USERS.fields())
                     .from(USERS
-                            .join(Followers.FOLLOWERS).on(USERS.ID.eq(Followers.FOLLOWERS.USER_ID)))
-                    .where(Followers.FOLLOWERS.REQUIREMENT_ID.eq(requirementId))
+                            .join(Components.COMPONENTS).on(USERS.ID.eq(Components.COMPONENTS.LEADER_ID)))
+                    .where(Components.COMPONENTS.ID.eq(componentId))
+                    .and(USERS.EMAIL_LEAD_ITEMS.eq(ONE))
+
+                    .union(jooq.selectDistinct(USERS.fields())
+                            .from(USERS
+                                    .join(ComponentFollower.COMPONENT_FOLLOWER).on(USERS.ID.eq(ComponentFollower.COMPONENT_FOLLOWER.USER_ID)))
+                            .where(ComponentFollower.COMPONENT_FOLLOWER.COMPONENT_ID.eq(componentId))
+                            .and(USERS.EMAIL_FOLLOW_ITEMS.eq(ONE)))
+
+                    .union(jooq.selectDistinct(USERS.fields())
+                            .from(USERS
+                                    .join(Projects.PROJECTS).on(USERS.ID.eq(Projects.PROJECTS.LEADER_ID))
+                                    .join(Components.COMPONENTS).on(Components.COMPONENTS.PROJECT_ID.eq(Projects.PROJECTS.ID)))
+                            .where(Components.COMPONENTS.ID.eq(componentId))
+                            .and(USERS.EMAIL_LEAD_ITEMS.eq(ONE)))
+
+                    .union(jooq.selectDistinct(USERS.fields())
+                            .from(USERS
+                                    .join(ProjectFollower.PROJECT_FOLLOWER).on(USERS.ID.eq(ProjectFollower.PROJECT_FOLLOWER.USER_ID))
+                                    .join(Components.COMPONENTS).on(Components.COMPONENTS.PROJECT_ID.eq(ProjectFollower.PROJECT_FOLLOWER.PROJECT_ID)))
+                            .where(Components.COMPONENTS.ID.eq(componentId))
+                            .and(ProjectFollower.PROJECT_FOLLOWER.PROJECT_ID.eq(Components.COMPONENTS.PROJECT_ID))
+                            .and(USERS.EMAIL_FOLLOW_ITEMS.eq(ONE)))
+
+                    .fetch();
+
+            for (Record queryResult : queryResults) {
+                UsersRecord usersRecord = queryResult.into(UsersRecord.class);
+                entries.add(transformator.getEntityFromTableRecord(usersRecord));
+            }
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return entries;
+    }
+
+    @Override
+    public List<User> getEmailReceiverForRequirement(int requirementId) throws BazaarException {
+        List<User> entries = null;
+        try {
+            entries = new ArrayList<>();
+
+            // select distinct all followers union project leader union components leader union req leader
+            List<Record> queryResults = jooq.selectDistinct(USERS.fields())
+                    // req leader
+                    .from(USERS
+                            .join(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.LEAD_DEVELOPER_ID.eq(USERS.ID)))
+                    .where(Requirements.REQUIREMENTS.ID.eq(requirementId))
+                    .and(USERS.EMAIL_LEAD_ITEMS.eq(ONE))
+
+                    // req follower
+                    .union(jooq.selectDistinct(USERS.fields())
+                            .from(USERS
+                                    .join(RequirementFollower.REQUIREMENT_FOLLOWER).on(USERS.ID.eq(RequirementFollower.REQUIREMENT_FOLLOWER.USER_ID)))
+                            .where(RequirementFollower.REQUIREMENT_FOLLOWER.REQUIREMENT_ID.eq(requirementId))
+                            .and(USERS.EMAIL_FOLLOW_ITEMS.eq(ONE)))
+
+                    // component leader
+                    .union(jooq.selectDistinct(USERS.fields())
+                            .from(USERS
+                                    .join(Components.COMPONENTS).on(USERS.ID.eq(Components.COMPONENTS.LEADER_ID))
+                                    .join(Tags.TAGS).on(Tags.TAGS.COMPONENTS_ID.eq(Components.COMPONENTS.ID)))
+                            .where(Tags.TAGS.REQUIREMENTS_ID.eq(requirementId))
+                            .and(USERS.EMAIL_LEAD_ITEMS.eq(ONE)))
+
+                    // component follower
+                    .union(jooq.selectDistinct(USERS.fields())
+                            .from(USERS
+                                    .join(ComponentFollower.COMPONENT_FOLLOWER).on(USERS.ID.eq(ComponentFollower.COMPONENT_FOLLOWER.USER_ID))
+                                    .join(Tags.TAGS).on(Tags.TAGS.COMPONENTS_ID.eq(ComponentFollower.COMPONENT_FOLLOWER.COMPONENT_ID))
+                                    .join(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.ID.eq(Tags.TAGS.REQUIREMENTS_ID)))
+                            .where(Requirements.REQUIREMENTS.ID.eq(requirementId))
+                            .and(USERS.EMAIL_FOLLOW_ITEMS.eq(ONE)))
+
+                    // project leader
                     .union(jooq.selectDistinct(USERS.fields())
                             .from(USERS
                                     .join(Projects.PROJECTS).on(USERS.ID.eq(Projects.PROJECTS.LEADER_ID))
                                     .join(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.PROJECT_ID.eq(Projects.PROJECTS.ID)))
                             .where(Requirements.REQUIREMENTS.ID.eq(requirementId))
-                            .union(jooq.selectDistinct(USERS.fields())
-                                    .from(USERS
-                                            .join(Components.COMPONENTS).on(USERS.ID.eq(Components.COMPONENTS.LEADER_ID))
-                                            .join(Tags.TAGS).on(Tags.TAGS.COMPONENTS_ID.eq(Components.COMPONENTS.ID)))
-                                    .where(Tags.TAGS.REQUIREMENTS_ID.eq(requirementId))))
+                            .and(USERS.EMAIL_LEAD_ITEMS.eq(ONE)))
+
+                    // project follower
+                    .union(jooq.selectDistinct(USERS.fields())
+                            .from(USERS
+                                    .join(ProjectFollower.PROJECT_FOLLOWER).on(USERS.ID.eq(ProjectFollower.PROJECT_FOLLOWER.USER_ID))
+                                    .join(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.PROJECT_ID.eq(ProjectFollower.PROJECT_FOLLOWER.PROJECT_ID)))
+                            .where(Requirements.REQUIREMENTS.ID.eq(requirementId))
+                            .and(ProjectFollower.PROJECT_FOLLOWER.PROJECT_ID.eq(Requirements.REQUIREMENTS.PROJECT_ID))
+                            .and(USERS.EMAIL_FOLLOW_ITEMS.eq(ONE)))
+
                     .fetch();
 
             for (Record queryResult : queryResults) {

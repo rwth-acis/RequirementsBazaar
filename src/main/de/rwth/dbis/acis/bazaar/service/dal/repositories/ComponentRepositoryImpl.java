@@ -21,7 +21,9 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Component;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.ComponentFollower;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
@@ -35,12 +37,15 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.Result;
 import org.jooq.exception.DataAccessException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Components.COMPONENTS;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ComponentFollower.COMPONENT_FOLLOWER;
 
 public class ComponentRepositoryImpl extends RepositoryImpl<Component, ComponentsRecord> implements ComponentRepository {
     /**
@@ -55,11 +60,17 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
         Component component = null;
         try {
             Users leaderUser = Users.USERS.as("leaderUser");
+            Users followerUsers = Users.USERS.as("followerUsers");
 
-            Record queryResult = jooq.selectFrom(COMPONENTS
-                    .join(leaderUser).on(leaderUser.ID.equal(COMPONENTS.LEADER_ID)))
+            Result<Record> queryResult = jooq.select()
+                    .from(COMPONENTS)
+                    .join(leaderUser).on(leaderUser.ID.equal(COMPONENTS.LEADER_ID))
+
+                    .leftOuterJoin(COMPONENT_FOLLOWER).on(COMPONENT_FOLLOWER.COMPONENT_ID.equal(COMPONENTS.ID))
+                    .leftOuterJoin(followerUsers).on(COMPONENT_FOLLOWER.USER_ID.equal(followerUsers.ID))
+
                     .where(transformator.getTableId().equal(id))
-                    .fetchOne();
+                    .fetch();
 
             if (queryResult == null || queryResult.size() == 0) {
                 ExceptionHandler.getInstance().convertAndThrowException(
@@ -67,11 +78,30 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                         ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
             }
 
-            ComponentsRecord componentsRecord = queryResult.into(COMPONENTS);
-            component = transformator.getEntityFromTableRecord(componentsRecord);
+            Component.Builder builder = Component.getBuilder(queryResult.getValues(COMPONENTS.NAME).get(0))
+                    .description(queryResult.getValues(COMPONENTS.DESCRIPTION).get(0))
+                    .projectId(queryResult.getValues(COMPONENTS.PROJECT_ID).get(0))
+                    .id(queryResult.getValues(COMPONENTS.ID).get(0))
+                    .leaderId(queryResult.getValues(COMPONENTS.LEADER_ID).get(0))
+                    .creationTime(queryResult.getValues(COMPONENTS.CREATION_TIME).get(0))
+                    .lastupdated_time(queryResult.getValues(COMPONENTS.LASTUPDATED_TIME).get(0));
+
             UserTransformator userTransformator = new UserTransformator();
-            UsersRecord usersRecord = queryResult.into(leaderUser);
-            component.setLeader(userTransformator.getEntityFromTableRecord(usersRecord));
+            //Filling up LeadDeveloper
+            builder.leader(userTransformator.getEntityFromQueryResult(leaderUser, queryResult));
+
+            //Filling up follower list
+            List<User> followers = new ArrayList<User>();
+            for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(followerUsers.ID).entrySet()) {
+                if (entry.getKey() == null) continue;
+                Result<Record> records = entry.getValue();
+                followers.add(
+                        userTransformator.getEntityFromQueryResult(followerUsers, records)
+                );
+            }
+            builder.followers(followers);
+
+            component = builder.build();
 
         } catch (BazaarException be) {
             ExceptionHandler.getInstance().convertAndThrowException(be);

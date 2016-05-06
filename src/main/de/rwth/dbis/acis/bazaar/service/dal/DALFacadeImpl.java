@@ -48,7 +48,7 @@ public class DALFacadeImpl implements DALFacade {
     private CommentRepository commentRepository;
     private ComponentRepository componentRepository;
     private DeveloperRepository developerRepository;
-    private FollowerRepository followerRepository;
+    private RequirementFollowerRepository followerRepository;
     private ProjectRepository projectRepository;
     private RequirementRepository requirementRepository;
     private TagRepository tagRepository;
@@ -110,19 +110,19 @@ public class DALFacadeImpl implements DALFacade {
     @Override
     public List<User> getRecipientListForProject(int projectId) throws BazaarException {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
-        return userRepository.getUsersForProject(projectId);
+        return userRepository.getEmailReceiverForProject(projectId);
     }
 
     @Override
     public List<User> getRecipientListForComponent(int componentId) throws BazaarException {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
-        return userRepository.getUsersForComponent(componentId);
+        return userRepository.getEmailReceiverForComponent(componentId);
     }
 
     @Override
     public List<User> getRecipientListForRequirement(int requirementId) throws BazaarException {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
-        return userRepository.getUsersForRequirement(requirementId);
+        return userRepository.getEmailReceiverForRequirement(requirementId);
     }
 
     @Override
@@ -336,8 +336,8 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public CreationStatus follow(int userId, int requirementId) throws BazaarException {
-        followerRepository = (followerRepository != null) ? followerRepository : new FollowerRepositoryImpl(dslContext);
-        return followerRepository.addOrUpdate(Follower.getBuilder()
+        followerRepository = (followerRepository != null) ? followerRepository : new RequirementFollowerRepositoryImpl(dslContext);
+        return followerRepository.addOrUpdate(RequirementFollower.getBuilder()
                 .requirementId(requirementId)
                 .userId(userId)
                 .build()
@@ -346,7 +346,7 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public void unFollow(int userId, int requirementId) throws BazaarException {
-        followerRepository = (followerRepository != null) ? followerRepository : new FollowerRepositoryImpl(dslContext);
+        followerRepository = (followerRepository != null) ? followerRepository : new RequirementFollowerRepositoryImpl(dslContext);
         followerRepository.delete(userId, requirementId);
     }
 

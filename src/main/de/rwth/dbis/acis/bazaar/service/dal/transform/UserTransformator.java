@@ -44,10 +44,8 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
         record.setLastName(entity.getLastName());
         record.setUserName(entity.getUserName());
         record.setProfileImage(entity.getProfileImage());
-        record.setEmailProjectLeader((byte) (entity.isEmailProjectLeader() ? 1 : 0));
-        record.setEmailComponentLeader((byte) (entity.isEmailComponentLeader() ? 1 : 0));
-        record.setEmailRequirementLeaddeveloper((byte) (entity.isEmailRequirementLeaddeveloper() ? 1 : 0));
-        record.setEmailFollowRequirement((byte) (entity.isEmailFollowRequirement() ? 1 : 0));
+        record.setEmailLeadItems((byte) (entity.isEmailLeadItems() ? 1 : 0));
+        record.setEmailFollowItems((byte) (entity.isEmailFollowItems() ? 1 : 0));
         return record;
     }
 
@@ -61,10 +59,8 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
                 .las2peerId(record.getLas2peerId())
                 .profileImage(record.getProfileImage())
                 .userName(record.getUserName())
-                .emailProjectLeader(record.getEmailProjectLeader() != 0)
-                .emailComponentLeader(record.getEmailComponentLeader() != 0)
-                .emailRequirementLeaddeveloper(record.getEmailRequirementLeaddeveloper() != 0)
-                .emailFollowRequirement(record.getEmailFollowRequirement() != 0)
+                .emailLeadItems(record.getEmailLeadItems() != 0)
+                .emailFollowItems(record.getEmailFollowItems() != 0)
                 .build();
     }
 
@@ -77,10 +73,8 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
                 .las2peerId(queryResult.getValues(user.LAS2PEER_ID).get(0))
                 .userName(queryResult.getValues(user.USER_NAME).get(0))
                 .profileImage(queryResult.getValues(user.PROFILE_IMAGE).get(0))
-                .emailProjectLeader(queryResult.getValues(user.EMAIL_PROJECT_LEADER).get(0) != 0)
-                .emailComponentLeader(queryResult.getValues(user.EMAIL_COMPONENT_LEADER).get(0) != 0)
-                .emailRequirementLeaddeveloper(queryResult.getValues(user.EMAIL_REQUIREMENT_LEADDEVELOPER).get(0) != 0)
-                .emailFollowRequirement(queryResult.getValues(user.EMAIL_FOLLOW_REQUIREMENT).get(0) != 0)
+                .emailLeadItems(queryResult.getValues(user.EMAIL_LEAD_ITEMS).get(0) != 0)
+                .emailFollowItems(queryResult.getValues(user.EMAIL_FOLLOW_ITEMS).get(0) != 0)
                 .build();
     }
 
@@ -119,17 +113,11 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
             if (entity.getProfileImage() != null) {
                 put(USERS.PROFILE_IMAGE, entity.getProfileImage());
             }
-            if (entity.isEmailProjectLeader() != null) {
-                put(USERS.EMAIL_PROJECT_LEADER, entity.isEmailProjectLeader());
+            if (entity.isEmailLeadItems() != null) {
+                put(USERS.EMAIL_LEAD_ITEMS, entity.isEmailLeadItems());
             }
-            if (entity.isEmailComponentLeader() != null) {
-                put(USERS.EMAIL_COMPONENT_LEADER, entity.isEmailComponentLeader());
-            }
-            if (entity.isEmailRequirementLeaddeveloper() != null) {
-                put(USERS.EMAIL_REQUIREMENT_LEADDEVELOPER, entity.isEmailRequirementLeaddeveloper());
-            }
-            if (entity.isEmailFollowRequirement() != null) {
-                put(USERS.EMAIL_FOLLOW_REQUIREMENT, entity.isEmailFollowRequirement());
+            if (entity.isEmailFollowItems() != null) {
+                put(USERS.EMAIL_FOLLOW_ITEMS, entity.isEmailFollowItems());
             }
         }};
     }

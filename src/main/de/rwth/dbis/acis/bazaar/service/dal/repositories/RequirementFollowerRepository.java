@@ -20,7 +20,7 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Follower;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementFollower;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
@@ -28,10 +28,10 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/22/2014
  */
-public interface FollowerRepository extends Repository<Follower> {
-    public void delete(int userId, int requirementId) throws BazaarException;
+public interface RequirementFollowerRepository extends Repository<RequirementFollower> {
+    void delete(int userId, int requirementId) throws BazaarException;
 
     boolean hasUserAlreadyFollows(int userId, int requirementId) throws BazaarException;
 
-    CreationStatus addOrUpdate(Follower follower) throws BazaarException;
+    CreationStatus addOrUpdate(RequirementFollower requirementFollower) throws BazaarException;
 }

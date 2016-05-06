@@ -62,16 +62,40 @@ CREATE TABLE IF NOT EXISTS developers (
   CONSTRAINT Developer_User FOREIGN KEY Developer_User (User_Id) REFERENCES users (Id)
 );
 
--- Table followers
-CREATE TABLE IF NOT EXISTS followers (
+-- Table follower_requirement
+CREATE TABLE IF NOT EXISTS requirement_follower (
   Id             INT       NOT NULL  AUTO_INCREMENT,
   Requirement_Id INT       NOT NULL,
   User_Id        INT       NOT NULL,
   creation_time  TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT followers_pk PRIMARY KEY (Id),
-  CONSTRAINT Follower_Requirement FOREIGN KEY Follower_Requirement (Requirement_Id) REFERENCES requirements (Id)
+  CONSTRAINT requirement_followers_pk PRIMARY KEY (Id),
+  CONSTRAINT Requirement_Follower FOREIGN KEY Requirement_Follower (Requirement_Id) REFERENCES requirements (Id)
     ON DELETE CASCADE,
-  CONSTRAINT Follower_User FOREIGN KEY Follower_User (User_Id) REFERENCES users (Id)
+  CONSTRAINT Requirement_Follower_User FOREIGN KEY Follower_User (User_Id) REFERENCES users (Id)
+);
+
+-- Table component_follower
+CREATE TABLE IF NOT EXISTS component_follower (
+  Id            INT       NOT NULL  AUTO_INCREMENT,
+  Component_Id  INT       NOT NULL,
+  User_Id       INT       NOT NULL,
+  creation_time TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT component_followers_pk PRIMARY KEY (Id),
+  CONSTRAINT Component_Follower FOREIGN KEY Component_Follower (Component_Id) REFERENCES components (Id)
+    ON DELETE CASCADE,
+  CONSTRAINT Component_Follower_User FOREIGN KEY Component_Follower_User (User_Id) REFERENCES users (Id)
+);
+
+-- Table project_follower
+CREATE TABLE IF NOT EXISTS project_follower (
+  Id            INT       NOT NULL  AUTO_INCREMENT,
+  Project_Id    INT       NOT NULL,
+  User_Id       INT       NOT NULL,
+  creation_time TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT project_followers_pk PRIMARY KEY (Id),
+  CONSTRAINT Project_Follower FOREIGN KEY Project_Follower (Project_Id) REFERENCES projects (Id)
+    ON DELETE CASCADE,
+  CONSTRAINT Project_Follower_User FOREIGN KEY Project_Follower_User (User_Id) REFERENCES users (Id)
 );
 
 -- Table privileges
@@ -179,10 +203,8 @@ CREATE TABLE IF NOT EXISTS users (
   Las2peer_Id                     BIGINT       NOT NULL,
   user_name                       VARCHAR(255) NULL,
   profile_image                   TEXT         NULL,
-  email_project_leader            BOOLEAN      NOT NULL  DEFAULT TRUE,
-  email_component_leader          BOOLEAN      NOT NULL  DEFAULT TRUE,
-  email_requirement_leaddeveloper BOOLEAN      NOT NULL  DEFAULT TRUE,
-  email_follow_requirement        BOOLEAN      NOT NULL  DEFAULT TRUE,
+  email_lead_items            BOOLEAN      NOT NULL  DEFAULT TRUE,
+  email_follow_items          BOOLEAN      NOT NULL  DEFAULT TRUE,
   CONSTRAINT users_pk PRIMARY KEY (Id)
 );
 
