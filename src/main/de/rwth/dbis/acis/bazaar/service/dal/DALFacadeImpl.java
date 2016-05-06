@@ -110,19 +110,19 @@ public class DALFacadeImpl implements DALFacade {
     @Override
     public List<User> getRecipientListForProject(int projectId) throws BazaarException {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
-        return userRepository.getUsersForProject(projectId);
+        return userRepository.getEmailReceiverForProject(projectId);
     }
 
     @Override
     public List<User> getRecipientListForComponent(int componentId) throws BazaarException {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
-        return userRepository.getUsersForComponent(componentId);
+        return userRepository.getEmailReceiverForComponent(componentId);
     }
 
     @Override
     public List<User> getRecipientListForRequirement(int requirementId) throws BazaarException {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
-        return userRepository.getUsersForRequirement(requirementId);
+        return userRepository.getEmailReceiverForRequirement(requirementId);
     }
 
     @Override
