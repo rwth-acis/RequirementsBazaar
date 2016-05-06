@@ -60,8 +60,16 @@
         </path>
         <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>
     </target>
-	
-	
+
+
+    <!-- Generate Ivy report -->
+    <target name="report" depends="install-ivy">
+        <mkdir dir="report" />
+        <ivy:resolve type="${ivy.resolve.types}"/>
+        <ivy:report todir="report" />
+    </target>
+    
+
     <!-- Get Dependencies from our Maven Repository via Ivy -->
     <target name="get_deps" depends="install-ivy" description="--> resolve dependencies">
         <ivy:settings>
@@ -179,11 +187,11 @@
     <target name="init_junit" depends="init_general">
         <mkdir dir="${junit.report}" />
     </target>
-	
+
     <target name="junit_clean">
         <delete dir="${tmp.junit}" />
     </target>
-	
+
     <target name="junit_tests" depends="init_junit, compile_all">
         <junit fork="yes" haltonerror="yes" haltonfailure="yes" printsummary="yes">
             <classpath>
@@ -255,8 +263,8 @@ agent-user-${las2peer_user.name}.xml;${las2peer_user.password}
     <target name="clean_all" depends="clean_after_build, clean_before_build, clean_deps">
 		<delete dir="${log}"/>
     </target>
-    
-    
+
+
     <!-- Run -->
 	<target name="run" depends="jar">
 		<java classname="i5.las2peer.tools.L2pNodeLauncher"
