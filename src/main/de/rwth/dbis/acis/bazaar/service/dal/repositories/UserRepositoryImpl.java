@@ -119,8 +119,8 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UsersRecord> implem
             // select distinct all followers union project leader union components leader
             List<Record> queryResults = jooq.selectDistinct(USERS.fields())
                     .from(USERS
-                            .join(Followers.FOLLOWERS).on(USERS.ID.eq(Followers.FOLLOWERS.USER_ID)))
-                    .where(Followers.FOLLOWERS.REQUIREMENT_ID.eq(requirementId))
+                            .join(RequirementFollower.REQUIREMENT_FOLLOWER).on(USERS.ID.eq(RequirementFollower.REQUIREMENT_FOLLOWER.USER_ID)))
+                    .where(RequirementFollower.REQUIREMENT_FOLLOWER.REQUIREMENT_ID.eq(requirementId))
                     .union(jooq.selectDistinct(USERS.fields())
                             .from(USERS
                                     .join(Projects.PROJECTS).on(USERS.ID.eq(Projects.PROJECTS.LEADER_ID))

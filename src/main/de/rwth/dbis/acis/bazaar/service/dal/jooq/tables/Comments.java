@@ -36,7 +36,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Comments extends TableImpl<CommentsRecord> {
 
-	private static final long serialVersionUID = -770663685;
+	private static final long serialVersionUID = -1885111888;
 
 	/**
 	 * The reference instance of <code>reqbaz.comments</code>
@@ -132,7 +132,7 @@ public class Comments extends TableImpl<CommentsRecord> {
 	 */
 	@Override
 	public List<ForeignKey<CommentsRecord, ?>> getReferences() {
-		return Arrays.<ForeignKey<CommentsRecord, ?>>asList(Keys.COMMENT_REQUIREMENT);
+		return Arrays.<ForeignKey<CommentsRecord, ?>>asList(Keys.COMMENT_REQUIREMENT, Keys.COMMENT_USER);
 	}
 
 	/**

@@ -34,7 +34,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Users extends TableImpl<UsersRecord> {
 
-	private static final long serialVersionUID = 631976612;
+	private static final long serialVersionUID = 615338696;
 
 	/**
 	 * The reference instance of <code>reqbaz.users</code>
@@ -90,24 +90,14 @@ public class Users extends TableImpl<UsersRecord> {
 	public final TableField<UsersRecord, String> PROFILE_IMAGE = createField("profile_image", org.jooq.impl.SQLDataType.CLOB, this, "");
 
 	/**
-	 * The column <code>reqbaz.users.email_project_leader</code>.
+	 * The column <code>reqbaz.users.email_lead_items</code>.
 	 */
-	public final TableField<UsersRecord, Byte> EMAIL_PROJECT_LEADER = createField("email_project_leader", org.jooq.impl.SQLDataType.TINYINT.nullable(false).defaulted(true), this, "");
+	public final TableField<UsersRecord, Byte> EMAIL_LEAD_ITEMS = createField("email_lead_items", org.jooq.impl.SQLDataType.TINYINT.nullable(false).defaulted(true), this, "");
 
 	/**
-	 * The column <code>reqbaz.users.email_component_leader</code>.
+	 * The column <code>reqbaz.users.email_follow_items</code>.
 	 */
-	public final TableField<UsersRecord, Byte> EMAIL_COMPONENT_LEADER = createField("email_component_leader", org.jooq.impl.SQLDataType.TINYINT.nullable(false).defaulted(true), this, "");
-
-	/**
-	 * The column <code>reqbaz.users.email_requirement_leaddeveloper</code>.
-	 */
-	public final TableField<UsersRecord, Byte> EMAIL_REQUIREMENT_LEADDEVELOPER = createField("email_requirement_leaddeveloper", org.jooq.impl.SQLDataType.TINYINT.nullable(false).defaulted(true), this, "");
-
-	/**
-	 * The column <code>reqbaz.users.email_follow_requirement</code>.
-	 */
-	public final TableField<UsersRecord, Byte> EMAIL_FOLLOW_REQUIREMENT = createField("email_follow_requirement", org.jooq.impl.SQLDataType.TINYINT.nullable(false).defaulted(true), this, "");
+	public final TableField<UsersRecord, Byte> EMAIL_FOLLOW_ITEMS = createField("email_follow_items", org.jooq.impl.SQLDataType.TINYINT.nullable(false).defaulted(true), this, "");
 
 	/**
 	 * Create a <code>reqbaz.users</code> table reference

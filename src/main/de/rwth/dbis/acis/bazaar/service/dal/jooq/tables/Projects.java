@@ -36,7 +36,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Projects extends TableImpl<ProjectsRecord> {
 
-	private static final long serialVersionUID = 2007104847;
+	private static final long serialVersionUID = -1241716766;
 
 	/**
 	 * The reference instance of <code>reqbaz.projects</code>
@@ -142,7 +142,7 @@ public class Projects extends TableImpl<ProjectsRecord> {
 	 */
 	@Override
 	public List<ForeignKey<ProjectsRecord, ?>> getReferences() {
-		return Arrays.<ForeignKey<ProjectsRecord, ?>>asList(Keys.PROJECTS_COMPONENTS);
+		return Arrays.<ForeignKey<ProjectsRecord, ?>>asList(Keys.PROJECTS_USERS, Keys.PROJECTS_COMPONENTS);
 	}
 
 	/**

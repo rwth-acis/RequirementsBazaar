@@ -36,7 +36,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ComponentFollower extends TableImpl<ComponentFollowerRecord> {
 
-	private static final long serialVersionUID = 1409485247;
+	private static final long serialVersionUID = 478855291;
 
 	/**
 	 * The reference instance of <code>reqbaz.component_follower</code>
@@ -122,7 +122,7 @@ public class ComponentFollower extends TableImpl<ComponentFollowerRecord> {
 	 */
 	@Override
 	public List<ForeignKey<ComponentFollowerRecord, ?>> getReferences() {
-		return Arrays.<ForeignKey<ComponentFollowerRecord, ?>>asList(Keys.COMPONENT_FOLLOWER);
+		return Arrays.<ForeignKey<ComponentFollowerRecord, ?>>asList(Keys.COMPONENT_FOLLOWER, Keys.COMPONENT_FOLLOWER_USER);
 	}
 
 	/**

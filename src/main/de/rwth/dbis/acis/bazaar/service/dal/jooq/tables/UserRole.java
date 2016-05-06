@@ -35,7 +35,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class UserRole extends TableImpl<UserRoleRecord> {
 
-	private static final long serialVersionUID = 346292442;
+	private static final long serialVersionUID = 875892109;
 
 	/**
 	 * The reference instance of <code>reqbaz.user_role</code>
@@ -121,7 +121,7 @@ public class UserRole extends TableImpl<UserRoleRecord> {
 	 */
 	@Override
 	public List<ForeignKey<UserRoleRecord, ?>> getReferences() {
-		return Arrays.<ForeignKey<UserRoleRecord, ?>>asList(Keys.USER_ROLE_ROLES);
+		return Arrays.<ForeignKey<UserRoleRecord, ?>>asList(Keys.USER_ROLE_ROLES, Keys.USER_ROLE_USERS);
 	}
 
 	/**

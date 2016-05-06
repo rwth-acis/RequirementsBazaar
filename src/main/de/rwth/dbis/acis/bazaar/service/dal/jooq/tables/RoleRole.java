@@ -14,6 +14,7 @@ import java.util.List;
 import javax.annotation.Generated;
 
 import org.jooq.Field;
+import org.jooq.ForeignKey;
 import org.jooq.Identity;
 import org.jooq.Table;
 import org.jooq.TableField;
@@ -34,7 +35,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class RoleRole extends TableImpl<RoleRoleRecord> {
 
-	private static final long serialVersionUID = 1834104471;
+	private static final long serialVersionUID = 883198946;
 
 	/**
 	 * The reference instance of <code>reqbaz.role_role</code>
@@ -108,6 +109,14 @@ public class RoleRole extends TableImpl<RoleRoleRecord> {
 	@Override
 	public List<UniqueKey<RoleRoleRecord>> getKeys() {
 		return Arrays.<UniqueKey<RoleRoleRecord>>asList(Keys.KEY_ROLE_ROLE_PRIMARY);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<ForeignKey<RoleRoleRecord, ?>> getReferences() {
+		return Arrays.<ForeignKey<RoleRoleRecord, ?>>asList(Keys.ROLE_CHILD, Keys.ROLE_PARENT);
 	}
 
 	/**

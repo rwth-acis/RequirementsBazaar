@@ -42,13 +42,9 @@ public class User extends EntityBase {
 
     private final String profileImage;
 
-    private final Boolean emailProjectLeader;
+    private final Boolean emailLeadItems;
 
-    private final Boolean emailComponentLeader;
-
-    private final Boolean emailRequirementLeaddeveloper;
-
-    private final Boolean emailFollowRequirement;
+    private final Boolean emailFollowItems;
 
     public User(Builder builder) {
         id = builder.id;
@@ -59,10 +55,8 @@ public class User extends EntityBase {
         Las2peerId = builder.las2peerId;
         this.userName = builder.userName;
         this.profileImage = builder.profileImage;
-        this.emailProjectLeader = builder.emailProjectLeader;
-        this.emailComponentLeader = builder.emailComponentLeader;
-        this.emailRequirementLeaddeveloper = builder.emailRequirementLeaddeveloper;
-        this.emailFollowRequirement = builder.emailFollowRequirement;
+        this.emailLeadItems = builder.emailLeadItems;
+        this.emailFollowItems = builder.emailFollowItems;
     }
 
     public int getId() {
@@ -97,20 +91,12 @@ public class User extends EntityBase {
         return profileImage;
     }
 
-    public Boolean isEmailProjectLeader() {
-        return emailProjectLeader;
+    public Boolean isEmailLeadItems() {
+        return emailLeadItems;
     }
 
-    public Boolean isEmailComponentLeader() {
-        return emailComponentLeader;
-    }
-
-    public Boolean isEmailRequirementLeaddeveloper() {
-        return emailRequirementLeaddeveloper;
-    }
-
-    public Boolean isEmailFollowRequirement() {
-        return emailFollowRequirement;
+    public Boolean isEmailFollowItems() {
+        return emailFollowItems;
     }
 
     public static Builder geBuilder(String eMail) {
@@ -130,10 +116,8 @@ public class User extends EntityBase {
         private long las2peerId;
         private String userName;
         private String profileImage;
-        private Boolean emailProjectLeader;
-        private Boolean emailComponentLeader;
-        private Boolean emailRequirementLeaddeveloper;
-        private Boolean emailFollowRequirement;
+        private Boolean emailLeadItems;
+        private Boolean emailFollowItems;
 
         public Builder(String eMail) {
             this.eMail = eMail;
@@ -179,23 +163,13 @@ public class User extends EntityBase {
             return this;
         }
 
-        public Builder emailProjectLeader(Boolean emailProjectLeader) {
-            this.emailProjectLeader = emailProjectLeader;
+        public Builder emailLeadItems(Boolean emailLeadItems) {
+            this.emailLeadItems = emailLeadItems;
             return this;
         }
 
-        public Builder emailComponentLeader(Boolean emailComponentLeader) {
-            this.emailComponentLeader = emailComponentLeader;
-            return this;
-        }
-
-        public Builder emailRequirementLeaddeveloper(Boolean emailRequirementLeaddeveloper) {
-            this.emailRequirementLeaddeveloper = emailRequirementLeaddeveloper;
-            return this;
-        }
-
-        public Builder emailFollowRequirement(Boolean emailFollowRequirement) {
-            this.emailFollowRequirement = emailFollowRequirement;
+        public Builder emailFollowItems(Boolean emailFollowItems) {
+            this.emailFollowItems = emailFollowItems;
             return this;
         }
 

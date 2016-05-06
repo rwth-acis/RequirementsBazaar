@@ -203,10 +203,8 @@ CREATE TABLE IF NOT EXISTS users (
   Las2peer_Id                     BIGINT       NOT NULL,
   user_name                       VARCHAR(255) NULL,
   profile_image                   TEXT         NULL,
-  email_project_leader            BOOLEAN      NOT NULL  DEFAULT TRUE,
-  email_component_leader          BOOLEAN      NOT NULL  DEFAULT TRUE,
-  email_requirement_leaddeveloper BOOLEAN      NOT NULL  DEFAULT TRUE,
-  email_follow_requirement        BOOLEAN      NOT NULL  DEFAULT TRUE,
+  email_lead_items            BOOLEAN      NOT NULL  DEFAULT TRUE,
+  email_follow_items          BOOLEAN      NOT NULL  DEFAULT TRUE,
   CONSTRAINT users_pk PRIMARY KEY (Id)
 );
 

@@ -36,7 +36,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Requirements extends TableImpl<RequirementsRecord> {
 
-	private static final long serialVersionUID = 459487497;
+	private static final long serialVersionUID = 1623433787;
 
 	/**
 	 * The reference instance of <code>reqbaz.requirements</code>
@@ -147,7 +147,7 @@ public class Requirements extends TableImpl<RequirementsRecord> {
 	 */
 	@Override
 	public List<ForeignKey<RequirementsRecord, ?>> getReferences() {
-		return Arrays.<ForeignKey<RequirementsRecord, ?>>asList(Keys.REQUIREMENT_PROJECT);
+		return Arrays.<ForeignKey<RequirementsRecord, ?>>asList(Keys.LEADDEVELOPER, Keys.CREATOR, Keys.REQUIREMENT_PROJECT);
 	}
 
 	/**

@@ -36,7 +36,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Developers extends TableImpl<DevelopersRecord> {
 
-	private static final long serialVersionUID = -559823562;
+	private static final long serialVersionUID = -2102930452;
 
 	/**
 	 * The reference instance of <code>reqbaz.developers</code>
@@ -122,7 +122,7 @@ public class Developers extends TableImpl<DevelopersRecord> {
 	 */
 	@Override
 	public List<ForeignKey<DevelopersRecord, ?>> getReferences() {
-		return Arrays.<ForeignKey<DevelopersRecord, ?>>asList(Keys.DEVELOPER_REQUIREMENT);
+		return Arrays.<ForeignKey<DevelopersRecord, ?>>asList(Keys.DEVELOPER_REQUIREMENT, Keys.DEVELOPER_USER);
 	}
 
 	/**

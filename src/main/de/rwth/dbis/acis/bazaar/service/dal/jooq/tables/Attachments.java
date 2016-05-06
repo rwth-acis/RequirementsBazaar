@@ -36,7 +36,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Attachments extends TableImpl<AttachmentsRecord> {
 
-	private static final long serialVersionUID = 1890190632;
+	private static final long serialVersionUID = 51981582;
 
 	/**
 	 * The reference instance of <code>reqbaz.attachments</code>
@@ -167,7 +167,7 @@ public class Attachments extends TableImpl<AttachmentsRecord> {
 	 */
 	@Override
 	public List<ForeignKey<AttachmentsRecord, ?>> getReferences() {
-		return Arrays.<ForeignKey<AttachmentsRecord, ?>>asList(Keys.ATTACHEMENT_REQUIREMENT);
+		return Arrays.<ForeignKey<AttachmentsRecord, ?>>asList(Keys.ATTACHEMENT_REQUIREMENT, Keys.ATTACHEMENT_USER);
 	}
 
 	/**
