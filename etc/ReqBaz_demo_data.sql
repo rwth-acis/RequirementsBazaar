@@ -17,13 +17,13 @@ VALUES
 REPLACE INTO `reqbaz`.`projects`
 (`Id`, `name`, `description`, `visibility`, `Leader_Id`, `Default_Components_Id`)
 VALUES
-  ('1', 'Project 1', 'Project 1 - Description - This project is visible - leader MaxMustermann1', '+', '1', '1'),
-  ('2', 'Project 2', 'Project 2 - Description - This project is visible - leader MaxMustermann2', '+', '2', '4');
+  ('1', 'Project 1', 'Project 1 - Description - This project is visible - leader MaxMustermann1', '+', '2', '1'),
+  ('2', 'Project 2', 'Project 2 - Description - This project is visible - leader MaxMustermann2', '+', '3', '4');
 
 REPLACE INTO `reqbaz`.`components`
 (`Id`, `name`, `description`, `Project_Id`, `Leader_Id`)
 VALUES
-  ('1', 'Component 1', 'Component 1 for Project 1', '1 ', '1'),
+  ('1', 'Component 1', 'Component 1 for Project 1', '1 ', '2'),
   ('2', 'Component 2', 'Component 2 for Project 1', '1', '2'),
   ('3', 'Component 3', 'Component 3 for Project 1', '1', '3'),
   ('4', 'Component 4', 'Component 4 for Project 2', '1', '4');
@@ -31,17 +31,17 @@ VALUES
 REPLACE INTO `reqbaz`.`requirements`
 (`Id`, `title`, `description`, `realized`, `Lead_developer_Id`, `Creator_Id`, `Project_Id`)
 VALUES
-  ('1', 'Requirement 1', 'Requirement - Description', NULL, '1', '1', '1'),
-  ('2', 'Requirement 2', 'Requirement - Description', NULL, '1', '2', '1'),
-  ('3', 'Requirement 3', 'Requirement - Description', NULL, '2', '3', '1'),
-  ('4', 'Requirement 4', 'Requirement - Description', NULL, '2', '4', '2');
+  ('1', 'Requirement 1', 'Requirement - Description', NULL, '1', '1', '2'),
+  ('2', 'Requirement 2', 'Requirement - Description', NULL, '1', '2', '2'),
+  ('3', 'Requirement 3', 'Requirement - Description', NULL, '2', '3', '3'),
+  ('4', 'Requirement 4', 'Requirement - Description', NULL, '2', '4', '3');
 
 REPLACE INTO `reqbaz`.`project_follower`
 (`Id`, `Project_Id`, `User_Id`)
 VALUES
-  ('1', '1', '1'),
-  ('2', '1', '2'),
-  ('3', '2', '3');
+  ('1', '1', '2'),
+  ('2', '1', '3'),
+  ('3', '2', '4');
 
 REPLACE INTO `reqbaz`.`component_follower`
 (`Id`, `Component_Id`, `User_Id`)
@@ -53,15 +53,15 @@ VALUES
 REPLACE INTO `reqbaz`.`requirement_follower`
 (`Id`, `Requirement_Id`, `User_Id`)
 VALUES
-  ('1', '1', '1'),
+  ('1', '1', '2'),
   ('2', '1', '4'),
   ('3', '2', '5');
 
 REPLACE INTO `reqbaz`.`developers`
 (`Id`, `Requirement_Id`, `User_Id`)
 VALUES
-  ('1', '1', '1'),
-  ('2', '1', '2');
+  ('1', '1', '2'),
+  ('2', '1', '3');
 
 REPLACE INTO `reqbaz`.`tags`
 (`Id`, `Components_Id`, `Requirements_Id`)
@@ -74,17 +74,17 @@ VALUES
 REPLACE INTO `reqbaz`.`comments`
 (`Id`, `message`, `Requirement_Id`, `User_Id`)
 VALUES
-  ('1', 'Comment', '1', '1'),
+  ('1', 'Comment', '1', '2'),
   ('2', 'Comment', '2', '2'),
-  ('3', 'Comment', '2', '1'),
+  ('3', 'Comment', '2', '2'),
   ('4', 'Comment', '3', '2'),
-  ('5', 'Comment', '4', '2'),
+  ('5', 'Comment', '4', '3'),
   ('6', 'Comment', '4', '5');
 
 REPLACE INTO `reqbaz`.`votes`
 (`Id`, `is_upvote`, `Requirement_Id`, `User_Id`)
 VALUES
-  ('1', '1', '1', '1'),
+  ('1', '1', '1', '2'),
   ('2', '1', '2', '3'),
   ('3', '1', '2', '2'),
   ('4', '1', '3', '4');
