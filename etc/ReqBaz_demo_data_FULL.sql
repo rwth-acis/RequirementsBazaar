@@ -426,7 +426,7 @@ REPLACE INTO `role_role` (`Id`, `Child_Id`, `Parent_Id`) VALUES
   (3, 4, 3);
 
 REPLACE INTO `user_role` (`Id`, `Roles_Id`, `Users_Id`) VALUES
-  (1, 1, 41);
+  (1, 1, 1);
 
 SET FOREIGN_KEY_CHECKS = 1;
 
