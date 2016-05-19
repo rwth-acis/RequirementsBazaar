@@ -10,7 +10,7 @@ import java.util.Date;
  */
 public interface NotificationDispatcher {
     void dispatchNotification(Service service, Date creationTime, Activity.ActivityAction activityAction,
-                              int dataId, Activity.DataType dataType, int userId);
+                              int dataId, Activity.DataType dataType, int parentDataId, Activity.DataType parentDataType, int userId);
 
     void setActivityDispatcher(ActivityDispatcher activityDispatcher);
 

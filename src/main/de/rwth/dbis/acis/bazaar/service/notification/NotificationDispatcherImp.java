@@ -26,7 +26,8 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
 
     @Override
     public void dispatchNotification(final Service service, final Date creationTime, final Activity.ActivityAction activityAction,
-                                     final int dataId, final Activity.DataType dataType, final int userId) {
+                                     final int dataId, final Activity.DataType dataType, final int parentDataId,
+                                     final Activity.DataType parentDataType, final int userId) {
 //        executorService.execute(new Runnable() {
 //            public void run() {
 //                if (activityDispatcher != null) {
@@ -42,7 +43,8 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
             }
         });
         if (activityDispatcher != null) {
-            activityDispatcher.sendActivityOverRMI(service, creationTime, activityAction, dataId, dataType, userId);
+            activityDispatcher.sendActivityOverRMI(service, creationTime, activityAction, dataId, dataType, parentDataId,
+                    parentDataType, userId);
         }
     }
 

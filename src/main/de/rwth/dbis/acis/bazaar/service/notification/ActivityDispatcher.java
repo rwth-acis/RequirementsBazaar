@@ -1,7 +1,12 @@
 package de.rwth.dbis.acis.bazaar.service.notification;
 
 import com.google.gson.Gson;
+import de.rwth.dbis.acis.bazaar.service.BazaarService;
+import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Component;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementEx;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
@@ -18,36 +23,60 @@ import java.util.Date;
  */
 public class ActivityDispatcher {
 
-    private final String baseURL;
+    private BazaarService bazaarService;
     private final String activityTrackerService;
+    private final String baseURL;
+    private final String frontendBaseURL;
 
-    public ActivityDispatcher(String baseURL, String activityTrackerService) {
-        this.baseURL = baseURL;
+    public ActivityDispatcher(BazaarService bazaarService, String activityTrackerService, String baseURL, String frontendBaseURL) {
+        this.bazaarService = bazaarService;
         this.activityTrackerService = activityTrackerService;
+        this.baseURL = baseURL;
+        this.frontendBaseURL = frontendBaseURL;
     }
 
     public void sendActivityOverRMI(Service service, Date creationTime, Activity.ActivityAction activityAction,
-                                    int dataId, Activity.DataType dataType, int userId) {
+                                    int dataId, Activity.DataType dataType, int parantDataId,
+                                    Activity.DataType parentDataTyp, int userId) {
+        DALFacade dalFacade = null;
         try {
+            dalFacade = bazaarService.createConnection();
+
             Gson gson = new Gson();
             Activity.Builder activityBuilder = Activity.getBuilder();
             activityBuilder = activityBuilder.creationTime(creationTime);
             activityBuilder = activityBuilder.activityAction(activityAction);
+
             String resourcePath = null;
+            String frontendResourcePath = new String();
             if (dataType.equals(Activity.DataType.PROJECT)) {
                 resourcePath = "projects";
+                frontendResourcePath = "projects" + "/" + String.valueOf(dataId);
             } else if (dataType.equals(Activity.DataType.COMPONENT)) {
                 resourcePath = "components";
+                Component component = dalFacade.getComponentById(dataId);
+                frontendResourcePath = "projects" + "/" + component.getProjectId() + "/" + "components" + "/" + String.valueOf(dataId);
             } else if (dataType.equals(Activity.DataType.REQUIREMENT)) {
                 resourcePath = "requirements";
+                RequirementEx requirement = dalFacade.getRequirementById(dataId, userId);
+                frontendResourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "components" + "/" +
+                        requirement.getComponents().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(dataId);
             } else if (dataType.equals(Activity.DataType.COMMENT)) {
                 resourcePath = "comments";
+                Comment comment = dalFacade.getCommentById(dataId);
+                RequirementEx requirement = dalFacade.getRequirementById(comment.getRequirementId(), userId);
+                frontendResourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "components" + "/" +
+                        requirement.getComponents().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(dataId);
             }
             resourcePath = resourcePath + "/" + String.valueOf(dataId);
+
             if (activityAction != Activity.ActivityAction.DELETE) {
                 activityBuilder = activityBuilder.dataUrl(baseURL + resourcePath);
             }
             activityBuilder = activityBuilder.dataType(dataType);
+            String frontendUrl = frontendBaseURL.concat(frontendResourcePath);
+            activityBuilder = activityBuilder.dataFrontendUrl(frontendUrl);
+            activityBuilder = activityBuilder.parentDataType(parentDataTyp);
             activityBuilder = activityBuilder.userUrl(baseURL + "users" + "/" + String.valueOf(userId));
             Activity activity = activityBuilder.build();
             Object result = service.invokeServiceMethod(activityTrackerService,
