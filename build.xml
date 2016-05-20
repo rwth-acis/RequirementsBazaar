@@ -277,7 +277,6 @@ agent-user-${las2peer_user.name}.xml;${las2peer_user.password}
 			<arg value='-w'/>
 			<arg value='-p'/>
 			<arg value='9011'/>
-			<arg value='-'/>
 			<arg value='uploadStartupDirectory(\"etc/startup\")'/>
 			<arg value='startService(\"de.rwth.dbis.acis.bazaar.service.BazaarService\",\"SampleServicePass\")'/>
             <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.UsersResource\",\"SampleServicePass\")'/>
