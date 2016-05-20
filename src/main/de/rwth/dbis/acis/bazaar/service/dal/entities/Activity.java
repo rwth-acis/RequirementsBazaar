@@ -9,6 +9,9 @@ public class Activity extends EntityBase {
     private final ActivityAction activityAction;
     private final String dataUrl;
     private final DataType dataType;
+    private final String dataFrontendUrl;
+    private final String parentDataUrl;
+    private final DataType parentDataType;
     private final String userUrl;
 
     @Override
@@ -32,6 +35,18 @@ public class Activity extends EntityBase {
         return dataType;
     }
 
+    public String getDataFrontendUrl() {
+        return dataFrontendUrl;
+    }
+
+    public String getParentDataUrl() {
+        return parentDataUrl;
+    }
+
+    public DataType getParentDataType() {
+        return parentDataType;
+    }
+
     public String getUserUrl() {
         return userUrl;
     }
@@ -42,6 +57,9 @@ public class Activity extends EntityBase {
         this.activityAction = builder.activityAction;
         this.dataUrl = builder.dataUrl;
         this.dataType = builder.dataType;
+        this.dataFrontendUrl = builder.dataFrontendUrl;
+        this.parentDataUrl = builder.parentDataUrl;
+        this.parentDataType = builder.parentDataType;
         this.userUrl = builder.userUrl;
     }
 
@@ -56,6 +74,9 @@ public class Activity extends EntityBase {
         protected ActivityAction activityAction;
         protected String dataUrl;
         protected DataType dataType;
+        protected String dataFrontendUrl;
+        protected String parentDataUrl;
+        protected DataType parentDataType;
         protected String userUrl;
 
         public Builder creationTime(Date creationTime) {
@@ -75,6 +96,21 @@ public class Activity extends EntityBase {
 
         public Builder dataType(DataType dataType) {
             this.dataType = dataType;
+            return this;
+        }
+
+        public Builder dataFrontendUrl(String dataFrontendUrl) {
+            this.dataFrontendUrl = dataFrontendUrl;
+            return this;
+        }
+
+        public Builder parentDataUrl(String parentDataUrl) {
+            this.parentDataUrl = parentDataUrl;
+            return this;
+        }
+
+        public Builder parentDataType(DataType parentDataType) {
+            this.parentDataType = parentDataType;
             return this;
         }
 

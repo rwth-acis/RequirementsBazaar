@@ -175,7 +175,7 @@ public class BazaarService extends Service {
 
         notificationDispatcher = new NotificationDispatcherImp();
         if (! activityTrackerService.isEmpty()) {
-            notificationDispatcher.setActivityDispatcher(new ActivityDispatcher(baseURL, activityTrackerService));
+            notificationDispatcher.setActivityDispatcher(new ActivityDispatcher(this, activityTrackerService, baseURL, frontendBaseURL));
         }
         if (! smtpServer.isEmpty()) {
             Properties props = System.getProperties();
