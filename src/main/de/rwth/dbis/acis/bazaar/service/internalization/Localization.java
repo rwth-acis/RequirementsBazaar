@@ -29,6 +29,7 @@ import java.util.ResourceBundle;
 public class Localization {
     private static Localization instance = null;
     private ResourceBundle resourceBundle;
+
     protected Localization() {
         // Exists only to defeat instantiation.
     }
@@ -42,7 +43,7 @@ public class Localization {
     }
 
     public static Localization getInstance() {
-        if(instance == null) {
+        if (instance == null) {
             instance = new Localization();
         }
         return instance;

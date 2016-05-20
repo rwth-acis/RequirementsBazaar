@@ -1,52 +1,67 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
 REPLACE INTO `reqbaz`.`users`
-(`Id`, `first_name`, `last_name`, `email`, `admin`, `Las2peer_Id`, `user_name`, `profile_image`)
+(`Id`, `first_name`, `last_name`, `email`, `admin`, `Las2peer_Id`, `user_name`, `profile_image`, `email_lead_items`, `email_follow_items`)
 VALUES
   ('1', NULL, NULL, 'anonymous@requirements-bazaar.org', '0', '-1722613621014065292', 'anonymous',
-   'https://api.learning-layers.eu/profile.png');
-
+   'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('2', 'Max1', 'Mustermann1', 'Max@Mustermann1.de', '1', '1', 'MaxMustermann1',
+   'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('3', 'Max2', 'Mustermann2', 'Max@Mustermann2.de', '1', '2', 'MaxMustermann2',
+   'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('4', 'Max3', 'Mustermann3', 'Max@Mustermann3.de', '1', '3', 'MaxMustermann3',
+   'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('5', 'Max4', 'Mustermann4', 'Max@Mustermann4.de', '1', '4', 'MaxMustermann4',
+   'https://api.learning-layers.eu/profile.png', '0', '0');
 
 REPLACE INTO `reqbaz`.`projects`
 (`Id`, `name`, `description`, `visibility`, `Leader_Id`, `Default_Components_Id`)
 VALUES
-  ('1', 'Layers', 'This is everything about Layers', '+', '1', NULL),
-  ('2', 'Requirements Bazaar', 'This project is about Requirement Bazaar', '+', '1', NULL);
-
+  ('1', 'Project 1', 'Project 1 - Description - This project is visible - leader MaxMustermann1', '+', '2', '1'),
+  ('2', 'Project 2', 'Project 2 - Description - This project is visible - leader MaxMustermann2', '+', '3', '4');
 
 REPLACE INTO `reqbaz`.`components`
 (`Id`, `name`, `description`, `Project_Id`, `Leader_Id`)
 VALUES
-  ('1', 'Layers Box', 'This is a play box component for the Layers project.', '1 ', '1'),
-  ('2', 'Web App', 'Post your requirements about the Requirement Bazaar Web app under this component', '2', '1');
-
-UPDATE `reqbaz`.`projects`
-SET `Default_Components_Id` = '1'
-WHERE `Id` = '1 ';
-UPDATE `reqbaz`.`projects`
-SET `Default_Components_Id` = '2'
-WHERE `Id` = '2 ';
+  ('1', 'Component 1', 'Component 1 for Project 1', '1 ', '2'),
+  ('2', 'Component 2', 'Component 2 for Project 1', '1', '2'),
+  ('3', 'Component 3', 'Component 3 for Project 1', '1', '3'),
+  ('4', 'Component 4', 'Component 4 for Project 2', '1', '4');
 
 REPLACE INTO `reqbaz`.`requirements`
-(`Id`, `title`, `description`, `Lead_developer_Id`, `Creator_Id`, `Project_Id`)
+(`Id`, `title`, `description`, `realized`, `Lead_developer_Id`, `Creator_Id`, `Project_Id`)
 VALUES
-  ('1', 'Requirement ', 'Requirement - Description', '1', '1', '1'),
-  ('2', 'Requirement ', 'Requirement - Description', '1', '1', '1'),
-  ('3', 'Requirement ', 'Requirement - Description', '2', '1', '1'),
-  ('4', 'Requirement ', 'Requirement - Description', '2', '1', '1');
+  ('1', 'Requirement 1', 'Requirement - Description', NULL, '1', '1', '2'),
+  ('2', 'Requirement 2', 'Requirement - Description', NULL, '1', '2', '2'),
+  ('3', 'Requirement 3', 'Requirement - Description', NULL, '2', '3', '3'),
+  ('4', 'Requirement 4', 'Requirement - Description', NULL, '2', '4', '3');
 
-REPLACE INTO `reqbaz`.`followers`
+REPLACE INTO `reqbaz`.`project_follower`
+(`Id`, `Project_Id`, `User_Id`)
+VALUES
+  ('1', '1', '2'),
+  ('2', '1', '3'),
+  ('3', '2', '4');
+
+REPLACE INTO `reqbaz`.`component_follower`
+(`Id`, `Component_Id`, `User_Id`)
+VALUES
+  ('1', '1', '3'),
+  ('2', '1', '4'),
+  ('3', '2', '5');
+
+REPLACE INTO `reqbaz`.`requirement_follower`
 (`Id`, `Requirement_Id`, `User_Id`)
 VALUES
-  ('1', '1', '1'),
-  ('2', '1', '1'),
-  ('3', '2', '1');
+  ('1', '1', '2'),
+  ('2', '1', '4'),
+  ('3', '2', '5');
 
 REPLACE INTO `reqbaz`.`developers`
 (`Id`, `Requirement_Id`, `User_Id`)
 VALUES
-  ('1', '1', '1'),
-  ('2', '1', '1');
+  ('1', '1', '2'),
+  ('2', '1', '3');
 
 REPLACE INTO `reqbaz`.`tags`
 (`Id`, `Components_Id`, `Requirements_Id`)
@@ -54,23 +69,25 @@ VALUES
   ('1', '1', '1'),
   ('2', '1', '2'),
   ('3', '2', '3'),
-  ('4', '2', '4');
+  ('4', '4', '4');
 
 REPLACE INTO `reqbaz`.`comments`
 (`Id`, `message`, `Requirement_Id`, `User_Id`)
 VALUES
-  ('1', 'Comment', '1', '1'),
-  ('2', 'Comment', '2', '1'),
-  ('3', 'Comment', '2', '1'),
-  ('4', 'Comment', '3', '1');
+  ('1', 'Comment', '1', '2'),
+  ('2', 'Comment', '2', '2'),
+  ('3', 'Comment', '2', '2'),
+  ('4', 'Comment', '3', '2'),
+  ('5', 'Comment', '4', '3'),
+  ('6', 'Comment', '4', '5');
 
 REPLACE INTO `reqbaz`.`votes`
 (`Id`, `is_upvote`, `Requirement_Id`, `User_Id`)
 VALUES
-  ('1', '1', '1', '1'),
-  ('2', '1', '2', '1'),
-  ('3', '1', '2', '1'),
-  ('4', '1', '3', '1');
+  ('1', '1', '1', '2'),
+  ('2', '1', '2', '3'),
+  ('3', '1', '2', '2'),
+  ('4', '1', '3', '4');
 
 REPLACE INTO `roles` (`Id`, `name`) VALUES
   (1, 'Anonymous'),
@@ -137,7 +154,6 @@ REPLACE INTO `role_privilege` (`Id`, `Roles_Id`, `Privileges_Id`) VALUES
   (28, 4, 24),
   (29, 4, 25),
   (30, 4, 26);
-
 
 REPLACE INTO `role_role` (`Id`, `Child_Id`, `Parent_Id`) VALUES
   (1, 2, 1),

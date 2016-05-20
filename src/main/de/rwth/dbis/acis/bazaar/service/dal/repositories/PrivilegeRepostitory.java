@@ -21,13 +21,12 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Privilege;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 2/18/2015
  */
-public interface PrivilegeRepostitory  extends Repository<Privilege>{
+public interface PrivilegeRepostitory extends Repository<Privilege> {
     Privilege findByName(String privilege) throws BazaarException;
 }

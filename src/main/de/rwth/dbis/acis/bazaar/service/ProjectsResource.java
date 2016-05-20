@@ -15,15 +15,12 @@ import i5.las2peer.restMapper.HttpResponse;
 import i5.las2peer.restMapper.MediaType;
 import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.ContentParam;
-import i5.las2peer.security.Context;
 import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
 import jodd.vtor.Vtor;
 
 import javax.ws.rs.*;
-import java.io.Serializable;
 import java.net.HttpURLConnection;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -32,7 +29,6 @@ import java.util.List;
 public class ProjectsResource extends Service {
 
     private BazaarService bazaarService;
-    private final String resourcePath = "projects";
 
     /**
      * This method is needed for every RESTful application in LAS2peer.
@@ -201,8 +197,8 @@ public class ProjectsResource extends Service {
             }
             projectToCreate.setLeaderId(internalUserId);
             Project createdProject = dalFacade.createProject(projectToCreate);
-            bazaarService.sendActivityOverRMI(this, createdProject.getCreation_time(), Activity.ActivityAction.CREATE, createdProject.getId(),
-                    Activity.DataType.PROJECT, resourcePath, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, createdProject.getCreation_time(), Activity.ActivityAction.CREATE, createdProject.getId(),
+                    Activity.DataType.PROJECT, 0, null, internalUserId);
             return new HttpResponse(gson.toJson(createdProject), HttpURLConnection.HTTP_CREATED);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -262,8 +258,8 @@ public class ProjectsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
             }
             Project updatedProject = dalFacade.modifyProject(projectToUpdate);
-            bazaarService.sendActivityOverRMI(this, updatedProject.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedProject.getId(),
-                    Activity.DataType.PROJECT, resourcePath, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, updatedProject.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedProject.getId(),
+                    Activity.DataType.PROJECT, 0, null, internalUserId);
             return new HttpResponse(gson.toJson(updatedProject), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -425,7 +421,7 @@ public class ProjectsResource extends Service {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
                 }
             }
-            List<Requirement> requirements = dalFacade.listRequirementsByProject(projectId, pageInfo, internalUserId);
+            List<RequirementEx> requirements = dalFacade.listRequirementsByProject(projectId, pageInfo, internalUserId);
             return new HttpResponse(gson.toJson(requirements), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {

@@ -4,13 +4,13 @@
 	<classpathentry kind="src" output="tmp/test" path="src/test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/hamcrest-core-1.3.jar"/>
-	<classpathentry kind="lib" path="lib/las2peer-0.4-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/las2peer-0.4.0.jar"/>
 	<classpathentry kind="lib" path="lib/las2peer-rest-mapper-0.4-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/las2peer-web-connector-0.4-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/junit-4.11.jar"/>
 	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.7.2.jar" sourcepath="lib/sqlite-jdbc-3.7.2.jar"/>
 	<classpathentry kind="lib" path="lib/gson-2.3.jar"/>
-	<classpathentry kind="lib" path="lib/jooq-3.4.2.jar"/>
+	<classpathentry kind="lib" path="lib/jooq-3.7.2.jar"/>
 	<classpathentry kind="lib" path="lib/mysql-connector-java-5.1.33.jar"/>
 	<classpathentry kind="lib" path="lib/jodd-bean-3.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/jodd-core-3.6.1.jar"/>
@@ -23,35 +23,34 @@
 	<classpathentry kind="lib" path="lib/FreePastry-2.1.jar"/>
 	<classpathentry kind="lib" path="lib/hamcrest-all-1.3.jar"/>
 	<classpathentry kind="lib" path="lib/i5-simpleXML-0.2.jar"/>
-	<classpathentry kind="lib" path="/RequirementsBazaar/lib/jackson-annotations-2.4.2.jar"/>
-	<classpathentry kind="lib" path="/RequirementsBazaar/lib/jackson-core-2.4.2.jar"/>
-	<classpathentry kind="lib" path="/RequirementsBazaar/lib/jackson-databind-2.4.2.jar"/>
-	<classpathentry kind="lib" path="/RequirementsBazaar/lib/jackson-dataformat-xml-2.4.2.jar"/>
-	<classpathentry kind="lib" path="/RequirementsBazaar/lib/jackson-dataformat-yaml-2.4.2.jar"/>
-	<classpathentry kind="lib" path="/RequirementsBazaar/lib/jackson-datatype-joda-2.4.2.jar"/>
-	<classpathentry kind="lib" path="/RequirementsBazaar/lib/jackson-jaxrs-base-2.4.2.jar"/>
-	<classpathentry kind="lib" path="/RequirementsBazaar/lib/jackson-jaxrs-json-provider-2.4.2.jar"/>
-	<classpathentry kind="lib" path="/RequirementsBazaar/lib/jackson-module-jaxb-annotations-2.4.2.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-annotations-2.4.5.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-core-2.4.5.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-databind-2.4.5.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-dataformat-xml-2.4.5.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-dataformat-yaml-2.4.5.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-datatype-joda-2.4.5.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-jaxrs-base-2.4.5.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-jaxrs-json-provider-2.4.5.jar"/>
+	<classpathentry kind="lib" path="lib/jackson-module-jaxb-annotations-2.4.5.jar"/>
 	<classpathentry kind="lib" path="lib/integration-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/jcip-annotations-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/integration-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/integration-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/jdbc-api-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/json-simple-1.1.jar"/>
 	<classpathentry kind="lib" path="lib/json-smart-1.1.1.jar"/>
-	<classpathentry kind="lib" path="lib/jooq-meta-3.4.2.jar"/>
-	<classpathentry kind="lib" path="lib/jooq-codegen-3.4.2.jar"/>
-	<classpathentry kind="lib" path="/RequirementsBazaar/lib/jsr311-api-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/jooq-meta-3.7.2.jar"/>
+	<classpathentry kind="lib" path="lib/jooq-codegen-3.7.2.jar"/>
+	<classpathentry kind="lib" path="lib/jsr311-api-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/lang-tag-1.4.jar"/>
 	<classpathentry kind="lib" path="lib/nestedvm-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/mail-1.4.7.jar"/>
 	<classpathentry kind="lib" path="lib/nimbus-jose-jwt-2.26.jar"/>
 	<classpathentry kind="lib" path="lib/oauth2-oidc-sdk-3.3.jar"/>
 	<classpathentry kind="lib" path="lib/persistence-api-1.0.jar"/>
-	<classpathentry kind="lib" path="/RequirementsBazaar/lib/swagger-annotations-1.5.0.jar"/>
-	<classpathentry kind="lib" path="/RequirementsBazaar/lib/swagger-core-1.5.0.jar"/>
-	<classpathentry kind="lib" path="/RequirementsBazaar/lib/swagger-jaxrs-1.5.0.jar"/>
-	<classpathentry kind="lib" path="/RequirementsBazaar/lib/swagger-models-1.5.0.jar"/>
+	<classpathentry kind="lib" path="lib/swagger-annotations-1.5.4.jar"/>
+	<classpathentry kind="lib" path="lib/swagger-core-1.5.4.jar"/>
+	<classpathentry kind="lib" path="lib/swagger-jaxrs-1.5.4.jar"/>
+	<classpathentry kind="lib" path="lib/swagger-models-1.5.4.jar"/>
 	<classpathentry kind="lib" path="lib/xpp3-1.1.4c.jar"/>
 	<classpathentry kind="output" path="tmp/classes"/>
 </classpath>

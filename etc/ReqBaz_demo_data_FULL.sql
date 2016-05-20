@@ -1,79 +1,80 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
 REPLACE INTO `reqbaz`.`users`
-(`Id`, `first_name`, `last_name`, `email`, `admin`, `Las2peer_Id`, `user_name`, `profile_image`)
+(`Id`, `first_name`, `last_name`, `email`, `admin`, `Las2peer_Id`, `user_name`, `profile_image`, `email_lead_items`, `email_follow_items`)
 VALUES
-  ('1', 'Max1', 'Mustermann1', 'Max@Mustermann1.de', '1', '1', 'MaxMustermann1',
-   'https://api.learning-layers.eu/profile.png'),
-  ('2', 'Max2', 'Mustermann2', 'Max@Mustermann2.de', '1', '2', 'MaxMustermann2', 'https://api.learning-layers.eu/profile.png'),
-  ('3', 'Max3', 'Mustermann3', 'Max@Mustermann3.de', '1', '3', 'MaxMustermann3', 'https://api.learning-layers.eu/profile.png'),
-  ('4', 'Max4', 'Mustermann4', 'Max@Mustermann4.de', '1', '4', 'MaxMustermann4', 'https://api.learning-layers.eu/profile.png'),
-  ('5', 'Max5', 'Mustermann5', 'Max@Mustermann5.de', '1', '5', 'MaxMustermann5', 'https://api.learning-layers.eu/profile.png'),
-  ('6', 'Max6', 'Mustermann6', 'Max@Mustermann6.de', '1', '6', 'MaxMustermann6', 'https://api.learning-layers.eu/profile.png'),
-  ('7', 'Max7', 'Mustermann7', 'Max@Mustermann7.de', '1', '7', 'MaxMustermann7', 'https://api.learning-layers.eu/profile.png'),
-  ('8', 'Max8', 'Mustermann8', 'Max@Mustermann8.de', '1', '8', 'MaxMustermann8', 'https://api.learning-layers.eu/profile.png'),
-  ('9', 'Max9', 'Mustermann9', 'Max@Mustermann9.de', '1', '9', 'MaxMustermann9', 'https://api.learning-layers.eu/profile.png'),
-  ('10', 'Max10', 'Mustermann10', 'Max@Mustermann10.de', '0', '10', 'MaxMustermann10', 'https://api.learning-layers.eu/profile.png'),
-  ('11', 'Max11', 'Mustermann11', 'Max@Mustermann11.de', '0', '11', 'MaxMustermann11', 'https://api.learning-layers.eu/profile.png'),
-  ('12', 'Max12', 'Mustermann12', 'Max@Mustermann12.de', '0', '12', 'MaxMustermann12', 'https://api.learning-layers.eu/profile.png'),
-  ('13', 'Max13', 'Mustermann13', 'Max@Mustermann13.de', '0', '13', 'MaxMustermann13', 'https://api.learning-layers.eu/profile.png'),
-  ('14', 'Max14', 'Mustermann14', 'Max@Mustermann14.de', '0', '14', 'MaxMustermann14', 'https://api.learning-layers.eu/profile.png'),
-  ('15', 'Max15', 'Mustermann15', 'Max@Mustermann15.de', '0', '15', 'MaxMustermann15', 'https://api.learning-layers.eu/profile.png'),
-  ('16', 'Max16', 'Mustermann16', 'Max@Mustermann16.de', '0', '16', 'MaxMustermann16', 'https://api.learning-layers.eu/profile.png'),
-  ('17', 'Max17', 'Mustermann17', 'Max@Mustermann17.de', '0', '17', 'MaxMustermann17', 'https://api.learning-layers.eu/profile.png'),
-  ('18', 'Max18', 'Mustermann18', 'Max@Mustermann18.de', '0', '18', 'MaxMustermann18', 'https://api.learning-layers.eu/profile.png'),
-  ('19', 'Max19', 'Mustermann19', 'Max@Mustermann19.de', '0', '19', 'MaxMustermann19', 'https://api.learning-layers.eu/profile.png'),
-  ('20', 'Max20', 'Mustermann20', 'Max@Mustermann20.de', '0', '20', 'MaxMustermann20', 'https://api.learning-layers.eu/profile.png'),
-  ('21', 'Max21', 'Mustermann21', 'Max@Mustermann21.de', '0', '21', 'MaxMustermann21', 'https://api.learning-layers.eu/profile.png'),
-  ('22', 'Max22', 'Mustermann22', 'Max@Mustermann22.de', '0', '22', 'MaxMustermann22', 'https://api.learning-layers.eu/profile.png'),
-  ('23', 'Max23', 'Mustermann23', 'Max@Mustermann23.de', '0', '23', 'MaxMustermann23', 'https://api.learning-layers.eu/profile.png'),
-  ('24', 'Max24', 'Mustermann24', 'Max@Mustermann24.de', '0', '24', 'MaxMustermann24', 'https://api.learning-layers.eu/profile.png'),
-  ('25', 'Max25', 'Mustermann25', 'Max@Mustermann25.de', '0', '25', 'MaxMustermann25', 'https://api.learning-layers.eu/profile.png'),
-  ('26', 'Max26', 'Mustermann26', 'Max@Mustermann26.de', '0', '26', 'MaxMustermann26', 'https://api.learning-layers.eu/profile.png'),
-  ('27', 'Max27', 'Mustermann27', 'Max@Mustermann27.de', '0', '27', 'MaxMustermann27', 'https://api.learning-layers.eu/profile.png'),
-  ('28', 'Max28', 'Mustermann28', 'Max@Mustermann28.de', '0', '28', 'MaxMustermann28', 'https://api.learning-layers.eu/profile.png'),
-  ('29', 'Max29', 'Mustermann29', 'Max@Mustermann29.de', '0', '29', 'MaxMustermann29', 'https://api.learning-layers.eu/profile.png'),
-  ('30', 'Max30', 'Mustermann30', 'Max@Mustermann30.de', '0', '30', 'MaxMustermann30', 'https://api.learning-layers.eu/profile.png'),
-  ('31', 'Max31', 'Mustermann31', 'Max@Mustermann31.de', '0', '31', 'MaxMustermann31', 'https://api.learning-layers.eu/profile.png'),
-  ('32', 'Max32', 'Mustermann32', 'Max@Mustermann32.de', '0', '32', 'MaxMustermann32', 'https://api.learning-layers.eu/profile.png'),
-  ('33', 'Max33', 'Mustermann33', 'Max@Mustermann33.de', '0', '33', 'MaxMustermann33', 'https://api.learning-layers.eu/profile.png'),
-  ('34', 'Max34', 'Mustermann34', 'Max@Mustermann34.de', '0', '34', 'MaxMustermann34', 'https://api.learning-layers.eu/profile.png'),
-  ('35', 'Max35', 'Mustermann35', 'Max@Mustermann35.de', '0', '35', 'MaxMustermann35', 'https://api.learning-layers.eu/profile.png'),
-  ('36', 'Max36', 'Mustermann36', 'Max@Mustermann36.de', '0', '36', 'MaxMustermann36', 'https://api.learning-layers.eu/profile.png'),
-  ('37', 'Max37', 'Mustermann37', 'Max@Mustermann37.de', '0', '37', 'MaxMustermann37', 'https://api.learning-layers.eu/profile.png'),
-  ('38', 'Max38', 'Mustermann38', 'Max@Mustermann38.de', '0', '38', 'MaxMustermann38', 'https://api.learning-layers.eu/profile.png'),
-  ('39', 'Max39', 'Mustermann39', 'Max@Mustermann39.de', '0', '39', 'MaxMustermann39', 'https://api.learning-layers.eu/profile.png'),
-  ('40', 'Max40', 'Mustermann40', 'Max@Mustermann40.de', '0', '40', 'MaxMustermann40', 'https://api.learning-layers.eu/profile.png'),
-  ('41', NULL, NULL, 'anonymous@requirements-bazaar.org', '0', '-1722613621014065292', 'anonymous', 'https://api.learning-layers.eu/profile.png');
+  ('1', NULL, NULL, 'anonymous@requirements-bazaar.org', '0', '-1722613621014065292', 'anonymous',
+   'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('2', 'Max1', 'Mustermann1', 'Max@Mustermann1.de', '1', '1', 'MaxMustermann1', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('3', 'Max2', 'Mustermann2', 'Max@Mustermann2.de', '1', '2', 'MaxMustermann2', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('4', 'Max3', 'Mustermann3', 'Max@Mustermann3.de', '1', '3', 'MaxMustermann3', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('5', 'Max4', 'Mustermann4', 'Max@Mustermann4.de', '1', '4', 'MaxMustermann4', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('6', 'Max5', 'Mustermann5', 'Max@Mustermann5.de', '1', '5', 'MaxMustermann5', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('7', 'Max6', 'Mustermann6', 'Max@Mustermann6.de', '1', '6', 'MaxMustermann6', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('8', 'Max7', 'Mustermann7', 'Max@Mustermann7.de', '1', '7', 'MaxMustermann7', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('9', 'Max8', 'Mustermann8', 'Max@Mustermann8.de', '1', '8', 'MaxMustermann8', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('10', 'Max9', 'Mustermann9', 'Max@Mustermann9.de', '1', '9', 'MaxMustermann9', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('11', 'Max10', 'Mustermann10', 'Max@Mustermann10.de', '0', '10', 'MaxMustermann10', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('12', 'Max11', 'Mustermann11', 'Max@Mustermann11.de', '0', '11', 'MaxMustermann11', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('13', 'Max12', 'Mustermann12', 'Max@Mustermann12.de', '0', '12', 'MaxMustermann12', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('14', 'Max13', 'Mustermann13', 'Max@Mustermann13.de', '0', '13', 'MaxMustermann13', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('15', 'Max14', 'Mustermann14', 'Max@Mustermann14.de', '0', '14', 'MaxMustermann14', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('16', 'Max15', 'Mustermann15', 'Max@Mustermann15.de', '0', '15', 'MaxMustermann15', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('17', 'Max16', 'Mustermann16', 'Max@Mustermann16.de', '0', '16', 'MaxMustermann16', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('18', 'Max17', 'Mustermann17', 'Max@Mustermann17.de', '0', '17', 'MaxMustermann17', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('19', 'Max18', 'Mustermann18', 'Max@Mustermann18.de', '0', '18', 'MaxMustermann18', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('20', 'Max19', 'Mustermann19', 'Max@Mustermann19.de', '0', '19', 'MaxMustermann19', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('21', 'Max20', 'Mustermann20', 'Max@Mustermann20.de', '0', '20', 'MaxMustermann20', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('22', 'Max21', 'Mustermann21', 'Max@Mustermann21.de', '0', '21', 'MaxMustermann21', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('23', 'Max22', 'Mustermann22', 'Max@Mustermann22.de', '0', '22', 'MaxMustermann22', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('24', 'Max23', 'Mustermann23', 'Max@Mustermann23.de', '0', '23', 'MaxMustermann23', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('25', 'Max24', 'Mustermann24', 'Max@Mustermann24.de', '0', '24', 'MaxMustermann24', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('26', 'Max25', 'Mustermann25', 'Max@Mustermann25.de', '0', '25', 'MaxMustermann25', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('27', 'Max26', 'Mustermann26', 'Max@Mustermann26.de', '0', '26', 'MaxMustermann26', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('28', 'Max27', 'Mustermann27', 'Max@Mustermann27.de', '0', '27', 'MaxMustermann27', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('29', 'Max28', 'Mustermann28', 'Max@Mustermann28.de', '0', '28', 'MaxMustermann28', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('30', 'Max29', 'Mustermann29', 'Max@Mustermann29.de', '0', '29', 'MaxMustermann29', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('31', 'Max30', 'Mustermann30', 'Max@Mustermann30.de', '0', '30', 'MaxMustermann30', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('32', 'Max31', 'Mustermann31', 'Max@Mustermann31.de', '0', '31', 'MaxMustermann31', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('33', 'Max32', 'Mustermann32', 'Max@Mustermann32.de', '0', '32', 'MaxMustermann32', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('34', 'Max33', 'Mustermann33', 'Max@Mustermann33.de', '0', '33', 'MaxMustermann33', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('35', 'Max34', 'Mustermann34', 'Max@Mustermann34.de', '0', '34', 'MaxMustermann34', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('36', 'Max35', 'Mustermann35', 'Max@Mustermann35.de', '0', '35', 'MaxMustermann35', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('37', 'Max36', 'Mustermann36', 'Max@Mustermann36.de', '0', '36', 'MaxMustermann36', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('38', 'Max37', 'Mustermann37', 'Max@Mustermann37.de', '0', '37', 'MaxMustermann37', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('39', 'Max38', 'Mustermann38', 'Max@Mustermann38.de', '0', '38', 'MaxMustermann38', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('40', 'Max39', 'Mustermann39', 'Max@Mustermann39.de', '0', '39', 'MaxMustermann39', 'https://api.learning-layers.eu/profile.png', '0', '0'),
+  ('41', 'Max40', 'Mustermann40', 'Max@Mustermann40.de', '0', '40', 'MaxMustermann40', 'https://api.learning-layers.eu/profile.png', '0', '0');
 
 REPLACE INTO `reqbaz`.`projects`
 (`Id`, `name`, `description`, `visibility`, `Leader_Id`, `Default_Components_Id`)
 VALUES
-  ('1', 'Project 1', 'Project 1 - Description - This project is visible - leader MaxMustermann1', '+', '1', NULL),
-  ('2', 'Project 2', 'Project 2 - Description - This project is visible - leader MaxMustermann1', '+', '1', NULL),
-  ('3', 'Project 3', 'Project 3 - Description - This project is visible - leader MaxMustermann1', '+', '1', NULL),
-  ('4', 'Project 4', 'Project 4 - Description - This project is visible - leader MaxMustermann2', '+', '2', NULL),
-  ('5', 'Project 5', 'Project 5 - Description - This project is visible - leader MaxMustermann3', '+', '3', NULL),
-  ('6', 'Project 6', 'Project 6 - Description - This project is visible - leader MaxMustermann4', '+', '4', NULL),
-  ('7', 'Project 7', 'Project 7 - Description - This project is visible - leader MaxMustermann5', '+', '5', NULL),
-  ('8', 'Project 8', 'Project 8 - Description - This project is visible - leader MaxMustermann6  - Has no components',
-   '+', '6', NULL),
-  ('9', 'Project 9', 'Project 9 - Description - This project is not visible - leader MaxMustermann7', '-', '7', NULL),
+  ('1', 'Project 1', 'Project 1 - Description - This project is visible - leader MaxMustermann1', '+', '2', '31'),
+  ('2', 'Project 2', 'Project 2 - Description - This project is visible - leader MaxMustermann1', '+', '2', '32'),
+  ('3', 'Project 3', 'Project 3 - Description - This project is visible - leader MaxMustermann1', '+', '2', '33'),
+  ('4', 'Project 4', 'Project 4 - Description - This project is visible - leader MaxMustermann2', '+', '3', '34'),
+  ('5', 'Project 5', 'Project 5 - Description - This project is visible - leader MaxMustermann3', '+', '3', '35'),
+  ('6', 'Project 6', 'Project 6 - Description - This project is visible - leader MaxMustermann4', '+', '4', '36'),
+  ('7', 'Project 7', 'Project 7 - Description - This project is visible - leader MaxMustermann5', '+', '5', '37'),
+  ('8', 'Project 8',
+   'Project 8 - Description - This project is visible - leader MaxMustermann6  - Has only default component',
+   '+', '6', '38'),
+  ('9', 'Project 9', 'Project 9 - Description - This project is not visible - leader MaxMustermann7', '-', '7', '39'),
   ('10', 'Project 10', 'Project 10 - Description - This project is not visible - leader MaxMustermann8', '-', '8',
-   NULL);
+   '40');
 
 REPLACE INTO `reqbaz`.`components`
 (`Id`, `name`, `description`, `Project_Id`, `Leader_Id`)
 VALUES
-  ('1', 'Component 1', 'Component  - Description', '1', '1'),
-  ('2', 'Component 2', 'Component  - Description', '1', '2'),
-  ('3', 'Component 3', 'Component  - Description', '1', '2'),
-  ('4', 'Component 4', 'Component  - Description', '1', '2'),
-  ('5', 'Component 5', 'Component  - Description', '1', '2'),
-  ('6', 'Component 6', 'Component  - Description', '1', '3'),
-  ('7', 'Component 7', 'Component  - Description', '1', '4'),
-  ('8', 'Component 8', 'Component  - Description', '2', '5'),
-  ('9', 'Component 9', 'Component  - Description', '2', '6'),
+  ('1', 'Component 1', 'Component  - Description', '2', '2'),
+  ('2', 'Component 2', 'Component  - Description', '2', '2'),
+  ('3', 'Component 3', 'Component  - Description', '2', '2'),
+  ('4', 'Component 4', 'Component  - Description', '2', '2'),
+  ('5', 'Component 5', 'Component  - Description', '2', '2'),
+  ('6', 'Component 6', 'Component  - Description', '3', '3'),
+  ('7', 'Component 7', 'Component  - Description', '4', '4'),
+  ('8', 'Component 8', 'Component  - Description', '5', '5'),
+  ('9', 'Component 9', 'Component  - Description', '6', '6'),
   ('10', 'Component 10', 'Component  - Description', '2', '7'),
   ('11', 'Component 11', 'Component  - Description', '2', '8'),
   ('12', 'Component 12', 'Component  - Description', '2', '9'),
@@ -86,18 +87,18 @@ VALUES
   ('19', 'Component 19', 'Component  - Description', '4', '16'),
   ('20', 'Component 20', 'Component  - Description', '5', '17'),
   ('21', 'Component 21', 'Component  - Description', '5', '18'),
-  ('22', 'Component 22', 'Component  - Description', '5', '1'),
-  ('23', 'Component 23', 'Component  - Description', '6', '1'),
-  ('24', 'Component 24', 'Component  - Description', '6', '1'),
-  ('25', 'Component 25', 'Component  - Description', '7', '1'),
-  ('26', 'Component 26', 'Component  - Description', '7', '1'),
-  ('27', 'Component 27', 'Component  - Description', '9', '1'),
-  ('28', 'Component 28', 'Component  - Description', '10', '1'),
-  ('29', 'Component 29', 'Component  - Description', '10', '1'),
-  ('30', 'Component 30', 'Component  - Description', '10', '1'),
-  ('31', 'Default P1 ', 'Default component for Project 1 ', '1 ', '1'),
-  ('32', 'Default-P2 ', 'Default component for Project 2 ', '2 ', '1'),
-  ('33', 'Default-P3 ', 'Default component for Project 3 ', '3 ', '1'),
+  ('22', 'Component 22', 'Component  - Description', '5', '19'),
+  ('23', 'Component 23', 'Component  - Description', '6', '19'),
+  ('24', 'Component 24', 'Component  - Description', '6', '19'),
+  ('25', 'Component 25', 'Component  - Description', '7', '19'),
+  ('26', 'Component 26', 'Component  - Description', '7', '19'),
+  ('27', 'Component 27', 'Component  - Description', '9', '19'),
+  ('28', 'Component 28', 'Component  - Description', '10', '19'),
+  ('29', 'Component 29', 'Component  - Description', '10', '19'),
+  ('30', 'Component 30', 'Component  - Description', '10', '19'),
+  ('31', 'Default P1 ', 'Default component for Project 1 ', '5 ', '2'),
+  ('32', 'Default-P2 ', 'Default component for Project 2 ', '2 ', '2'),
+  ('33', 'Default-P3 ', 'Default component for Project 3 ', '3 ', '2'),
   ('34', 'Default-P4 ', 'Default component for Project 4 ', '4 ', '2'),
   ('35', 'Default-P5 ', 'Default component for Project 5 ', '5 ', '3'),
   ('36', 'Default-P6 ', 'Default component for Project 6 ', '6 ', '4'),
@@ -106,128 +107,56 @@ VALUES
   ('39', 'Default-P9 ', 'Default component for Project 9 ', '9 ', '7'),
   ('40', 'Default-P10', 'Default component for Project 10', '10', '8');
 
-UPDATE `reqbaz`.`projects`
-SET `Default_Components_Id` = '31'
-WHERE `Id` = '1 ';
-UPDATE `reqbaz`.`projects`
-SET `Default_Components_Id` = '32'
-WHERE `Id` = '2 ';
-UPDATE `reqbaz`.`projects`
-SET `Default_Components_Id` = '33'
-WHERE `Id` = '3 ';
-UPDATE `reqbaz`.`projects`
-SET `Default_Components_Id` = '34'
-WHERE `Id` = '4 ';
-UPDATE `reqbaz`.`projects`
-SET `Default_Components_Id` = '35'
-WHERE `Id` = '5 ';
-UPDATE `reqbaz`.`projects`
-SET `Default_Components_Id` = '36'
-WHERE `Id` = '6 ';
-UPDATE `reqbaz`.`projects`
-SET `Default_Components_Id` = '37'
-WHERE `Id` = '7 ';
-UPDATE `reqbaz`.`projects`
-SET `Default_Components_Id` = '38'
-WHERE `Id` = '8 ';
-UPDATE `reqbaz`.`projects`
-SET `Default_Components_Id` = '39'
-WHERE `Id` = '9 ';
-UPDATE `reqbaz`.`projects`
-SET `Default_Components_Id` = '40'
-WHERE `Id` = '10';
-
 REPLACE INTO `reqbaz`.`requirements`
-(`Id`, `title`, `description`, `Lead_developer_Id`, `Creator_Id`, `Project_Id`)
+(`Id`, `title`, `description`, `realized`, `Lead_developer_Id`, `Creator_Id`, `Project_Id`)
 VALUES
-  ('1', 'Requirement ', 'Requirement - Description', '1', '1', '1'),
-  ('2', 'Requirement ', 'Requirement - Description', '1', '1', '1'),
-  ('3', 'Requirement ', 'Requirement - Description', '1', '1', '1'),
-  ('4', 'Requirement ', 'Requirement - Description', '1', '1', '1'),
-  ('5', 'Requirement ', 'Requirement - Description', '1', '1', '1'),
-  ('6', 'Requirement ', 'Requirement - Description', '1', '1', '1'),
-  ('7', 'Requirement ', 'Requirement - Description', '2', '2', '1'),
-  ('8', 'Requirement ', 'Requirement - Description', '2', '2', '1'),
-  ('9', 'Requirement ', 'Requirement - Description', '2', '2', '3'),
-  ('10', 'Requirement ', 'Requirement - Description', '2', '2', '4'),
-  ('11', 'Requirement ', 'Requirement - Description', '2', '2', '5'),
-  ('12', 'Requirement ', 'Requirement - Description', '1', '3', '6'),
-  ('13', 'Requirement ', 'Requirement - Description', '1', '4', '7'),
-  ('14', 'Requirement ', 'Requirement - Description', '1', '5', '8'),
-  ('15', 'Requirement ', 'Requirement - Description', '1', '6', '8'),
-  ('16', 'Requirement ', 'Requirement - Description', '3', '7', '9'),
-  ('17', 'Requirement ', 'Requirement - Description', '4', '8', '10'),
-  ('18', 'Requirement ', 'Requirement - Description', '5', '9', '10'),
-  ('19', 'Requirement ', 'Requirement - Description', '6', '10', '10'),
-  ('20', 'Requirement ', 'Requirement - Description', '1', '11', '1'),
-  ('21', 'Requirement ', 'Requirement - Description', '1', '12', '1'),
-  ('22', 'Requirement ', 'Requirement - Description', '1', '13', '1'),
-  ('23', 'Requirement ', 'Requirement - Description', '1', '14', '1'),
-  ('24', 'Requirement ', 'Requirement - Description', '7', '15', '1'),
-  ('25', 'Requirement ', 'Requirement - Description', '1', '16', '1'),
-  ('26', 'Requirement ', 'Requirement - Description', '8', '17', '1'),
-  ('27', 'Requirement ', 'Requirement - Description', '8', '18', '1'),
-  ('28', 'Requirement ', 'Requirement - Description', '8', '1', '2'),
-  ('29', 'Requirement ', 'Requirement - Description', '8', '1', '2'),
-  ('30', 'Requirement ', 'Requirement - Description', '8', '1', '1'),
-  ('31', 'Requirement ', 'Requirement - Description', '8', '1', '1'),
-  ('32', 'Requirement ', 'Requirement - Description', '8', '1', '1'),
-  ('33', 'Requirement ', 'Requirement - Description', '8', '1', '1'),
-  ('34', 'Requirement ', 'Requirement - Description', '9', '2', '1'),
-  ('35', 'Requirement ', 'Requirement - Description', '10', '2', '1'),
-  ('36', 'Requirement ', 'Requirement - Description', '11', '3', '1'),
-  ('37', 'Requirement ', 'Requirement - Description', '12', '3', '1'),
-  ('38', 'Requirement ', 'Requirement - Description', '14', '3', '2'),
-  ('39', 'Requirement ', 'Requirement - Description', '15', '3', '2'),
-  ('40', 'Requirement ', 'Requirement - Description', '16', '3', '2');
-
-REPLACE INTO `reqbaz`.`followers`
-(`Id`, `Requirement_Id`, `User_Id`)
-VALUES
-  ('1', '1', '1'),
-  ('2', '1', '1'),
-  ('3', '1', '2'),
-  ('4', '1', '2'),
-  ('5', '1', '2'),
-  ('6', '2', '3'),
-  ('7', '2', '4'),
-  ('8', '2', '5'),
-  ('9', '2', '6'),
-  ('10', '2', '16'),
-  ('11', '2', '18'),
-  ('12', '2', '19'),
-  ('13', '3', '20'),
-  ('14', '3', '24'),
-  ('15', '4', '30'),
-  ('16', '5', '31'),
-  ('17', '6', '19'),
-  ('18', '7', '40'),
-  ('19', '2', '29'),
-  ('20', '2', '1');
-
-REPLACE INTO `reqbaz`.`developers`
-(`Id`, `Requirement_Id`, `User_Id`)
-VALUES
-  ('1', '1', '1'),
-  ('2', '1', '1'),
-  ('3', '1', '1'),
-  ('4', '1', '1'),
-  ('5', '1', '1'),
-  ('6', '1', '1'),
-  ('7', '2', '2'),
-  ('8', '2', '2'),
-  ('9', '2', '2'),
-  ('10', '2', '2'),
-  ('11', '2', '3'),
-  ('12', '2', '4'),
-  ('13', '3', '5'),
-  ('14', '3', '6'),
-  ('15', '3', '7'),
-  ('16', '4', '8'),
-  ('17', '4', '9'),
-  ('18', '4', '10'),
-  ('19', '5', '11'),
-  ('20', '6', '12');
+  ('1', 'Requirement ', 'Requirement - Description', NULL, '2', '2', '1'),
+  ('2', 'Requirement ', 'Requirement - Description', NULL, '2', '2', '1'),
+  ('3', 'Requirement ', 'Requirement - Description', NULL, '2', '2', '1'),
+  ('4', 'Requirement ', 'Requirement - Description', NULL, '2', '2', '1'),
+  ('5', 'Requirement ', 'Requirement - Description', NULL, '2', '2', '1'),
+  ('6', 'Requirement ', 'Requirement - Description', NULL, '2', '2', '1'),
+  ('7', 'Requirement ', 'Requirement - Description', NULL, '2', '2', '1'),
+  ('8', 'Requirement ', 'Requirement - Description', NULL, '2', '2', '1'),
+  ('9', 'Requirement ', 'Requirement - Description', NULL, '2', '2', '3'),
+  ('10', 'Requirement ', 'Requirement - Description', NULL, '2', '2', '4'),
+  ('11', 'Requirement ', 'Requirement - Description', NULL, '2', '2', '5'),
+  ('12', 'Requirement ', 'Requirement - Description', NULL, '3', '3', '6'),
+  ('13', 'Requirement ', 'Requirement - Description', NULL, '4', '4', '7'),
+  ('14', 'Requirement ', 'Requirement - Description', NULL, '5', '5', '8'),
+  ('15', 'Requirement ', 'Requirement - Description', NULL, '6', '6', '8'),
+  ('16', 'Requirement ', 'Requirement - Description', NULL, '3', '7', '9'),
+  ('17', 'Requirement ', 'Requirement - Description', NULL, '4', '8', '10'),
+  ('18', 'Requirement ', 'Requirement - Description', NULL, '5', '9', '10'),
+  ('19', 'Requirement ', 'Requirement - Description', NULL, '6', '10', '10'),
+  ('20', 'Requirement ', 'Requirement - Description', NULL, '19', '11', '1'),
+  ('21', 'Requirement ', 'Requirement - Description', NULL, '19', '12', '1'),
+  ('22', 'Requirement ', 'Requirement - Description', NULL, '19', '13', '1'),
+  ('23', 'Requirement ', 'Requirement - Description', NULL, '19', '14', '1'),
+  ('24', 'Requirement ', 'Requirement - Description', NULL, '7', '15', '1'),
+  ('25', 'Requirement ', 'Requirement - Description', NULL, '1', '16', '1'),
+  ('26', 'Requirement ', 'Requirement - Description', NULL, '8', '17', '1'),
+  ('27', 'Requirement ', 'Requirement - Description', NULL, '8', '18', '1'),
+  ('28', 'Requirement ', 'Requirement - Description', NULL, '8', '19', '2'),
+  ('29', 'Requirement ', 'Requirement - Description', NULL, '8', '19', '2'),
+  ('30', 'Requirement ', 'Requirement - Description', NULL, '8', '19', '1'),
+  ('31', 'Requirement ', 'Requirement - Description', NULL, '8', '19', '1'),
+  ('32', 'Requirement ', 'Requirement - Description', NULL, '8', '19', '1'),
+  ('33', 'Requirement ', 'Requirement - Description', NULL, '8', '19', '1'),
+  ('34', 'Requirement ', 'Requirement - Description', NULL, '9', '2', '1'),
+  ('35', 'Requirement ', 'Requirement - Description', NULL, '10', '2', '1'),
+  ('36', 'Requirement ', 'Requirement - Description', NULL, '11', '3', '1'),
+  ('37', 'Requirement ', 'Requirement - Description', NULL, '12', '3', '1'),
+  ('38', 'Requirement ', 'Requirement - Description', NULL, '14', '3', '2'),
+  ('39', 'Requirement ', 'Requirement - Description', NULL, '15', '3', '2'),
+  ('40', 'Requirement ', 'Requirement - Multiple Compoments', NULL, '19', '2', '1'),
+  ('41', 'Requirement ', 'Requirement - Multiple Compoments', NULL, '19', '2', '2'),
+  ('42', 'Requirement ', 'Requirement - Multiple Compoments', NULL, '19', '3', '3'),
+  ('43', 'Requirement ', 'Requirement - Multiple Compoments', NULL, '19', '3', '4'),
+  ('44', 'Requirement ', 'Requirement - Multiple Compoments', NULL, '19', '3', '5'),
+  ('45', 'Requirement ', 'Requirement - Multiple Compoments', NULL, '19', '3', '6'),
+  ('46', 'Requirement ', 'Requirement - Multiple Compoments', NULL, '19', '3', '7'),
+  ('47', 'Requirement ', 'Requirement - Multiple Compoments', NULL, '19', '3', '9');
 
 REPLACE INTO `reqbaz`.`tags`
 (`Id`, `Components_Id`, `Requirements_Id`)
@@ -271,19 +200,114 @@ VALUES
   ('41', '4', '37'),
   ('42', '5', '38'),
   ('43', '5', '39'),
-  ('44', '5', '40');
+  ('44', '1', '40'),
+  ('45', '2', '40'),
+  ('46', '3', '40'),
+  ('47', '8', '41'),
+  ('48', '9', '41'),
+  ('49', '10', '41'),
+  ('50', '15', '42'),
+  ('51', '16', '42'),
+  ('52', '18', '43'),
+  ('53', '19', '43'),
+  ('54', '34', '43'),
+  ('55', '20', '44'),
+  ('56', '21', '44'),
+  ('57', '22', '44'),
+  ('58', '23', '45'),
+  ('59', '24', '45'),
+  ('59', '36', '45'),
+  ('60', '25', '46'),
+  ('61', '26', '46'),
+  ('62', '37', '46'),
+  ('63', '27', '47'),
+  ('65', '39', '47');
+
+REPLACE INTO `reqbaz`.`requirement_follower`
+(`Id`, `Requirement_Id`, `User_Id`)
+VALUES
+  ('1', '1', '2'),
+  ('2', '1', '3'),
+  ('3', '1', '2'),
+  ('4', '1', '5'),
+  ('5', '1', '6'),
+  ('6', '2', '3'),
+  ('7', '2', '4'),
+  ('8', '2', '5'),
+  ('9', '2', '6'),
+  ('10', '2', '16'),
+  ('11', '2', '18'),
+  ('12', '2', '19'),
+  ('13', '3', '20'),
+  ('14', '3', '24'),
+  ('15', '4', '30'),
+  ('16', '5', '31'),
+  ('17', '6', '19'),
+  ('18', '7', '40'),
+  ('19', '8', '29'),
+  ('20', '8', '29');
+
+REPLACE INTO `reqbaz`.`component_follower`
+(`Id`, `Component_Id`, `User_Id`)
+VALUES
+  ('1', '1', '2'),
+  ('2', '1', '3'),
+  ('3', '1', '4'),
+  ('4', '1', '5'),
+  ('5', '1', '6'),
+  ('6', '2', '3'),
+  ('7', '2', '4'),
+  ('8', '2', '5'),
+  ('9', '2', '6');
+
+REPLACE INTO `reqbaz`.`project_follower`
+(`Id`, `Project_Id`, `User_Id`)
+VALUES
+  ('1', '1', '2'),
+  ('2', '1', '3'),
+  ('3', '1', '4'),
+  ('4', '1', '5'),
+  ('5', '1', '6'),
+  ('6', '2', '3'),
+  ('7', '2', '4'),
+  ('8', '2', '5'),
+  ('9', '2', '6');
+
+REPLACE INTO `reqbaz`.`developers`
+(`Id`, `Requirement_Id`, `User_Id`)
+VALUES
+  ('1', '1', '2'),
+  ('2', '1', '3'),
+  ('3', '1', '4'),
+  ('4', '1', '5'),
+  ('5', '1', '6'),
+  ('6', '1', '4'),
+  ('7', '2', '2'),
+  ('8', '2', '3'),
+  ('9', '2', '4'),
+  ('10', '2', '5'),
+  ('11', '2', '6'),
+  ('12', '2', '7'),
+  ('13', '3', '5'),
+  ('14', '3', '6'),
+  ('15', '3', '7'),
+  ('16', '4', '8'),
+  ('17', '4', '9'),
+  ('18', '4', '10'),
+  ('19', '5', '11'),
+  ('20', '6', '12');
 
 REPLACE INTO `reqbaz`.`comments`
 (`Id`, `message`, `Requirement_Id`, `User_Id`)
 VALUES
-  ('1', 'Comment', '1', '1'),
-  ('2', 'Comment', '2', '1'),
-  ('3', 'Comment', '2', '1'),
-  ('4', 'Comment', '3', '1'),
+  ('1', 'Comment', '1', '2'),
+  ('2', 'Comment', '2', '2'),
+  ('3', 'Comment', '2', '2'),
+  ('4', 'Comment', '3', '2'),
   ('5', 'Comment', '4', '2'),
   ('6', 'Comment', '5', '2'),
   ('7', 'Comment', '5', '2'),
-  ('8', 'Comment', '5', '1'),
+  ('8', 'Comment', '5', '2'),
   ('9', 'Comment', '6', '2'),
   ('10', 'Comment', '6', '3'),
   ('11', 'Comment', '6', '4'),
@@ -308,13 +332,13 @@ VALUES
 REPLACE INTO `reqbaz`.`votes`
 (`Id`, `is_upvote`, `Requirement_Id`, `User_Id`)
 VALUES
-  ('1', '1', '1', '1'),
-  ('2', '1', '2', '1'),
-  ('3', '1', '1', '2'),
-  ('4', '1', '2', '2'),
-  ('5', '1', '3', '2'),
+  ('1', '1', '1', '2'),
+  ('2', '1', '2', '2'),
+  ('3', '1', '1', '3'),
+  ('4', '1', '2', '3'),
+  ('5', '1', '3', '3'),
   ('6', '1', '2', '3'),
-  ('7', '1', '3', '3'),
+  ('7', '1', '3', '4'),
   ('8', '1', '4', '4'),
   ('9', '1', '5', '5'),
   ('10', '1', '6', '6'),
@@ -402,7 +426,7 @@ REPLACE INTO `role_role` (`Id`, `Child_Id`, `Parent_Id`) VALUES
   (3, 4, 3);
 
 REPLACE INTO `user_role` (`Id`, `Roles_Id`, `Users_Id`) VALUES
-  (1, 1, 41);
+  (1, 1, 1);
 
 SET FOREIGN_KEY_CHECKS = 1;
 

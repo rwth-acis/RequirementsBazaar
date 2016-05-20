@@ -20,15 +20,25 @@
 
 package de.rwth.dbis.acis.bazaar.service;
 
-import com.google.gson.*;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
-
-import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
+import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
+import de.rwth.dbis.acis.bazaar.service.notification.ActivityDispatcher;
+import de.rwth.dbis.acis.bazaar.service.notification.EmailDispatcher;
+import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcher;
+import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcherImp;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Service;
 import i5.las2peer.restMapper.HttpResponse;
@@ -37,32 +47,22 @@ import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.Version;
 import i5.las2peer.security.Context;
 import i5.las2peer.security.UserAgent;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import io.swagger.annotations.*;
-
-import javax.ws.rs.*;
-
-import java.io.Serializable;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.net.URL;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.util.*;
-
 import io.swagger.jaxrs.Reader;
 import io.swagger.models.Swagger;
 import io.swagger.util.Json;
 import jodd.vtor.Vtor;
 import org.jooq.SQLDialect;
 
-
-import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
-import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import java.io.Serializable;
+import java.net.HttpURLConnection;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.*;
 
 
 /**
@@ -104,10 +104,14 @@ public class BazaarService extends Service {
     protected String lang;
     protected String country;
     protected String baseURL;
+    protected String frontendBaseURL;
     protected String activityTrackerService;
+    protected String smtpServer;
+    protected String emailFromAddress;
 
     private Vtor vtor;
     private List<BazaarFunctionRegistrator> functionRegistrators;
+    private NotificationDispatcher notificationDispatcher;
 
     /**
      * This method is needed for every RESTful application in LAS2peer.
@@ -168,6 +172,16 @@ public class BazaarService extends Service {
                 }
             }
         });
+
+        notificationDispatcher = new NotificationDispatcherImp();
+        if (! activityTrackerService.isEmpty()) {
+            notificationDispatcher.setActivityDispatcher(new ActivityDispatcher(this, activityTrackerService, baseURL, frontendBaseURL));
+        }
+        if (! smtpServer.isEmpty()) {
+            Properties props = System.getProperties();
+            props.put("mail.smtp.host", smtpServer);
+            notificationDispatcher.setEmailDispatcher(new EmailDispatcher(this, smtpServer, emailFromAddress, frontendBaseURL));
+        }
     }
 
     public String notifyRegistrators(EnumSet<BazaarFunction> functions) {
@@ -191,6 +205,10 @@ public class BazaarService extends Service {
 
     public Vtor getValidators() {
         return vtor;
+    }
+
+    public NotificationDispatcher getNotificationDispatcher() {
+        return notificationDispatcher;
     }
 
     private void registerUserAtFirstLogin() throws Exception {
@@ -235,39 +253,15 @@ public class BazaarService extends Service {
                     userBuilder = userBuilder.firstName(givenName);
                 if (familyName != null)
                     userBuilder = userBuilder.lastName(familyName);
-                User user = userBuilder.admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).profileImage(profileImage).build();
-                int userId = dalFacade.createUser(user);
+                User user = userBuilder.admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).profileImage(profileImage)
+                        .emailLeadItems(true).emailFollowItems(true).build();
+                int userId = dalFacade.createUser(user).getId();
                 dalFacade.addUserToRole(userId, "SystemAdmin", null);
             }
         } catch (Exception ex) {
             ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.first_login"));
         } finally {
             closeConnection(dalFacade);
-        }
-    }
-
-    public void sendActivityOverRMI(Service service, Date creationTime, Activity.ActivityAction activityAction,
-                                    int dataId, Activity.DataType dataType, String resourcePath, int userId) {
-        if (!activityTrackerService.isEmpty()) {
-            try {
-                Gson gson = new Gson();
-                Activity.Builder activityBuilder = Activity.getBuilder();
-                activityBuilder = activityBuilder.creationTime(creationTime);
-                activityBuilder = activityBuilder.activityAction(activityAction);
-                if (activityAction != Activity.ActivityAction.DELETE) {
-                    activityBuilder = activityBuilder.dataUrl(baseURL + resourcePath + "/" + String.valueOf(dataId));
-                }
-                activityBuilder = activityBuilder.dataType(dataType);
-                activityBuilder = activityBuilder.userUrl(baseURL + "users" + "/" + String.valueOf(userId));
-                Activity activity = activityBuilder.build();
-                Object result = service.invokeServiceMethod(activityTrackerService,
-                       "createActivity", new Serializable[]{gson.toJson(activity)});
-                if (((HttpResponse) result).getStatus() != HttpURLConnection.HTTP_CREATED) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.NETWORK, ErrorCode.RMI_ERROR, "");
-                }
-            } catch (Exception ex) {
-                Context.logError(this, "Could not send activity with RMI call to ActivityTracker");
-            }
         }
     }
 

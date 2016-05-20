@@ -30,7 +30,6 @@ import java.util.List;
 public class ComponentsResource extends Service {
 
     private BazaarService bazaarService;
-    private final String resourcePath = "components";
 
     /**
      * This method is needed for every RESTful application in LAS2peer.
@@ -149,8 +148,8 @@ public class ComponentsResource extends Service {
             }
             componentToCreate.setLeaderId(internalUserId);
             Component createdComponent = dalFacade.createComponent(componentToCreate);
-            bazaarService.sendActivityOverRMI(this, createdComponent.getCreation_time(), Activity.ActivityAction.CREATE, createdComponent.getId(),
-                    Activity.DataType.COMPONENT, resourcePath, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, createdComponent.getCreation_time(), Activity.ActivityAction.CREATE, createdComponent.getId(),
+                    Activity.DataType.COMPONENT, createdComponent.getProjectId(), Activity.DataType.PROJECT, internalUserId);
             return new HttpResponse(gson.toJson(createdComponent), HttpURLConnection.HTTP_CREATED);
         } catch (BazaarException bex) {
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
@@ -206,8 +205,8 @@ public class ComponentsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
             }
             updatedComponent = dalFacade.modifyComponent(updatedComponent);
-            bazaarService.sendActivityOverRMI(this, updatedComponent.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedComponent.getId(),
-                    Activity.DataType.COMPONENT, resourcePath, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, updatedComponent.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedComponent.getId(),
+                    Activity.DataType.COMPONENT, updatedComponent.getProjectId(), Activity.DataType.PROJECT, internalUserId);
             return new HttpResponse(gson.toJson(updatedComponent), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -267,8 +266,8 @@ public class ComponentsResource extends Service {
             }
             Gson gson = new Gson();
             Component deletedComponent = dalFacade.deleteComponentById(componentId);
-            bazaarService.sendActivityOverRMI(this, deletedComponent.getLastupdated_time(), Activity.ActivityAction.DELETE, deletedComponent.getId(),
-                    Activity.DataType.COMPONENT, resourcePath, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, deletedComponent.getLastupdated_time(), Activity.ActivityAction.DELETE, deletedComponent.getId(),
+                    Activity.DataType.COMPONENT, deletedComponent.getProjectId(), Activity.DataType.PROJECT, internalUserId);
             return new HttpResponse(gson.toJson(deletedComponent), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -339,7 +338,7 @@ public class ComponentsResource extends Service {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
                 }
             }
-            List<Requirement> requirements = dalFacade.listRequirementsByComponent(componentId, pageInfo, internalUserId);
+            List<RequirementEx> requirements = dalFacade.listRequirementsByComponent(componentId, pageInfo, internalUserId);
             return new HttpResponse(gson.toJson(requirements), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {

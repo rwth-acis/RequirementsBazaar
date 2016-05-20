@@ -3,9 +3,9 @@
 	<!-- Configure the database connection here -->
 	<jdbc>
 		<driver>com.mysql.jdbc.Driver</driver>
-		<url>jdbc:mysql://localhost:3306/reqbaz</url>
-		<user>root</user>
-		<password/>
+		<url>jdbc:mysql://beckmann.informatik.rwth-aachen.de:3306/reqbazdev</url>
+		<user>bazaardevel</user>
+		<password>2gdtrf54ZT&amp;T</password>
 	</jdbc>
 
 	<generator>
@@ -20,7 +20,7 @@
 
 			<!-- The database schema (or in the absence of schema support, in your RDBMS this
            can be the owner, user, database name) to be generated -->
-			<inputSchema>reqbaz</inputSchema>
+			<inputSchema>reqbazdev</inputSchema>
 
 			<!-- All elements that are generated from your schema 
            (A Java regular expression. Use the pipe to separate several expressions)

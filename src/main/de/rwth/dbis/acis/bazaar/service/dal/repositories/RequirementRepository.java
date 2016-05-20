@@ -29,11 +29,11 @@ import java.util.List;
 
 public interface RequirementRepository extends Repository<Requirement> {
 
-    List<Requirement> findAllByProject(int projectId, Pageable pageable, int userId) throws BazaarException;
+    List<RequirementEx> findAllByProject(int projectId, Pageable pageable, int userId) throws BazaarException;
 
-    List<Requirement> findAllByComponent(int componentId, Pageable pageable, int userId) throws BazaarException;
+    List<RequirementEx> findAllByComponent(int componentId, Pageable pageable, int userId) throws BazaarException;
 
-    public boolean belongsToPublicProject(int id) throws BazaarException;
+    boolean belongsToPublicProject(int id) throws BazaarException;
 
     RequirementEx findById(int id, int userId) throws Exception;
 }

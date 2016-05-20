@@ -25,7 +25,6 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.*;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolesRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRoleRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.CommentTransformator;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.PrivilegeEnumConverter;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.RoleTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -66,9 +65,9 @@ public class RoleRepostitoryImpl extends RepositoryImpl<Role, RolesRecord> imple
                             .leftOuterJoin(privilegesTable).on(privilegesTable.ID.eq(RolePrivilege.ROLE_PRIVILEGE.PRIVILEGES_ID))
             ).where(UserRole.USER_ROLE.USERS_ID.equal(userId).and(UserRole.USER_ROLE.CONTEXT_INFO.eq(context).or(UserRole.USER_ROLE.CONTEXT_INFO.isNull()))).fetch();
 
-            if (queryResult!= null && !queryResult.isEmpty()) {
+            if (queryResult != null && !queryResult.isEmpty()) {
                 roles = new ArrayList<Role>();
-                convertToRoles(roles,rolesTable,privilegesTable,queryResult);
+                convertToRoles(roles, rolesTable, privilegesTable, queryResult);
             }
 
         } catch (Exception e) {
@@ -101,7 +100,7 @@ public class RoleRepostitoryImpl extends RepositoryImpl<Role, RolesRecord> imple
             if (rolesRecord == null) {
                 throw new Exception("No " + transformator.getRecordClass() + " found with name: " + roleName);
             }
-            role = transformator.mapToEntity(rolesRecord);
+            role = transformator.getEntityFromTableRecord(rolesRecord);
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
@@ -123,9 +122,9 @@ public class RoleRepostitoryImpl extends RepositoryImpl<Role, RolesRecord> imple
                             .leftOuterJoin(privilegesTable).on(privilegesTable.ID.eq(RolePrivilege.ROLE_PRIVILEGE.PRIVILEGES_ID))
             ).where(RoleRole.ROLE_ROLE.CHILD_ID.equal(roleId)).fetch();
 
-            if (queryResult!= null && !queryResult.isEmpty()) {
+            if (queryResult != null && !queryResult.isEmpty()) {
                 roles = new ArrayList<Role>();
-                convertToRoles(roles,rolesTable,privilegesTable,queryResult);
+                convertToRoles(roles, rolesTable, privilegesTable, queryResult);
             }
 
         } catch (Exception e) {

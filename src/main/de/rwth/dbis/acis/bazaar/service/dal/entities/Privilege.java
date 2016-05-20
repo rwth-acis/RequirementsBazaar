@@ -20,9 +20,7 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
-import jodd.vtor.constraint.MaxLength;
 import jodd.vtor.constraint.Min;
-import jodd.vtor.constraint.NotBlank;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>

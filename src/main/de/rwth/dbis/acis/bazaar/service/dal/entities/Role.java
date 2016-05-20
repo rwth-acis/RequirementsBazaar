@@ -36,7 +36,6 @@ public class Role extends EntityBase {
     private final List<Privilege> privileges;
 
 
-
     private final String name;
 
     public Role(Builder builder) {

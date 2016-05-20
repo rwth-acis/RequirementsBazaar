@@ -22,25 +22,21 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord;
 import org.jooq.*;
-
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/23/2014
- */
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS;
+
 public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.User, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord> {
     @Override
     public UsersRecord createRecord(User entity) {
         UsersRecord record = new UsersRecord();
-//        record.setId(entity.getId());
         record.setLas2peerId(entity.getLas2peerId());
         record.setAdmin((byte) (entity.getAdmin() ? 1 : 0));
         record.setEmail(entity.geteMail());
@@ -48,11 +44,13 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
         record.setLastName(entity.getLastName());
         record.setUserName(entity.getUserName());
         record.setProfileImage(entity.getProfileImage());
+        record.setEmailLeadItems((byte) (entity.isEmailLeadItems() ? 1 : 0));
+        record.setEmailFollowItems((byte) (entity.isEmailFollowItems() ? 1 : 0));
         return record;
     }
 
     @Override
-    public User mapToEntity(UsersRecord record) {
+    public User getEntityFromTableRecord(UsersRecord record) {
         return User.geBuilder(record.getEmail())
                 .id(record.getId())
                 .admin(record.getAdmin() != 0)
@@ -61,6 +59,22 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
                 .las2peerId(record.getLas2peerId())
                 .profileImage(record.getProfileImage())
                 .userName(record.getUserName())
+                .emailLeadItems(record.getEmailLeadItems() != 0)
+                .emailFollowItems(record.getEmailFollowItems() != 0)
+                .build();
+    }
+
+    public User getEntityFromQueryResult(Users user, Result<Record> queryResult) {
+        return User.geBuilder(queryResult.getValues(user.EMAIL).get(0))
+                .id(queryResult.getValues(user.ID).get(0))
+                .admin(queryResult.getValues(user.ADMIN).get(0) != 0)
+                .firstName(queryResult.getValues(user.FIRST_NAME).get(0))
+                .lastName(queryResult.getValues(user.LAST_NAME).get(0))
+                .las2peerId(queryResult.getValues(user.LAS2PEER_ID).get(0))
+                .userName(queryResult.getValues(user.USER_NAME).get(0))
+                .profileImage(queryResult.getValues(user.PROFILE_IMAGE).get(0))
+                .emailLeadItems(queryResult.getValues(user.EMAIL_LEAD_ITEMS).get(0) != 0)
+                .emailFollowItems(queryResult.getValues(user.EMAIL_FOLLOW_ITEMS).get(0) != 0)
                 .build();
     }
 
@@ -82,13 +96,29 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
     @Override
     public Map<Field, Object> getUpdateMap(final User entity) {
         return new HashMap<Field, Object>() {{
-            put(USERS.ADMIN, entity.getAdmin());
-            put(USERS.EMAIL, entity.geteMail());
-            put(USERS.FIRST_NAME, entity.getFirstName());
-            put(USERS.LAST_NAME, entity.getLastName());
-            put(USERS.LAS2PEER_ID, entity.getLas2peerId());
-            put(USERS.USER_NAME, entity.getUserName());
-            put(USERS.PROFILE_IMAGE, entity.getProfileImage());
+            //put(USERS.ADMIN, entity.getAdmin());
+            if (entity.geteMail() != null) {
+                put(USERS.EMAIL, entity.geteMail());
+            }
+            if (entity.getFirstName() != null) {
+                put(USERS.FIRST_NAME, entity.getFirstName());
+            }
+            if (entity.getLastName() != null) {
+                put(USERS.LAST_NAME, entity.getLastName());
+            }
+            //put(USERS.LAS2PEER_ID, entity.getLas2peerId());
+            if (entity.getUserName() != null) {
+                put(USERS.USER_NAME, entity.getUserName());
+            }
+            if (entity.getProfileImage() != null) {
+                put(USERS.PROFILE_IMAGE, entity.getProfileImage());
+            }
+            if (entity.isEmailLeadItems() != null) {
+                put(USERS.EMAIL_LEAD_ITEMS, entity.isEmailLeadItems());
+            }
+            if (entity.isEmailFollowItems() != null) {
+                put(USERS.EMAIL_FOLLOW_ITEMS, entity.isEmailFollowItems());
+            }
         }};
     }
 

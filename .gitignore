@@ -1,37 +1,30 @@
 *.class
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
 # Package Files #
 *.jar
 *.war
 *.ear
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-
 # LAS2peer files
 /export
 /tmp
 /.las2peer
+/node-storage
 /startup
 /log
 /lib
 etc/ivy/ivy.jar
 /service
 /etc/startup
-
-# System files
-.DS_Store
-/.settings
+*.iml
+/.idea
+restMapping.xml
+/out
+/output/
 
 # IntelliJ
-/idea/workspace.xml
-
-# Eclipse metadata
-/metadata
-.idea/workspace.xml
-node-storage/
 .idea/
-etc/de.rwth.dbis.acis.bazaar.service.BazaarService.properties
+
+# Eclipse
+.metadata
+.idea/workspace.xml

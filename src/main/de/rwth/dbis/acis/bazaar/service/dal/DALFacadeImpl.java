@@ -28,7 +28,8 @@ import de.rwth.dbis.acis.bazaar.service.dal.repositories.*;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.PrivilegeEnumConverter;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
-import org.jooq.*;
+import org.jooq.DSLContext;
+import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 
 import java.sql.Connection;
@@ -47,7 +48,7 @@ public class DALFacadeImpl implements DALFacade {
     private CommentRepository commentRepository;
     private ComponentRepository componentRepository;
     private DeveloperRepository developerRepository;
-    private FollowerRepository followerRepository;
+    private RequirementFollowerRepository followerRepository;
     private ProjectRepository projectRepository;
     private RequirementRepository requirementRepository;
     private TagRepository tagRepository;
@@ -82,16 +83,16 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public int createUser(User user) throws BazaarException {
+    public User createUser(User user) throws BazaarException {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
         User newUser = userRepository.add(user);
-        return newUser.getId();
+        return newUser;
     }
 
     @Override
-    public void modifyUser(User modifiedUser) throws Exception {
+    public User modifyUser(User modifiedUser) throws Exception {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
-        userRepository.update(modifiedUser);
+        return userRepository.update(modifiedUser);
     }
 
     @Override
@@ -104,6 +105,24 @@ public class DALFacadeImpl implements DALFacade {
     public Integer getUserIdByLAS2PeerId(long las2PeerId) throws Exception {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
         return userRepository.getIdByLas2PeerId(las2PeerId);
+    }
+
+    @Override
+    public List<User> getRecipientListForProject(int projectId) throws BazaarException {
+        userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
+        return userRepository.getEmailReceiverForProject(projectId);
+    }
+
+    @Override
+    public List<User> getRecipientListForComponent(int componentId) throws BazaarException {
+        userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
+        return userRepository.getEmailReceiverForComponent(componentId);
+    }
+
+    @Override
+    public List<User> getRecipientListForRequirement(int requirementId) throws BazaarException {
+        userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
+        return userRepository.getEmailReceiverForRequirement(requirementId);
     }
 
     @Override
@@ -143,8 +162,7 @@ public class DALFacadeImpl implements DALFacade {
         Component defaultComponent = createComponent(uncategorizedComponent);
         newProject.setDefaultComponentId(defaultComponent.getId());
         //TODO concurrency transaction
-        projectRepository.update(newProject);
-        return newProject;
+        return projectRepository.update(newProject);
     }
 
     @Override
@@ -166,13 +184,13 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public List<Requirement> listRequirementsByProject(int projectId, Pageable pageable, int userId) throws BazaarException {
+    public List<RequirementEx> listRequirementsByProject(int projectId, Pageable pageable, int userId) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         return requirementRepository.findAllByProject(projectId, pageable, userId);
     }
 
     @Override
-    public List<Requirement> listRequirementsByComponent(int componentId, Pageable pageable, int userId) throws BazaarException {
+    public List<RequirementEx> listRequirementsByComponent(int componentId, Pageable pageable, int userId) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         return requirementRepository.findAllByComponent(componentId, pageable, userId);
     }
@@ -232,7 +250,7 @@ public class DALFacadeImpl implements DALFacade {
     public Component createComponent(Component component) throws BazaarException {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
         Component newComponent = componentRepository.add(component);
-        return newComponent;
+        return componentRepository.findById(newComponent.getId());
     }
 
     @Override
@@ -252,16 +270,16 @@ public class DALFacadeImpl implements DALFacade {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
 
         //Get requirements for the component in question
-        List<Requirement> requirements = listRequirementsByComponent(componentId, new PageInfo(0, Integer.MAX_VALUE), 0);
+        List<RequirementEx> requirements = listRequirementsByComponent(componentId, new PageInfo(0, Integer.MAX_VALUE), 0);
 
         // Get default component
         Component componentById = getComponentById(componentId);
         Project projectById = getProjectById(componentById.getProjectId());
 
         // Move requirements from this component to the default
-        for (Requirement requirement : requirements) {
-            removeComponentTag(requirement.getId(),componentId);
-            addComponentTag(requirement.getId(),projectById.getDefaultComponentId());
+        for (RequirementEx requirement : requirements) {
+            removeComponentTag(requirement.getId(), componentId);
+            addComponentTag(requirement.getId(), projectById.getDefaultComponentId());
         }
 
         Component deletedComponent = componentRepository.delete(componentId);
@@ -302,10 +320,10 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public Comment createComment(Comment comment) throws BazaarException {
+    public Comment createComment(Comment comment) throws BazaarException, Exception {
         commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
         Comment newComment = commentRepository.add(comment);
-        return newComment;
+        return commentRepository.findById(newComment.getId());
     }
 
     @Override
@@ -318,17 +336,17 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public CreationStatus follow(int userId, int requirementId) throws BazaarException {
-        followerRepository = (followerRepository != null) ? followerRepository : new FollowerRepositoryImpl(dslContext);
-        return followerRepository.addOrUpdate(Follower.getBuilder()
-                        .requirementId(requirementId)
-                        .userId(userId)
-                        .build()
+        followerRepository = (followerRepository != null) ? followerRepository : new RequirementFollowerRepositoryImpl(dslContext);
+        return followerRepository.addOrUpdate(RequirementFollower.getBuilder()
+                .requirementId(requirementId)
+                .userId(userId)
+                .build()
         );
     }
 
     @Override
     public void unFollow(int userId, int requirementId) throws BazaarException {
-        followerRepository = (followerRepository != null) ? followerRepository : new FollowerRepositoryImpl(dslContext);
+        followerRepository = (followerRepository != null) ? followerRepository : new RequirementFollowerRepositoryImpl(dslContext);
         followerRepository.delete(userId, requirementId);
     }
 
@@ -336,9 +354,9 @@ public class DALFacadeImpl implements DALFacade {
     public CreationStatus wantToDevelop(int userId, int requirementId) throws BazaarException {
         developerRepository = (developerRepository != null) ? developerRepository : new DeveloperRepositoryImpl(dslContext);
         return developerRepository.addOrUpdate(Developer.getBuilder()
-                        .requirementId(requirementId)
-                        .userId(userId)
-                        .build()
+                .requirementId(requirementId)
+                .userId(userId)
+                .build()
         );
     }
 
@@ -353,8 +371,8 @@ public class DALFacadeImpl implements DALFacade {
     public void addComponentTag(int requirementId, int componentId) throws BazaarException {
         tagRepository = (tagRepository != null) ? tagRepository : new TagRepositoryImpl(dslContext);
         tagRepository.add(Tag.getBuilder(componentId)
-                        .requirementId(requirementId)
-                        .build()
+                .requirementId(requirementId)
+                .build()
         );
     }
 
@@ -368,10 +386,10 @@ public class DALFacadeImpl implements DALFacade {
     public CreationStatus vote(int userId, int requirementId, boolean isUpVote) throws BazaarException {
         voteRepostitory = (voteRepostitory != null) ? voteRepostitory : new VoteRepostitoryImpl(dslContext);
         return voteRepostitory.addOrUpdate(Vote.getBuilder()
-                        .requirementId(requirementId)
-                        .userId(userId)
-                        .isUpvote(isUpVote)
-                        .build()
+                .requirementId(requirementId)
+                .userId(userId)
+                .isUpvote(isUpVote)
+                .build()
         );
     }
 
@@ -413,6 +431,6 @@ public class DALFacadeImpl implements DALFacade {
     @Override
     public void addUserToRole(int userId, String roleName, String context) throws BazaarException {
         roleRepostitory = (roleRepostitory != null) ? roleRepostitory : new RoleRepostitoryImpl(dslContext);
-        roleRepostitory.addUserToRole(userId,roleName, context);
+        roleRepostitory.addUserToRole(userId, roleName, context);
     }
 }

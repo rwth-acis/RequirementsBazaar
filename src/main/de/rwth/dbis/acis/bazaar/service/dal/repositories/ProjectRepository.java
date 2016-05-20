@@ -33,9 +33,11 @@ import java.util.List;
  */
 public interface ProjectRepository extends Repository<Project> {
 
+    Project findById(int id) throws BazaarException;
+
     List<Project> findAllPublic(Pageable pageable) throws BazaarException;
 
     List<Project> findAllPublicAndAuthorized(PageInfo pageable, long userId) throws BazaarException;
 
-    public boolean belongsToPublicProject(int id) throws BazaarException;
+    boolean belongsToPublicProject(int id) throws BazaarException;
 }

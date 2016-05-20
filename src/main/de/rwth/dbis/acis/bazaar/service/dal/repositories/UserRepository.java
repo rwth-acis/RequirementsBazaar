@@ -23,10 +23,15 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
+import java.util.List;
+
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/22/2014
  */
 public interface UserRepository extends Repository<User> {
     Integer getIdByLas2PeerId(long las2PeerId) throws BazaarException;
+    List<User> getEmailReceiverForProject(int projectId) throws BazaarException;
+    List<User> getEmailReceiverForComponent(int componentId) throws BazaarException;
+    List<User> getEmailReceiverForRequirement(int requirementId) throws BazaarException;
 }

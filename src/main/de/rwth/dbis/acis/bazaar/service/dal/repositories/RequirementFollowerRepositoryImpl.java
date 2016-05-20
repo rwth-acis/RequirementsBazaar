@@ -20,42 +20,36 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Developer;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Follower;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementFollower;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.FollowersRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.FollowerTransformator;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementFollowerRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementFollowerTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
-import org.jooq.Field;
-import org.jooq.UpdateSetFirstStep;
-import org.jooq.UpdateSetMoreStep;
 import org.jooq.exception.DataAccessException;
 
-import java.util.Map;
-
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Followers.FOLLOWERS;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementFollower.REQUIREMENT_FOLLOWER;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
-public class FollowerRepositoryImpl extends RepositoryImpl<Follower, FollowersRecord> implements FollowerRepository {
+public class RequirementFollowerRepositoryImpl extends RepositoryImpl<RequirementFollower, RequirementFollowerRecord> implements RequirementFollowerRepository {
     /**
      * @param jooq DSLContext for JOOQ connection
      */
-    public FollowerRepositoryImpl(DSLContext jooq) {
-        super(jooq, new FollowerTransformator());
+    public RequirementFollowerRepositoryImpl(DSLContext jooq) {
+        super(jooq, new RequirementFollowerTransformator());
     }
 
     @Override
     public void delete(int userId, int requirementId) throws BazaarException {
         try {
-            jooq.delete(FOLLOWERS)
-                    .where(FOLLOWERS.USER_ID.equal(userId).and(FOLLOWERS.REQUIREMENT_ID.equal(requirementId)))
+            jooq.delete(REQUIREMENT_FOLLOWER)
+                    .where(REQUIREMENT_FOLLOWER.USER_ID.equal(userId).and(REQUIREMENT_FOLLOWER.REQUIREMENT_ID.equal(requirementId)))
                     .execute();
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
@@ -66,8 +60,8 @@ public class FollowerRepositoryImpl extends RepositoryImpl<Follower, FollowersRe
     public boolean hasUserAlreadyFollows(int userId, int requirementId) throws BazaarException {
         int execute = 0;
         try {
-            execute = jooq.selectFrom(FOLLOWERS)
-                    .where(FOLLOWERS.USER_ID.equal(userId).and(FOLLOWERS.REQUIREMENT_ID.equal(requirementId)))
+            execute = jooq.selectFrom(REQUIREMENT_FOLLOWER)
+                    .where(REQUIREMENT_FOLLOWER.USER_ID.equal(userId).and(REQUIREMENT_FOLLOWER.REQUIREMENT_ID.equal(requirementId)))
                     .execute();
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
@@ -76,17 +70,16 @@ public class FollowerRepositoryImpl extends RepositoryImpl<Follower, FollowersRe
     }
 
     @Override
-    public CreationStatus addOrUpdate(Follower follower) throws BazaarException {
-        FollowersRecord record = jooq.selectFrom(FOLLOWERS)
-                .where(FOLLOWERS.USER_ID.equal(follower.getUserId()).and(FOLLOWERS.REQUIREMENT_ID.equal(follower.getRequirementId())))
+    public CreationStatus addOrUpdate(RequirementFollower requirementFollower) throws BazaarException {
+        RequirementFollowerRecord record = jooq.selectFrom(REQUIREMENT_FOLLOWER)
+                .where(REQUIREMENT_FOLLOWER.USER_ID.equal(requirementFollower.getUserId()).and(REQUIREMENT_FOLLOWER.REQUIREMENT_ID.equal(requirementFollower.getRequirementId())))
                 .fetchOne();
 
-        if (record != null){
+        if (record != null) {
             return CreationStatus.UNCHANGED;
-        }
-        else {
+        } else {
             try {
-                this.add(follower);
+                this.add(requirementFollower);
             } catch (Exception ex) {
                 ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
             }

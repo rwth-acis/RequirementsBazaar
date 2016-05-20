@@ -20,8 +20,9 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
-import jodd.vtor.constraint.*;
-
+import jodd.vtor.constraint.MaxLength;
+import jodd.vtor.constraint.Min;
+import jodd.vtor.constraint.NotBlank;
 
 import java.util.Date;
 
@@ -54,13 +55,19 @@ public class Project extends EntityBase {
         this.leaderId = leaderId;
     }
 
+    private int leaderId;
+
+    private User leader;
+
+    private Integer defaultComponentId;
+
     public ProjectVisibility getVisibility() {
         return visibility;
     }
 
-    private int leaderId;
-
-    private Integer defaultComponentId;
+    public void setLeader(User leader) {
+        this.leader = leader;
+    }
 
     /**
      * Private constructor, should be called from its builder only.
@@ -72,6 +79,7 @@ public class Project extends EntityBase {
         this.description = builder.description;
         this.name = builder.name;
         this.visibility = builder.visibility;
+        this.leader = builder.leader;
         this.leaderId = builder.leaderId;
         this.defaultComponentId = builder.defaultComponentId;
         this.creation_time = builder.creation_time;
@@ -81,11 +89,11 @@ public class Project extends EntityBase {
     /**
      * Builder to easily build Component objects
      *
-     * @param title Title field will be initialized using the passed value
-     * @return a builder with title returned
+     * @param name Name field will be initialized using the passed value
+     * @return a builder with name returned
      */
-    public static Builder getBuilder(String title) {
-        return new Builder(title);
+    public static Builder getBuilder(String name) {
+        return new Builder(name);
     }
 
     @Override
@@ -98,7 +106,7 @@ public class Project extends EntityBase {
     }
 
     public Date getLastupdated_time() {
-        return  lastupdated_time;
+        return lastupdated_time;
     }
 
     public String getDescription() {
@@ -107,6 +115,10 @@ public class Project extends EntityBase {
 
     public String getName() {
         return name;
+    }
+
+    public User getleader() {
+        return leader;
     }
 
     public Integer getDefaultComponentId() {
@@ -120,18 +132,17 @@ public class Project extends EntityBase {
     public static class Builder {
 
         private int id;
-
         private String description;
-
         private String name;
         private ProjectVisibility visibility;
+        private User leader;
         private int leaderId;
         private Date creation_time;
         private Date lastupdated_time;
         private Integer defaultComponentId;
 
-        public Builder(String title) {
-            this.name = title;
+        public Builder(String name) {
+            this.name = name;
         }
 
         public Builder description(String description) {
@@ -144,25 +155,13 @@ public class Project extends EntityBase {
             return this;
         }
 
-        /**
-         * Call this to create a Project object with the values previously set in the builder.
-         *
-         * @return initialized Project object
-         */
-        public Project build() {
-            Project created = new Project(this);
-
-            String name = created.getName();
-
-            if (name == null || name.length() == 0) {
-                throw new IllegalStateException("name cannot be null or empty");
-            }
-
-            return created;
-        }
-
         public Builder visibility(ProjectVisibility visibility) {
             this.visibility = visibility;
+            return this;
+        }
+
+        public Builder leader(User leader) {
+            this.leader = leader;
             return this;
         }
 
@@ -185,6 +184,23 @@ public class Project extends EntityBase {
             this.lastupdated_time = lastupdated_time;
             return this;
         }
+
+        /**
+         * Call this to create a Project object with the values previously set in the builder.
+         *
+         * @return initialized Project object
+         */
+        public Project build() {
+            Project created = new Project(this);
+
+            String name = created.getName();
+
+            if (name == null || name.length() == 0) {
+                throw new IllegalStateException("name cannot be null or empty");
+            }
+
+            return created;
+        }
     }
 
     public enum ProjectVisibility {
@@ -196,7 +212,7 @@ public class Project extends EntityBase {
 
         private final String asChar;
 
-        private ProjectVisibility(String visibility) {
+        ProjectVisibility(String visibility) {
             this.asChar = visibility;
         }
 
