@@ -34,7 +34,6 @@ import org.jooq.UpdateSetFirstStep;
 import org.jooq.UpdateSetMoreStep;
 import org.jooq.exception.DataAccessException;
 
-import java.util.List;
 import java.util.Map;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Votes.VOTES;
@@ -81,7 +80,7 @@ public class VoteRepostitoryImpl extends RepositoryImpl<Vote, VotesRecord> imple
                 .where(VOTES.USER_ID.equal(vote.getUserId()).and(VOTES.REQUIREMENT_ID.equal(vote.getRequirementId())))
                 .fetchOne();
 
-        if (record != null){
+        if (record != null) {
             if (record.getIsUpvote() != (byte) (vote.isUpvote() ? 1 : 0)) {
                 UpdateSetFirstStep<VotesRecord> update = jooq.update(transformator.getTable());
                 Map<Field, Object> map = transformator.getUpdateMap(vote);
@@ -89,21 +88,19 @@ public class VoteRepostitoryImpl extends RepositoryImpl<Vote, VotesRecord> imple
                 for (Map.Entry<Field, Object> item : map.entrySet()) {
                     Field key = item.getKey();
                     Object value = item.getValue();
-                    if(moreStep == null)
+                    if (moreStep == null)
                         moreStep = update.set(key, value);
                     else
-                        moreStep.set(key,value);
+                        moreStep.set(key, value);
                 }
                 assert moreStep != null;
                 moreStep.where(VOTES.USER_ID.equal(vote.getUserId()).and(VOTES.REQUIREMENT_ID.equal(vote.getRequirementId())))
                         .execute();
                 return CreationStatus.CHANGED;
-            }
-            else {
+            } else {
                 return CreationStatus.UNCHANGED;
             }
-        }
-        else {
+        } else {
             try {
                 this.add(vote);
             } catch (Exception ex) {

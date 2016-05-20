@@ -48,7 +48,7 @@
 //    List<Vote> voteList = new ArrayList<Vote>();
 //    List<Tag> tagList = new ArrayList<Tag>();
 //    List<Developer> developerList = new ArrayList<Developer>();
-//    List<Follower> followerList = new ArrayList<Follower>();
+//    List<RequirementFollower> followerList = new ArrayList<RequirementFollower>();
 //
 //    //endregion
 //
@@ -97,7 +97,7 @@
 //    private List<User> getFollowers(int requirementId) {
 //        List<User> users = new ArrayList<User>();
 //
-//        for (Follower follower : followerList) {
+//        for (RequirementFollower follower : followerList) {
 //            if (follower.getRequirementId() == requirementId) {
 //                for (User user : userList) {
 //                    if (user.getId() == follower.getUserId())
@@ -339,9 +339,9 @@
 //        }
 //
 //        //Delete followers
-//        Iterator<Follower> followerIterator = followerList.iterator();
+//        Iterator<RequirementFollower> followerIterator = followerList.iterator();
 //        while (followerIterator.hasNext()) {
-//            Follower follower = followerIterator.next();
+//            RequirementFollower follower = followerIterator.next();
 //
 //            if (follower.getRequirementId() == requirementId)
 //                followerIterator.remove();
@@ -471,15 +471,15 @@
 //
 //    @Override
 //    public void follow(int userId, int requirementId) {
-//        Follower follower = Follower.getBuilder().id(new Random().nextInt()).userId(userId).requirementId(requirementId).build();
+//        RequirementFollower follower = RequirementFollower.getBuilder().id(new Random().nextInt()).userId(userId).requirementId(requirementId).build();
 //        followerList.add(follower);
 //    }
 //
 //    @Override
 //    public void unFollow(int userId, int requirementId) {
-//        Iterator<Follower> itr = followerList.iterator();
+//        Iterator<RequirementFollower> itr = followerList.iterator();
 //        while (itr.hasNext()) {
-//            Follower follower = itr.next();
+//            RequirementFollower follower = itr.next();
 //
 //            if (follower.getUserId() == userId && follower.getRequirementId() == requirementId)
 //                itr.remove();

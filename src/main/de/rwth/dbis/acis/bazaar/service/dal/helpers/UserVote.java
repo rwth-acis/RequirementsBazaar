@@ -20,9 +20,6 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.helpers;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.PrivilegeEnum;
-import org.jooq.impl.EnumConverter;
-
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 2/27/2015

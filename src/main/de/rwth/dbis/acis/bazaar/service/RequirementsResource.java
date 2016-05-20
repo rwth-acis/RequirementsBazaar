@@ -4,6 +4,7 @@ package de.rwth.dbis.acis.bazaar.service;
 import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -33,7 +34,6 @@ import java.util.List;
 public class RequirementsResource extends Service {
 
     private BazaarService bazaarService;
-    private final String resourcePath = "requirements";
 
     /**
      * This method is needed for every RESTful application in LAS2peer.
@@ -165,8 +165,10 @@ public class RequirementsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.create"));
             }
             Requirement createdRequirement = dalFacade.createRequirement(requirementToCreate, internalUserId);
-            bazaarService.sendActivityOverRMI(this, createdRequirement.getCreation_time(), Activity.ActivityAction.CREATE, createdRequirement.getId(),
-                    Activity.DataType.REQUIREMENT, resourcePath, internalUserId);
+            dalFacade.follow(internalUserId, createdRequirement.getId());
+            createdRequirement = dalFacade.getRequirementById(createdRequirement.getId(), internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, createdRequirement.getCreation_time(), Activity.ActivityAction.CREATE, createdRequirement.getId(),
+                    Activity.DataType.REQUIREMENT, createdRequirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
             return new HttpResponse(gson.toJson(createdRequirement), HttpURLConnection.HTTP_CREATED);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -227,9 +229,10 @@ public class RequirementsResource extends Service {
             if (requirementToUpdate.getId() != 0 && requirementId != requirementToUpdate.getId()) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
             }
+            dalFacade.follow(internalUserId, requirementToUpdate.getId());
             RequirementEx updatedRequirement = dalFacade.modifyRequirement(requirementToUpdate, internalUserId);
-            bazaarService.sendActivityOverRMI(this, updatedRequirement.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedRequirement.getId(),
-                    Activity.DataType.REQUIREMENT, resourcePath, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, updatedRequirement.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedRequirement.getId(),
+                    Activity.DataType.REQUIREMENT, updatedRequirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
             return new HttpResponse(gson.toJson(updatedRequirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -281,8 +284,8 @@ public class RequirementsResource extends Service {
             }
             Gson gson = new Gson();
             RequirementEx deletedRequirement = dalFacade.deleteRequirementById(requirementId, internalUserId);
-            bazaarService.sendActivityOverRMI(this, deletedRequirement.getLastupdated_time(), Activity.ActivityAction.DELETE, deletedRequirement.getId(),
-                    Activity.DataType.REQUIREMENT, resourcePath, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, deletedRequirement.getLastupdated_time(), Activity.ActivityAction.DELETE, deletedRequirement.getId(),
+                    Activity.DataType.REQUIREMENT, deletedRequirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
             return new HttpResponse(gson.toJson(deletedRequirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -333,10 +336,11 @@ public class RequirementsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.develop.create"));
             }
             dalFacade.wantToDevelop(internalUserId, requirementId);
+            dalFacade.follow(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, requirement.getLastupdated_time(), Activity.ActivityAction.CREATE, requirement.getId(),
+                    Activity.DataType.DEVELOP, requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             Gson gson = new Gson();
-            bazaarService.sendActivityOverRMI(this, requirement.getLastupdated_time(), Activity.ActivityAction.CREATE, requirement.getId(),
-                    Activity.DataType.DEVELOP, resourcePath, internalUserId);
             return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -389,8 +393,8 @@ public class RequirementsResource extends Service {
             dalFacade.notWantToDevelop(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
-            bazaarService.sendActivityOverRMI(this, requirement.getLastupdated_time(), Activity.ActivityAction.DELETE, requirement.getId(),
-                    Activity.DataType.DEVELOP, resourcePath, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, requirement.getLastupdated_time(), Activity.ActivityAction.DELETE, requirement.getId(),
+                    Activity.DataType.DEVELOP, requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -443,8 +447,8 @@ public class RequirementsResource extends Service {
             dalFacade.follow(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
-            bazaarService.sendActivityOverRMI(this, requirement.getLastupdated_time(), Activity.ActivityAction.CREATE, requirement.getId(),
-                    Activity.DataType.FOLLOW, resourcePath, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, requirement.getLastupdated_time(), Activity.ActivityAction.CREATE, requirement.getId(),
+                    Activity.DataType.FOLLOW, requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -497,8 +501,8 @@ public class RequirementsResource extends Service {
             dalFacade.unFollow(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
-            bazaarService.sendActivityOverRMI(this, requirement.getLastupdated_time(), Activity.ActivityAction.DELETE, requirement.getId(),
-                    Activity.DataType.FOLLOW, resourcePath, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, requirement.getLastupdated_time(), Activity.ActivityAction.DELETE, requirement.getId(),
+                    Activity.DataType.FOLLOW, requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -554,10 +558,13 @@ public class RequirementsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.create"));
             }
             dalFacade.vote(internalUserId, requirementId, direction.equals("up"));
+            if (direction.equals("up")) {
+                dalFacade.follow(internalUserId, requirementId);
+            }
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, requirement.getLastupdated_time(), Activity.ActivityAction.CREATE, requirement.getId(),
+                    Activity.DataType.VOTE, requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             Gson gson = new Gson();
-            bazaarService.sendActivityOverRMI(this, requirement.getLastupdated_time(), Activity.ActivityAction.CREATE, requirement.getId(),
-                    Activity.DataType.VOTE, resourcePath, internalUserId);
             return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -610,8 +617,8 @@ public class RequirementsResource extends Service {
             dalFacade.unVote(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
-            bazaarService.sendActivityOverRMI(this, requirement.getLastupdated_time(), Activity.ActivityAction.DELETE, requirement.getId(),
-                    Activity.DataType.VOTE, resourcePath, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, requirement.getLastupdated_time(), Activity.ActivityAction.DELETE, requirement.getId(),
+                    Activity.DataType.VOTE, requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {

@@ -25,16 +25,14 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord;
 import org.jooq.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQUIREMENTS;
-
-
 import java.util.*;
+
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQUIREMENTS;
 
 public class RequirementTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord> {
     @Override
     public RequirementsRecord createRecord(Requirement entry) {
         RequirementsRecord record = new RequirementsRecord();
-//        record.setId(entry.getId());
         record.setDescription(entry.getDescription());
         record.setTitle(entry.getTitle());
         if (entry.getRealized() != null) {
@@ -62,7 +60,7 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
     }
 
     @Override
-    public Requirement mapToEntity(RequirementsRecord record) {
+    public Requirement getEntityFromTableRecord(RequirementsRecord record) {
         return mapToEntityBuilder(record)
                 .build();
     }

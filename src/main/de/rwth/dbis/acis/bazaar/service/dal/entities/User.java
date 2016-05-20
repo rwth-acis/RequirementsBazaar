@@ -20,12 +20,12 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
-/**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/11/2014
- */
+import jodd.vtor.constraint.Min;
+import jodd.vtor.constraint.NotBlank;
+
 public class User extends EntityBase {
-    private final int Id;
+    @Min(-1)
+    private final int id;
 
     private final String firstName;
 
@@ -33,16 +33,21 @@ public class User extends EntityBase {
 
     private transient final String eMail;
 
-    private final boolean admin;
+    private final Boolean admin;
 
     private final long Las2peerId;
 
+    @NotBlank
     private final String userName;
 
     private final String profileImage;
 
+    private final Boolean emailLeadItems;
+
+    private final Boolean emailFollowItems;
+
     public User(Builder builder) {
-        Id = builder.id;
+        id = builder.id;
         this.firstName = builder.firstName;
         this.lastName = builder.lastName;
         this.eMail = builder.eMail;
@@ -50,10 +55,12 @@ public class User extends EntityBase {
         Las2peerId = builder.las2peerId;
         this.userName = builder.userName;
         this.profileImage = builder.profileImage;
+        this.emailLeadItems = builder.emailLeadItems;
+        this.emailFollowItems = builder.emailFollowItems;
     }
 
     public int getId() {
-        return Id;
+        return id;
     }
 
     public String getFirstName() {
@@ -68,7 +75,7 @@ public class User extends EntityBase {
         return eMail;
     }
 
-    public boolean isAdmin() {
+    public Boolean isAdmin() {
         return admin;
     }
 
@@ -84,6 +91,14 @@ public class User extends EntityBase {
         return profileImage;
     }
 
+    public Boolean isEmailLeadItems() {
+        return emailLeadItems;
+    }
+
+    public Boolean isEmailFollowItems() {
+        return emailFollowItems;
+    }
+
     public static Builder geBuilder(String eMail) {
         return new Builder(eMail);
     }
@@ -97,11 +112,12 @@ public class User extends EntityBase {
         private String firstName;
         private String lastName;
         private String eMail;
-        private boolean admin;
+        private Boolean admin;
         private long las2peerId;
         private String userName;
         private String profileImage;
-
+        private Boolean emailLeadItems;
+        private Boolean emailFollowItems;
 
         public Builder(String eMail) {
             this.eMail = eMail;
@@ -127,7 +143,7 @@ public class User extends EntityBase {
             return this;
         }
 
-        public Builder admin(boolean admin) {
+        public Builder admin(Boolean admin) {
             this.admin = admin;
             return this;
         }
@@ -144,6 +160,16 @@ public class User extends EntityBase {
 
         public Builder profileImage(String profileImage) {
             this.profileImage = profileImage;
+            return this;
+        }
+
+        public Builder emailLeadItems(Boolean emailLeadItems) {
+            this.emailLeadItems = emailLeadItems;
+            return this;
+        }
+
+        public Builder emailFollowItems(Boolean emailFollowItems) {
+            this.emailFollowItems = emailFollowItems;
             return this;
         }
 

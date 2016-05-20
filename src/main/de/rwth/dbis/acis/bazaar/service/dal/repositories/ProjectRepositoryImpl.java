@@ -21,24 +21,26 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
-
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.*;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.ProjectTransformator;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -53,55 +55,95 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
     }
 
     @Override
-    public List<Project> findAllPublic(Pageable pageable) throws BazaarException {
-        List<Project> entries = null;
+    public Project findById(int id) throws BazaarException {
+        Project project = null;
         try {
-            entries = new ArrayList<Project>();
+            Users leaderUser = Users.USERS.as("leaderUser");
 
-            List<ProjectsRecord> queryResults = jooq.selectFrom(transformator.getTable())
+            Record queryResult = jooq.selectFrom(PROJECTS
+                    .join(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID)))
+                    .where(transformator.getTableId().equal(id))
+                    .fetchOne();
+
+            if (queryResult == null || queryResult.size() == 0) {
+                ExceptionHandler.getInstance().convertAndThrowException(
+                        new Exception("No " + transformator.getRecordClass() + " found with id: " + id),
+                        ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
+            }
+
+            ProjectsRecord projectsRecord = queryResult.into(PROJECTS);
+            project = transformator.getEntityFromTableRecord(projectsRecord);
+            UserTransformator userTransformator = new UserTransformator();
+            UsersRecord usersRecord = queryResult.into(leaderUser);
+            project.setLeader(userTransformator.getEntityFromTableRecord(usersRecord));
+
+        } catch (BazaarException be) {
+            ExceptionHandler.getInstance().convertAndThrowException(be);
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return project;
+    }
+
+    @Override
+    public List<Project> findAllPublic(Pageable pageable) throws BazaarException {
+        List<Project> projects = null;
+        try {
+            projects = new ArrayList<Project>();
+            Users leaderUser = Users.USERS.as("leaderUser");
+
+            List<Record> queryResults = jooq.selectFrom(PROJECTS
+                    .join(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID)))
                     .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar()))
                     .orderBy(transformator.getSortFields(pageable.getSortDirection()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
-                    .fetchInto(transformator.getRecordClass());
+                    .fetch();
 
-            for (ProjectsRecord queryResult : queryResults) {
-                Project entry = transformator.mapToEntity(queryResult);
-                entries.add(entry);
+            for (Record queryResult : queryResults) {
+                ProjectsRecord projectsRecord = queryResult.into(PROJECTS);
+                Project project = transformator.getEntityFromTableRecord(projectsRecord);
+                UserTransformator userTransformator = new UserTransformator();
+                UsersRecord usersRecord = queryResult.into(leaderUser);
+                project.setLeader(userTransformator.getEntityFromTableRecord(usersRecord));
+                projects.add(project);
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
-
-        return entries;
+        return projects;
     }
 
     @Override
     public List<Project> findAllPublicAndAuthorized(PageInfo pageable, long userId) throws BazaarException {
-        List<Project> entries = null;
+        List<Project> projects = null;
         try {
-            entries = new ArrayList<Project>();
+            projects = new ArrayList<Project>();
+            Users leaderUser = Users.USERS.as("leaderUser");
 
             //TODO only authorized projects?
-            List<ProjectsRecord> queryResults = jooq.selectFrom(transformator.getTable()
+            List<Record> queryResults = jooq.selectFrom(PROJECTS
+                    .join(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID)))
 //                    .leftOuterJoin(AUTHORIZATIONS).on(AUTHORIZATIONS.PROJECT_ID.equal(PROJECTS.ID))
 //                    .join(USERS).on(AUTHORIZATIONS.USER_ID.equal(USERS.ID))
-                    )
 //                    .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar())
                     .orderBy(transformator.getSortFields(pageable.getSortDirection()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
-                    .fetchInto(transformator.getRecordClass());
+                    .fetch();
 
-            for (ProjectsRecord queryResult : queryResults) {
-                Project entry = transformator.mapToEntity(queryResult);
-                entries.add(entry);
+            for (Record queryResult : queryResults) {
+                ProjectsRecord projectsRecord = queryResult.into(PROJECTS);
+                Project project = transformator.getEntityFromTableRecord(projectsRecord);
+                UserTransformator userTransformator = new UserTransformator();
+                UsersRecord usersRecord = queryResult.into(leaderUser);
+                project.setLeader(userTransformator.getEntityFromTableRecord(usersRecord));
+                projects.add(project);
             }
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
-
-        return entries;
+        return projects;
     }
 
     @Override

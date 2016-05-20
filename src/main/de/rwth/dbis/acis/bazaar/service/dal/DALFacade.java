@@ -35,14 +35,14 @@ import java.util.List;
  */
 public interface DALFacade {
 
-    //region User
-
     Connection getConnection();
+
+    //region User
 
     /**
      * @param user which holds the data of the user to be inserted. Id field will be omitted, a new one will be generated.
      */
-    public int createUser(User user) throws BazaarException;
+    public User createUser(User user) throws BazaarException;
 
     /**
      * Modifies the user in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
@@ -50,7 +50,7 @@ public interface DALFacade {
      *
      * @param modifiedUser, which holds the data of the modification for the user in the database identified by the Id field.
      */
-    public void modifyUser(User modifiedUser) throws Exception;
+    public User modifyUser(User modifiedUser) throws Exception;
 
      /* TODO delete? Should it delete its projects? What should happen after deletion? */
 
@@ -60,8 +60,32 @@ public interface DALFacade {
      */
     public User getUserById(int userId) throws Exception;
 
-
+    /**
+     * @param las2PeerId the identifier of the user
+     * @return the reqbaz userId of the las2Peer user
+     */
     public Integer getUserIdByLAS2PeerId(long las2PeerId) throws Exception;
+
+    /**
+     *
+     * @param projectId
+     * @return list of users to receive email notification
+     */
+    public List<User> getRecipientListForProject(int projectId) throws BazaarException;
+
+    /**
+     *
+     * @param componentId
+     * @return list of users to receive email notification
+     */
+    public List<User> getRecipientListForComponent(int componentId) throws BazaarException;
+
+    /**
+     *
+     * @param requirementId
+     * @return list of users to receive email notification
+     */
+    public List<User> getRecipientListForRequirement(int requirementId) throws BazaarException;
     //endregion
 
     //region Project
@@ -131,7 +155,7 @@ public interface DALFacade {
      * @param userId
      * @return the requirements under the given project in a paginated way
      */
-    public List<Requirement> listRequirementsByProject(int projectId, Pageable pageable, int userId) throws BazaarException;
+    public List<RequirementEx> listRequirementsByProject(int projectId, Pageable pageable, int userId) throws BazaarException;
 
     /**
      * @param componentId the id of the component we are looking in
@@ -139,7 +163,7 @@ public interface DALFacade {
      * @param userId
      * @return the requirements under the given component in a paginated way
      */
-    public List<Requirement> listRequirementsByComponent(int componentId, Pageable pageable, int userId) throws BazaarException;
+    public List<RequirementEx> listRequirementsByComponent(int componentId, Pageable pageable, int userId) throws BazaarException;
 
     /**
      * @param searchTerm the text, which is used to search. Search is case insensitive.
@@ -199,19 +223,18 @@ public interface DALFacade {
      */
     public Component createComponent(Component component) throws BazaarException;
 
+   /**
+     * @param componentId identifier of the component should be returned
+     * @return the component and all of its data with the given id.
+     */
+    public Component getComponentById(int componentId) throws Exception;
+
     /**
      * Modifies the component in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
      * It does NOT update any relations of the object, just only the direct fields!
      *
      * @param component hold the modified data
      */
-
-    /**
-     * @param componentId identifier of the component should be returned
-     * @return the component and all of its data with the given id.
-     */
-    public Component getComponentById(int componentId) throws Exception;
-
     public Component modifyComponent(Component component) throws Exception;
 
 
@@ -265,7 +288,7 @@ public interface DALFacade {
     /**
      * @param comment which holds the data for the new comment.
      */
-    public Comment createComment(Comment comment) throws BazaarException;
+    public Comment createComment(Comment comment) throws BazaarException, Exception;
 
     /**
      * @param commentId to identify the comment to be deleted
@@ -363,18 +386,15 @@ public interface DALFacade {
      */
     public boolean hasUserVotedForRequirement(int userId, int requirementId) throws BazaarException;
 
+    //endregion
 
+    //region Authorization
     /**
      * This method returns all the roles and permissions for the given user
      *
      * @param userId the identifier of the user
      * @return all the roles filled up with parents and permissions
      */
-
-
-    //endregion
-
-    //region Authorization
     public List<Role> getRolesByUserId(int userId, String context) throws BazaarException;
 
     public List<Role> getParentsForRole(int roleId) throws BazaarException;
@@ -382,8 +402,6 @@ public interface DALFacade {
     public void createPrivilegeIfNotExists(PrivilegeEnum privilege) throws BazaarException;
 
     public void addUserToRole(int userId, String roleName, String context) throws BazaarException;
-
-
 
 
     //endregion

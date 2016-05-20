@@ -21,9 +21,12 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 
-import jodd.vtor.constraint.*;
+import jodd.vtor.constraint.MaxLength;
+import jodd.vtor.constraint.Min;
+import jodd.vtor.constraint.NotBlank;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -49,6 +52,10 @@ public class Component extends EntityBase {
     @Min(-1)
     private int leaderId;
 
+    private User leader;
+
+    private List<User> followers;
+
     @Min(-1)
     private final int projectId;
 
@@ -65,7 +72,7 @@ public class Component extends EntityBase {
     }
 
     public Date getLastupdated_time() {
-        return  lastupdated_time;
+        return lastupdated_time;
     }
 
     public String getDescription() {
@@ -84,6 +91,10 @@ public class Component extends EntityBase {
         this.leaderId = leaderId;
     }
 
+    public void setLeader(User leader) {
+        this.leader = leader;
+    }
+
     /**
      * Private constructor, should be called from its builder only.
      *
@@ -94,7 +105,9 @@ public class Component extends EntityBase {
         this.description = builder.description;
         this.name = builder.name;
         this.projectId = builder.projectId;
+        this.leader = builder.leader;
         this.leaderId = builder.leaderId;
+        this.followers = builder.followers;
         this.creation_time = builder.creation_time;
         this.lastupdated_time = builder.lastupdated_time;
     }
@@ -113,14 +126,14 @@ public class Component extends EntityBase {
     public static class Builder {
 
         private int id;
-
         private String description;
-
         private String name;
         private Date creation_time;
         private Date lastupdated_time;
         private int projectId;
+        public User leader;
         public int leaderId;
+        public List<User> followers;
 
         public Builder(String title) {
             this.name = title;
@@ -136,8 +149,33 @@ public class Component extends EntityBase {
             return this;
         }
 
+        public Builder leader(User leader) {
+            this.leader = leader;
+            return this;
+        }
+
         public Builder leaderId(int leaderId) {
             this.leaderId = leaderId;
+            return this;
+        }
+
+        public Builder followers(List<User> followers) {
+            this.followers = followers;
+            return  this;
+        }
+
+        public Builder projectId(int projectId) {
+            this.projectId = projectId;
+            return this;
+        }
+
+        public Builder creationTime(Date creation_time) {
+            this.creation_time = creation_time;
+            return this;
+        }
+
+        public Builder lastupdated_time(Date lastupdated_time) {
+            this.lastupdated_time = lastupdated_time;
             return this;
         }
 
@@ -156,21 +194,6 @@ public class Component extends EntityBase {
             }
 
             return created;
-        }
-
-        public Builder projectId(int projectId) {
-            this.projectId = projectId;
-            return this;
-        }
-
-        public Builder creationTime(Date creation_time) {
-            this.creation_time = creation_time;
-            return this;
-        }
-
-        public Builder lastupdated_time(Date lastupdated_time) {
-            this.lastupdated_time = lastupdated_time;
-            return this;
         }
     }
 }
