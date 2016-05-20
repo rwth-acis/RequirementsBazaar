@@ -47,28 +47,35 @@ public class ActivityDispatcher {
             activityBuilder = activityBuilder.creationTime(creationTime);
             activityBuilder = activityBuilder.activityAction(activityAction);
 
-            String resourcePath = null;
+            String resourcePath = new String();
+            String parentResourcePath = null;
             String frontendResourcePath = new String();
             if (dataType.equals(Activity.DataType.PROJECT)) {
                 resourcePath = "projects";
                 frontendResourcePath = "projects" + "/" + String.valueOf(dataId);
             } else if (dataType.equals(Activity.DataType.COMPONENT)) {
                 resourcePath = "components";
+                parentResourcePath = "projects";
                 Component component = dalFacade.getComponentById(dataId);
                 frontendResourcePath = "projects" + "/" + component.getProjectId() + "/" + "components" + "/" + String.valueOf(dataId);
             } else if (dataType.equals(Activity.DataType.REQUIREMENT)) {
                 resourcePath = "requirements";
+                parentResourcePath = "components";
                 RequirementEx requirement = dalFacade.getRequirementById(dataId, userId);
                 frontendResourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "components" + "/" +
                         requirement.getComponents().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(dataId);
             } else if (dataType.equals(Activity.DataType.COMMENT)) {
                 resourcePath = "comments";
+                parentResourcePath = "requirements";
                 Comment comment = dalFacade.getCommentById(dataId);
                 RequirementEx requirement = dalFacade.getRequirementById(comment.getRequirementId(), userId);
                 frontendResourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "components" + "/" +
-                        requirement.getComponents().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(dataId);
+                        requirement.getComponents().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
             }
             resourcePath = resourcePath + "/" + String.valueOf(dataId);
+            if (parentResourcePath != null) {
+                parentResourcePath = parentResourcePath + "/" + String.valueOf(parantDataId);
+            }
 
             if (activityAction != Activity.ActivityAction.DELETE) {
                 activityBuilder = activityBuilder.dataUrl(baseURL + resourcePath);
@@ -76,7 +83,10 @@ public class ActivityDispatcher {
             activityBuilder = activityBuilder.dataType(dataType);
             String frontendUrl = frontendBaseURL.concat(frontendResourcePath);
             activityBuilder = activityBuilder.dataFrontendUrl(frontendUrl);
-            activityBuilder = activityBuilder.parentDataType(parentDataTyp);
+            if (parentResourcePath != null) {
+                activityBuilder = activityBuilder.parentDataUrl(baseURL + parentResourcePath);
+                activityBuilder = activityBuilder.parentDataType(parentDataTyp);
+            }
             activityBuilder = activityBuilder.userUrl(baseURL + "users" + "/" + String.valueOf(userId));
             Activity activity = activityBuilder.build();
             Object result = service.invokeServiceMethod(activityTrackerService,
