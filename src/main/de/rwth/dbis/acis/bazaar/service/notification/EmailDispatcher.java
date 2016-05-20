@@ -111,7 +111,7 @@ public class EmailDispatcher {
                     RequirementEx requirement = dalFacade.getRequirementById(comment.getRequirementId(), userId);
                     objectName = requirement.getTitle();
                     resourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "components" + "/" +
-                            requirement.getComponents().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(dataId);
+                            requirement.getComponents().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
                 }
                 String dataUrl = frontendBaseURL.concat(resourcePath);
                 objectName = objectName.length() > 40 ? objectName.substring(0, 39) : objectName;
