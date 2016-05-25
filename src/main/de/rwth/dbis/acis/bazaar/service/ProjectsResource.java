@@ -83,7 +83,7 @@ public class ProjectsResource extends Service {
             if (vtor.hasViolations()) {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             List<Project> projects;
             if (agent.getLoginName().equals("anonymous")) {
                 // return only public projects
@@ -128,7 +128,7 @@ public class ProjectsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
             long userId = ((UserAgent) getActiveAgent()).getId();
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             if (dalFacade.isProjectPublic(projectId)) {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_PROJECT, String.valueOf(projectId), dalFacade);
@@ -189,7 +189,7 @@ public class ProjectsResource extends Service {
             Vtor vtor = bazaarService.getValidators();
             vtor.validate(projectToCreate);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_PROJECT, dalFacade);
             if (!authorized) {
@@ -248,7 +248,7 @@ public class ProjectsResource extends Service {
             if (vtor.hasViolations()) {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_PROJECT, dalFacade);
             if (!authorized) {
@@ -285,7 +285,7 @@ public class ProjectsResource extends Service {
 //        // TODO: check if user can delete this project
 //        String resultJSON = "{\"success\" : \"true\"}";
 //        try {
-//            createConnection();
+//            getDBConnection();
 //            dalFacade.delePR(projectToCreate);
 //        } catch (BazaarException bex) {
 //            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
@@ -336,7 +336,7 @@ public class ProjectsResource extends Service {
             if (vtor.hasViolations()) {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             if (dalFacade.getProjectById(projectId) == null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.NOT_FOUND, String.format(Localization.getInstance().getResourceBundle().getString("error.resource.notfound"), "component"));
@@ -405,7 +405,7 @@ public class ProjectsResource extends Service {
             if (vtor.hasViolations()) {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             if (dalFacade.getProjectById(projectId) == null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.NOT_FOUND, String.format(Localization.getInstance().getResourceBundle().getString("error.resource.notfound"), "ressource"));

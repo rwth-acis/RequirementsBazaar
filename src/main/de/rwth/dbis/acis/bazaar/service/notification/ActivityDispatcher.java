@@ -40,7 +40,7 @@ public class ActivityDispatcher {
                                     Activity.DataType parentDataTyp, int userId) {
         DALFacade dalFacade = null;
         try {
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
 
             Gson gson = new Gson();
             Activity.Builder activityBuilder = Activity.getBuilder();

@@ -21,14 +21,13 @@
 package de.rwth.dbis.acis.bazaar.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
@@ -45,7 +44,6 @@ import i5.las2peer.restMapper.HttpResponse;
 import i5.las2peer.restMapper.MediaType;
 import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.Version;
-import i5.las2peer.security.Context;
 import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
 import io.swagger.jaxrs.Reader;
@@ -57,10 +55,8 @@ import org.jooq.SQLDialect;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -112,6 +108,7 @@ public class BazaarService extends Service {
     private Vtor vtor;
     private List<BazaarFunctionRegistrator> functionRegistrators;
     private NotificationDispatcher notificationDispatcher;
+    private ComboPooledDataSource dbConnectionPool;
 
     /**
      * This method is needed for every RESTful application in LAS2peer.
@@ -135,7 +132,11 @@ public class BazaarService extends Service {
         Locale locale = new Locale(lang, country);
         Localization.getInstance().setResourceBundle(ResourceBundle.getBundle("i18n.Translation", locale));
 
-        Class.forName("com.mysql.jdbc.Driver").newInstance();
+        dbConnectionPool = new ComboPooledDataSource();
+        dbConnectionPool.setDriverClass( "com.mysql.jdbc.Driver");
+        dbConnectionPool.setJdbcUrl(dbUrl);
+        dbConnectionPool.setUser(dbUserName);
+        dbConnectionPool.setPassword(dbPassword);
 
         functionRegistrators = new ArrayList<BazaarFunctionRegistrator>();
         functionRegistrators.add(new BazaarFunctionRegistrator() {
@@ -143,7 +144,7 @@ public class BazaarService extends Service {
             public void registerFunction(EnumSet<BazaarFunction> functions) throws BazaarException {
                 DALFacade dalFacade = null;
                 try {
-                    dalFacade = createConnection();
+                    dalFacade = getDBConnection();
                     AuthorizationManager.SyncPrivileges(dalFacade);
                 } catch (CommunicationsException commEx) {
                     ExceptionHandler.getInstance().convertAndThrowException(commEx, ExceptionLocation.BAZAARSERVICE, ErrorCode.DB_COMM, Localization.getInstance().getResourceBundle().getString("error.db_comm"));
@@ -245,7 +246,7 @@ public class BazaarService extends Service {
 
         DALFacade dalFacade = null;
         try {
-            dalFacade = createConnection();
+            dalFacade = getDBConnection();
             Integer userIdByLAS2PeerId = dalFacade.getUserIdByLAS2PeerId(agent.getId());
             if (userIdByLAS2PeerId == null) {
                 User.Builder userBuilder = User.geBuilder(agent.getEmail());
@@ -265,8 +266,8 @@ public class BazaarService extends Service {
         }
     }
 
-    public DALFacade createConnection() throws Exception {
-        Connection dbConnection = DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
+    public DALFacade getDBConnection() throws Exception {
+        Connection dbConnection = dbConnectionPool.getConnection();
         return new DALFacadeImpl(dbConnection, SQLDialect.MYSQL);
     }
 
@@ -276,7 +277,6 @@ public class BazaarService extends Service {
         if (dbConnection != null) {
             try {
                 dbConnection.close();
-                System.out.println("Database connection closed!");
             } catch (SQLException ignore) {
                 System.out.println("Could not close db connection!");
             }

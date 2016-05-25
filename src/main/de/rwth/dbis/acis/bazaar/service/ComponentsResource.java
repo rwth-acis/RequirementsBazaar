@@ -75,7 +75,7 @@ public class ComponentsResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Component componentToReturn = dalFacade.getComponentById(componentId);
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             if (dalFacade.isComponentPublic(componentId)) {
@@ -140,7 +140,7 @@ public class ComponentsResource extends Service {
             if (vtor.hasViolations()) {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_COMPONENT, String.valueOf(componentToCreate.getProjectId()), dalFacade);
             if (!authorized) {
@@ -195,7 +195,7 @@ public class ComponentsResource extends Service {
             if (vtor.hasViolations()) {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_COMPONENT, dalFacade);
             if (!authorized) {
@@ -248,7 +248,7 @@ public class ComponentsResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Component componentToDelete = dalFacade.getComponentById(componentId);
             Project project = dalFacade.getProjectById(componentToDelete.getProjectId());
@@ -320,7 +320,7 @@ public class ComponentsResource extends Service {
             if (vtor.hasViolations()) {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             if (dalFacade.getComponentById(componentId) == null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.NOT_FOUND, String.format(Localization.getInstance().getResourceBundle().getString("error.resource.notfound"), "component"));

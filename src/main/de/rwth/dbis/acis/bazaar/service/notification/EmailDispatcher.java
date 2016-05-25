@@ -35,7 +35,7 @@ public class EmailDispatcher {
                                       int dataId, Activity.DataType dataType, int userId) {
         DALFacade dalFacade = null;
         try {
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
 
             List<User> recipients = new ArrayList<>();
             if (dataType.equals(Activity.DataType.REQUIREMENT)) {

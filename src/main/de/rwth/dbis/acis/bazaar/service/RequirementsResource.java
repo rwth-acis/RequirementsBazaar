@@ -4,7 +4,6 @@ package de.rwth.dbis.acis.bazaar.service;
 import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -79,7 +78,7 @@ public class RequirementsResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             RequirementEx requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             if (dalFacade.isRequirementPublic(requirementId)) {
@@ -138,7 +137,7 @@ public class RequirementsResource extends Service {
             }
             // TODO: check whether the current user may create a new requirement
             // TODO: check whether all required parameters are entered
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Gson gson = new Gson();
             Requirement requirementToCreate = gson.fromJson(requirement, Requirement.class);
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
@@ -220,7 +219,7 @@ public class RequirementsResource extends Service {
             if (vtor.hasViolations()) {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, dalFacade);
             if (!authorized) {
@@ -274,7 +273,7 @@ public class RequirementsResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             RequirementEx requirementToDelete = dalFacade.getRequirementById(requirementId, internalUserId);
             Project project = dalFacade.getProjectById(requirementToDelete.getProjectId());
@@ -329,7 +328,7 @@ public class RequirementsResource extends Service {
             }
             // TODO: check whether the current user may create a new requirement
             // TODO: check whether all required parameters are entered
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_DEVELOP, dalFacade);
             if (!authorized) {
@@ -384,7 +383,7 @@ public class RequirementsResource extends Service {
             }
             // TODO: check whether the current user may create a new requirement
             // TODO: check whether all required parameters are entered
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_DEVELOP, dalFacade);
             if (!authorized) {
@@ -438,7 +437,7 @@ public class RequirementsResource extends Service {
             }
             // TODO: check whether the current user may create a new requirement
             // TODO: check whether all required parameters are entered
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_FOLLOW, dalFacade);
             if (!authorized) {
@@ -492,7 +491,7 @@ public class RequirementsResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_FOLLOW, dalFacade);
             if (!authorized) {
@@ -551,7 +550,7 @@ public class RequirementsResource extends Service {
                 vtor.addViolation(new Violation("Direction can only be \"up\" or \"down\"", direction, direction));
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_VOTE, dalFacade);
             if (!authorized) {
@@ -608,7 +607,7 @@ public class RequirementsResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_VOTE, dalFacade);
             if (!authorized) {
@@ -668,7 +667,7 @@ public class RequirementsResource extends Service {
             Vtor vtor = bazaarService.getValidators();
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             //Todo use requirement's projectId for serurity context, not the one sent from client
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);

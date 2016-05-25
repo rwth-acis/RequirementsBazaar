@@ -70,7 +70,7 @@ public class UsersResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             User user = dalFacade.getUserById(userId);
             Gson gson = new Gson();
             return new HttpResponse(gson.toJson(user), HttpURLConnection.HTTP_OK);
@@ -124,7 +124,7 @@ public class UsersResource extends Service {
             if (vtor.hasViolations()) {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(useragentId);
             if(!internalUserId.equals(userId)) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION,
@@ -171,7 +171,7 @@ public class UsersResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             User user = dalFacade.getUserById(internalUserId);
             Gson gson = new Gson();
