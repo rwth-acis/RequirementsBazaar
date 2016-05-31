@@ -9,10 +9,7 @@ import i5.las2peer.security.Context;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Created by martin on 15.02.2016.
@@ -47,6 +44,14 @@ public class EmailDispatcher {
                 recipients = dalFacade.getRecipientListForComponent(dataId);
             } else if (dataType.equals(Activity.DataType.PROJECT)) {
                 recipients = dalFacade.getRecipientListForProject(dataId);
+            }
+            // delete the user who created the activity
+            Iterator<User> recipientsIterator = recipients.iterator();
+            while(recipientsIterator.hasNext()) {
+                User recipient = recipientsIterator.next();
+                if (recipient.getId() == userId) {
+                    recipientsIterator.remove();
+                }
             }
 
             if (!recipients.isEmpty()) {
