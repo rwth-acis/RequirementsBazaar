@@ -99,6 +99,9 @@ public class EmailDispatcher {
                     } else if (activityAction == Activity.ActivityAction.UPDATE) {
                         subject = Localization.getInstance().getResourceBundle().getString("email.subject.requirement.updated");
                         bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.requirement.updated");
+                    } else if (activityAction == Activity.ActivityAction.REALIZE) {
+                        subject = Localization.getInstance().getResourceBundle().getString("email.subject.requirement.realized");
+                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.requirement.realized");
                     }
                     RequirementEx requirement = dalFacade.getRequirementById(dataId, userId);
                     objectName = requirement.getTitle();

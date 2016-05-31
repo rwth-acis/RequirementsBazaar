@@ -58,7 +58,9 @@ public class ActivityDispatcher {
                 parentResourcePath = "projects";
                 Component component = dalFacade.getComponentById(dataId);
                 frontendResourcePath = "projects" + "/" + component.getProjectId() + "/" + "components" + "/" + String.valueOf(dataId);
-            } else if (dataType.equals(Activity.DataType.REQUIREMENT)) {
+            } else if (dataType.equals(Activity.DataType.REQUIREMENT) || dataType.equals(Activity.DataType.VOTE) ||
+                    dataType.equals(Activity.DataType.DEVELOP) ||
+                    (dataType.equals(Activity.DataType.FOLLOW) && parentDataTyp.equals(Activity.DataType.REQUIREMENT))) {
                 resourcePath = "requirements";
                 parentResourcePath = "components";
                 RequirementEx requirement = dalFacade.getRequirementById(dataId, userId);

@@ -139,6 +139,7 @@ public class Activity extends EntityBase {
     public enum ActivityAction {
         CREATE,
         UPDATE,
-        DELETE
+        DELETE,
+        REALIZE
     }
 }
