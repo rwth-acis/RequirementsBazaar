@@ -86,7 +86,7 @@ public class UsersResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
@@ -144,7 +144,7 @@ public class UsersResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
@@ -188,7 +188,7 @@ public class UsersResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 

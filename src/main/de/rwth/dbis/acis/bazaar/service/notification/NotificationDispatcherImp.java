@@ -37,7 +37,8 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
 //        });
         executorService.execute(new Runnable() {
             public void run() {
-                if (emailDispatcher != null && (activityAction != Activity.ActivityAction.DELETE)) {
+                if (emailDispatcher != null && (activityAction == Activity.ActivityAction.CREATE || activityAction == Activity.ActivityAction.UPDATE ||
+                        activityAction == Activity.ActivityAction.REALIZE)) {
                     emailDispatcher.sendEmailNotification(creationTime, activityAction, dataId, dataType, userId);
                 }
             }

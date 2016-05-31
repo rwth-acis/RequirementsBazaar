@@ -130,16 +130,19 @@ public class Activity extends EntityBase {
         COMPONENT,
         REQUIREMENT,
         COMMENT,
-        ATTACHMENT,
-        VOTE,
-        FOLLOW,
-        DEVELOP
+        ATTACHMENT
     }
 
     public enum ActivityAction {
         CREATE,
         UPDATE,
         DELETE,
-        REALIZE
+        REALIZE,
+        VOTE,
+        UNVOTE,
+        DEVELOP,
+        UNDEVELOP,
+        FOLLOW,
+        UNFOLLOW
     }
 }

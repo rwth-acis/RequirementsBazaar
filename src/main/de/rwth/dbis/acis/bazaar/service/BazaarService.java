@@ -151,7 +151,7 @@ public class BazaarService extends Service {
                 } catch (Exception ex) {
                     ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.privilige_sync"));
                 } finally {
-                    closeConnection(dalFacade);
+                    closeDBConnection(dalFacade);
                 }
             }
         });
@@ -262,7 +262,7 @@ public class BazaarService extends Service {
         } catch (Exception ex) {
             ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.first_login"));
         } finally {
-            closeConnection(dalFacade);
+            closeDBConnection(dalFacade);
         }
     }
 
@@ -271,7 +271,7 @@ public class BazaarService extends Service {
         return new DALFacadeImpl(dbConnection, SQLDialect.MYSQL);
     }
 
-    public void closeConnection(DALFacade dalFacade) {
+    public void closeDBConnection(DALFacade dalFacade) {
         if (dalFacade == null) return;
         Connection dbConnection = dalFacade.getConnection();
         if (dbConnection != null) {

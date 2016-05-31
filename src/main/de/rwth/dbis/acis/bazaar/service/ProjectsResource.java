@@ -100,7 +100,7 @@ public class ProjectsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
@@ -156,7 +156,7 @@ public class ProjectsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
@@ -210,7 +210,7 @@ public class ProjectsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
@@ -273,7 +273,7 @@ public class ProjectsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
@@ -294,7 +294,7 @@ public class ProjectsResource extends Service {
 //            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
 //
 //        } finally {
-//            closeConnection();
+//            closeDBConnection();
 //        }
 //
 //        return resultJSON;
@@ -366,7 +366,7 @@ public class ProjectsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
@@ -435,7 +435,7 @@ public class ProjectsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
