@@ -133,7 +133,7 @@ public class BazaarService extends Service {
         Localization.getInstance().setResourceBundle(ResourceBundle.getBundle("i18n.Translation", locale));
 
         dbConnectionPool = new ComboPooledDataSource();
-        dbConnectionPool.setDriverClass( "com.mysql.jdbc.Driver");
+        dbConnectionPool.setDriverClass("com.mysql.jdbc.Driver");
         dbConnectionPool.setJdbcUrl(dbUrl);
         dbConnectionPool.setUser(dbUserName);
         dbConnectionPool.setPassword(dbPassword);
