@@ -131,7 +131,7 @@ public class EmailDispatcher {
                 String text = greeting;
                 text = text.concat("\r\n\r\n");
                 text = text.concat(bodytext);
-                text = text.concat(" " + dataUrl);
+                text = text.concat("\r\n" + dataUrl);
                 text = text.concat("\r\n\r\n");
                 text = text.concat(footer1);
                 text = text.concat("\r\n");
