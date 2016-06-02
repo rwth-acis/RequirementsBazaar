@@ -26,10 +26,6 @@ import jodd.vtor.constraint.NotBlank;
 
 import java.util.Date;
 
-/**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/11/2014
- */
 public abstract class Attachment extends EntityBase {
     @Min(-1)
     private final int Id;
@@ -44,6 +40,10 @@ public abstract class Attachment extends EntityBase {
     @MaxLength(50)
     private final String title;
 
+    private final String description;
+
+    private final String mimeType;
+
     private final Date creation_time;
 
     private final Date lastupdated_time;
@@ -53,6 +53,8 @@ public abstract class Attachment extends EntityBase {
         this.creatorId = builder.creatorId;
         this.requirementId = builder.requirementId;
         this.title = builder.title;
+        this.description = builder.description;
+        this.mimeType = builder.mimeType;
         this.creation_time = builder.creation_time;
         this.lastupdated_time = builder.lastupdated_time;
     }
@@ -61,7 +63,6 @@ public abstract class Attachment extends EntityBase {
         return Id;
     }
 
-    //TODO Create real object mapping extension
     public int getCreatorId() {
         return creatorId;
     }
@@ -72,6 +73,14 @@ public abstract class Attachment extends EntityBase {
 
     public String getTitle() {
         return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getMimeType() {
+        return mimeType;
     }
 
     public Date getCreation_time() {
@@ -87,6 +96,8 @@ public abstract class Attachment extends EntityBase {
         private int creatorId;
         private int requirementId;
         private String title;
+        private String description;
+        private String mimeType;
         private Date creation_time;
         private Date lastupdated_time;
 
@@ -107,6 +118,16 @@ public abstract class Attachment extends EntityBase {
 
         public Builder title(String title) {
             this.title = title;
+            return this;
+        }
+
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder mimeType(String mimeType) {
+            this.mimeType = mimeType;
             return this;
         }
 

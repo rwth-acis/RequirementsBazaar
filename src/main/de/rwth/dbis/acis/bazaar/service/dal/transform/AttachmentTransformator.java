@@ -31,10 +31,6 @@ import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachments.ATTACHMENTS;
 
-/**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/22/2014
- */
 public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord> {
 
     @Override
@@ -45,124 +41,23 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
         attachmentsRecord.setRequirementId(entity.getRequirementId());
         attachmentsRecord.setUserId(entity.getCreatorId());
         attachmentsRecord.setTitle(entity.getTitle());
-
-        if (entity instanceof File)
-            fillFile(attachmentsRecord, (File) entity);
-        else if (entity instanceof FreeStory)
-            fillFreeStory(attachmentsRecord, (FreeStory) entity);
-        else if (entity instanceof Image)
-            fillImage(attachmentsRecord, (Image) entity);
-        else if (entity instanceof Log)
-            fillLog(attachmentsRecord, (Log) entity);
-        else if (entity instanceof UserStory)
-            fillUserStory(attachmentsRecord, (UserStory) entity);
-
+        attachmentsRecord.setDescription(entity.getDescription());
+        attachmentsRecord.setMimeType(entity.getMimeType());
         return attachmentsRecord;
-    }
-
-    private void fillUserStory(AttachmentsRecord record, UserStory entity) {
-        record.setObject(entity.getObject());
-        record.setObjectDesc(entity.getObjectDescription());
-        record.setSubject(entity.getSubject());
-
-        record.setDiscriminator(AttachmentType.UserStory.toString());
-    }
-
-    private void fillLog(AttachmentsRecord record, Log entity) {
-        record.setDescription(entity.getDescription());
-        record.setFilePath(entity.getFilePath());
-
-        record.setDiscriminator(AttachmentType.Log.toString());
-    }
-
-    private void fillImage(AttachmentsRecord record, Image entity) {
-        record.setDescription(entity.getDescription());
-        record.setFilePath(entity.getFilePath());
-
-        record.setDiscriminator(AttachmentType.Image.toString());
-    }
-
-    private void fillFreeStory(AttachmentsRecord record, FreeStory entity) {
-        record.setStory(entity.getStory());
-
-        record.setDiscriminator(AttachmentType.FreeStory.toString());
-    }
-
-    private void fillFile(AttachmentsRecord record, File entity) {
-        record.setDescription(entity.getDescription());
-        record.setFilePath(entity.getFilePath());
-
-        record.setDiscriminator(AttachmentType.File.toString());
     }
 
     @Override
     public Attachment getEntityFromTableRecord(AttachmentsRecord record) {
-        Attachment entity = null;
-        AttachmentType type = AttachmentType.getEnum(record.getDiscriminator());
-
-        switch (type) {
-            case UserStory:
-                entity = UserStory.getBuilder()
-                        .object(record.getObject())
-                        .objectDescription(record.getObjectDesc())
-                        .subject(record.getSubject())
-                        .id(record.getId())
-                        .creator(record.getUserId())
-                        .requirementId(record.getRequirementId())
-                        .title(record.getTitle())
-                        .creationTime(record.getCreationTime())
-                        .lastupdatedTime(record.getLastupdatedTime())
-                        .build();
-                break;
-            case Log:
-                entity = Log.getBuilder()
-                        .description(record.getDescription())
-                        .filePath(record.getFilePath())
-                        .id(record.getId())
-                        .creator(record.getUserId())
-                        .requirementId(record.getRequirementId())
-                        .title(record.getTitle())
-                        .creationTime(record.getCreationTime())
-                        .lastupdatedTime(record.getLastupdatedTime())
-                        .build();
-                break;
-            case Image:
-                entity = Image.getBuilder()
-                        .description(record.getDescription())
-                        .filePath(record.getFilePath())
-                        .id(record.getId())
-                        .creator(record.getUserId())
-                        .requirementId(record.getRequirementId())
-                        .title(record.getTitle())
-                        .creationTime(record.getCreationTime())
-                        .lastupdatedTime(record.getLastupdatedTime())
-                        .build();
-                break;
-            case FreeStory:
-                entity = FreeStory.getBuilder()
-                        .story(record.getStory())
-                        .id(record.getId())
-                        .creator(record.getUserId())
-                        .requirementId(record.getRequirementId())
-                        .title(record.getTitle())
-                        .creationTime(record.getCreationTime())
-                        .lastupdatedTime(record.getLastupdatedTime())
-                        .build();
-                break;
-            case File:
-                entity = File.getBuilder()
-                        .description(record.getDescription())
-                        .filePath(record.getFilePath())
-                        .id(record.getId())
-                        .creator(record.getUserId())
-                        .requirementId(record.getRequirementId())
-                        .title(record.getTitle())
-                        .creationTime(record.getCreationTime())
-                        .lastupdatedTime(record.getLastupdatedTime())
-                        .build();
-                break;
-        }
-
+        Attachment entity = Image.getBuilder()
+                .id(record.getId())
+                .creator(record.getUserId())
+                .requirementId(record.getRequirementId())
+                .title(record.getTitle())
+                .description(record.getDescription())
+                .mimeType(record.getMimeType())
+                .creationTime(record.getCreationTime())
+                .lastupdatedTime(record.getLastupdatedTime())
+                .build();
         return entity;
     }
 
@@ -185,8 +80,9 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
     public Map<Field, Object> getUpdateMap(final Attachment entity) {
         HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
             put(ATTACHMENTS.USER_ID, entity.getCreatorId());
-            put(ATTACHMENTS.TITLE, entity.getTitle());
             put(ATTACHMENTS.REQUIREMENT_ID, entity.getRequirementId());
+            put(ATTACHMENTS.TITLE, entity.getTitle());
+            put(ATTACHMENTS.DESCRIPTION, entity.getDescription());
         }};
         if (!updateMap.isEmpty()) {
             updateMap.put(ATTACHMENTS.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
@@ -212,9 +108,6 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
         return Arrays.asList(
                 ATTACHMENTS.TITLE.likeIgnoreCase(likeExpression)
                         .or(ATTACHMENTS.DESCRIPTION.likeIgnoreCase(likeExpression))
-                        .or(ATTACHMENTS.OBJECT_DESC.likeIgnoreCase(likeExpression))
-                        .or(ATTACHMENTS.STORY.likeIgnoreCase(likeExpression))
-                        .or(ATTACHMENTS.SUBJECT.likeIgnoreCase(likeExpression))
         );
     }
 }

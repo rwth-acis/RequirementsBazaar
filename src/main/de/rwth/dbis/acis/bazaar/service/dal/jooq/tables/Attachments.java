@@ -36,7 +36,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Attachments extends TableImpl<AttachmentsRecord> {
 
-	private static final long serialVersionUID = 51981582;
+	private static final long serialVersionUID = -186377393;
 
 	/**
 	 * The reference instance of <code>reqbaz.attachments</code>
@@ -82,39 +82,14 @@ public class Attachments extends TableImpl<AttachmentsRecord> {
 	public final TableField<AttachmentsRecord, String> TITLE = createField("title", org.jooq.impl.SQLDataType.VARCHAR.length(255).nullable(false), this, "");
 
 	/**
-	 * The column <code>reqbaz.attachments.discriminator</code>.
-	 */
-	public final TableField<AttachmentsRecord, String> DISCRIMINATOR = createField("discriminator", org.jooq.impl.SQLDataType.CHAR.length(1).nullable(false), this, "");
-
-	/**
-	 * The column <code>reqbaz.attachments.file_path</code>.
-	 */
-	public final TableField<AttachmentsRecord, String> FILE_PATH = createField("file_path", org.jooq.impl.SQLDataType.VARCHAR.length(500), this, "");
-
-	/**
 	 * The column <code>reqbaz.attachments.description</code>.
 	 */
 	public final TableField<AttachmentsRecord, String> DESCRIPTION = createField("description", org.jooq.impl.SQLDataType.CLOB, this, "");
 
 	/**
-	 * The column <code>reqbaz.attachments.story</code>.
+	 * The column <code>reqbaz.attachments.mime_type</code>.
 	 */
-	public final TableField<AttachmentsRecord, String> STORY = createField("story", org.jooq.impl.SQLDataType.CLOB, this, "");
-
-	/**
-	 * The column <code>reqbaz.attachments.subject</code>.
-	 */
-	public final TableField<AttachmentsRecord, String> SUBJECT = createField("subject", org.jooq.impl.SQLDataType.VARCHAR.length(255), this, "");
-
-	/**
-	 * The column <code>reqbaz.attachments.object</code>.
-	 */
-	public final TableField<AttachmentsRecord, String> OBJECT = createField("object", org.jooq.impl.SQLDataType.VARCHAR.length(255), this, "");
-
-	/**
-	 * The column <code>reqbaz.attachments.object_desc</code>.
-	 */
-	public final TableField<AttachmentsRecord, String> OBJECT_DESC = createField("object_desc", org.jooq.impl.SQLDataType.VARCHAR.length(255), this, "");
+	public final TableField<AttachmentsRecord, String> MIME_TYPE = createField("mime_type", org.jooq.impl.SQLDataType.VARCHAR.length(255).nullable(false), this, "");
 
 	/**
 	 * Create a <code>reqbaz.attachments</code> table reference
