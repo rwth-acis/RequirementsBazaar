@@ -138,6 +138,10 @@ public class BazaarService extends Service {
         dbConnectionPool.setUser(dbUserName);
         dbConnectionPool.setPassword(dbPassword);
 
+        dbConnectionPool.setMinPoolSize(10);
+        dbConnectionPool.setAcquireIncrement(5);
+        dbConnectionPool.setMaxPoolSize(30);
+
         functionRegistrators = new ArrayList<BazaarFunctionRegistrator>();
         functionRegistrators.add(new BazaarFunctionRegistrator() {
             @Override
@@ -267,7 +271,13 @@ public class BazaarService extends Service {
     }
 
     public DALFacade getDBConnection() throws Exception {
-        Connection dbConnection = dbConnectionPool.getConnection();
+        Connection dbConnection = null;
+        try {
+            dbConnection = dbConnectionPool.getConnection();
+        } catch(SQLException e) {
+            System.out.println("Could not get db connection!");
+            System.out.println(e.getMessage());
+        }
         return new DALFacadeImpl(dbConnection, SQLDialect.MYSQL);
     }
 
@@ -277,8 +287,9 @@ public class BazaarService extends Service {
         if (dbConnection != null) {
             try {
                 dbConnection.close();
-            } catch (SQLException ignore) {
+            } catch (SQLException e) {
                 System.out.println("Could not close db connection!");
+                System.out.println(e.getMessage());
             }
         }
     }
