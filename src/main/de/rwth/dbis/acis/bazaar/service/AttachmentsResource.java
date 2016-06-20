@@ -75,8 +75,6 @@ public class AttachmentsResource extends Service {
         DALFacade dalFacade = null;
         try {
             long userId = ((UserAgent) getActiveAgent()).getId();
-            // TODO: check whether the current user may create a new requirement
-            // TODO: check whether all required parameters are entered
             String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
@@ -113,25 +111,6 @@ public class AttachmentsResource extends Service {
             bazaarService.closeDBConnection(dalFacade);
         }
     }
-
-    //TODO UPDATE?
-//    /**
-//     * This method updates a specific attachment within a requirement.
-//     *
-//     * @param projectId     the ID of the project for the requirement.
-//     * @param componentId   the id of the component under a given project
-//     * @param requirementId the ID of the requirement, which was commented.
-//     * @param attachmentId  the ID of the attachment, which should be returned.
-//     * @return ??.
-//     */
-//    @PUT
-//    @Path("/{attachmentId}")
-//    public String updateAttachment(@PathParam("projectId") int projectId,
-//                                   @PathParam("componentId") int componentId,
-//                                   @PathParam("requirementId") int requirementId,
-//                                   @PathParam("attachmentId") int attachmentId) {
-//        return "[]";
-//    }
 
     /**
      * This method deletes a specific attachment.

@@ -20,27 +20,17 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
-/**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/16/2014
- */
 public class Image extends Attachment {
 
-    private final String filePath;
-    private final String description;
+    private final String fileUrl;
 
     public Image(Builder builder) {
         super(builder);
-        this.filePath = builder.filePath;
-        this.description = builder.description;
+        this.fileUrl = builder.fileUrl;
     }
 
-    public String getFilePath() {
-        return filePath;
-    }
-
-    public String getDescription() {
-        return description;
+    public String getFileUrl() {
+        return fileUrl;
     }
 
     public static Builder getBuilder() {
@@ -48,16 +38,10 @@ public class Image extends Attachment {
     }
 
     public static class Builder extends Attachment.Builder {
-        private String filePath;
-        private String description;
+        private String fileUrl;
 
-        public Builder filePath(String filePath) {
-            this.filePath = filePath;
-            return this;
-        }
-
-        public Builder description(String description) {
-            this.description = description;
+        public Builder fileUrl(String fileUrl) {
+            this.fileUrl = fileUrl;
             return this;
         }
 
