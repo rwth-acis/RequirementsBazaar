@@ -24,7 +24,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
@@ -50,14 +49,16 @@ import io.swagger.jaxrs.Reader;
 import io.swagger.models.Swagger;
 import io.swagger.util.Json;
 import jodd.vtor.Vtor;
+import org.apache.commons.dbcp2.*;
+import org.apache.commons.pool2.ObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.jooq.SQLDialect;
 
+import javax.sql.DataSource;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import java.net.HttpURLConnection;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.*;
 
 
@@ -108,7 +109,7 @@ public class BazaarService extends Service {
     private Vtor vtor;
     private List<BazaarFunctionRegistrator> functionRegistrators;
     private NotificationDispatcher notificationDispatcher;
-    private ComboPooledDataSource dbConnectionPool;
+    private DataSource dataSource;
 
     /**
      * This method is needed for every RESTful application in LAS2peer.
@@ -132,15 +133,9 @@ public class BazaarService extends Service {
         Locale locale = new Locale(lang, country);
         Localization.getInstance().setResourceBundle(ResourceBundle.getBundle("i18n.Translation", locale));
 
-        dbConnectionPool = new ComboPooledDataSource();
-        dbConnectionPool.setDriverClass("com.mysql.jdbc.Driver");
-        dbConnectionPool.setJdbcUrl(dbUrl);
-        dbConnectionPool.setUser(dbUserName);
-        dbConnectionPool.setPassword(dbPassword);
+        Class.forName("com.mysql.jdbc.Driver").newInstance();
 
-        dbConnectionPool.setMinPoolSize(10);
-        dbConnectionPool.setAcquireIncrement(5);
-        dbConnectionPool.setMaxPoolSize(30);
+        dataSource = setupDataSource(dbUrl, dbUserName, dbPassword);
 
         functionRegistrators = new ArrayList<BazaarFunctionRegistrator>();
         functionRegistrators.add(new BazaarFunctionRegistrator() {
@@ -270,28 +265,22 @@ public class BazaarService extends Service {
         }
     }
 
+    public static DataSource setupDataSource(String dbUrl, String dbUserName, String dbPassword) {
+        ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(dbUrl, dbUserName, dbPassword);
+        PoolableConnectionFactory poolableConnectionFactory = new PoolableConnectionFactory(connectionFactory, null);
+        ObjectPool<PoolableConnection> connectionPool = new GenericObjectPool<>(poolableConnectionFactory);
+        poolableConnectionFactory.setPool(connectionPool);
+        PoolingDataSource<PoolableConnection> dataSource = new PoolingDataSource<>(connectionPool);
+        return dataSource;
+    }
+
     public DALFacade getDBConnection() throws Exception {
-        Connection dbConnection = null;
-        try {
-            dbConnection = dbConnectionPool.getConnection();
-        } catch(SQLException e) {
-            System.out.println("Could not get db connection!");
-            System.out.println(e.getMessage());
-        }
-        return new DALFacadeImpl(dbConnection, SQLDialect.MYSQL);
+        return new DALFacadeImpl(dataSource, SQLDialect.MYSQL);
     }
 
     public void closeDBConnection(DALFacade dalFacade) {
         if (dalFacade == null) return;
-        Connection dbConnection = dalFacade.getConnection();
-        if (dbConnection != null) {
-            try {
-                dbConnection.close();
-            } catch (SQLException e) {
-                System.out.println("Could not close db connection!");
-                System.out.println(e.getMessage());
-            }
-        }
+        dalFacade.close();
     }
 
     /**
