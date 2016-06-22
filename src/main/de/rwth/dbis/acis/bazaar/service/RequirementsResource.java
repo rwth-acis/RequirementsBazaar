@@ -4,7 +4,6 @@ package de.rwth.dbis.acis.bazaar.service;
 import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -26,6 +25,7 @@ import jodd.vtor.Vtor;
 import javax.ws.rs.*;
 import java.net.HttpURLConnection;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -79,7 +79,7 @@ public class RequirementsResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             RequirementEx requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             if (dalFacade.isRequirementPublic(requirementId)) {
@@ -107,7 +107,7 @@ public class RequirementsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
@@ -138,7 +138,7 @@ public class RequirementsResource extends Service {
             }
             // TODO: check whether the current user may create a new requirement
             // TODO: check whether all required parameters are entered
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Gson gson = new Gson();
             Requirement requirementToCreate = gson.fromJson(requirement, Requirement.class);
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
@@ -182,7 +182,7 @@ public class RequirementsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
@@ -220,7 +220,7 @@ public class RequirementsResource extends Service {
             if (vtor.hasViolations()) {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, dalFacade);
             if (!authorized) {
@@ -231,8 +231,13 @@ public class RequirementsResource extends Service {
             }
             dalFacade.follow(internalUserId, requirementToUpdate.getId());
             RequirementEx updatedRequirement = dalFacade.modifyRequirement(requirementToUpdate, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(this, updatedRequirement.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedRequirement.getId(),
-                    Activity.DataType.REQUIREMENT, updatedRequirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
+            if(requirementToUpdate.getRealized() == null) {
+                bazaarService.getNotificationDispatcher().dispatchNotification(this, updatedRequirement.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedRequirement.getId(),
+                        Activity.DataType.REQUIREMENT, updatedRequirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
+            } else {
+                bazaarService.getNotificationDispatcher().dispatchNotification(this, updatedRequirement.getLastupdated_time(), Activity.ActivityAction.REALIZE, updatedRequirement.getId(),
+                        Activity.DataType.REQUIREMENT, updatedRequirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
+            }
             return new HttpResponse(gson.toJson(updatedRequirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -246,7 +251,7 @@ public class RequirementsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
@@ -274,7 +279,7 @@ public class RequirementsResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             RequirementEx requirementToDelete = dalFacade.getRequirementById(requirementId, internalUserId);
             Project project = dalFacade.getProjectById(requirementToDelete.getProjectId());
@@ -299,7 +304,7 @@ public class RequirementsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
@@ -329,7 +334,7 @@ public class RequirementsResource extends Service {
             }
             // TODO: check whether the current user may create a new requirement
             // TODO: check whether all required parameters are entered
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_DEVELOP, dalFacade);
             if (!authorized) {
@@ -338,8 +343,8 @@ public class RequirementsResource extends Service {
             dalFacade.wantToDevelop(internalUserId, requirementId);
             dalFacade.follow(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(this, requirement.getLastupdated_time(), Activity.ActivityAction.CREATE, requirement.getId(),
-                    Activity.DataType.DEVELOP, requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, new Date(), Activity.ActivityAction.DEVELOP, requirement.getId(),
+                    Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
             Gson gson = new Gson();
             return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
@@ -354,7 +359,7 @@ public class RequirementsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
@@ -384,7 +389,7 @@ public class RequirementsResource extends Service {
             }
             // TODO: check whether the current user may create a new requirement
             // TODO: check whether all required parameters are entered
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_DEVELOP, dalFacade);
             if (!authorized) {
@@ -393,8 +398,8 @@ public class RequirementsResource extends Service {
             dalFacade.notWantToDevelop(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
-            bazaarService.getNotificationDispatcher().dispatchNotification(this, requirement.getLastupdated_time(), Activity.ActivityAction.DELETE, requirement.getId(),
-                    Activity.DataType.DEVELOP, requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, new Date(), Activity.ActivityAction.UNDEVELOP, requirement.getId(),
+                    Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
             return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -408,7 +413,7 @@ public class RequirementsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
@@ -438,7 +443,7 @@ public class RequirementsResource extends Service {
             }
             // TODO: check whether the current user may create a new requirement
             // TODO: check whether all required parameters are entered
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_FOLLOW, dalFacade);
             if (!authorized) {
@@ -447,8 +452,8 @@ public class RequirementsResource extends Service {
             dalFacade.follow(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
-            bazaarService.getNotificationDispatcher().dispatchNotification(this, requirement.getLastupdated_time(), Activity.ActivityAction.CREATE, requirement.getId(),
-                    Activity.DataType.FOLLOW, requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, new Date(), Activity.ActivityAction.FOLLOW, requirement.getId(),
+                    Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
             return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -462,7 +467,7 @@ public class RequirementsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
@@ -492,7 +497,7 @@ public class RequirementsResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_FOLLOW, dalFacade);
             if (!authorized) {
@@ -501,8 +506,8 @@ public class RequirementsResource extends Service {
             dalFacade.unFollow(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
-            bazaarService.getNotificationDispatcher().dispatchNotification(this, requirement.getLastupdated_time(), Activity.ActivityAction.DELETE, requirement.getId(),
-                    Activity.DataType.FOLLOW, requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, new Date(), Activity.ActivityAction.UNFOLLOW, requirement.getId(),
+                    Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
             return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -516,7 +521,7 @@ public class RequirementsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
@@ -551,7 +556,7 @@ public class RequirementsResource extends Service {
                 vtor.addViolation(new Violation("Direction can only be \"up\" or \"down\"", direction, direction));
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_VOTE, dalFacade);
             if (!authorized) {
@@ -562,8 +567,8 @@ public class RequirementsResource extends Service {
                 dalFacade.follow(internalUserId, requirementId);
             }
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(this, requirement.getLastupdated_time(), Activity.ActivityAction.CREATE, requirement.getId(),
-                    Activity.DataType.VOTE, requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, new Date(), Activity.ActivityAction.VOTE, requirement.getId(),
+                    Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
             Gson gson = new Gson();
             return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
@@ -578,7 +583,7 @@ public class RequirementsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
@@ -608,7 +613,7 @@ public class RequirementsResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_VOTE, dalFacade);
             if (!authorized) {
@@ -617,8 +622,8 @@ public class RequirementsResource extends Service {
             dalFacade.unVote(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
-            bazaarService.getNotificationDispatcher().dispatchNotification(this, requirement.getLastupdated_time(), Activity.ActivityAction.DELETE, requirement.getId(),
-                    Activity.DataType.VOTE, requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(this, new Date(), Activity.ActivityAction.UNVOTE, requirement.getId(),
+                    Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
             return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -632,7 +637,7 @@ public class RequirementsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
@@ -668,7 +673,7 @@ public class RequirementsResource extends Service {
             Vtor vtor = bazaarService.getValidators();
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             //Todo use requirement's projectId for serurity context, not the one sent from client
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
@@ -699,7 +704,7 @@ public class RequirementsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 

@@ -76,7 +76,7 @@ public class CommentsResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Comment comment = dalFacade.getCommentById(commentId);
             Requirement requirement = dalFacade.getRequirementById(comment.getRequirementId(), internalUserId);
@@ -105,7 +105,7 @@ public class CommentsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
@@ -138,7 +138,7 @@ public class CommentsResource extends Service {
             }
             Gson gson = new Gson();
             Comment commentToCreate = gson.fromJson(comment, Comment.class);
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(commentToCreate.getRequirementId(), internalUserId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_COMMENT, String.valueOf(requirement.getProjectId()), dalFacade);
@@ -168,7 +168,7 @@ public class CommentsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
@@ -220,7 +220,7 @@ public class CommentsResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Comment commentToDelete = dalFacade.getCommentById(commentId);
             Requirement requirement = dalFacade.getRequirementById(commentToDelete.getRequirementId(), internalUserId);
@@ -245,7 +245,7 @@ public class CommentsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
