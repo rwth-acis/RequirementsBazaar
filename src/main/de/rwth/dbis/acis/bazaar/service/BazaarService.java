@@ -59,9 +59,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import java.net.HttpURLConnection;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.*;
 
 
@@ -278,27 +275,12 @@ public class BazaarService extends Service {
     }
 
     public DALFacade getDBConnection() throws Exception {
-        Connection dbConnection = null;
-        try {
-            dbConnection = dataSource.getConnection();
-        } catch(SQLException e) {
-            System.out.println("Could not get db connection!");
-            System.out.println(e.getMessage());
-        }
-        return new DALFacadeImpl(dbConnection, SQLDialect.MYSQL);
+        return new DALFacadeImpl(dataSource, SQLDialect.MYSQL);
     }
 
     public void closeDBConnection(DALFacade dalFacade) {
         if (dalFacade == null) return;
-        Connection dbConnection = dalFacade.getConnection();
-        if (dbConnection != null) {
-            try {
-                dbConnection.close();
-            } catch (SQLException e) {
-                System.out.println("Could not close db connection!");
-                System.out.println(e.getMessage());
-            }
-        }
+        dalFacade.close();
     }
 
     /**

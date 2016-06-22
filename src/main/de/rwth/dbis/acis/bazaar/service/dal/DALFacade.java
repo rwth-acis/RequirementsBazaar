@@ -35,7 +35,7 @@ import java.util.List;
  */
 public interface DALFacade {
 
-    Connection getConnection();
+    void close();
 
     //region User
 
