@@ -164,6 +164,7 @@
     <target name="jar" depends="compile_main" description="--> jar">
         <jar jarfile="${export.jars}/${service.0.name}-${service.0.version}.jar">
             <fileset dir="${tmp.classes}" includes="${service.0.path}/**" />
+            <fileset dir="src" includes="i18n/**" />
             <manifest>
                 <attribute name="Library-Version" value="${service.0.version}" />
                 <attribute name="Library-SymbolicName" value="${service.0.name}" />
@@ -172,6 +173,7 @@
         </jar>
         <jar jarfile="${export.jars}/${service.1.name}-${service.1.version}.jar">
             <fileset dir="${tmp.classes}" includes="${service.1.path}/**" />
+            <fileset dir="src" includes="i18n/**" />
             <manifest>
                 <attribute name="Library-Version" value="${service.1.version}" />
                 <attribute name="Library-SymbolicName" value="${service.1.name}" />
@@ -180,6 +182,7 @@
         </jar>
         <jar jarfile="${export.jars}/${service.2.name}-${service.2.version}.jar">
             <fileset dir="${tmp.classes}" includes="${service.2.path}/**" />
+            <fileset dir="src" includes="i18n/**" />
             <manifest>
                 <attribute name="Library-Version" value="${service.2.version}" />
                 <attribute name="Library-SymbolicName" value="${service.2.name}" />
@@ -188,6 +191,7 @@
         </jar>
         <jar jarfile="${export.jars}/${service.3.name}-${service.3.version}.jar">
             <fileset dir="${tmp.classes}" includes="${service.3.path}/**" />
+            <fileset dir="src" includes="i18n/**" />
             <manifest>
                 <attribute name="Library-Version" value="${service.3.version}" />
                 <attribute name="Library-SymbolicName" value="${service.3.name}" />
@@ -196,6 +200,7 @@
         </jar>
         <jar jarfile="${export.jars}/${service.4.name}-${service.4.version}.jar">
             <fileset dir="${tmp.classes}" includes="${service.4.path}/**" />
+            <fileset dir="src" includes="i18n/**" />
             <manifest>
                 <attribute name="Library-Version" value="${service.4.version}" />
                 <attribute name="Library-SymbolicName" value="${service.4.name}" />
@@ -204,6 +209,7 @@
         </jar>
         <jar jarfile="${export.jars}/${service.5.name}-${service.5.version}.jar">
             <fileset dir="${tmp.classes}" includes="${service.5.path}/**" />
+            <fileset dir="src" includes="i18n/**" />
             <manifest>
                 <attribute name="Library-Version" value="${service.5.version}" />
                 <attribute name="Library-SymbolicName" value="${service.5.name}" />
@@ -212,6 +218,7 @@
         </jar>
         <jar jarfile="${export.jars}/${service.6.name}-${service.6.version}.jar">
             <fileset dir="${tmp.classes}" includes="${service.6.path}/**" />
+            <fileset dir="src" includes="i18n/**" />
             <manifest>
                 <attribute name="Library-Version" value="${service.6.version}" />
                 <attribute name="Library-SymbolicName" value="${service.6.name}" />
@@ -317,13 +324,13 @@
             <arg value='-p'/>
             <arg value='9011'/>
             <arg value='uploadStartupDirectory'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.BazaarService\",\"SampleServicePass\")'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.UsersResource\",\"SampleServicePass\")'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.ProjectsResource\",\"SampleServicePass\")'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.ComponentsResource\",\"SampleServicePass\")'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.RequirementsResource\",\"SampleServicePass\")'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.CommentsResource\",\"SampleServicePass\")'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.AttachmentsResource\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.BazaarService@0.2\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.UsersResource@0.2\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.ProjectsResource@0.2\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.ComponentsResource@0.2\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.RequirementsResource@0.2\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.CommentsResource@0.2\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.AttachmentsResource@0.2\",\"SampleServicePass\")'/>
             <arg value='startWebConnector'/>
             <arg value='interactive'/>
         </java>
