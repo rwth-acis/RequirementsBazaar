@@ -303,7 +303,7 @@
         <delete dir="node-storage"/>
     </target>
 
-    <target name="all" depends="clean, jar, startscripts, generate_agents, junit, javadoc" />
+    <target name="all" depends="clean, get_deps, compile_main, jar, generate_agents" />
 
     <!-- Run -->
     <target name="run" depends="jar">
