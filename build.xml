@@ -85,7 +85,7 @@
         <mkdir dir="${log}" />
     </target>
 
-    <target name="init_compile" depends="init_general, get_deps">
+    <target name="init_compile" depends="init_general">
         <mkdir dir="${tmp.classes}" />
         <mkdir dir="${tmp.junit}" />
     </target>
@@ -161,7 +161,7 @@
     </target>
 
     <!-- Generate Jars -->
-    <target name="jar" depends="compile_main" description="--> jar">
+    <target name="jar" description="--> jar">
         <jar jarfile="${export.jars}/${service.0.name}-${service.0.version}.jar">
             <fileset dir="${tmp.classes}" includes="${service.0.path}/**" />
             <fileset dir="src" includes="i18n/**" />
@@ -313,7 +313,7 @@
     <target name="all" depends="clean, get_deps, compile_main, jar, generate_agents" />
 
     <!-- Run -->
-    <target name="run" depends="jar">
+    <target name="debug" depends="compile_main, jar">
         <java classname="i5.las2peer.tools.L2pNodeLauncher"
               classpathref="libraries"
               failonerror="true"
