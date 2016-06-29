@@ -9,10 +9,7 @@ import i5.las2peer.security.Context;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Created by martin on 15.02.2016.
@@ -35,7 +32,7 @@ public class EmailDispatcher {
                                       int dataId, Activity.DataType dataType, int userId) {
         DALFacade dalFacade = null;
         try {
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
 
             List<User> recipients = new ArrayList<>();
             if (dataType.equals(Activity.DataType.REQUIREMENT)) {
@@ -47,6 +44,14 @@ public class EmailDispatcher {
                 recipients = dalFacade.getRecipientListForComponent(dataId);
             } else if (dataType.equals(Activity.DataType.PROJECT)) {
                 recipients = dalFacade.getRecipientListForProject(dataId);
+            }
+            // delete the user who created the activity
+            Iterator<User> recipientsIterator = recipients.iterator();
+            while(recipientsIterator.hasNext()) {
+                User recipient = recipientsIterator.next();
+                if (recipient.getId() == userId) {
+                    recipientsIterator.remove();
+                }
             }
 
             if (!recipients.isEmpty()) {
@@ -94,6 +99,9 @@ public class EmailDispatcher {
                     } else if (activityAction == Activity.ActivityAction.UPDATE) {
                         subject = Localization.getInstance().getResourceBundle().getString("email.subject.requirement.updated");
                         bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.requirement.updated");
+                    } else if (activityAction == Activity.ActivityAction.REALIZE) {
+                        subject = Localization.getInstance().getResourceBundle().getString("email.subject.requirement.realized");
+                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.requirement.realized");
                     }
                     RequirementEx requirement = dalFacade.getRequirementById(dataId, userId);
                     objectName = requirement.getTitle();
@@ -123,7 +131,7 @@ public class EmailDispatcher {
                 String text = greeting;
                 text = text.concat("\r\n\r\n");
                 text = text.concat(bodytext);
-                text = text.concat(" " + dataUrl);
+                text = text.concat("\r\n" + dataUrl);
                 text = text.concat("\r\n\r\n");
                 text = text.concat(footer1);
                 text = text.concat("\r\n");

@@ -89,7 +89,7 @@ public class AttachmentsResource extends Service {
             if (vtor.hasViolations()) {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(attachmentToCreate.getRequirementId(), internalUserId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_ATTACHMENT, String.valueOf(requirement.getProjectId()), dalFacade);
@@ -110,7 +110,7 @@ public class AttachmentsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 
@@ -157,7 +157,7 @@ public class AttachmentsResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            dalFacade = bazaarService.createConnection();
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             // TODO check requirement
             Requirement requirement = dalFacade.getRequirementById(attachmentId, internalUserId);
@@ -180,7 +180,7 @@ public class AttachmentsResource extends Service {
             BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } finally {
-            bazaarService.closeConnection(dalFacade);
+            bazaarService.closeDBConnection(dalFacade);
         }
     }
 

@@ -21,14 +21,12 @@
 package de.rwth.dbis.acis.bazaar.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
@@ -45,23 +43,22 @@ import i5.las2peer.restMapper.HttpResponse;
 import i5.las2peer.restMapper.MediaType;
 import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.Version;
-import i5.las2peer.security.Context;
 import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
 import io.swagger.jaxrs.Reader;
 import io.swagger.models.Swagger;
 import io.swagger.util.Json;
 import jodd.vtor.Vtor;
+import org.apache.commons.dbcp2.*;
+import org.apache.commons.pool2.ObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.jooq.SQLDialect;
 
+import javax.sql.DataSource;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import java.io.Serializable;
 import java.net.HttpURLConnection;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.*;
 
 
@@ -112,6 +109,7 @@ public class BazaarService extends Service {
     private Vtor vtor;
     private List<BazaarFunctionRegistrator> functionRegistrators;
     private NotificationDispatcher notificationDispatcher;
+    private DataSource dataSource;
 
     /**
      * This method is needed for every RESTful application in LAS2peer.
@@ -137,20 +135,22 @@ public class BazaarService extends Service {
 
         Class.forName("com.mysql.jdbc.Driver").newInstance();
 
+        dataSource = setupDataSource(dbUrl, dbUserName, dbPassword);
+
         functionRegistrators = new ArrayList<BazaarFunctionRegistrator>();
         functionRegistrators.add(new BazaarFunctionRegistrator() {
             @Override
             public void registerFunction(EnumSet<BazaarFunction> functions) throws BazaarException {
                 DALFacade dalFacade = null;
                 try {
-                    dalFacade = createConnection();
+                    dalFacade = getDBConnection();
                     AuthorizationManager.SyncPrivileges(dalFacade);
                 } catch (CommunicationsException commEx) {
                     ExceptionHandler.getInstance().convertAndThrowException(commEx, ExceptionLocation.BAZAARSERVICE, ErrorCode.DB_COMM, Localization.getInstance().getResourceBundle().getString("error.db_comm"));
                 } catch (Exception ex) {
                     ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.privilige_sync"));
                 } finally {
-                    closeConnection(dalFacade);
+                    closeDBConnection(dalFacade);
                 }
             }
         });
@@ -245,7 +245,7 @@ public class BazaarService extends Service {
 
         DALFacade dalFacade = null;
         try {
-            dalFacade = createConnection();
+            dalFacade = getDBConnection();
             Integer userIdByLAS2PeerId = dalFacade.getUserIdByLAS2PeerId(agent.getId());
             if (userIdByLAS2PeerId == null) {
                 User.Builder userBuilder = User.geBuilder(agent.getEmail());
@@ -261,57 +261,25 @@ public class BazaarService extends Service {
         } catch (Exception ex) {
             ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.first_login"));
         } finally {
-            closeConnection(dalFacade);
+            closeDBConnection(dalFacade);
         }
     }
 
-    public DALFacade createConnection() throws Exception {
-        Connection dbConnection = DriverManager.getConnection(dbUrl, dbUserName, dbPassword);
-        return new DALFacadeImpl(dbConnection, SQLDialect.MYSQL);
+    public static DataSource setupDataSource(String dbUrl, String dbUserName, String dbPassword) {
+        ConnectionFactory connectionFactory = new DriverManagerConnectionFactory(dbUrl, dbUserName, dbPassword);
+        PoolableConnectionFactory poolableConnectionFactory = new PoolableConnectionFactory(connectionFactory, null);
+        ObjectPool<PoolableConnection> connectionPool = new GenericObjectPool<>(poolableConnectionFactory);
+        poolableConnectionFactory.setPool(connectionPool);
+        PoolingDataSource<PoolableConnection> dataSource = new PoolingDataSource<>(connectionPool);
+        return dataSource;
     }
 
-    public void closeConnection(DALFacade dalFacade) {
+    public DALFacade getDBConnection() throws Exception {
+        return new DALFacadeImpl(dataSource, SQLDialect.MYSQL);
+    }
+
+    public void closeDBConnection(DALFacade dalFacade) {
         if (dalFacade == null) return;
-        Connection dbConnection = dalFacade.getConnection();
-        if (dbConnection != null) {
-            try {
-                dbConnection.close();
-                System.out.println("Database connection closed!");
-            } catch (SQLException ignore) {
-                System.out.println("Could not close db connection!");
-            }
-        }
+        dalFacade.close();
     }
-
-    /**
-     * Returns the API documentation of all annotated resources
-     * for purposes of Swagger documentation.
-     *
-     * @return The resource's documentation.
-     */
-    @GET
-    @Path("/swagger.json")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse getSwaggerJSON() {
-        Set<Class<?>> classes = new HashSet<Class<?>>();
-        classes.add(this.getClass());
-        classes.add(UsersResource.class);
-        classes.add(ProjectsResource.class);
-        classes.add(ComponentsResource.class);
-        classes.add(RequirementsResource.class);
-        classes.add(CommentsResource.class);
-        classes.add(AttachmentsResource.class);
-        Swagger swagger = new Reader(new Swagger()).read(classes);
-        if (swagger == null) {
-            return new HttpResponse("Swagger API declaration not available!", HttpURLConnection.HTTP_NOT_FOUND);
-        }
-        swagger.getDefinitions().clear();
-        try {
-            return new HttpResponse(Json.mapper().writeValueAsString(swagger), HttpURLConnection.HTTP_OK);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return new HttpResponse(e.getMessage(), HttpURLConnection.HTTP_INTERNAL_ERROR);
-        }
-    }
-
 }
