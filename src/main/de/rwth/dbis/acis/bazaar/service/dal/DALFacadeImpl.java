@@ -32,6 +32,7 @@ import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.List;
 
@@ -42,7 +43,6 @@ import java.util.List;
 public class DALFacadeImpl implements DALFacade {
 
     private final DSLContext dslContext;
-    private final Connection connection;
 
     private AttachmentRepository attachmentRepository;
     private CommentRepository commentRepository;
@@ -57,9 +57,8 @@ public class DALFacadeImpl implements DALFacade {
     private RoleRepostitory roleRepostitory;
     private PrivilegeRepostitory privilegeRepostitory;
 
-    public DALFacadeImpl(Connection connection, SQLDialect dialect) {
-        this.connection = connection;
-        dslContext = DSL.using(connection, dialect);
+    public DALFacadeImpl(DataSource dataSource, SQLDialect dialect) {
+        dslContext = DSL.using(dataSource, dialect);
 //        dslContext.configuration().set(new ExecuteListenerProvider() {
 //            @Override
 //            public ExecuteListener provide() {
@@ -78,8 +77,8 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public Connection getConnection() {
-        return connection;
+    public void close() {
+        dslContext.close();
     }
 
     @Override

@@ -1,28 +1,23 @@
-<project name="RequirementsBazaar" default="jar" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
-	
-    <property file="etc/ant_configuration/service.properties"/>
+<project name="RequirementsBazaar" default="all" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+
     <property file="etc/ant_configuration/user.properties"/>
-	
+    <property file="etc/ant_configuration/service.properties"/>
+
     <property name="startup" location="etc/startup" />
-	
-    <property name="service_agent.path" value="${startup}/agent-service-${service.name}.xml" />
-    <property name="user_agent.path" value="${startup}/agent-user-${las2peer_user.name}.xml" />
-	<property name="passphrases.path" value="${startup}/passphrases.txt" />
-	
-    <presetdef name="javac">
-        <javac includeantruntime="false" />
-    </presetdef>
-	
+
+    <property name="user_agent1.path" value="${startup}/agent-user-${las2peer_user.name}.xml" />
+    <property name="passphrases.path" value="${startup}/passphrases.txt" />
+
     <property name="src.main" location="src/main" />
     <property name="src.junit" location="src/test" />
-	
+
     <property name="tmp" location="tmp" />
     <property name="log" location="log" />
     <property name="service" location="service" />
-	
+
     <property name="tmp.classes" location="${tmp}/classes" />
     <property name="tmp.junit" location="${tmp}/test" />
-	
+
     <property name="export" location="export" />
     <property name="export.doc" location="${export}/doc" />
     <property name="export.jars" location="${export}/jars" />
@@ -35,26 +30,30 @@
             <include name="**/*.jar"/>
             <exclude name="junit-*.jar"/>
         </fileset>
+        <fileset dir="${service}">
+            <include name="**/*.jar"/>
+            <exclude name="i5.las2peer.services.*.jar"/>
+        </fileset>
     </path>
-	
-    <property name="lib.junit" location="${lib}/junit-4.11.jar" />
-	
-	
+
+    <property name="lib.junit" location="${lib}/junit-4.12.jar" />
+
+
     <!-- Ivy Installation (Tool to fetch Libraries) -->
-    <property name="ivy.install.version" value="2.3.0" />
+    <property name="ivy.install.version" value="2.4.0" />
     <property name="ivy.jar.dir" value="${basedir}/etc/ivy" />
     <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
     <property name="ivy.settings.file" value="${ivy.jar.dir}/ivysettings.xml" />
     <property name="ivy.dep.file" value="${ivy.jar.dir}/ivy.xml" />
     <!-- Download Ivy from Web Site so that it can be used without any special Installation -->
-	<target name="download-ivy" unless="skip.download">
+    <target name="download-ivy" unless="skip.download">
         <mkdir dir="${ivy.jar.dir}"/>
         <echo message="installing ivy..."/>
         <get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
-            dest="${ivy.jar.file}" usetimestamp="true" skipexisting="true"/>
+             dest="${ivy.jar.file}" usetimestamp="true" skipexisting="true"/>
     </target>
     <!-- Try to load Ivy here from local Ivy directory -->
-    <target name="install-ivy" depends="download-ivy" description="--> install ivy">
+    <target name="install-ivy" depends="download-ivy">
         <path id="ivy.lib.path">
             <fileset dir="${ivy.jar.dir}" includes="*.jar"/>
         </path>
@@ -62,24 +61,22 @@
     </target>
 
 
-    <!-- Generate Ivy report -->
-    <target name="report" depends="install-ivy">
-        <mkdir dir="report" />
-        <ivy:resolve type="${ivy.resolve.types}"/>
-        <ivy:report todir="report" />
-    </target>
-    
-
     <!-- Get Dependencies from our Maven Repository via Ivy -->
-    <target name="get_deps" depends="install-ivy" description="--> resolve dependencies">
+    <target name="get_deps" depends="install-ivy, init_deps" description="--> resolve dependencies">
         <ivy:settings>
             <credentials host="role.dbis.rwth-aachen.de:9911/archiva"  realm="Repository internal"/>
         </ivy:settings>
-        <ivy:retrieve type="jar, bundle" />
+        <ivy:retrieve type="jar, bundle" conf="platform" pattern="${lib}/[artifact]-[revision].[ext]"/>
+        <ivy:retrieve type="jar, bundle" conf="bundle" pattern="${service}/[artifact]-[revision].[ext]"/>
     </target>
-	
-	
-	<!-- Initialization (Folder Creation)-->
+
+
+    <!-- Initialization (Folder Creation)-->
+    <target name="init_deps">
+        <mkdir dir="${lib}" />
+        <mkdir dir="${service}" />
+    </target>
+
     <target name="init_general">
         <tstamp/>
         <mkdir dir="${tmp}" />
@@ -87,103 +84,177 @@
         <mkdir dir="${startup}" />
         <mkdir dir="${log}" />
     </target>
-	
+
     <target name="init_compile" depends="init_general">
         <mkdir dir="${tmp.classes}" />
         <mkdir dir="${tmp.junit}" />
     </target>
-	
+
     <target name="init_jars" depends="init_general">
         <mkdir dir="${export.jars}" />
     </target>
-	
+
     <target name="init_doc" depends="init_general">
         <mkdir dir="${export.doc}" />
     </target>
-	
-	
+
+
     <!-- Compilation -->
     <target name="compile_main" depends="init_compile">
         <javac srcdir="${src.main}"
-            destdir="${tmp.classes}"
-            classpathref="libraries"
-            source="1.7"
-            target="1.7"
-            debug="on"
-            encoding="UTF-8"
-            />
+               destdir="${tmp.classes}"
+               classpathref="libraries"
+               debug="on"
+               encoding="UTF-8"
+               includeantruntime="false"
+        />
         <copy todir="${tmp.classes}">
             <fileset dir="${src.main}">
                 <include name="**/*.xml" />
             </fileset>
         </copy>
     </target>
-	
+
     <target name="compile_junit" depends="init_compile">
         <javac srcdir="${src.junit}"
-            destdir="${tmp.junit}"
-            classpath="${tmp.classes}:${lib.junit}"
-            classpathref="libraries"
-            source="1.7"
-            target="1.7"
-            debug="on"
-            encoding="UTF-8"
-            />
+               destdir="${tmp.junit}"
+               classpath="${tmp.classes}:${lib.junit}"
+               classpathref="libraries"
+               debug="on"
+               encoding="UTF-8"
+               includeantruntime="false"
+        />
         <copy todir="${tmp.junit}">
             <fileset dir="${src.junit}">
                 <include name="**/*.xml" />
             </fileset>
         </copy>
     </target>
-	
+
     <target name="compile_all" depends="compile_main, compile_junit" />
-	
-	
-	<!-- Generate Jars -->
-    <target name="jar" depends="compile_main">
-        <jar jarfile="${export.jars}/${service.name}-${service.version}.jar">
-            <fileset dir="${tmp.classes}" includes="${service.path}/**" />
-            <fileset dir="src" includes="i18n/**" />
-            <manifest>
-                <attribute name="Library-Version" value="${service.version}" />
-                <attribute name="Library-SymbolicName" value="${service.name}" />
-            </manifest>
-        </jar>
-        <!-- Add the same Jar to the Service Directory !-->
-        <jar jarfile="${service}/${service.name}-${service.version}.jar">
-            <fileset dir="${tmp.classes}" includes="${service.path}/**" />
-            <fileset dir="src" includes="i18n/**" />
-            <manifest>
-                <attribute name="Library-Version" value="${service.version}" />
-                <attribute name="Library-SymbolicName" value="${service.name}" />
-            </manifest>
-        </jar>
+
+    <!-- Generate start scripts -->
+    <target name="startscripts" description="generate start scripts for Windows and Unix">
+        <mkdir dir="${basedir}/bin" />
+        <echo file="${basedir}/bin/start_network.sh" append="false">#!/bin/bash
+
+            # this script is autogenerated by 'ant startscripts'
+            # it starts a LAS2peer node providing the service '${service.name}.${service.class}' of this project
+            # pls execute it from the root folder of your deployment, e. g. ./bin/start_network.sh
+
+            java -cp "lib/*" i5.las2peer.tools.L2pNodeLauncher -p 9011 uploadStartupDirectory startService\(\'${service.0.name}.${service.0.class}@${service.0.version}\',\'${service.0.passphrase}\'\) startService\(\'${service.1.name}.${service.1.class}@${service.1.version}\',\'${service.1.passphrase}\'\) startService\(\'${service.2.name}.${service.2.class}@${service.2.version}\',\'${service.2.passphrase}\'\) startService\(\'${service.3.name}.${service.3.class}@${service.3.version}\',\'${service.3.passphrase}\'\) startService\(\'${service.4.name}.${service.4.class}@${service.4.version}\',\'${service.4.passphrase}\'\) startService\(\'${service.5.name}.${service.5.class}@${service.5.version}\',\'${service.5.passphrase}\'\) startService\(\'${service.6.name}.${service.6.class}@${service.6.version}\',\'${service.6.passphrase}\'\) startWebConnector interactive
+        </echo>
+        <echo file="${basedir}/bin/start_network.bat" append="false">:: this script is autogenerated by 'ant startscripts'
+            :: it starts a LAS2peer node providing the service '${service.name}.${service.class}' of this project
+            :: pls execute it from the bin folder of your deployment by double-clicking on it
+
+            %~d0
+            cd %~p0
+            cd ..
+            set BASE=%CD%
+            set CLASSPATH="%BASE%/lib/*;"
+
+            java -cp %CLASSPATH% i5.las2peer.tools.L2pNodeLauncher -p 9011 uploadStartupDirectory startService('${service.0.name}.${service.0.class}@${service.0.version}','${service.0.passphrase}') startService('${service.1.name}.${service.1.class}@${service.1.version}','${service.1.passphrase}') startService('${service.2.name}.${service.2.class}@${service.2.version}','${service.2.passphrase}') startService('${service.3.name}.${service.3.class}@${service.3.version}','${service.3.passphrase}') startService('${service.4.name}.${service.4.class}@${service.4.version}','${service.4.passphrase}') startService('${service.5.name}.${service.5.class}@${service.5.version}','${service.5.passphrase}') startService('${service.6.name}.${service.6.class}@${service.6.version}','${service.6.passphrase}') startWebConnector interactive
+
+            pause
+        </echo>
     </target>
-	
-	
-	<!-- Generate Documentation -->
-    <target name="java_doc" depends="init_doc">
+
+    <!-- Generate Jars -->
+    <target name="jar" description="--> jar">
+        <jar jarfile="${export.jars}/${service.0.name}-${service.0.version}.jar">
+            <fileset dir="${tmp.classes}" includes="${service.0.path}/**" />
+            <fileset dir="src" includes="i18n/**" />
+            <manifest>
+                <attribute name="Library-Version" value="${service.0.version}" />
+                <attribute name="Library-SymbolicName" value="${service.0.name}" />
+                <attribute name="Import-Library" value="${service.0.dependencies}" />
+            </manifest>
+        </jar>
+        <jar jarfile="${export.jars}/${service.1.name}-${service.1.version}.jar">
+            <fileset dir="${tmp.classes}" includes="${service.1.path}/**" />
+            <fileset dir="src" includes="i18n/**" />
+            <manifest>
+                <attribute name="Library-Version" value="${service.1.version}" />
+                <attribute name="Library-SymbolicName" value="${service.1.name}" />
+                <attribute name="Import-Library" value="${service.1.dependencies}" />
+            </manifest>
+        </jar>
+        <jar jarfile="${export.jars}/${service.2.name}-${service.2.version}.jar">
+            <fileset dir="${tmp.classes}" includes="${service.2.path}/**" />
+            <fileset dir="src" includes="i18n/**" />
+            <manifest>
+                <attribute name="Library-Version" value="${service.2.version}" />
+                <attribute name="Library-SymbolicName" value="${service.2.name}" />
+                <attribute name="Import-Library" value="${service.2.dependencies}" />
+            </manifest>
+        </jar>
+        <jar jarfile="${export.jars}/${service.3.name}-${service.3.version}.jar">
+            <fileset dir="${tmp.classes}" includes="${service.3.path}/**" />
+            <fileset dir="src" includes="i18n/**" />
+            <manifest>
+                <attribute name="Library-Version" value="${service.3.version}" />
+                <attribute name="Library-SymbolicName" value="${service.3.name}" />
+                <attribute name="Import-Library" value="${service.3.dependencies}" />
+            </manifest>
+        </jar>
+        <jar jarfile="${export.jars}/${service.4.name}-${service.4.version}.jar">
+            <fileset dir="${tmp.classes}" includes="${service.4.path}/**" />
+            <fileset dir="src" includes="i18n/**" />
+            <manifest>
+                <attribute name="Library-Version" value="${service.4.version}" />
+                <attribute name="Library-SymbolicName" value="${service.4.name}" />
+                <attribute name="Import-Library" value="${service.4.dependencies}" />
+            </manifest>
+        </jar>
+        <jar jarfile="${export.jars}/${service.5.name}-${service.5.version}.jar">
+            <fileset dir="${tmp.classes}" includes="${service.5.path}/**" />
+            <fileset dir="src" includes="i18n/**" />
+            <manifest>
+                <attribute name="Library-Version" value="${service.5.version}" />
+                <attribute name="Library-SymbolicName" value="${service.5.name}" />
+                <attribute name="Import-Library" value="${service.5.dependencies}" />
+            </manifest>
+        </jar>
+        <jar jarfile="${export.jars}/${service.6.name}-${service.6.version}.jar">
+            <fileset dir="${tmp.classes}" includes="${service.6.path}/**" />
+            <fileset dir="src" includes="i18n/**" />
+            <manifest>
+                <attribute name="Library-Version" value="${service.6.version}" />
+                <attribute name="Library-SymbolicName" value="${service.6.name}" />
+                <attribute name="Import-Library" value="${service.6.dependencies}" />
+            </manifest>
+        </jar>
+
+        <copy todir="${service}">
+            <fileset dir="${export.jars}"/>
+        </copy>
+    </target>
+
+
+    <!-- Generate Documentation -->
+    <target name="javadoc" depends="init_doc">
         <javadoc destdir="${export.doc}"
-            author="true"
-            version="true"
-            use="true"
-            source="1.8"
-            windowtitle="Service Documentation"
-            failonerror="yes"
-            encoding="utf8"
-            classpath="${tmp.classes}"
-            classpathref="libraries"
-            >
+                 author="true"
+                 version="true"
+                 use="true"
+                 source="1.7"
+                 windowtitle="Service Documentation"
+                 failonerror="yes"
+                 encoding="utf8"
+                 classpath="${tmp.classes}"
+                 classpathref="libraries"
+        >
             <packageset dir="${src.main}" defaultexcludes="yes">
-                <include name="de/rwth/dbis/acis/bazaar/**" />
+                <include name="de/rwth/dbis/acis/**" />
             </packageset>
         </javadoc>
     </target>
-	
-	
+
+
     <!-- JUnit Testing -->
-    <target name="junit" depends="junit_tests, junit_clean" />
-	
+    <target name="junit" depends="junit_tests, junit_clean" description="--> execute all junit tests" />
+
     <target name="init_junit" depends="init_general">
         <mkdir dir="${junit.report}" />
     </target>
@@ -208,87 +279,61 @@
             </batchtest>
         </junit>
     </target>
-	
-	
+
+
     <!-- XML Agent Generation (Builds Jar first so that Generator is available)-->
-	<available file="${service_agent.path}" property="service_agent_exists"/>
-	<available file="${user_agent.path}" property="user_agent_exists"/>
-	
-    <target name="generate_service_agent" depends="jar" unless="service_agent_exists">
-        <echo message="Writing Service Agent xml to ${service_agent.path}"/>
-        <java classname="i5.las2peer.tools.ServiceAgentGenerator"
-            classpathref="libraries"
-            failonerror="true"
-            fork="true"
-            output="${service_agent.path}"
-            >
-            <arg line="'${service.name}.${service.class}' '${service.password}'"/>
-        </java>
-    </target>
-	
-    <target name="generate_user_agent" depends="jar" unless="user_agent_exists">
-        <echo message="Writing User Agent xml to ${user_agent.path}"/>
-        <java classname="i5.las2peer.tools.UserAgentGenerator"
-            classpathref="libraries"
-            failonerror="true"
-            fork="true"
-            output="${user_agent.path}"
-            >
+    <available file="${user_agent1.path}" property="user_agent_exists1"/>
+
+    <target name="generate_user_agent1" depends="jar" unless="user_agent_exists1">
+        <echo message="Writing User Agent xml to ${user_agent1.path}"/>
+        <java classname="i5.las2peer.tools.UserAgentGenerator" classpathref="libraries"
+              failonerror="true" fork="true" output="${user_agent1.path}">
             <arg line="'${las2peer_user.password}' '${las2peer_user.name}' '${las2peer_user.email}'"/>
         </java>
     </target>
-	
-    <target name="generate_configs" depends="generate_service_agent, generate_user_agent">
-<echo file="${passphrases.path}" append="false">agent-service-${service.name}.xml;${service.password}
-agent-user-${las2peer_user.name}.xml;${las2peer_user.password}
-</echo>
-    </target>
-	
-	
-    <!-- General Cleanup -->
-	<target name="clean_before_build">
-        <delete dir="${export}"/>
-		<delete file="${service}/${service.name}-${service.version}.jar"/>
-	</target>
-	
-    <target name="clean_after_build">
-        <delete dir="${tmp}"/>
-		<delete dir=".las2peer"/>
-    </target>
-	
-    <target name="clean_deps">
-        <delete dir="${lib}"/>
-    </target>
-	
-    <target name="clean_all" depends="clean_after_build, clean_before_build, clean_deps">
-		<delete dir="${log}"/>
+
+    <target name="generate_agents" depends="generate_user_agent1" description="--> generate example user agents">
+        <echo file="${passphrases.path}" append="false">agent-user-${las2peer_user.name}.xml;${las2peer_user.password}
+        </echo>
     </target>
 
+    <!-- General Cleanup -->
+    <target name="clean" description="--> clean">
+        <delete dir="${tmp}" />
+        <delete dir="${export}" />
+        <delete dir="${lib}" />
+        <delete dir="${service}" />
+    </target>
+
+    <target name="clean_all" depends="clean" description="--> clean all data">
+        <delete dir="${log}"/>
+        <delete dir="node-storage"/>
+    </target>
+
+    <target name="all" depends="clean, get_deps, compile_main, jar, generate_agents, startscripts" />
 
     <!-- Run -->
-	<target name="run" depends="jar">
-		<java classname="i5.las2peer.tools.L2pNodeLauncher"
-			classpathref="libraries"
-			failonerror="true"
-			fork="true">
-			<jvmarg value="-Xdebug" />
-			<jvmarg
-				value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5432" />
-			<arg value='-w'/>
-			<arg value='-p'/>
-			<arg value='9011'/>
-			<arg value='uploadStartupDirectory(\"etc/startup\")'/>
-			<arg value='startService(\"de.rwth.dbis.acis.bazaar.service.BazaarService\",\"SampleServicePass\")'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.UsersResource\",\"SampleServicePass\")'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.ProjectsResource\",\"SampleServicePass\")'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.ComponentsResource\",\"SampleServicePass\")'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.RequirementsResource\",\"SampleServicePass\")'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.CommentsResource\",\"SampleServicePass\")'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.AttachmentsResource\",\"SampleServicePass\")'/>
+    <target name="debug" depends="compile_main, jar">
+        <java classname="i5.las2peer.tools.L2pNodeLauncher"
+              classpathref="libraries"
+              failonerror="true"
+              fork="true">
+            <jvmarg value="-Xdebug" />
+            <jvmarg
+                    value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5432" />
+            <arg value='-p'/>
+            <arg value='9011'/>
+            <arg value='uploadStartupDirectory'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.BazaarService@0.2\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.UsersResource@0.2\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.ProjectsResource@0.2\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.ComponentsResource@0.2\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.RequirementsResource@0.2\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.CommentsResource@0.2\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.AttachmentsResource@0.2\",\"SampleServicePass\")'/>
             <arg value='startWebConnector'/>
-		</java>
-	</target>
+            <arg value='interactive'/>
+        </java>
+    </target>
 
-    <target name="all" depends="clean_before_build, generate_configs, junit, java_doc, clean_after_build" />
-	
 </project>

@@ -20,11 +20,9 @@
 
 package de.rwth.dbis.acis.bazaar.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
@@ -40,24 +38,18 @@ import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcherImp;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Service;
-import i5.las2peer.restMapper.HttpResponse;
-import i5.las2peer.restMapper.MediaType;
 import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.Version;
 import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
-import io.swagger.jaxrs.Reader;
-import io.swagger.models.Swagger;
-import io.swagger.util.Json;
+
 import jodd.vtor.Vtor;
+import org.apache.commons.dbcp2.*;
+
 import org.jooq.SQLDialect;
 
-import javax.ws.rs.GET;
+import javax.sql.DataSource;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import java.net.HttpURLConnection;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.*;
 
 
@@ -108,7 +100,7 @@ public class BazaarService extends Service {
     private Vtor vtor;
     private List<BazaarFunctionRegistrator> functionRegistrators;
     private NotificationDispatcher notificationDispatcher;
-    private ComboPooledDataSource dbConnectionPool;
+    private DataSource dataSource;
 
     /**
      * This method is needed for every RESTful application in LAS2peer.
@@ -132,11 +124,9 @@ public class BazaarService extends Service {
         Locale locale = new Locale(lang, country);
         Localization.getInstance().setResourceBundle(ResourceBundle.getBundle("i18n.Translation", locale));
 
-        dbConnectionPool = new ComboPooledDataSource();
-        dbConnectionPool.setDriverClass("com.mysql.jdbc.Driver");
-        dbConnectionPool.setJdbcUrl(dbUrl);
-        dbConnectionPool.setUser(dbUserName);
-        dbConnectionPool.setPassword(dbPassword);
+        Class.forName("com.mysql.jdbc.Driver").newInstance();
+
+        dataSource = setupDataSource(dbUrl, dbUserName, dbPassword);
 
         functionRegistrators = new ArrayList<BazaarFunctionRegistrator>();
         functionRegistrators.add(new BazaarFunctionRegistrator() {
@@ -266,52 +256,24 @@ public class BazaarService extends Service {
         }
     }
 
+    public static DataSource setupDataSource(String dbUrl, String dbUserName, String dbPassword) {
+        BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+        dataSource.setUrl(dbUrl);
+        dataSource.setUsername(dbUserName);
+        dataSource.setPassword(dbPassword);
+        dataSource.setValidationQuery("SELECT 1;");
+        dataSource.setTestOnBorrow(true); // test each connection when borrowing from the pool with the validation query
+        dataSource.setMaxConnLifetimeMillis(1000 * 60 * 60); // max connection life time 1h. mysql drops connection after 8h.
+        return dataSource;
+    }
+
     public DALFacade getDBConnection() throws Exception {
-        Connection dbConnection = dbConnectionPool.getConnection();
-        return new DALFacadeImpl(dbConnection, SQLDialect.MYSQL);
+        return new DALFacadeImpl(dataSource, SQLDialect.MYSQL);
     }
 
     public void closeDBConnection(DALFacade dalFacade) {
         if (dalFacade == null) return;
-        Connection dbConnection = dalFacade.getConnection();
-        if (dbConnection != null) {
-            try {
-                dbConnection.close();
-            } catch (SQLException ignore) {
-                System.out.println("Could not close db connection!");
-            }
-        }
+        dalFacade.close();
     }
-
-    /**
-     * Returns the API documentation of all annotated resources
-     * for purposes of Swagger documentation.
-     *
-     * @return The resource's documentation.
-     */
-    @GET
-    @Path("/swagger.json")
-    @Produces(MediaType.APPLICATION_JSON)
-    public HttpResponse getSwaggerJSON() {
-        Set<Class<?>> classes = new HashSet<Class<?>>();
-        classes.add(this.getClass());
-        classes.add(UsersResource.class);
-        classes.add(ProjectsResource.class);
-        classes.add(ComponentsResource.class);
-        classes.add(RequirementsResource.class);
-        classes.add(CommentsResource.class);
-        classes.add(AttachmentsResource.class);
-        Swagger swagger = new Reader(new Swagger()).read(classes);
-        if (swagger == null) {
-            return new HttpResponse("Swagger API declaration not available!", HttpURLConnection.HTTP_NOT_FOUND);
-        }
-        swagger.getDefinitions().clear();
-        try {
-            return new HttpResponse(Json.mapper().writeValueAsString(swagger), HttpURLConnection.HTTP_OK);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return new HttpResponse(e.getMessage(), HttpURLConnection.HTTP_INTERNAL_ERROR);
-        }
-    }
-
 }
