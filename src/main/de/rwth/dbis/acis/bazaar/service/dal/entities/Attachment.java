@@ -37,11 +37,13 @@ public abstract class Attachment extends EntityBase {
     private final int requirementId;
 
     @NotBlank
-    @MaxLength(50)
+    @MaxLength(100)
     private final String title;
 
     private final String description;
 
+    @NotBlank
+    @MaxLength(255)
     private final String mimeType;
 
     private final Date creation_time;

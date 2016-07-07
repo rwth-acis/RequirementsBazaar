@@ -20,8 +20,13 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
+import jodd.vtor.constraint.MaxLength;
+import jodd.vtor.constraint.NotBlank;
+
 public class Image extends Attachment {
 
+    @NotBlank
+    @MaxLength(1000)
     private final String fileUrl;
 
     public Image(Builder builder) {
