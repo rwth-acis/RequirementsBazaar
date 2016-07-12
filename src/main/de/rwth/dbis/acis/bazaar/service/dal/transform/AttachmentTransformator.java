@@ -21,7 +21,6 @@
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.AttachmentType;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord;
 import org.jooq.*;
@@ -35,26 +34,31 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
 
     @Override
     public AttachmentsRecord createRecord(Attachment entity) {
-        AttachmentsRecord attachmentsRecord = new AttachmentsRecord();
-        attachmentsRecord.setCreationTime(new Timestamp(entity.getCreation_time().getTime()));
-        attachmentsRecord.setLastupdatedTime(attachmentsRecord.getCreationTime());
-        attachmentsRecord.setRequirementId(entity.getRequirementId());
-        attachmentsRecord.setUserId(entity.getCreatorId());
-        attachmentsRecord.setTitle(entity.getTitle());
-        attachmentsRecord.setDescription(entity.getDescription());
-        attachmentsRecord.setMimeType(entity.getMimeType());
-        return attachmentsRecord;
+        AttachmentsRecord record = new AttachmentsRecord();
+        record.setLastupdatedTime(record.getCreationTime());
+        record.setRequirementId(entity.getRequirementId());
+        record.setUserId(entity.getCreatorId());
+        record.setTitle(entity.getTitle());
+        record.setDescription(entity.getDescription());
+        record.setMimeType(entity.getMimeType());
+        record.setIdentifier(entity.getIdentifier());
+        record.setFileurl(entity.getFileUrl());
+        record.setCreationTime(new Timestamp(Calendar.getInstance().getTime().getTime()));
+        record.setLastupdatedTime(record.getCreationTime());
+        return record;
     }
 
     @Override
     public Attachment getEntityFromTableRecord(AttachmentsRecord record) {
-        Attachment entity = Image.getBuilder()
+        Attachment entity = Attachment.getBuilder()
                 .id(record.getId())
                 .creator(record.getUserId())
                 .requirementId(record.getRequirementId())
                 .title(record.getTitle())
                 .description(record.getDescription())
                 .mimeType(record.getMimeType())
+                .identifier(record.getIdentifier())
+                .fileUrl(record.getFileurl())
                 .creationTime(record.getCreationTime())
                 .lastupdatedTime(record.getLastupdatedTime())
                 .build();
@@ -79,10 +83,6 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
     @Override
     public Map<Field, Object> getUpdateMap(final Attachment entity) {
         HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
-            put(ATTACHMENTS.USER_ID, entity.getCreatorId());
-            put(ATTACHMENTS.REQUIREMENT_ID, entity.getRequirementId());
-            put(ATTACHMENTS.TITLE, entity.getTitle());
-            put(ATTACHMENTS.DESCRIPTION, entity.getDescription());
         }};
         if (!updateMap.isEmpty()) {
             updateMap.put(ATTACHMENTS.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
