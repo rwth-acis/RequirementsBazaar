@@ -250,13 +250,10 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                         records.getValues(Attachments.ATTACHMENTS.REQUIREMENT_ID).get(0),
                         records.getValues(Attachments.ATTACHMENTS.USER_ID).get(0),
                         records.getValues(Attachments.ATTACHMENTS.TITLE).get(0),
-                        records.getValues(Attachments.ATTACHMENTS.DISCRIMINATOR).get(0),
-                        records.getValues(Attachments.ATTACHMENTS.FILE_PATH).get(0),
                         records.getValues(Attachments.ATTACHMENTS.DESCRIPTION).get(0),
-                        records.getValues(Attachments.ATTACHMENTS.STORY).get(0),
-                        records.getValues(Attachments.ATTACHMENTS.SUBJECT).get(0),
-                        records.getValues(Attachments.ATTACHMENTS.OBJECT).get(0),
-                        records.getValues(Attachments.ATTACHMENTS.OBJECT_DESC).get(0)
+                        records.getValues(Attachments.ATTACHMENTS.MIME_TYPE).get(0),
+                        records.getValues(Attachments.ATTACHMENTS.IDENTIFIER).get(0),
+                        records.getValues(Attachments.ATTACHMENTS.FILEURL).get(0)
                 );
                 attachments.add(
                         attachmentTransform.getEntityFromTableRecord(record)

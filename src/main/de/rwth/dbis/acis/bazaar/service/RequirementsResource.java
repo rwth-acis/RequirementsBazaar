@@ -644,7 +644,7 @@ public class RequirementsResource extends Service {
     /**
      * This method returns the list of comments for a specific requirement.
      *
-     * @param requirementId id of the requirement, which was commented
+     * @param requirementId id of the requirement
      * @param page          page number
      * @param perPage       number of projects by page
      * @return Response with comments as a JSON array.
@@ -708,41 +708,71 @@ public class RequirementsResource extends Service {
         }
     }
 
-//    /**
-//     * This method returns the list of attachments for a specific requirement.
-//     *
-//     * @param projectId     the ID of the project for the requirement.
-//     * @param componentId   the id of the component under a given project
-//     * @param requirementId the ID of the requirement, whose attachments should be returned.
-//     * @return a list of attachments
-//     */
-//    @GET
-//    @Path("/{requirementId}/attachments")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public String getAttachments(@PathParam("projectId") int projectId,
-//                                 @PathParam("componentId") int componentId,
-//                                 @PathParam("requirementId") int requirementId,
-//                                 @QueryParam(name = "page", defaultValue = "0")  int page,
-//                                 @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
-//
-//    }
-
-//    /**
-//     * This method returns a specific attachment within a requirement.
-//     *
-//     * @param projectId     the ID of the project for the requirement.
-//     * @param componentId   the id of the component under a given project
-//     * @param requirementId the ID of the requirement, which was commented.
-//     * @param attachmentId  the ID of the attachment, which should be returned.
-//     * @return a specific attachment.
-//     */
-//    @GET
-//    @Path("/{requirementId}/attachments/{attachmentId}")
-//    public String getAttachment(@PathParam("projectId") int projectId,
-//                                @PathParam("componentId") int componentId,
-//                                @PathParam("requirementId") int requirementId,
-//                                @PathParam("attachmentId") int attachmentId) {
-//
-//    }
+    /**
+     * This method returns the list of attachments for a specific requirement.
+     *
+     * @param requirementId id of the requirement
+     * @param page          page number
+     * @param perPage       number of projects by page
+     * @return Response with comments as a JSON array.
+     */
+    @GET
+    @Path("/{requirementId}/attachments")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "This method returns the list of attachments for a specific requirement.")
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of attachments for a given requirement"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+    })
+    public HttpResponse getAttachments(@PathParam("requirementId") int requirementId,
+                                    @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
+                                    @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
+        DALFacade dalFacade = null;
+        try {
+            long userId = ((UserAgent) getActiveAgent()).getId();
+            String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registratorErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
+            }
+            PageInfo pageInfo = new PageInfo(page, perPage, Pageable.SortDirection.ASC);
+            Vtor vtor = bazaarService.getValidators();
+            vtor.validate(pageInfo);
+            if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+            dalFacade = bazaarService.getDBConnection();
+            //Todo use requirement's projectId for serurity context, not the one sent from client
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
+            Project project = dalFacade.getProjectById(requirement.getProjectId());
+            if (dalFacade.isRequirementPublic(requirementId)) {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT, String.valueOf(project.getId()), dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
+                }
+            } else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMMENT, String.valueOf(project.getId()), dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.read"));
+                }
+            }
+            List<Attachment> attachments = dalFacade.listAttachmentsByRequirementId(requirementId, pageInfo);
+            Gson gson = new Gson();
+            return new HttpResponse(gson.toJson(attachments), HttpURLConnection.HTTP_OK);
+        } catch (BazaarException bex) {
+            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
+            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
+            } else {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
+            }
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
+        } finally {
+            bazaarService.closeDBConnection(dalFacade);
+        }
+    }
 
 }

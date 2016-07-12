@@ -276,4 +276,5 @@ public class BazaarService extends Service {
         if (dalFacade == null) return;
         dalFacade.close();
     }
+
 }

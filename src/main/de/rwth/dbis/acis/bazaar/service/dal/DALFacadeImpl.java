@@ -292,6 +292,18 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public Attachment getAttachmentById(int attachmentId) throws Exception {
+        attachmentRepository = (attachmentRepository != null) ? attachmentRepository : new AttachmentRepositoryImpl(dslContext);
+        return attachmentRepository.findById(attachmentId);
+    }
+
+    @Override
+    public List<Attachment> listAttachmentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
+        attachmentRepository = (attachmentRepository != null) ? attachmentRepository : new AttachmentRepositoryImpl(dslContext);
+        return attachmentRepository.findAllByRequirementId(requirementId, pageable);
+    }
+
+    @Override
     public Attachment createAttachment(Attachment attachment) throws BazaarException {
         attachmentRepository = (attachmentRepository != null) ? attachmentRepository : new AttachmentRepositoryImpl(dslContext);
         Attachment newAttachment = attachmentRepository.add(attachment);

@@ -258,6 +258,19 @@ public interface DALFacade {
     //region Attachment
 
     /**
+     * @param attachmentId
+     * @return the attachment for a given id
+     */
+    Attachment getAttachmentById(int attachmentId) throws Exception;
+
+    /**
+     * @param requirementId the identifier of the requirement we are looking in
+     * @param pageable      pagination information
+     * @return the attachments for a given requirement
+     */
+    List<Attachment> listAttachmentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
+
+    /**
      * @param attachment object, which holds the data should be persisted
      */
     public Attachment createAttachment(Attachment attachment) throws BazaarException;
@@ -277,7 +290,6 @@ public interface DALFacade {
      * @return the comments for a given requirement
      */
     public List<Comment> listCommentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
-
 
     /**
      * @param commentId
