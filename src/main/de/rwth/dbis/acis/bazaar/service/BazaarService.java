@@ -27,6 +27,7 @@ import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -38,7 +39,9 @@ import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcherImp;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Service;
+import i5.las2peer.restMapper.HttpResponse;
 import i5.las2peer.restMapper.RESTMapper;
+import i5.las2peer.restMapper.annotations.HttpHeaders;
 import i5.las2peer.restMapper.annotations.Version;
 import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
@@ -275,6 +278,32 @@ public class BazaarService extends Service {
     public void closeDBConnection(DALFacade dalFacade) {
         if (dalFacade == null) return;
         dalFacade.close();
+    }
+
+    public <E> HttpResponse addPaginationToHtppResponse(List<E> items, int total, PageInfo pageInfo,
+                                                        HttpResponse httpResponse) {
+        httpResponse.setHeader("X-Page", String.valueOf(pageInfo.getPageNumber()));
+        httpResponse.setHeader("X-Per-Page", String.valueOf(pageInfo.getPageSize()));
+        if (pageInfo.getOffset() > 0) {
+            httpResponse.setHeader("X-Prev-Page", String.valueOf(pageInfo.getPageNumber() - 1));
+        }
+        if (pageInfo.getOffset() + items.size() < total) {
+            httpResponse.setHeader("X-Next-Page", String.valueOf(pageInfo.getPageNumber() + 1));
+        }
+        httpResponse.setHeader("X-Total-Pages", String.valueOf((int) Math.ceil(total / pageInfo.getPageSize())));
+        httpResponse.setHeader("X-Total", String.valueOf(total));
+
+        String links = new String();
+        if (pageInfo.getOffset() > 0) {
+            links = links.concat("url_1; rel=\"prev\"");
+        }
+        if (pageInfo.getOffset() + items.size() < total) {
+            links = links.concat("url_2; rel=\"next\"");
+        }
+        links = links.concat("url_3; rel=\"first\"");
+        links = links.concat("url_4; rel=\"last\"");
+        httpResponse.setHeader("Link", links);
+        return httpResponse;
     }
 
 }

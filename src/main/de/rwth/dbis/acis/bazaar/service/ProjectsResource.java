@@ -93,7 +93,10 @@ public class ProjectsResource extends Service {
                 long userId = agent.getId();
                 projects = dalFacade.listPublicAndAuthorizedProjects(pageInfo, userId);
             }
-            return new HttpResponse(gson.toJson(projects), HttpURLConnection.HTTP_OK);
+
+            HttpResponse response = new HttpResponse(gson.toJson(projects), HttpURLConnection.HTTP_OK);
+            response = bazaarService.addPaginationToHtppResponse(projects, 1000,  pageInfo, response);
+            return response;
         } catch (BazaarException bex) {
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } catch (Exception ex) {
