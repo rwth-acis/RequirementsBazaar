@@ -36,7 +36,7 @@ public class Attachment extends EntityBase {
     private int creatorId;
 
     @Min(-1)
-    private final int requirementId;
+    private int requirementId;
 
     @NotNull
     @NotBlank
@@ -94,6 +94,10 @@ public class Attachment extends EntityBase {
 
     public int getRequirementId() {
         return requirementId;
+    }
+
+    public void setRequirementId(int requirementId) {
+        this.requirementId = requirementId;
     }
 
     public String getTitle() {

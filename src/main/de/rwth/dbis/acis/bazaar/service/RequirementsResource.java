@@ -118,7 +118,6 @@ public class RequirementsResource extends Service {
      * @return Response with the created requirement as a JSON object.
      */
     @POST
-    @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to create a new requirement.")
@@ -137,7 +136,6 @@ public class RequirementsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
             // TODO: check whether the current user may create a new requirement
-            // TODO: check whether all required parameters are entered
             dalFacade = bazaarService.getDBConnection();
             Gson gson = new Gson();
             Requirement requirementToCreate = gson.fromJson(requirement, Requirement.class);
@@ -153,6 +151,7 @@ public class RequirementsResource extends Service {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
             vtor.resetProfiles();
+
             // check if all components are in the same project
             for (Component component : requirementToCreate.getComponents()) {
                 component = dalFacade.getComponentById(component.getId());
@@ -166,6 +165,21 @@ public class RequirementsResource extends Service {
             }
             Requirement createdRequirement = dalFacade.createRequirement(requirementToCreate, internalUserId);
             dalFacade.follow(internalUserId, createdRequirement.getId());
+
+            // check if attachments are given
+            if (requirementToCreate.getAttachments() != null && !requirementToCreate.getAttachments().isEmpty()) {
+                for (Attachment attachment : requirementToCreate.getAttachments()) {
+                    attachment.setCreatorId(internalUserId);
+                    attachment.setRequirementId(createdRequirement.getId());
+                    vtor.validate(attachment);
+                    if (vtor.hasViolations()) {
+                        ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+                    }
+                    vtor.resetProfiles();
+                    dalFacade.createAttachment(attachment);
+                }
+            }
+
             createdRequirement = dalFacade.getRequirementById(createdRequirement.getId(), internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(this, createdRequirement.getCreation_time(), Activity.ActivityAction.CREATE, createdRequirement.getId(),
                     Activity.DataType.REQUIREMENT, createdRequirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
@@ -231,7 +245,7 @@ public class RequirementsResource extends Service {
             }
             dalFacade.follow(internalUserId, requirementToUpdate.getId());
             RequirementEx updatedRequirement = dalFacade.modifyRequirement(requirementToUpdate, internalUserId);
-            if(requirementToUpdate.getRealized() == null) {
+            if (requirementToUpdate.getRealized() == null) {
                 bazaarService.getNotificationDispatcher().dispatchNotification(this, updatedRequirement.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedRequirement.getId(),
                         Activity.DataType.REQUIREMENT, updatedRequirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
             } else {
@@ -727,8 +741,8 @@ public class RequirementsResource extends Service {
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public HttpResponse getAttachments(@PathParam("requirementId") int requirementId,
-                                    @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
-                                    @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
+                                       @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
+                                       @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
         DALFacade dalFacade = null;
         try {
             long userId = ((UserAgent) getActiveAgent()).getId();

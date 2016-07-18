@@ -201,7 +201,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             );
 
             //Filling up developers list
-            List<User> devList = new ArrayList<User>();
+            List<User> devList = new ArrayList<>();
 
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(developerUsers.ID).entrySet()) {
                 if (entry.getKey() == null) continue;
@@ -213,7 +213,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             builder.developers(devList);
 
             //Filling up follower list
-            List<User> followers = new ArrayList<User>();
+            List<User> followers = new ArrayList<>();
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(followerUsers.ID).entrySet()) {
                 if (entry.getKey() == null) continue;
                 Result<Record> records = entry.getValue();
@@ -224,7 +224,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             builder.followers(followers);
 
             //Filling up contributors
-            List<User> contributorList = new ArrayList<User>();
+            List<User> contributorList = new ArrayList<>();
 
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(contributorUsers.ID).entrySet()) {
                 if (entry.getKey() == null) continue;
@@ -236,7 +236,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             builder.contributors(contributorList);
 
             //Filling up attachments
-            List<Attachment> attachments = new ArrayList<Attachment>();
+            List<Attachment> attachments = new ArrayList<>();
 
             AttachmentTransformator attachmentTransform = new AttachmentTransformator();
 
