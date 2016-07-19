@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -22,7 +23,9 @@ import jodd.vtor.Vtor;
 import javax.ws.rs.*;
 import java.net.HttpURLConnection;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Path("/bazaar/projects")
 @Api(value = "/projects", description = "Projects resource")
@@ -68,7 +71,8 @@ public class ProjectsResource extends Service {
     })
     public HttpResponse getProjects(
             @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
-            @ApiParam(value = "Elements of project by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
+            @ApiParam(value = "Elements of project by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
+            @ApiParam(value = "User access token", required = false) @DefaultValue("") @HeaderParam("access_token") String accessToken) {
         DALFacade dalFacade = null;
         try {
             String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -84,7 +88,7 @@ public class ProjectsResource extends Service {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
             dalFacade = bazaarService.getDBConnection();
-            List<Project> projects;
+            PaginationResult<Project> projects;
             if (agent.getLoginName().equals("anonymous")) {
                 // return only public projects
                 projects = dalFacade.listPublicProjects(pageInfo);
@@ -95,7 +99,9 @@ public class ProjectsResource extends Service {
             }
 
             HttpResponse response = new HttpResponse(gson.toJson(projects), HttpURLConnection.HTTP_OK);
-            response = bazaarService.addPaginationToHtppResponse(projects, 1000,  pageInfo, response);
+            Map<String, String> parameter = new HashMap<>();
+            response = bazaarService.addPaginationToHtppResponse(projects, parameter, accessToken, response);
+
             return response;
         } catch (BazaarException bex) {
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);

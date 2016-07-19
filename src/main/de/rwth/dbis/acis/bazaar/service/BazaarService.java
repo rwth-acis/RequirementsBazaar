@@ -28,6 +28,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -280,24 +281,26 @@ public class BazaarService extends Service {
         dalFacade.close();
     }
 
-    public <E> HttpResponse addPaginationToHtppResponse(List<E> items, int total, PageInfo pageInfo,
+    public <E> HttpResponse addPaginationToHtppResponse(PaginationResult paginationResult,
+                                                        Map<String, String> httpParameter,
+                                                        String accessToken,
                                                         HttpResponse httpResponse) {
-        httpResponse.setHeader("X-Page", String.valueOf(pageInfo.getPageNumber()));
-        httpResponse.setHeader("X-Per-Page", String.valueOf(pageInfo.getPageSize()));
-        if (pageInfo.getOffset() > 0) {
-            httpResponse.setHeader("X-Prev-Page", String.valueOf(pageInfo.getPageNumber() - 1));
+        httpResponse.setHeader("X-Page", String.valueOf(paginationResult.getPageInfo().getPageNumber()));
+        httpResponse.setHeader("X-Per-Page", String.valueOf(paginationResult.getPageInfo().getPageSize()));
+        if (paginationResult.getPageInfo().getOffset() > 0) {
+            httpResponse.setHeader("X-Prev-Page", String.valueOf(paginationResult.getPageInfo().getPageNumber() - 1));
         }
-        if (pageInfo.getOffset() + items.size() < total) {
-            httpResponse.setHeader("X-Next-Page", String.valueOf(pageInfo.getPageNumber() + 1));
+        if (paginationResult.getPageInfo().getOffset() + paginationResult.getElements().size() < paginationResult.getTotal()) {
+            httpResponse.setHeader("X-Next-Page", String.valueOf(paginationResult.getPageInfo().getPageNumber() + 1));
         }
-        httpResponse.setHeader("X-Total-Pages", String.valueOf((int) Math.ceil(total / pageInfo.getPageSize())));
-        httpResponse.setHeader("X-Total", String.valueOf(total));
+        httpResponse.setHeader("X-Total-Pages", String.valueOf((int) Math.ceil(paginationResult.getTotal() / paginationResult.getPageInfo().getPageSize())));
+        httpResponse.setHeader("X-Total", String.valueOf(paginationResult.getTotal()));
 
         String links = new String();
-        if (pageInfo.getOffset() > 0) {
+        if (paginationResult.getPageInfo().getOffset() > 0) {
             links = links.concat("url_1; rel=\"prev\"");
         }
-        if (pageInfo.getOffset() + items.size() < total) {
+        if (paginationResult.getPageInfo().getOffset() + paginationResult.getElements().size() < paginationResult.getTotal()) {
             links = links.concat("url_2; rel=\"next\"");
         }
         links = links.concat("url_3; rel=\"first\"");

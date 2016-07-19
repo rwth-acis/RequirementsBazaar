@@ -24,6 +24,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.sql.Connection;
@@ -92,9 +93,9 @@ public interface DALFacade {
 
     /**
      * @param pageable pagination information
-     * @return the paginated list of the public projects, just only the necessary fields will be filled out.
+     * @return the paginated result of the public projects
      */
-    public List<Project> listPublicProjects(Pageable pageable) throws BazaarException;
+    public PaginationResult<Project> listPublicProjects(Pageable pageable) throws BazaarException;
 
 
     /**
@@ -102,7 +103,7 @@ public interface DALFacade {
      * @param userId   the identifier of the user, whose projects should be returned as well
      * @return all the public projects and all the projects, which the user is authorized to see
      */
-    public List<Project> listPublicAndAuthorizedProjects(PageInfo pageable, long userId) throws BazaarException;
+    public PaginationResult<Project> listPublicAndAuthorizedProjects(PageInfo pageable, long userId) throws BazaarException;
 
     /**
      * @param searchTerm the text, which is used to search. Search is case insensitive.
