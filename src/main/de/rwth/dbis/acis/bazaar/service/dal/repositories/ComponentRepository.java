@@ -22,6 +22,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Component;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public interface ComponentRepository extends Repository<Component> {
 
     Component findById(int id) throws BazaarException;
 
-    List<Component> findByProjectId(int projectId, Pageable pageable) throws BazaarException;
+    PaginationResult<Component> findByProjectId(int projectId, Pageable pageable) throws BazaarException;
 
     boolean belongsToPublicProject(int id) throws BazaarException;
 }

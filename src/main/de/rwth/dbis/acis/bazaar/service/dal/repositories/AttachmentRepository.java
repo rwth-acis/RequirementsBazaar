@@ -22,13 +22,14 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.util.List;
 
 
 public interface AttachmentRepository extends Repository<Attachment> {
-    List<Attachment> findAllByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
+    PaginationResult<Attachment> findAllByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
 
     boolean belongsToPublicProject(int id) throws BazaarException;
 }

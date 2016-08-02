@@ -27,6 +27,7 @@ import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -38,6 +39,7 @@ import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcherImp;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Service;
+import i5.las2peer.restMapper.HttpResponse;
 import i5.las2peer.restMapper.RESTMapper;
 import i5.las2peer.restMapper.annotations.Version;
 import i5.las2peer.security.UserAgent;
@@ -46,10 +48,13 @@ import io.swagger.annotations.*;
 import jodd.vtor.Vtor;
 import org.apache.commons.dbcp2.*;
 
+import org.apache.http.client.utils.URIBuilder;
 import org.jooq.SQLDialect;
 
 import javax.sql.DataSource;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.UriBuilder;
+import java.net.URISyntaxException;
 import java.util.*;
 
 
@@ -275,6 +280,38 @@ public class BazaarService extends Service {
     public void closeDBConnection(DALFacade dalFacade) {
         if (dalFacade == null) return;
         dalFacade.close();
+    }
+
+    public HttpResponse addPaginationToHtppResponse(PaginationResult paginationResult,
+                                                    String path,
+                                                        Map<String, String> httpParameter,
+                                                        HttpResponse httpResponse) throws URISyntaxException {
+        httpResponse.setHeader("X-Page", String.valueOf(paginationResult.getPageable().getPageNumber()));
+        httpResponse.setHeader("X-Per-Page", String.valueOf(paginationResult.getPageable().getPageSize()));
+        if (paginationResult.getPrevPage() != -1) {
+            httpResponse.setHeader("X-Prev-Page", String.valueOf(paginationResult.getPrevPage()));
+        }
+        if (paginationResult.getNextPage() != -1) {
+            httpResponse.setHeader("X-Next-Page", String.valueOf(paginationResult.getNextPage()));
+        }
+        httpResponse.setHeader("X-Total-Pages", String.valueOf(paginationResult.getTotalPages()));
+        httpResponse.setHeader("X-Total", String.valueOf(paginationResult.getTotal()));
+
+        URIBuilder uriBuilder = new URIBuilder(baseURL + path);
+        for (Map.Entry<String, String> entry : httpParameter.entrySet()) {
+            uriBuilder.addParameter(entry.getKey(), entry.getValue());
+        }
+        String links = new String();
+        if (paginationResult.getPrevPage() != -1) {
+            links = links.concat("<" + uriBuilder.setParameter("page", String.valueOf(paginationResult.getPrevPage())).build() + ">; rel=\"prev\",");
+        }
+        if (paginationResult.getNextPage() != -1) {
+            links = links.concat("<" + uriBuilder.setParameter("page", String.valueOf(paginationResult.getNextPage())).build() + ">; rel=\"next\",");
+        }
+        links = links.concat("<" + uriBuilder.setParameter("page", "0") + ">; rel=\"first\",");
+        links = links.concat("<" + uriBuilder.setParameter("page", String.valueOf(paginationResult.getTotalPages() - 1)).build() + ">; rel=\"last\"");
+        httpResponse.setHeader("Link", links);
+        return httpResponse;
     }
 
 }

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -22,7 +23,9 @@ import jodd.vtor.Vtor;
 import javax.ws.rs.*;
 import java.net.HttpURLConnection;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Path("/bazaar/projects")
 @Api(value = "/projects", description = "Projects resource")
@@ -84,16 +87,23 @@ public class ProjectsResource extends Service {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
             dalFacade = bazaarService.getDBConnection();
-            List<Project> projects;
+            PaginationResult<Project> projectsResult;
             if (agent.getLoginName().equals("anonymous")) {
                 // return only public projects
-                projects = dalFacade.listPublicProjects(pageInfo);
+                projectsResult = dalFacade.listPublicProjects(pageInfo);
             } else {
                 // return public projects and the ones the user belongs to
                 long userId = agent.getId();
-                projects = dalFacade.listPublicAndAuthorizedProjects(pageInfo, userId);
+                projectsResult = dalFacade.listPublicAndAuthorizedProjects(pageInfo, userId);
             }
-            return new HttpResponse(gson.toJson(projects), HttpURLConnection.HTTP_OK);
+
+            HttpResponse response = new HttpResponse(gson.toJson(projectsResult.getElements()), HttpURLConnection.HTTP_OK);
+            Map<String, String> parameter = new HashMap<>();
+            parameter.put("page", String.valueOf(page));
+            parameter.put("per_page", String.valueOf(perPage));
+            response = bazaarService.addPaginationToHtppResponse(projectsResult, "projects", parameter, response);
+
+            return response;
         } catch (BazaarException bex) {
             return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
         } catch (Exception ex) {
@@ -352,8 +362,15 @@ public class ProjectsResource extends Service {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
                 }
             }
-            List<Component> components = dalFacade.listComponentsByProjectId(projectId, pageInfo);
-            return new HttpResponse(gson.toJson(components), HttpURLConnection.HTTP_OK);
+            PaginationResult<Component> componentsResult = dalFacade.listComponentsByProjectId(projectId, pageInfo);
+
+            HttpResponse response = new HttpResponse(gson.toJson(componentsResult.getElements()), HttpURLConnection.HTTP_OK);
+            Map<String, String> parameter = new HashMap<>();
+            parameter.put("page", String.valueOf(page));
+            parameter.put("per_page", String.valueOf(perPage));
+            response = bazaarService.addPaginationToHtppResponse(componentsResult, "projects/" + String.valueOf(projectId) + "/components", parameter, response);
+
+            return response;
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
@@ -421,8 +438,15 @@ public class ProjectsResource extends Service {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
                 }
             }
-            List<RequirementEx> requirements = dalFacade.listRequirementsByProject(projectId, pageInfo, internalUserId);
-            return new HttpResponse(gson.toJson(requirements), HttpURLConnection.HTTP_OK);
+            PaginationResult<RequirementEx> requirementsResult = dalFacade.listRequirementsByProject(projectId, pageInfo, internalUserId);
+
+            HttpResponse response = new HttpResponse(gson.toJson(requirementsResult.getElements()), HttpURLConnection.HTTP_OK);
+            Map<String, String> parameter = new HashMap<>();
+            parameter.put("page", String.valueOf(page));
+            parameter.put("per_page", String.valueOf(perPage));
+            response = bazaarService.addPaginationToHtppResponse(requirementsResult, "projects/" + String.valueOf(projectId) + "/requirements", parameter, response);
+
+            return response;
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);

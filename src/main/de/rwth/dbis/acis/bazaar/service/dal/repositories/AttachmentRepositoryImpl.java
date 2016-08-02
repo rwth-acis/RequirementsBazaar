@@ -23,6 +23,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachments;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements;
@@ -36,6 +37,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
 
@@ -80,13 +82,21 @@ public class AttachmentRepositoryImpl extends RepositoryImpl<Attachment, Attachm
     }
 
     @Override
-    public List<Attachment> findAllByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
-        List<Attachment> entries = null;
+    public PaginationResult<Attachment> findAllByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
+        PaginationResult<Attachment> result = null;
+        List<Attachment> attachments;
         try {
-            entries = new ArrayList<>();
+            attachments = new ArrayList<>();
             Users creatorUser = Users.USERS.as("creatorUser");
-            List<Record> queryResults = jooq.selectFrom(Attachments.ATTACHMENTS
-                    .join(creatorUser).on(creatorUser.ID.equal(Attachments.ATTACHMENTS.USER_ID)))
+
+            Field<Object> idCount = jooq.selectCount()
+                    .from(Attachments.ATTACHMENTS)
+                    .where(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(requirementId))
+                    .asField("idCount");
+
+            List<Record> queryResults = jooq.select(Attachments.ATTACHMENTS.fields()).select(creatorUser.fields()).select(idCount)
+                    .from(Attachments.ATTACHMENTS)
+                    .join(creatorUser).on(creatorUser.ID.equal(Attachments.ATTACHMENTS.USER_ID))
                     .where(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(requirementId))
                     .orderBy(transformator.getSortFields(pageable.getSortDirection()))
                     .limit(pageable.getPageSize())
@@ -99,12 +109,14 @@ public class AttachmentRepositoryImpl extends RepositoryImpl<Attachment, Attachm
                 UserTransformator userTransformator = new UserTransformator();
                 UsersRecord usersRecord = record.into(creatorUser);
                 entry.setCreator(userTransformator.getEntityFromTableRecord(usersRecord));
-                entries.add(entry);
+                attachments.add(entry);
             }
+            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
+            result = new PaginationResult<>(total, "", pageable, attachments);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
-        return entries;
+        return result;
     }
 
     @Override
