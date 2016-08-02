@@ -25,6 +25,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.ComponentFollower;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentsRecord;
@@ -36,6 +37,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.exception.DataAccessException;
@@ -112,14 +114,21 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
     }
 
     @Override
-    public List<Component> findByProjectId(int projectId, Pageable pageable) throws BazaarException {
-        List<Component> components = null;
+    public PaginationResult<Component> findByProjectId(int projectId, Pageable pageable) throws BazaarException {
+        PaginationResult<Component> result = null;
+        List<Component> components;
         try {
             components = new ArrayList<Component>();
             Users leaderUser = Users.USERS.as("leaderUser");
 
-            List<Record> queryResults = jooq.selectFrom(COMPONENTS
-                    .join(leaderUser).on(leaderUser.ID.equal(COMPONENTS.LEADER_ID)))
+            Field<Object> idCount = jooq.selectCount()
+                    .from(COMPONENTS)
+                    .where(COMPONENTS.PROJECT_ID.equal(projectId))
+                    .asField("idCount");
+
+            List<Record> queryResults = jooq.select(COMPONENTS.fields()).select(leaderUser.fields()).select(idCount)
+                    .from(COMPONENTS)
+                    .join(leaderUser).on(leaderUser.ID.equal(COMPONENTS.LEADER_ID))
                     .where(COMPONENTS.PROJECT_ID.equal(projectId))
                     .orderBy(transformator.getSortFields(pageable.getSortDirection()))
                     .limit(pageable.getPageSize())
@@ -134,11 +143,12 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                 component.setLeader(userTransformator.getEntityFromTableRecord(usersRecord));
                 components.add(component);
             }
+            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
+            result = new PaginationResult<>(total, "", pageable, components);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
-
-        return components;
+        return result;
     }
 
     @Override

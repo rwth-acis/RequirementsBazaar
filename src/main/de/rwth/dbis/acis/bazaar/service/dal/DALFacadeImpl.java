@@ -184,13 +184,13 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public List<RequirementEx> listRequirementsByProject(int projectId, Pageable pageable, int userId) throws BazaarException {
+    public PaginationResult<RequirementEx> listRequirementsByProject(int projectId, Pageable pageable, int userId) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         return requirementRepository.findAllByProject(projectId, pageable, userId);
     }
 
     @Override
-    public List<RequirementEx> listRequirementsByComponent(int componentId, Pageable pageable, int userId) throws BazaarException {
+    public PaginationResult<RequirementEx> listRequirementsByComponent(int componentId, Pageable pageable, int userId) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         return requirementRepository.findAllByComponent(componentId, pageable, userId);
     }
@@ -241,7 +241,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public List<Component> listComponentsByProjectId(int projectId, Pageable pageable) throws BazaarException {
+    public PaginationResult<Component> listComponentsByProjectId(int projectId, Pageable pageable) throws BazaarException {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
         return componentRepository.findByProjectId(projectId, pageable);
     }
@@ -270,14 +270,14 @@ public class DALFacadeImpl implements DALFacade {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
 
         //Get requirements for the component in question
-        List<RequirementEx> requirements = listRequirementsByComponent(componentId, new PageInfo(0, Integer.MAX_VALUE), 0);
+        PaginationResult<RequirementEx> requirements = listRequirementsByComponent(componentId, new PageInfo(0, Integer.MAX_VALUE), 0);
 
         // Get default component
         Component componentById = getComponentById(componentId);
         Project projectById = getProjectById(componentById.getProjectId());
 
         // Move requirements from this component to the default
-        for (RequirementEx requirement : requirements) {
+        for (RequirementEx requirement : requirements.getElements()) {
             removeComponentTag(requirement.getId(), componentId);
             addComponentTag(requirement.getId(), projectById.getDefaultComponentId());
         }
@@ -299,7 +299,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public List<Attachment> listAttachmentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
+    public PaginationResult<Attachment> listAttachmentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
         attachmentRepository = (attachmentRepository != null) ? attachmentRepository : new AttachmentRepositoryImpl(dslContext);
         return attachmentRepository.findAllByRequirementId(requirementId, pageable);
     }
@@ -320,7 +320,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public List<Comment> listCommentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
+    public PaginationResult<Comment> listCommentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
         commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
         return commentRepository.findAllByRequirementId(requirementId, pageable);
     }

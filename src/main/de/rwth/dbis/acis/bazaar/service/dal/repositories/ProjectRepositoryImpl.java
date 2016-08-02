@@ -92,7 +92,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
     @Override
     public PaginationResult<Project> findAllPublic(Pageable pageable) throws BazaarException {
         PaginationResult<Project> result = null;
-        List<Project> projects = null;
+        List<Project> projects;
         try {
             projects = new ArrayList<>();
             Users leaderUser = Users.USERS.as("leaderUser");
@@ -119,9 +119,8 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                 project.setLeader(userTransformator.getEntityFromTableRecord(usersRecord));
                 projects.add(project);
             }
-            int total = ((Integer) queryResults.get(0).get("idCount"));
+            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
             result = new PaginationResult<>(total, "", pageable, projects);
-
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
@@ -130,14 +129,20 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
 
     @Override
     public PaginationResult<Project> findAllPublicAndAuthorized(PageInfo pageable, long userId) throws BazaarException {
-        List<Project> projects = null;
+        PaginationResult<Project> result = null;
+        List<Project> projects;
         try {
             projects = new ArrayList<>();
             Users leaderUser = Users.USERS.as("leaderUser");
 
+            Field<Object> idCount = jooq.selectCount()
+                    .from(PROJECTS)
+                    .asField("idCount");
+
             //TODO only authorized projects?
-            List<Record> queryResults = jooq.selectFrom(PROJECTS
-                    .join(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID)))
+            List<Record> queryResults = jooq.select(PROJECTS.fields()).select(leaderUser.fields()).select(idCount)
+                    .from(PROJECTS)
+                    .join(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID))
 //                    .leftOuterJoin(AUTHORIZATIONS).on(AUTHORIZATIONS.PROJECT_ID.equal(PROJECTS.ID))
 //                    .join(USERS).on(AUTHORIZATIONS.USER_ID.equal(USERS.ID))
 //                    .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar())
@@ -154,10 +159,12 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                 project.setLeader(userTransformator.getEntityFromTableRecord(usersRecord));
                 projects.add(project);
             }
+            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
+            result = new PaginationResult<>(total, "", pageable, projects);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
-        return null;
+        return result;
     }
 
     @Override

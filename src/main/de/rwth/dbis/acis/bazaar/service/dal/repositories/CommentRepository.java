@@ -22,6 +22,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.util.List;
@@ -31,7 +32,7 @@ import java.util.List;
  * @since 6/22/2014
  */
 public interface CommentRepository extends Repository<Comment> {
-    List<Comment> findAllByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
+    PaginationResult<Comment> findAllByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
 
     public boolean belongsToPublicProject(int id) throws BazaarException;
 }

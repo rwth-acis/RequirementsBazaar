@@ -156,7 +156,7 @@ public interface DALFacade {
      * @param userId
      * @return the requirements under the given project in a paginated way
      */
-    public List<RequirementEx> listRequirementsByProject(int projectId, Pageable pageable, int userId) throws BazaarException;
+    public PaginationResult<RequirementEx> listRequirementsByProject(int projectId, Pageable pageable, int userId) throws BazaarException;
 
     /**
      * @param componentId the id of the component we are looking in
@@ -164,7 +164,7 @@ public interface DALFacade {
      * @param userId
      * @return the requirements under the given component in a paginated way
      */
-    public List<RequirementEx> listRequirementsByComponent(int componentId, Pageable pageable, int userId) throws BazaarException;
+    public PaginationResult<RequirementEx> listRequirementsByComponent(int componentId, Pageable pageable, int userId) throws BazaarException;
 
     /**
      * @param searchTerm the text, which is used to search. Search is case insensitive.
@@ -217,7 +217,7 @@ public interface DALFacade {
      * @param pageable  pagination information
      * @return the components under the given project in a paginated way
      */
-    public List<Component> listComponentsByProjectId(int projectId, Pageable pageable) throws BazaarException;
+    public PaginationResult<Component> listComponentsByProjectId(int projectId, Pageable pageable) throws BazaarException;
 
     /**
      * @param component to be added to the database.
@@ -269,7 +269,7 @@ public interface DALFacade {
      * @param pageable      pagination information
      * @return the attachments for a given requirement
      */
-    List<Attachment> listAttachmentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
+    PaginationResult<Attachment> listAttachmentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
 
     /**
      * @param attachment object, which holds the data should be persisted
@@ -290,7 +290,7 @@ public interface DALFacade {
      * @param pageable      pagination information
      * @return the comments for a given requirement
      */
-    public List<Comment> listCommentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
+    public PaginationResult<Comment> listCommentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
 
     /**
      * @param commentId

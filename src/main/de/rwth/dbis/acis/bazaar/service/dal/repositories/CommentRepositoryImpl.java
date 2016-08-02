@@ -23,6 +23,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
@@ -35,6 +36,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
 
@@ -54,13 +56,21 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
     }
 
     @Override
-    public List<Comment> findAllByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
-        List<Comment> entries = null;
+    public PaginationResult<Comment> findAllByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
+        PaginationResult<Comment> result = null;
+        List<Comment> comments;
         try {
-            entries = new ArrayList<Comment>();
+            comments = new ArrayList<>();
             Users creatorUser = USERS.as("creatorUser");
-            List<Record> queryResults = jooq.selectFrom(COMMENTS
-                    .join(creatorUser).on(creatorUser.ID.equal(COMMENTS.USER_ID)))
+
+            Field<Object> idCount = jooq.selectCount()
+                    .from(COMMENTS)
+                    .where(COMMENTS.REQUIREMENT_ID.equal(requirementId))
+                    .asField("idCount");
+
+            List<Record> queryResults = jooq.select(COMMENTS.fields()).select(creatorUser.fields()).select(idCount)
+                    .from(COMMENTS)
+                    .join(creatorUser).on(creatorUser.ID.equal(COMMENTS.USER_ID))
                     .where(COMMENTS.REQUIREMENT_ID.equal(requirementId))
                     .orderBy(transformator.getSortFields(pageable.getSortDirection()))
                     .limit(pageable.getPageSize())
@@ -69,13 +79,15 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
 
             for (Record record : queryResults) {
                 Comment entry = convertToCommentWithUser(record, creatorUser);
-                entries.add(entry);
+                comments.add(entry);
             }
+            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
+            result = new PaginationResult<>(total, "", pageable, comments);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
 
-        return entries;
+        return result;
     }
 
     private Comment convertToCommentWithUser(Record record, Users creatorUser) {

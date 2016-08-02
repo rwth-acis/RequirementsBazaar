@@ -362,8 +362,15 @@ public class ProjectsResource extends Service {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
                 }
             }
-            List<Component> components = dalFacade.listComponentsByProjectId(projectId, pageInfo);
-            return new HttpResponse(gson.toJson(components), HttpURLConnection.HTTP_OK);
+            PaginationResult<Component> componentsResult = dalFacade.listComponentsByProjectId(projectId, pageInfo);
+
+            HttpResponse response = new HttpResponse(gson.toJson(componentsResult.getElements()), HttpURLConnection.HTTP_OK);
+            Map<String, String> parameter = new HashMap<>();
+            parameter.put("page", String.valueOf(page));
+            parameter.put("per_page", String.valueOf(perPage));
+            response = bazaarService.addPaginationToHtppResponse(componentsResult, "projects/" + String.valueOf(projectId) + "/components", parameter, response);
+
+            return response;
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
@@ -431,8 +438,15 @@ public class ProjectsResource extends Service {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
                 }
             }
-            List<RequirementEx> requirements = dalFacade.listRequirementsByProject(projectId, pageInfo, internalUserId);
-            return new HttpResponse(gson.toJson(requirements), HttpURLConnection.HTTP_OK);
+            PaginationResult<RequirementEx> requirementsResult = dalFacade.listRequirementsByProject(projectId, pageInfo, internalUserId);
+
+            HttpResponse response = new HttpResponse(gson.toJson(requirementsResult.getElements()), HttpURLConnection.HTTP_OK);
+            Map<String, String> parameter = new HashMap<>();
+            parameter.put("page", String.valueOf(page));
+            parameter.put("per_page", String.valueOf(perPage));
+            response = bazaarService.addPaginationToHtppResponse(requirementsResult, "projects/" + String.valueOf(projectId) + "/requirements", parameter, response);
+
+            return response;
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);

@@ -6,6 +6,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -24,10 +25,7 @@ import jodd.vtor.Vtor;
 
 import javax.ws.rs.*;
 import java.net.HttpURLConnection;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.List;
+import java.util.*;
 
 @Path("/bazaar/requirements")
 @Api(value = "/requirements", description = "Requirements resource")
@@ -689,9 +687,17 @@ public class RequirementsResource extends Service {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.read"));
                 }
             }
-            List<Comment> comments = dalFacade.listCommentsByRequirementId(requirementId, pageInfo);
+            PaginationResult<Comment> commentsResult = dalFacade.listCommentsByRequirementId(requirementId, pageInfo);
             Gson gson = new Gson();
-            return new HttpResponse(gson.toJson(comments), HttpURLConnection.HTTP_OK);
+
+            HttpResponse response = new HttpResponse(gson.toJson(commentsResult.getElements()), HttpURLConnection.HTTP_OK);
+            Map<String, String> parameter = new HashMap<>();
+            parameter.put("page", String.valueOf(page));
+            parameter.put("per_page", String.valueOf(perPage));
+            response = bazaarService.addPaginationToHtppResponse(commentsResult, "requirements/" + String.valueOf(requirementId) + "/comments", parameter, response);
+
+            return response;
+
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
@@ -756,9 +762,16 @@ public class RequirementsResource extends Service {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.read"));
                 }
             }
-            List<Attachment> attachments = dalFacade.listAttachmentsByRequirementId(requirementId, pageInfo);
+            PaginationResult<Attachment> attachmentsResult = dalFacade.listAttachmentsByRequirementId(requirementId, pageInfo);
             Gson gson = new Gson();
-            return new HttpResponse(gson.toJson(attachments), HttpURLConnection.HTTP_OK);
+
+            HttpResponse response = new HttpResponse(gson.toJson(attachmentsResult.getElements()), HttpURLConnection.HTTP_OK);
+            Map<String, String> parameter = new HashMap<>();
+            parameter.put("page", String.valueOf(page));
+            parameter.put("per_page", String.valueOf(perPage));
+            response = bazaarService.addPaginationToHtppResponse(attachmentsResult, "requirements/" + String.valueOf(requirementId) + "/attachments", parameter, response);
+
+            return response;
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
