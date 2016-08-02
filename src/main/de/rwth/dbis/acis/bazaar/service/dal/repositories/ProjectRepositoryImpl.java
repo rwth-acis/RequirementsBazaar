@@ -97,8 +97,12 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
             projects = new ArrayList<>();
             Users leaderUser = Users.USERS.as("leaderUser");
 
-            Result<Record> queryResults = jooq.select(PROJECTS.NAME, DSL.count())
-                    //.select(PROJECTS.ID.count().as("IdCount"))
+            Field<Object> idCount = jooq.selectCount()
+                    .from(PROJECTS)
+                    .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar()))
+                    .asField("idCount");
+
+            Result<Record> queryResults = jooq.select(PROJECTS.fields()).select(leaderUser.fields()).select(idCount)
                     .from(PROJECTS)
                     .join(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID))
                     .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar()))
@@ -115,8 +119,8 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                 project.setLeader(userTransformator.getEntityFromTableRecord(usersRecord));
                 projects.add(project);
             }
-            int total = (int) queryResults.get(0).get("IdCount");
-            result = new PaginationResult<Project>(total, "", pageable, projects);
+            int total = ((Integer) queryResults.get(0).get("idCount"));
+            result = new PaginationResult<>(total, "", pageable, projects);
 
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);

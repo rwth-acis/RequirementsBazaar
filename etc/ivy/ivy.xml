@@ -23,5 +23,6 @@
         <dependency org="org.jodd" name="jodd-vtor" rev="3.6.1" conf="platform->*"/>
         <dependency org="org.hamcrest" name="hamcrest-all" rev="1.3" conf="platform->*"/>
         <dependency org="junit" name="junit" rev="4.11" conf="platform->*"/>
+        <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.2" conf="platform->*"/>
     </dependencies>
 </ivy-module>

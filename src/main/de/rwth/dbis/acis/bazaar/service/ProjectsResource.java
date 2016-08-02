@@ -71,8 +71,7 @@ public class ProjectsResource extends Service {
     })
     public HttpResponse getProjects(
             @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
-            @ApiParam(value = "Elements of project by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
-            @ApiParam(value = "User access token", required = false) @DefaultValue("") @HeaderParam("access_token") String accessToken) {
+            @ApiParam(value = "Elements of project by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
         DALFacade dalFacade = null;
         try {
             String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -88,19 +87,21 @@ public class ProjectsResource extends Service {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
             dalFacade = bazaarService.getDBConnection();
-            PaginationResult<Project> projects;
+            PaginationResult<Project> projectsResult;
             if (agent.getLoginName().equals("anonymous")) {
                 // return only public projects
-                projects = dalFacade.listPublicProjects(pageInfo);
+                projectsResult = dalFacade.listPublicProjects(pageInfo);
             } else {
                 // return public projects and the ones the user belongs to
                 long userId = agent.getId();
-                projects = dalFacade.listPublicAndAuthorizedProjects(pageInfo, userId);
+                projectsResult = dalFacade.listPublicAndAuthorizedProjects(pageInfo, userId);
             }
 
-            HttpResponse response = new HttpResponse(gson.toJson(projects), HttpURLConnection.HTTP_OK);
+            HttpResponse response = new HttpResponse(gson.toJson(projectsResult.getElements()), HttpURLConnection.HTTP_OK);
             Map<String, String> parameter = new HashMap<>();
-            response = bazaarService.addPaginationToHtppResponse(projects, parameter, accessToken, response);
+            parameter.put("page", String.valueOf(page));
+            parameter.put("per_page", String.valueOf(perPage));
+            response = bazaarService.addPaginationToHtppResponse(projectsResult, "projects", parameter, response);
 
             return response;
         } catch (BazaarException bex) {

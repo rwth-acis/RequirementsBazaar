@@ -10,7 +10,7 @@ public class PaginationResult<T> {
     private Pageable pageable;
     private List<T> elements;
 
-    public PaginationResult(int total, String filter, Pageable pageInfo, List<T> elements) {
+    public PaginationResult(int total, String filter, Pageable pageable, List<T> elements) {
         this.total = total;
         this.filter = filter;
         this.pageable = pageable;
@@ -31,5 +31,25 @@ public class PaginationResult<T> {
 
     public List<T> getElements() {
         return elements;
+    }
+
+    public int getTotalPages() {
+        return (int) Math.ceil((double) this.getTotal() / (double) this.getPageable().getPageSize());
+    }
+
+    public int getPrevPage() {
+        if (this.getPageable().getOffset() > 0) {
+            return this.getPageable().getPageNumber() - 1;
+        } else {
+            return -1;
+        }
+    }
+
+    public int getNextPage() {
+        if (this.getPageable().getOffset() + this.getElements().size() < this.getTotal()) {
+            return this.getPageable().getPageNumber() + 1;
+        } else {
+            return -1;
+        }
     }
 }
