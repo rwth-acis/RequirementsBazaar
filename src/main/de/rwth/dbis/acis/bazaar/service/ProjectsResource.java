@@ -287,29 +287,6 @@ public class ProjectsResource extends Service {
         }
     }
 
-    //TODO DELETE PROJECT, DID WE WANT IT
-//    @DELETE
-//    @Path("/projects/{projectId}")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public String deleteProject(@PathParam("projectId") int projectId) {
-//        // TODO: check if user can delete this project
-//        String resultJSON = "{\"success\" : \"true\"}";
-//        try {
-//            getDBConnection();
-//            dalFacade.delePR(projectToCreate);
-//        } catch (BazaarException bex) {
-//            resultJSON = ExceptionHandler.getInstance().toJSON(bex);
-//        } catch (Exception ex) {
-//            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-//            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
-//
-//        } finally {
-//            closeDBConnection();
-//        }
-//
-//        return resultJSON;
-//    }
-
     /**
      * This method returns the list of components under a given project.
      *

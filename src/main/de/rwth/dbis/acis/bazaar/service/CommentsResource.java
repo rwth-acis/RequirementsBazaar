@@ -172,29 +172,6 @@ public class CommentsResource extends Service {
         }
     }
 
-    //TODO Should exist?
-//    /**
-//     * This method updates a specific comment within a requirement.
-//     *
-//     * @param projectId
-//     *            the ID of the project for the requirement.
-//     * @param componentId
-//     *            the id of the component under a given project
-//     * @param requirementId
-//     *            the ID of the requirement, which was commented.
-//     * @param commentId
-//     *            the ID of the comment, which should be returned.
-//     * @return the updated requirement.
-//     */
-//    @PUT
-//    @Path("/projects/{projectId}/components/{componentId}/requirements/{requirementId}/comments/{commentId}")
-//    public String updateComment(@PathParam("projectId") int projectId,
-//                                @PathParam("componentId") int componentId,
-//                                @PathParam("requirementId") int requirementId,
-//                                @PathParam("commentId") int commentId,
-//                                @ContentParam String comment) {
-//    }
-
     /**
      * This method deletes a specific comment.
      *
