@@ -144,7 +144,7 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                 components.add(component);
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
-            result = new PaginationResult<>(total, "", pageable, components);
+            result = new PaginationResult<>(total, pageable, components);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }

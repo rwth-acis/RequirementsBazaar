@@ -31,9 +31,11 @@ public interface Pageable {
 
     int getPageSize();
 
+    String getFilter();
+
     SortDirection getSortDirection();
 
-    public enum SortDirection {
+    enum SortDirection {
         DEFAULT, ASC, DESC
     }
 }

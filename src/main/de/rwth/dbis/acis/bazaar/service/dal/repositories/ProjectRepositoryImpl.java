@@ -120,7 +120,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                 projects.add(project);
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
-            result = new PaginationResult<>(total, "", pageable, projects);
+            result = new PaginationResult<>(total, pageable, projects);
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
@@ -160,7 +160,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                 projects.add(project);
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
-            result = new PaginationResult<>(total, "", pageable, projects);
+            result = new PaginationResult<>(total, pageable, projects);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }

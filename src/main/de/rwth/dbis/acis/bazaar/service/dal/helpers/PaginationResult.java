@@ -6,23 +6,17 @@ import java.util.List;
 public class PaginationResult<T> {
 
     private int total;
-    private String filter;
     private Pageable pageable;
     private List<T> elements;
 
-    public PaginationResult(int total, String filter, Pageable pageable, List<T> elements) {
+    public PaginationResult(int total, Pageable pageable, List<T> elements) {
         this.total = total;
-        this.filter = filter;
         this.pageable = pageable;
         this.elements = elements;
     }
 
     public int getTotal() {
         return total;
-    }
-
-    public String getFilter() {
-        return filter;
     }
 
     public Pageable getPageable() {

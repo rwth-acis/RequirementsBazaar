@@ -33,14 +33,16 @@ public class PageInfo implements Pageable {
     @Min(0)
     private final int pageSize;
     private final SortDirection sortDirection;
+    private final String filter;
 
-    public PageInfo(int pageNumber, int pageSize) {
-        this(pageNumber, pageSize, SortDirection.DEFAULT);
+    public PageInfo(int pageNumber, int pageSize, String filter) {
+        this(pageNumber, pageSize, filter, SortDirection.DEFAULT);
     }
 
-    public PageInfo(int pageNumber, int pageSize, SortDirection sortDirection) {
+    public PageInfo(int pageNumber, int pageSize, String filter, SortDirection sortDirection) {
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
+        this.filter = filter;
         this.sortDirection = sortDirection;
     }
 
@@ -57,6 +59,11 @@ public class PageInfo implements Pageable {
     @Override
     public int getPageSize() {
         return pageSize;
+    }
+
+    @Override
+    public String getFilter() {
+        return filter;
     }
 
     @Override

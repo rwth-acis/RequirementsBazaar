@@ -112,7 +112,7 @@ public class AttachmentRepositoryImpl extends RepositoryImpl<Attachment, Attachm
                 attachments.add(entry);
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
-            result = new PaginationResult<>(total, "", pageable, attachments);
+            result = new PaginationResult<>(total, pageable, attachments);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }

@@ -681,7 +681,7 @@ public class RequirementsResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            PageInfo pageInfo = new PageInfo(page, perPage, Pageable.SortDirection.ASC);
+            PageInfo pageInfo = new PageInfo(page, perPage, "", Pageable.SortDirection.ASC);
             Vtor vtor = bazaarService.getValidators();
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
@@ -756,7 +756,7 @@ public class RequirementsResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            PageInfo pageInfo = new PageInfo(page, perPage, Pageable.SortDirection.ASC);
+            PageInfo pageInfo = new PageInfo(page, perPage, "", Pageable.SortDirection.ASC);
             Vtor vtor = bazaarService.getValidators();
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());

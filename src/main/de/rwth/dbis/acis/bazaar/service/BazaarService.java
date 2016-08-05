@@ -133,7 +133,7 @@ public class BazaarService extends Service {
 
         dataSource = setupDataSource(dbUrl, dbUserName, dbPassword);
 
-        functionRegistrators = new ArrayList<BazaarFunctionRegistrator>();
+        functionRegistrators = new ArrayList<>();
         functionRegistrators.add(new BazaarFunctionRegistrator() {
             @Override
             public void registerFunction(EnumSet<BazaarFunction> functions) throws BazaarException {

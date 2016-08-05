@@ -270,7 +270,7 @@ public class DALFacadeImpl implements DALFacade {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
 
         //Get requirements for the component in question
-        PaginationResult<RequirementEx> requirements = listRequirementsByComponent(componentId, new PageInfo(0, Integer.MAX_VALUE), 0);
+        PaginationResult<RequirementEx> requirements = listRequirementsByComponent(componentId, new PageInfo(0, Integer.MAX_VALUE, ""), 0);
 
         // Get default component
         Component componentById = getComponentById(componentId);

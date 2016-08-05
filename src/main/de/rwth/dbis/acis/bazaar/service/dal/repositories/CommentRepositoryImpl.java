@@ -82,7 +82,7 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
                 comments.add(entry);
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
-            result = new PaginationResult<>(total, "", pageable, comments);
+            result = new PaginationResult<>(total, pageable, comments);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }

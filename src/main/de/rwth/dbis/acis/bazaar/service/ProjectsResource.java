@@ -80,7 +80,7 @@ public class ProjectsResource extends Service {
             }
             UserAgent agent = (UserAgent) getActiveAgent();
             Gson gson = new Gson();
-            PageInfo pageInfo = new PageInfo(page, perPage);
+            PageInfo pageInfo = new PageInfo(page, perPage, "");
             Vtor vtor = bazaarService.getValidators();
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) {
@@ -317,7 +317,7 @@ public class ProjectsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
             Gson gson = new Gson();
-            PageInfo pageInfo = new PageInfo(page, perPage);
+            PageInfo pageInfo = new PageInfo(page, perPage, "");
             Vtor vtor = bazaarService.getValidators();
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) {
@@ -393,7 +393,7 @@ public class ProjectsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
             Gson gson = new Gson();
-            PageInfo pageInfo = new PageInfo(page, perPage);
+            PageInfo pageInfo = new PageInfo(page, perPage, "");
             Vtor vtor = bazaarService.getValidators();
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) {

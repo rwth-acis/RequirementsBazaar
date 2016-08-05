@@ -84,7 +84,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 requirements.add(findById(requirement.getId(), userId));
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
-            result = new PaginationResult<>(total, "", pageable, requirements);
+            result = new PaginationResult<>(total, pageable, requirements);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         } catch (Exception e) {
@@ -138,7 +138,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 requirements.add(findById(requirementsRecord.getId(), userId));
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
-            result = new PaginationResult<>(total, "", pageable, requirements);
+            result = new PaginationResult<>(total, pageable, requirements);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         } catch (Exception e) {
