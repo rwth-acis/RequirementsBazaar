@@ -75,7 +75,7 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
                     .select(childComment.fields()).select(creatorUser.fields()).select(childCommentCreatorUser.fields()).select(idCount)
                     .from(COMMENTS)
                     .leftJoin(childComment).on(childComment.BELONGSTOCOMMENT_ID.equal(COMMENTS.ID))
-                    .leftJoin(childCommentCreatorUser).on(childCommentCreatorUser.ID.equal(childComment.ID))
+                    .leftJoin(childCommentCreatorUser).on(childCommentCreatorUser.ID.equal(childComment.USER_ID))
                     .join(creatorUser).on(creatorUser.ID.equal(COMMENTS.USER_ID))
                     .where(COMMENTS.REQUIREMENT_ID.equal(requirementId).and(COMMENTS.BELONGSTOCOMMENT_ID.isNull()))
                     .orderBy(transformator.getSortFields(pageable.getSortDirection()))
@@ -89,8 +89,8 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
                     entry = convertToCommentWithUser(record, creatorUser);
                     comments.add(entry);
                 }
-                CommentsRecord test = record.into(childComment);
-                if (test.getId() != null) {
+                CommentsRecord childRecor = record.into(childComment);
+                if (childRecor.getId() != null) {
                     Comment childEntry = convertToCommentWithUser(record, childComment, childCommentCreatorUser);
                     comments.add(childEntry);
                 }
