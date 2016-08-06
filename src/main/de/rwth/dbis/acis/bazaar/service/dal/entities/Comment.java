@@ -44,6 +44,8 @@ public class Comment extends EntityBase {
     @Min(-1)
     private int creatorId;
 
+    private final Integer belongsToComment;
+
     private final Date creationTime;
 
     private final Date lastupdatedTime;
@@ -51,10 +53,11 @@ public class Comment extends EntityBase {
     private User creator;
 
     public Comment(Builder builder) {
-        Id = builder.id;
+        this.Id = builder.id;
         this.message = builder.message;
         this.creatorId = builder.userId;
         this.requirementId = builder.requirementId;
+        this.belongsToComment = builder.belongsToComment;
         this.creationTime = builder.creationTime;
         this.lastupdatedTime = builder.lastupdatedTime;
         this.creator = builder.creator;
@@ -78,6 +81,10 @@ public class Comment extends EntityBase {
 
     public void setCreatorId(int creatorId) {
         this.creatorId = creatorId;
+    }
+
+    public Integer getBelongsToComment() {
+        return belongsToComment;
     }
 
     public Date getCreationTime() {
@@ -105,6 +112,7 @@ public class Comment extends EntityBase {
         private String message;
         private int userId;
         private int requirementId;
+        private Integer belongsToComment;
         public Date creationTime;
         public Date lastupdatedTime;
         public User creator;
@@ -126,6 +134,11 @@ public class Comment extends EntityBase {
 
         public Builder creatorId(int creatorId) {
             this.userId = creatorId;
+            return this;
+        }
+
+        public Builder belongsToComment(Integer belongsToComment) {
+            this.belongsToComment = belongsToComment;
             return this;
         }
 

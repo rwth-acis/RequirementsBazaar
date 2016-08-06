@@ -24,6 +24,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
@@ -62,24 +63,37 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
         try {
             comments = new ArrayList<>();
             Users creatorUser = USERS.as("creatorUser");
+            Comments childComment = COMMENTS.as("childComment");
+            Users childCommentCreatorUser = USERS.as("childCommentCreatorUser");
 
             Field<Object> idCount = jooq.selectCount()
                     .from(COMMENTS)
                     .where(COMMENTS.REQUIREMENT_ID.equal(requirementId))
                     .asField("idCount");
 
-            List<Record> queryResults = jooq.select(COMMENTS.fields()).select(creatorUser.fields()).select(idCount)
+            List<Record> queryResults = jooq.select(COMMENTS.fields())
+                    .select(childComment.fields()).select(creatorUser.fields()).select(childCommentCreatorUser.fields()).select(idCount)
                     .from(COMMENTS)
+                    .leftJoin(childComment).on(childComment.BELONGSTOCOMMENT_ID.equal(COMMENTS.ID))
+                    .leftJoin(childCommentCreatorUser).on(childCommentCreatorUser.ID.equal(childComment.ID))
                     .join(creatorUser).on(creatorUser.ID.equal(COMMENTS.USER_ID))
-                    .where(COMMENTS.REQUIREMENT_ID.equal(requirementId))
+                    .where(COMMENTS.REQUIREMENT_ID.equal(requirementId).and(COMMENTS.BELONGSTOCOMMENT_ID.isNull()))
                     .orderBy(transformator.getSortFields(pageable.getSortDirection()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();
 
+            Comment entry = null;
             for (Record record : queryResults) {
-                Comment entry = convertToCommentWithUser(record, creatorUser);
-                comments.add(entry);
+                if (entry == null || transformator.getEntityFromTableRecord(record.into(CommentsRecord.class)).getId() != entry.getId()) {
+                    entry = convertToCommentWithUser(record, creatorUser);
+                    comments.add(entry);
+                }
+                CommentsRecord test = record.into(childComment);
+                if (test.getId() != null) {
+                    Comment childEntry = convertToCommentWithUser(record, childComment, childCommentCreatorUser);
+                    comments.add(childEntry);
+                }
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
             result = new PaginationResult<>(total, pageable, comments);
@@ -92,6 +106,15 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
 
     private Comment convertToCommentWithUser(Record record, Users creatorUser) {
         CommentsRecord commentsRecord = record.into(CommentsRecord.class);
+        Comment entry = transformator.getEntityFromTableRecord(commentsRecord);
+        UserTransformator userTransformator = new UserTransformator();
+        UsersRecord usersRecord = record.into(creatorUser);
+        entry.setCreator(userTransformator.getEntityFromTableRecord(usersRecord));
+        return entry;
+    }
+
+    private Comment convertToCommentWithUser(Record record, Comments comment, Users creatorUser) {
+        CommentsRecord commentsRecord = record.into(comment);
         Comment entry = transformator.getEntityFromTableRecord(commentsRecord);
         UserTransformator userTransformator = new UserTransformator();
         UsersRecord usersRecord = record.into(creatorUser);

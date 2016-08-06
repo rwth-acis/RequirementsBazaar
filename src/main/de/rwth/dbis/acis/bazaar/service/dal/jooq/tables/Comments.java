@@ -37,7 +37,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Comments extends TableImpl<CommentsRecord> {
 
-    private static final long serialVersionUID = -20313952;
+    private static final long serialVersionUID = -1036214342;
 
     /**
      * The reference instance of <code>reqbaz.comments</code>
@@ -60,7 +60,7 @@ public class Comments extends TableImpl<CommentsRecord> {
     /**
      * The column <code>reqbaz.comments.message</code>.
      */
-    public final TableField<CommentsRecord, String> MESSAGE = createField("message", org.jooq.impl.SQLDataType.CLOB.nullable(false), this, "");
+    public final TableField<CommentsRecord, String> MESSAGE = createField("message", org.jooq.impl.SQLDataType.VARCHAR.length(140).nullable(false), this, "");
 
     /**
      * The column <code>reqbaz.comments.creation_time</code>.
@@ -81,6 +81,11 @@ public class Comments extends TableImpl<CommentsRecord> {
      * The column <code>reqbaz.comments.User_Id</code>.
      */
     public final TableField<CommentsRecord, Integer> USER_ID = createField("User_Id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
+
+    /**
+     * The column <code>reqbaz.comments.BelongsToComment_Id</code>.
+     */
+    public final TableField<CommentsRecord, Integer> BELONGSTOCOMMENT_ID = createField("BelongsToComment_Id", org.jooq.impl.SQLDataType.INTEGER, this, "");
 
     /**
      * Create a <code>reqbaz.comments</code> table reference
@@ -141,7 +146,7 @@ public class Comments extends TableImpl<CommentsRecord> {
      */
     @Override
     public List<ForeignKey<CommentsRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<CommentsRecord, ?>>asList(Keys.COMMENT_REQUIREMENT, Keys.COMMENT_USER);
+        return Arrays.<ForeignKey<CommentsRecord, ?>>asList(Keys.COMMENT_REQUIREMENT, Keys.COMMENT_USER, Keys.BELONGSTOCOMMENT);
     }
 
     /**

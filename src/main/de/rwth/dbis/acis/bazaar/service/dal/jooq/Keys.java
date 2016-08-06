@@ -114,6 +114,7 @@ public class Keys {
     public static final ForeignKey<AttachmentsRecord, UsersRecord> ATTACHEMENT_USER = ForeignKeys0.ATTACHEMENT_USER;
     public static final ForeignKey<CommentsRecord, RequirementsRecord> COMMENT_REQUIREMENT = ForeignKeys0.COMMENT_REQUIREMENT;
     public static final ForeignKey<CommentsRecord, UsersRecord> COMMENT_USER = ForeignKeys0.COMMENT_USER;
+    public static final ForeignKey<CommentsRecord, CommentsRecord> BELONGSTOCOMMENT = ForeignKeys0.BELONGSTOCOMMENT;
     public static final ForeignKey<ComponentsRecord, ProjectsRecord> COMPONENT_PROJECT = ForeignKeys0.COMPONENT_PROJECT;
     public static final ForeignKey<ComponentsRecord, UsersRecord> COMPONENTS_USERS = ForeignKeys0.COMPONENTS_USERS;
     public static final ForeignKey<ComponentFollowerRecord, ComponentsRecord> COMPONENT_FOLLOWER = ForeignKeys0.COMPONENT_FOLLOWER;
@@ -190,6 +191,7 @@ public class Keys {
         public static final ForeignKey<AttachmentsRecord, UsersRecord> ATTACHEMENT_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USERS_PRIMARY, Attachments.ATTACHMENTS, "Attachement_User", Attachments.ATTACHMENTS.USER_ID);
         public static final ForeignKey<CommentsRecord, RequirementsRecord> COMMENT_REQUIREMENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_REQUIREMENTS_PRIMARY, Comments.COMMENTS, "Comment_Requirement", Comments.COMMENTS.REQUIREMENT_ID);
         public static final ForeignKey<CommentsRecord, UsersRecord> COMMENT_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USERS_PRIMARY, Comments.COMMENTS, "Comment_User", Comments.COMMENTS.USER_ID);
+        public static final ForeignKey<CommentsRecord, CommentsRecord> BELONGSTOCOMMENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_COMMENTS_PRIMARY, Comments.COMMENTS, "belongsToComment", Comments.COMMENTS.BELONGSTOCOMMENT_ID);
         public static final ForeignKey<ComponentsRecord, ProjectsRecord> COMPONENT_PROJECT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_PROJECTS_PRIMARY, Components.COMPONENTS, "Component_Project", Components.COMPONENTS.PROJECT_ID);
         public static final ForeignKey<ComponentsRecord, UsersRecord> COMPONENTS_USERS = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USERS_PRIMARY, Components.COMPONENTS, "Components_Users", Components.COMPONENTS.LEADER_ID);
         public static final ForeignKey<ComponentFollowerRecord, ComponentsRecord> COMPONENT_FOLLOWER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_COMPONENTS_PRIMARY, ComponentFollower.COMPONENT_FOLLOWER, "Component_Follower", ComponentFollower.COMPONENT_FOLLOWER.COMPONENT_ID);
