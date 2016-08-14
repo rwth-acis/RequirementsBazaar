@@ -23,5 +23,6 @@
         <dependency org="com.google.code.gson" name="gson" rev="2.3" conf="bundle->default"/>
         <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.1" conf="bundle->default"/>
         <dependency org="commons-io" name="commons-io" rev="2.4" conf="bundle->default"/>
+        <dependency org="org.jodd" name="jodd-vtor" rev="3.6.1" conf="bundle->default"/>
     </dependencies>
 </ivy-module>
