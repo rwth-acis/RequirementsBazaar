@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS attachments (
   title            VARCHAR(255) NOT NULL,
   description      TEXT         NULL,
   mime_type        VARCHAR(255) NOT NULL,
+  identifier       VARCHAR(900) NOT NULL,
+  fileUrl          VARCHAR(1000) NOT NULL,
   CONSTRAINT attachments_pk PRIMARY KEY (Id),
   CONSTRAINT Attachement_Requirement FOREIGN KEY Attachement_Requirement (Requirement_Id) REFERENCES requirements (Id)
     ON DELETE CASCADE,
@@ -25,10 +27,12 @@ CREATE TABLE IF NOT EXISTS comments (
   lastupdated_time TIMESTAMP NULL,
   Requirement_Id   INT       NOT NULL,
   User_Id          INT       NOT NULL,
+  BelongsToComment_Id INT,
   CONSTRAINT comments_pk PRIMARY KEY (Id),
   CONSTRAINT Comment_Requirement FOREIGN KEY Comment_Requirement (Requirement_Id) REFERENCES requirements (Id)
     ON DELETE CASCADE,
-  CONSTRAINT Comment_User FOREIGN KEY Comment_User (User_Id) REFERENCES users (Id)
+  CONSTRAINT Comment_User FOREIGN KEY Comment_User (User_Id) REFERENCES users (Id),
+  CONSTRAINT belongsToComment FOREIGN KEY comments (BelongsToComment_Id) REFERENCES comments (Id)
 );
 
 -- Table components
