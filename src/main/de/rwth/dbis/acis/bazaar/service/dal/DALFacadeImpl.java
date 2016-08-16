@@ -34,7 +34,6 @@ import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
 import java.util.List;
 
 /**
@@ -278,7 +277,7 @@ public class DALFacadeImpl implements DALFacade {
 
         // Move requirements from this component to the default
         for (RequirementEx requirement : requirements.getElements()) {
-            removeComponentTag(requirement.getId(), componentId);
+            deleteComponentTag(requirement.getId(), componentId);
             addComponentTag(requirement.getId(), projectById.getDefaultComponentId());
         }
 
@@ -389,7 +388,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public void removeComponentTag(int requirementId, int componentId) throws BazaarException {
+    public void deleteComponentTag(int requirementId, int componentId) throws BazaarException {
         tagRepository = (tagRepository != null) ? tagRepository : new TagRepositoryImpl(dslContext);
         tagRepository.delete(requirementId, componentId);
     }

@@ -31,7 +31,10 @@ import java.util.List;
  */
 public interface UserRepository extends Repository<User> {
     Integer getIdByLas2PeerId(long las2PeerId) throws BazaarException;
+
     List<User> getEmailReceiverForProject(int projectId) throws BazaarException;
+
     List<User> getEmailReceiverForComponent(int componentId) throws BazaarException;
+
     List<User> getEmailReceiverForRequirement(int requirementId) throws BazaarException;
 }

@@ -37,7 +37,7 @@ public interface Repository<E extends EntityBase> {
      * @param entity to add
      * @return the persisted entity
      */
-    public E add(E entity) throws BazaarException;
+    E add(E entity) throws BazaarException;
 
 
     /**
@@ -45,34 +45,34 @@ public interface Repository<E extends EntityBase> {
      * @return the deleted entity. It is not anymore in the database!
      * @throws Exception
      */
-    public E delete(int id) throws Exception;
+    E delete(int id) throws Exception;
 
 
     /**
      * @return all the entities currently in the database
      */
-    public List<E> findAll() throws BazaarException;
+    List<E> findAll() throws BazaarException;
 
 
     /**
      * @param pageable
      * @return
      */
-    public List<E> findAll(Pageable pageable) throws BazaarException;
+    List<E> findAll(Pageable pageable) throws BazaarException;
 
     /**
      * @param searchTerm
      * @param pageable
      * @return
      */
-    public List<E> searchAll(String searchTerm, Pageable pageable) throws Exception;
+    List<E> searchAll(String searchTerm, Pageable pageable) throws Exception;
 
     /**
      * @param id of the entity we are looking for
      * @return the entity from the database with the given Id
      * @throws Exception
      */
-    public E findById(int id) throws Exception;
+    E findById(int id) throws Exception;
 
 
     /**
@@ -80,5 +80,5 @@ public interface Repository<E extends EntityBase> {
      * @return the entity after the database
      * @throws Exception
      */
-    public E update(E entity) throws Exception;
+    E update(E entity) throws Exception;
 }

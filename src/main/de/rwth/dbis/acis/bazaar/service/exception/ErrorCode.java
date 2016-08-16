@@ -44,7 +44,7 @@ public enum ErrorCode {
         return message;
     }
 
-    private ErrorCode(String code, String message) {
+    ErrorCode(String code, String message) {
         this.code = code;
         this.message = message;
     }

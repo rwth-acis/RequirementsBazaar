@@ -514,7 +514,7 @@
 //    }
 //
 //    @Override
-//    public void removeComponentTag(int requirementId, int componentId) {
+//    public void deleteComponentTag(int requirementId, int componentId) {
 //        Iterator<Tag> itr = tagList.iterator();
 //        while (itr.hasNext()) {
 //            Tag tag = itr.next();

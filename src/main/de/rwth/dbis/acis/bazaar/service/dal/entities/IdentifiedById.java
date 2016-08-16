@@ -28,5 +28,5 @@ public interface IdentifiedById {
     /**
      * @return Returns the identifier of the implementer. All entities should implement this.
      */
-    public int getId();
+    int getId();
 }

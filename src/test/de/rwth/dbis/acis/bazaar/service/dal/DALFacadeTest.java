@@ -580,7 +580,7 @@
 //        assertEquals(1,components.size());
 //        assertEquals(1, components.get(0).getId());
 //
-//        facade.removeComponentTag(1,1);
+//        facade.deleteComponentTag(1,1);
 //
 //        components = facade.getRequirementById(1).getComponents();
 //        assertEquals(0,components.size());

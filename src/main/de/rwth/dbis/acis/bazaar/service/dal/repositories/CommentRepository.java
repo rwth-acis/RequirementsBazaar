@@ -34,5 +34,5 @@ import java.util.List;
 public interface CommentRepository extends Repository<Comment> {
     PaginationResult<Comment> findAllByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
 
-    public boolean belongsToPublicProject(int id) throws BazaarException;
+    boolean belongsToPublicProject(int id) throws BazaarException;
 }

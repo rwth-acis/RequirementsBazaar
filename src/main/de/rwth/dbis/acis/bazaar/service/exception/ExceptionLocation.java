@@ -42,7 +42,7 @@ public enum ExceptionLocation {
         return message;
     }
 
-    private ExceptionLocation(String code, String message) {
+    ExceptionLocation(String code, String message) {
         this.code = code;
         this.message = message;
     }
