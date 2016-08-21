@@ -215,6 +215,13 @@ public interface DALFacade {
     PaginationResult<Component> listComponentsByProjectId(int projectId, Pageable pageable) throws BazaarException;
 
     /**
+     * @param requirementId the id of the requirement we are looking in
+     * @param pageable  pagination information
+     * @return the components under the given project in a paginated way
+     */
+    PaginationResult<Component> listComponentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
+
+    /**
      * @param component to be added to the database.
      */
     Component createComponent(Component component) throws BazaarException;
@@ -239,7 +246,7 @@ public interface DALFacade {
      *
      * @param componentId for the component to be deleted
      */
-    Component deleteComponentById(int componentId) throws Exception;
+    Component deleteComponentById(int componentId, int userId) throws Exception;
 
     /**
      * Returns true if component belongs to a public project

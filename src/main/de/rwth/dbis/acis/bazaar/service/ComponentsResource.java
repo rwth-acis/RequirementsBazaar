@@ -268,7 +268,7 @@ public class ComponentsResource extends Service {
                 );
             }
             Gson gson = new Gson();
-            Component deletedComponent = dalFacade.deleteComponentById(componentId);
+            Component deletedComponent = dalFacade.deleteComponentById(componentId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(this, deletedComponent.getLastupdated_time(), Activity.ActivityAction.DELETE, deletedComponent.getId(),
                     Activity.DataType.COMPONENT, deletedComponent.getProjectId(), Activity.DataType.PROJECT, internalUserId);
             return new HttpResponse(gson.toJson(deletedComponent), HttpURLConnection.HTTP_OK);

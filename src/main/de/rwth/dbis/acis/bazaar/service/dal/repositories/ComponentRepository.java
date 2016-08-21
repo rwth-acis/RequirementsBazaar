@@ -37,5 +37,7 @@ public interface ComponentRepository extends Repository<Component> {
 
     PaginationResult<Component> findByProjectId(int projectId, Pageable pageable) throws BazaarException;
 
+    PaginationResult<Component> findByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
+
     boolean belongsToPublicProject(int id) throws BazaarException;
 }
