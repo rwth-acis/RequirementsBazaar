@@ -135,6 +135,22 @@ public interface DALFacade {
      * @return
      */
     boolean isProjectPublic(int projectId) throws BazaarException;
+
+    /**
+     * This method create a new follow relation between a user and a project
+     *
+     * @param userId        the identifier of the user, who wants to follow the project
+     * @param projectId     the the identifier of the project to follow
+     */
+    CreationStatus followProject(int userId, int projectId) throws BazaarException;
+
+    /**
+     * This method deleted the follow relationship between the given user and project.
+     *
+     * @param userId        the identifier of the user, who wants not to follow the project
+     * @param projectId     the the identifier of the project to unfollow
+     */
+    void unFollowProject(int userId, int projectId) throws BazaarException;
     //endregion
 
     //region Requirement
@@ -256,6 +272,21 @@ public interface DALFacade {
      */
     boolean isComponentPublic(int componentId) throws BazaarException;
 
+    /**
+     * This method create a new follow relation between a user and a component
+     *
+     * @param userId        the identifier of the user, who wants to follow the component
+     * @param componentId   the the identifier of the component to follow
+     */
+    CreationStatus followComponent(int userId, int componentId) throws BazaarException;
+
+    /**
+     * This method deleted the follow relationship between the given user and component.
+     *
+     * @param userId        the identifier of the user, who wants not to follow the component
+     * @param componentId   the the identifier of the component to unfollow
+     */
+    void unFollowComponent(int userId, int componentId) throws BazaarException;
     //endregion
 
     //region Attachment
@@ -318,17 +349,17 @@ public interface DALFacade {
      * This method create a new follow relation between a user and a requirement
      *
      * @param userId        the identifier of the user, who wants to follow the requirement
-     * @param requirementId the the identifier of the requirement we want to follow
+     * @param requirementId the the identifier of the requirement to follow
      */
-    CreationStatus follow(int userId, int requirementId) throws BazaarException;
+    CreationStatus followRequirement(int userId, int requirementId) throws BazaarException;
 
     /**
      * This method deleted the follow relationship between the given user and requirement.
      *
      * @param userId        the identifier of the user, who wants not to follow the requirement
-     * @param requirementId the the identifier of the requirement we don't want to follow anymore
+     * @param requirementId the the identifier of the requirement to unfollow
      */
-    void unFollow(int userId, int requirementId) throws BazaarException;
+    void unFollowRequirement(int userId, int requirementId) throws BazaarException;
 
     //endregion
 

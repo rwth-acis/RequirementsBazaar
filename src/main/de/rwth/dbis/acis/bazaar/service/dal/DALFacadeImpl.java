@@ -48,7 +48,9 @@ public class DALFacadeImpl implements DALFacade {
     private CommentRepository commentRepository;
     private ComponentRepository componentRepository;
     private DeveloperRepository developerRepository;
-    private RequirementFollowerRepository followerRepository;
+    private ProjectFollowerRepository projectFollowerRepository;
+    private ComponentFollowerRepository componentFollowerRepository;
+    private RequirementFollowerRepository requirementFollowerRepository;
     private ProjectRepository projectRepository;
     private RequirementRepository requirementRepository;
     private TagRepository tagRepository;
@@ -369,7 +371,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public Comment createComment(Comment comment) throws BazaarException, Exception {
+    public Comment createComment(Comment comment) throws Exception {
         commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
         Comment newComment = commentRepository.add(comment);
         return commentRepository.findById(newComment.getId());
@@ -384,9 +386,41 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public CreationStatus follow(int userId, int requirementId) throws BazaarException {
-        followerRepository = (followerRepository != null) ? followerRepository : new RequirementFollowerRepositoryImpl(dslContext);
-        return followerRepository.addOrUpdate(RequirementFollower.getBuilder()
+    public CreationStatus followProject(int userId, int projectId) throws BazaarException {
+        projectFollowerRepository = (projectFollowerRepository != null) ? projectFollowerRepository : new ProjectFollowerRepositoryImpl(dslContext);
+        return projectFollowerRepository.addOrUpdate(ProjectFollower.getBuilder()
+                .projectId(projectId)
+                .userId(userId)
+                .build()
+        );
+    }
+
+    @Override
+    public void unFollowProject(int userId, int projectId) throws BazaarException {
+        projectFollowerRepository = (projectFollowerRepository != null) ? projectFollowerRepository : new ProjectFollowerRepositoryImpl(dslContext);
+        projectFollowerRepository.delete(userId, projectId);
+    }
+
+    @Override
+    public CreationStatus followComponent(int userId, int componentId) throws BazaarException {
+        componentFollowerRepository = (componentFollowerRepository != null) ? componentFollowerRepository : new ComponentFollowerRepositoryImpl(dslContext);
+        return componentFollowerRepository.addOrUpdate(ComponentFollower.getBuilder()
+                .componentId(componentId)
+                .userId(userId)
+                .build()
+        );
+    }
+
+    @Override
+    public void unFollowComponent(int userId, int componentId) throws BazaarException {
+        componentFollowerRepository = (componentFollowerRepository != null) ? componentFollowerRepository : new ComponentFollowerRepositoryImpl(dslContext);
+        componentFollowerRepository.delete(userId, componentId);
+    }
+
+    @Override
+    public CreationStatus followRequirement(int userId, int requirementId) throws BazaarException {
+        requirementFollowerRepository = (requirementFollowerRepository != null) ? requirementFollowerRepository : new RequirementFollowerRepositoryImpl(dslContext);
+        return requirementFollowerRepository.addOrUpdate(RequirementFollower.getBuilder()
                 .requirementId(requirementId)
                 .userId(userId)
                 .build()
@@ -394,9 +428,9 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public void unFollow(int userId, int requirementId) throws BazaarException {
-        followerRepository = (followerRepository != null) ? followerRepository : new RequirementFollowerRepositoryImpl(dslContext);
-        followerRepository.delete(userId, requirementId);
+    public void unFollowRequirement(int userId, int requirementId) throws BazaarException {
+        requirementFollowerRepository = (requirementFollowerRepository != null) ? requirementFollowerRepository : new RequirementFollowerRepositoryImpl(dslContext);
+        requirementFollowerRepository.delete(userId, requirementId);
     }
 
     @Override

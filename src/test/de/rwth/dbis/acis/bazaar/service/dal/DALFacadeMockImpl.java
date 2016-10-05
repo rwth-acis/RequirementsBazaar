@@ -476,7 +476,7 @@
 //    }
 //
 //    @Override
-//    public void unFollow(int userId, int requirementId) {
+//    public void unFollowRequirement(int userId, int requirementId) {
 //        Iterator<RequirementFollower> itr = followerList.iterator();
 //        while (itr.hasNext()) {
 //            RequirementFollower follower = itr.next();
