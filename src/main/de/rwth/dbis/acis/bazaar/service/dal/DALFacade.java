@@ -48,7 +48,7 @@ public interface DALFacade {
      *
      * @param modifiedUser, which holds the data of the modification for the user in the database identified by the Id field.
      */
-    User modifyUser(User modifiedUser) throws Exception;
+    User modifyUser(User modifiedUser) throws BazaarException;
 
      /* TODO delete? Should it delete its projects? What should happen after deletion? */
 
@@ -56,13 +56,13 @@ public interface DALFacade {
      * @param userId the identifier of the user, which should be retreived
      * @return the user with its data from the database
      */
-    User getUserById(int userId) throws Exception;
+    User getUserById(int userId) throws BazaarException;
 
     /**
      * @param las2PeerId the identifier of the user
      * @return the reqbaz userId of the las2Peer user
      */
-    Integer getUserIdByLAS2PeerId(long las2PeerId) throws Exception;
+    Integer getUserIdByLAS2PeerId(long las2PeerId) throws BazaarException;
 
     /**
      *
@@ -107,18 +107,18 @@ public interface DALFacade {
      * @param pageable   pagination information
      * @return the found projects from the database based on the given parameters
      */
-    List<Project> searchProjects(String searchTerm, Pageable pageable) throws Exception;
+    List<Project> searchProjects(String searchTerm, Pageable pageable) throws BazaarException;
 
     /**
      * @param projectId identifier of the project should be returned
      * @return the project and all of its data with the given id.
      */
-    Project getProjectById(int projectId) throws Exception;
+    Project getProjectById(int projectId) throws BazaarException;
 
     /**
      * @param project data to be created.
      */
-    Project createProject(Project project) throws Exception;
+    Project createProject(Project project) throws BazaarException;
 
     /**
      * Modifies the project in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
@@ -126,7 +126,7 @@ public interface DALFacade {
      *
      * @param modifiedProject holds the modified data of the project identified by its id. Just only direct project data will be modified, relations not!
      */
-    Project modifyProject(Project modifiedProject) throws Exception;
+    Project modifyProject(Project modifiedProject) throws BazaarException;
 
     /**
      * Returns if a project is public or not
@@ -182,19 +182,19 @@ public interface DALFacade {
      * @param pageable   pagination information
      * @return the found requirements with the given parameters filled up with only the direct data.
      */
-    List<Requirement> searchRequirements(String searchTerm, Pageable pageable) throws Exception;
+    List<Requirement> searchRequirements(String searchTerm, Pageable pageable) throws BazaarException;
 
     /**
      * @param requirementId the identifier of the requirement should be returned
      * @return the requirement identified by the given id and all of its assets: comments,attachments,followers,developers,creator
      */
-    RequirementEx getRequirementById(int requirementId, int userId) throws Exception;
+    RequirementEx getRequirementById(int requirementId, int userId) throws BazaarException;
 
 
     /**
      * @param requirement to be added to the database.
      */
-    RequirementEx createRequirement(Requirement requirement, int userId) throws Exception;
+    RequirementEx createRequirement(Requirement requirement, int userId) throws BazaarException;
 
     /**
      * Modifies the requirement in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
@@ -202,14 +202,14 @@ public interface DALFacade {
      *
      * @param modifiedRequirement hold the modified data
      */
-    RequirementEx modifyRequirement(Requirement modifiedRequirement, int userId) throws Exception;
+    RequirementEx modifyRequirement(Requirement modifiedRequirement, int userId) throws BazaarException;
 
     /**
      * This method deletes a requirement with its assets: All of its comments and attachments and connections to users, projects or components.
      *
      * @param requirementId which identifies the requirement to delete.
      */
-    RequirementEx deleteRequirementById(int requirementId, int userId) throws Exception;
+    RequirementEx deleteRequirementById(int requirementId, int userId) throws BazaarException;
 
 
     /**
@@ -246,7 +246,7 @@ public interface DALFacade {
      * @param componentId identifier of the component should be returned
      * @return the component and all of its data with the given id.
      */
-    Component getComponentById(int componentId) throws Exception;
+    Component getComponentById(int componentId) throws BazaarException;
 
     /**
      * Modifies the component in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
@@ -254,7 +254,7 @@ public interface DALFacade {
      *
      * @param component hold the modified data
      */
-    Component modifyComponent(Component component) throws Exception;
+    Component modifyComponent(Component component) throws BazaarException;
 
 
     /**
@@ -262,7 +262,7 @@ public interface DALFacade {
      *
      * @param componentId for the component to be deleted
      */
-    Component deleteComponentById(int componentId, int userId) throws Exception;
+    Component deleteComponentById(int componentId, int userId) throws BazaarException;
 
     /**
      * Returns true if component belongs to a public project
@@ -295,7 +295,7 @@ public interface DALFacade {
      * @param attachmentId
      * @return the attachment for a given id
      */
-    Attachment getAttachmentById(int attachmentId) throws Exception;
+    Attachment getAttachmentById(int attachmentId) throws BazaarException;
 
     /**
      * @param requirementId the identifier of the requirement we are looking in
@@ -312,7 +312,7 @@ public interface DALFacade {
     /**
      * @param attachmentId id of the attachment should be deleted
      */
-    Attachment deleteAttachmentById(int attachmentId) throws Exception;
+    Attachment deleteAttachmentById(int attachmentId) throws BazaarException;
 
     //endregion
 
@@ -329,17 +329,17 @@ public interface DALFacade {
      * @param commentId
      * @return the comment for a given id
      */
-    Comment getCommentById(int commentId) throws Exception;
+    Comment getCommentById(int commentId) throws BazaarException;
 
     /**
      * @param comment which holds the data for the new comment.
      */
-    Comment createComment(Comment comment) throws Exception;
+    Comment createComment(Comment comment) throws BazaarException;
 
     /**
      * @param commentId to identify the comment to be deleted
      */
-    Comment deleteCommentById(int commentId) throws Exception;
+    Comment deleteCommentById(int commentId) throws BazaarException;
 
     //endregion
 

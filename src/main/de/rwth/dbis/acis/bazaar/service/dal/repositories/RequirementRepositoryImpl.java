@@ -163,7 +163,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     }
 
     @Override
-    public RequirementEx findById(int id, int userId) throws Exception {
+    public RequirementEx findById(int id, int userId) throws BazaarException {
         RequirementEx requirementEx = null;
         try {
             Users followerUsers = Users.USERS.as("followerUsers");

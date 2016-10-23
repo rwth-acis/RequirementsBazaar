@@ -91,19 +91,19 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public User modifyUser(User modifiedUser) throws Exception {
+    public User modifyUser(User modifiedUser) throws BazaarException {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
         return userRepository.update(modifiedUser);
     }
 
     @Override
-    public User getUserById(int userId) throws Exception {
+    public User getUserById(int userId) throws BazaarException {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
         return userRepository.findById(userId);
     }
 
     @Override
-    public Integer getUserIdByLAS2PeerId(long las2PeerId) throws Exception {
+    public Integer getUserIdByLAS2PeerId(long las2PeerId) throws BazaarException {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
         return userRepository.getIdByLas2PeerId(las2PeerId);
     }
@@ -139,19 +139,19 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public List<Project> searchProjects(String searchTerm, Pageable pageable) throws Exception {
+    public List<Project> searchProjects(String searchTerm, Pageable pageable) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         return projectRepository.searchAll(searchTerm, pageable);
     }
 
     @Override
-    public Project getProjectById(int projectId) throws Exception {
+    public Project getProjectById(int projectId) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         return projectRepository.findById(projectId);
     }
 
     @Override
-    public Project createProject(Project project) throws Exception {
+    public Project createProject(Project project) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         project.setDefaultComponentId(null);
         Project newProject = projectRepository.add(project);
@@ -167,7 +167,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public Project modifyProject(Project modifiedProject) throws Exception {
+    public Project modifyProject(Project modifiedProject) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         return projectRepository.update(modifiedProject);
     }
@@ -197,19 +197,19 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public List<Requirement> searchRequirements(String searchTerm, Pageable pageable) throws Exception {
+    public List<Requirement> searchRequirements(String searchTerm, Pageable pageable) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         return requirementRepository.searchAll(searchTerm, pageable);
     }
 
     @Override
-    public RequirementEx getRequirementById(int requirementId, int userId) throws Exception {
+    public RequirementEx getRequirementById(int requirementId, int userId) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         return requirementRepository.findById(requirementId, userId);
     }
 
     @Override
-    public RequirementEx createRequirement(Requirement requirement, int userId) throws Exception {
+    public RequirementEx createRequirement(Requirement requirement, int userId) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         Requirement newRequirement = requirementRepository.add(requirement);
         for (Component component : requirement.getComponents()) {
@@ -219,7 +219,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public RequirementEx modifyRequirement(Requirement modifiedRequirement, int userId) throws Exception {
+    public RequirementEx modifyRequirement(Requirement modifiedRequirement, int userId) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         requirementRepository.update(modifiedRequirement);
 
@@ -255,7 +255,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public RequirementEx deleteRequirementById(int requirementId, int userId) throws Exception {
+    public RequirementEx deleteRequirementById(int requirementId, int userId) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
 
         //TODO it's a very heavy call for very little
@@ -290,19 +290,19 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public Component getComponentById(int componentId) throws Exception {
+    public Component getComponentById(int componentId) throws BazaarException {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
         return componentRepository.findById(componentId);
     }
 
     @Override
-    public Component modifyComponent(Component component) throws Exception {
+    public Component modifyComponent(Component component) throws BazaarException {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
         return componentRepository.update(component);
     }
 
     @Override
-    public Component deleteComponentById(int componentId, int userId) throws Exception {
+    public Component deleteComponentById(int componentId, int userId) throws BazaarException {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
 
         //Get requirements for the component in question
@@ -332,7 +332,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public Attachment getAttachmentById(int attachmentId) throws Exception {
+    public Attachment getAttachmentById(int attachmentId) throws BazaarException {
         attachmentRepository = (attachmentRepository != null) ? attachmentRepository : new AttachmentRepositoryImpl(dslContext);
         return attachmentRepository.findById(attachmentId);
     }
@@ -351,7 +351,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public Attachment deleteAttachmentById(int attachmentId) throws Exception {
+    public Attachment deleteAttachmentById(int attachmentId) throws BazaarException {
         attachmentRepository = (attachmentRepository != null) ? attachmentRepository : new AttachmentRepositoryImpl(dslContext);
         Attachment attachment = attachmentRepository.findById(attachmentId);
         attachmentRepository.delete(attachmentId);
@@ -365,20 +365,20 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public Comment getCommentById(int commentId) throws Exception {
+    public Comment getCommentById(int commentId) throws BazaarException {
         commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
         return commentRepository.findById(commentId);
     }
 
     @Override
-    public Comment createComment(Comment comment) throws Exception {
+    public Comment createComment(Comment comment) throws BazaarException {
         commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
         Comment newComment = commentRepository.add(comment);
         return commentRepository.findById(newComment.getId());
     }
 
     @Override
-    public Comment deleteCommentById(int commentId) throws Exception {
+    public Comment deleteCommentById(int commentId) throws BazaarException {
         commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
         Comment comment = commentRepository.findById(commentId);
         commentRepository.delete(commentId);

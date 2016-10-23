@@ -36,5 +36,5 @@ public interface RequirementRepository extends Repository<Requirement> {
 
     boolean belongsToPublicProject(int id) throws BazaarException;
 
-    RequirementEx findById(int id, int userId) throws Exception;
+    RequirementEx findById(int id, int userId) throws BazaarException;
 }

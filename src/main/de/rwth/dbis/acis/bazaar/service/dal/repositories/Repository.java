@@ -36,6 +36,7 @@ public interface Repository<E extends EntityBase> {
     /**
      * @param entity to add
      * @return the persisted entity
+     * @throws BazaarException
      */
     E add(E entity) throws BazaarException;
 
@@ -43,42 +44,45 @@ public interface Repository<E extends EntityBase> {
     /**
      * @param id of an entity, which should be deleted
      * @return the deleted entity. It is not anymore in the database!
-     * @throws Exception
+     * @throws BazaarException
      */
-    E delete(int id) throws Exception;
+    E delete(int id) throws BazaarException;
 
 
     /**
      * @return all the entities currently in the database
+     * @throws BazaarException
      */
     List<E> findAll() throws BazaarException;
 
 
     /**
      * @param pageable
-     * @return
+     * @return list of entity which fits pageable
+     * @throws BazaarException
      */
     List<E> findAll(Pageable pageable) throws BazaarException;
 
     /**
      * @param searchTerm
      * @param pageable
-     * @return
+     * @return list of entity which fits searchTerm and pageable
+     * @throws BazaarException
      */
-    List<E> searchAll(String searchTerm, Pageable pageable) throws Exception;
+    List<E> searchAll(String searchTerm, Pageable pageable) throws BazaarException;
 
     /**
      * @param id of the entity we are looking for
      * @return the entity from the database with the given Id
-     * @throws Exception
+     * @throws BazaarException
      */
-    E findById(int id) throws Exception;
+    E findById(int id) throws BazaarException;
 
 
     /**
      * @param entity object, which holds the new values of the database update
      * @return the entity after the database
-     * @throws Exception
+     * @throws BazaarException
      */
-    E update(E entity) throws Exception;
+    E update(E entity) throws BazaarException;
 }

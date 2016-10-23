@@ -56,6 +56,7 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
     /**
      * @param entity to add
      * @return the persisted entity
+     * @throws BazaarException
      */
     public E add(E entity) throws BazaarException {
         E transformedEntity = null;
@@ -77,10 +78,10 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
     /**
      * @param id of an entity, which should be deleted
      * @return the deleted entity. It is not anymore in the database!
-     * @throws Exception
+     * @throws BazaarException
      */
     //TODO transaction (findById,delete)
-    public E delete(int id) throws Exception {
+    public E delete(int id) throws BazaarException {
         E deleted = null;
         try {
             deleted = this.findById(id);
@@ -99,6 +100,7 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
 
     /**
      * @return all the entities currently in the database
+     * @throws BazaarException
      */
     public List<E> findAll() throws BazaarException {
         List<E> entries = null;
@@ -118,6 +120,11 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
         return entries;
     }
 
+    /**
+     * @param pageable
+     * @return list of entity which fits pageable
+     * @throws BazaarException
+     */
     @Override
     public List<E> findAll(Pageable pageable) throws BazaarException {
         List<E> entries = null;
@@ -141,8 +148,14 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
         return entries;
     }
 
+    /**
+     * @param searchTerm
+     * @param pageable
+     * @return list of entity which fits searchTerm and pageable
+     * @throws BazaarException
+     */
     @Override
-    public List<E> searchAll(String searchTerm, Pageable pageable) throws Exception {
+    public List<E> searchAll(String searchTerm, Pageable pageable) throws BazaarException {
         List<E> entries = null;
         try {
             entries = new ArrayList<E>();
@@ -171,9 +184,9 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
     /**
      * @param id of the entity we are looking for
      * @return the entity from the database with the given Id
-     * @throws Exception
+     * @throws BazaarException
      */
-    public E findById(int id) throws Exception {
+    public E findById(int id) throws BazaarException {
         R queryResult = null;
         try {
             queryResult = jooq.selectFrom(transformator.getTable())
@@ -195,11 +208,11 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
     /**
      * @param entity object, which holds the new values of the database update
      * @return the entity after the database
-     * @throws Exception
+     * @throws BazaarException
      */
     //TODO transaction(update,findById)
     @Override
-    public E update(E entity) throws Exception {
+    public E update(E entity) throws BazaarException {
         E byId = null;
         try {
             UpdateSetFirstStep<R> update = jooq.update(transformator.getTable());
