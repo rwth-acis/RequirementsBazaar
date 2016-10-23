@@ -37,7 +37,7 @@ import de.rwth.dbis.acis.bazaar.service.notification.ActivityDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.EmailDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcherImp;
-import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
+import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManagerImpl;
 import i5.las2peer.api.Service;
 import i5.las2peer.restMapper.HttpResponse;
 import i5.las2peer.restMapper.RESTMapper;
@@ -53,7 +53,6 @@ import org.jooq.SQLDialect;
 
 import javax.sql.DataSource;
 import javax.ws.rs.Path;
-import javax.ws.rs.core.UriBuilder;
 import java.net.URISyntaxException;
 import java.util.*;
 
@@ -140,7 +139,7 @@ public class BazaarService extends Service {
                 DALFacade dalFacade = null;
                 try {
                     dalFacade = getDBConnection();
-                    AuthorizationManager.SyncPrivileges(dalFacade);
+                    (new AuthorizationManagerImpl()).syncPrivileges(dalFacade);
                 } catch (CommunicationsException commEx) {
                     ExceptionHandler.getInstance().convertAndThrowException(commEx, ExceptionLocation.BAZAARSERVICE, ErrorCode.DB_COMM, Localization.getInstance().getResourceBundle().getString("error.db_comm"));
                 } catch (Exception ex) {

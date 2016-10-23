@@ -25,10 +25,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.util.List;
 
-/**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 2/17/2015
- */
+
 public interface RoleRepostitory extends Repository<Role> {
     List<Role> listParentsForRole(int roleId) throws BazaarException;
 
