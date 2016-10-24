@@ -127,7 +127,6 @@ public class ComponentsResource extends Service {
         DALFacade dalFacade = null;
         try {
             long userId = ((UserAgent) getActiveAgent()).getId();
-            // TODO: check whether the current user may create a new project
             String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
@@ -196,7 +195,7 @@ public class ComponentsResource extends Service {
             }
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            boolean authorized = new AuthorizationManagerImpl().isAuthorized(internalUserId, PrivilegeEnum.Modify_COMPONENT, dalFacade);
+            boolean authorized = new AuthorizationManagerImpl().isAuthorized(internalUserId, PrivilegeEnum.Modify_COMPONENT, updatedComponent, dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.modify"));
             }
@@ -251,7 +250,7 @@ public class ComponentsResource extends Service {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Component componentToDelete = dalFacade.getComponentById(componentId);
             Project project = dalFacade.getProjectById(componentToDelete.getProjectId());
-            boolean authorized = new AuthorizationManagerImpl().isAuthorized(internalUserId, PrivilegeEnum.Modify_COMPONENT, String.valueOf(project.getId()), dalFacade);
+            boolean authorized = new AuthorizationManagerImpl().isAuthorized(internalUserId, PrivilegeEnum.Modify_COMPONENT, String.valueOf(project.getId()), componentToDelete, dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.modify"));
             }

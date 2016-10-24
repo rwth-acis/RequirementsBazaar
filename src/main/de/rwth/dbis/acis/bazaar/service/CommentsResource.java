@@ -130,8 +130,6 @@ public class CommentsResource extends Service {
         DALFacade dalFacade = null;
         try {
             long userId = ((UserAgent) getActiveAgent()).getId();
-            // TODO: check whether the current user may create a new requirement
-            // TODO: check whether all required parameters are entered
             String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
@@ -191,7 +189,6 @@ public class CommentsResource extends Service {
     public HttpResponse deleteComment(@PathParam("commentId") int commentId) {
         DALFacade dalFacade = null;
         try {
-            // TODO: check if the user may delete this requirement.
             long userId = ((UserAgent) getActiveAgent()).getId();
             String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registratorErrors != null) {

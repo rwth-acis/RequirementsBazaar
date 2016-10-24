@@ -215,7 +215,6 @@ public class BazaarService extends Service {
         String givenName = null;
         String familyName = null;
 
-        //TODO how to check if the user is anonymous?
         if (agent.getLoginName().equals("anonymous")) {
             agent.setEmail("anonymous@requirements-bazaar.org");
         } else if (agent.getUserData() != null) {

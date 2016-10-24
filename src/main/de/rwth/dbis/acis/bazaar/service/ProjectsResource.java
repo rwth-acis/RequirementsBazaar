@@ -148,8 +148,8 @@ public class ProjectsResource extends Service {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
                 }
             }
-            Project projectToReturn = dalFacade.getProjectById(projectId);
             Gson gson = new Gson();
+            Project projectToReturn = dalFacade.getProjectById(projectId);
             return new HttpResponse(gson.toJson(projectToReturn), HttpURLConnection.HTTP_OK);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -257,7 +257,7 @@ public class ProjectsResource extends Service {
             }
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            boolean authorized = new AuthorizationManagerImpl().isAuthorized(internalUserId, PrivilegeEnum.Modify_PROJECT, dalFacade);
+            boolean authorized = new AuthorizationManagerImpl().isAuthorized(internalUserId, PrivilegeEnum.Modify_PROJECT, projectToUpdate, dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.modify"));
             }

@@ -20,6 +20,7 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.Ownable;
 import jodd.vtor.constraint.MaxLength;
 import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
@@ -27,7 +28,7 @@ import jodd.vtor.constraint.NotNull;
 
 import java.util.Date;
 
-public class Attachment extends EntityBase {
+public class Attachment extends EntityBase implements Ownable {
 
     @Min(-1)
     private final int Id;
@@ -134,6 +135,11 @@ public class Attachment extends EntityBase {
 
     public void setCreator(User creator) {
         this.creator = creator;
+    }
+
+    @Override
+    public boolean isOwner(int userId) {
+        return userId == creatorId;
     }
 
     public static Builder getBuilder() {

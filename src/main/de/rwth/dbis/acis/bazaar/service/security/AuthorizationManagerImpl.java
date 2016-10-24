@@ -24,21 +24,50 @@ import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Privilege;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.PrivilegeEnum;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.Ownable;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.util.EnumSet;
 import java.util.List;
 
+import static de.rwth.dbis.acis.bazaar.service.dal.entities.PrivilegeEnum.*;
+
 
 public class AuthorizationManagerImpl implements AuthorizationManager {
 
     public boolean isAuthorized(int userId, PrivilegeEnum privilege, DALFacade facade) throws BazaarException {
-        return isAuthorized(userId, privilege, null, facade);
+        return isAuthorized(userId, privilege, null, null, facade);
+    }
+
+    public boolean isAuthorized(int userId, PrivilegeEnum privilege, Ownable element, DALFacade facade) throws BazaarException {
+        return isAuthorized(userId, privilege, null, element, facade);
     }
 
     public boolean isAuthorized(int userId, PrivilegeEnum privilege, String context, DALFacade facade) throws BazaarException {
+        return isAuthorized(userId, privilege, context, null, facade);
+    }
+
+
+    public boolean isAuthorized(int userId, PrivilegeEnum privilege, String context, Ownable element, DALFacade facade) throws BazaarException {
         List<Role> userRoles = facade.getRolesByUserId(userId, context);
 
+        // check admin status
+        if (facade.getUserById(userId).isAdmin()) {
+            return true;
+        }
+
+        // check if owner
+        if (privilege == Modify_PROJECT ||
+                privilege == Modify_COMPONENT ||
+                privilege == Modify_REQUIREMENT ||
+                privilege == Modify_COMMENT ||
+                privilege == Modify_ATTACHMENT) {
+            if (!isOwnerOrLeader(userId, element)) {
+                return false;
+            }
+        }
+
+        // check privilege
         return checkPrivilege(userRoles, privilege, facade);
     }
 
@@ -47,6 +76,11 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
         for (PrivilegeEnum privilege : privileges) {
             facade.createPrivilegeIfNotExists(privilege);
         }
+    }
+
+    @Override
+    public boolean isOwnerOrLeader(int userId, Ownable element) {
+        return element.isOwner(userId);
     }
 
     private boolean checkPrivilege(List<Role> userRoles, PrivilegeEnum privilege, DALFacade facade) throws BazaarException {

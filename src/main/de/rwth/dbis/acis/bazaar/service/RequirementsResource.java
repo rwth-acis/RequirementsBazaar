@@ -133,7 +133,6 @@ public class RequirementsResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            // TODO: check whether the current user may create a new requirement
             dalFacade = bazaarService.getDBConnection();
             Gson gson = new Gson();
             Requirement requirementToCreate = gson.fromJson(requirement, Requirement.class);
@@ -611,8 +610,6 @@ public class RequirementsResource extends Service {
         DALFacade dalFacade = null;
         try {
             long userId = ((UserAgent) getActiveAgent()).getId();
-            // TODO: check whether the current user may create a new requirement
-            // TODO: check whether all required parameters are entered
             String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
@@ -678,7 +675,6 @@ public class RequirementsResource extends Service {
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             dalFacade = bazaarService.getDBConnection();
-            //Todo use requirement's projectId for serurity context, not the one sent from client
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Project project = dalFacade.getProjectById(requirement.getProjectId());
@@ -753,7 +749,6 @@ public class RequirementsResource extends Service {
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             dalFacade = bazaarService.getDBConnection();
-            //Todo use requirement's projectId for serurity context, not the one sent from client
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Project project = dalFacade.getProjectById(requirement.getProjectId());

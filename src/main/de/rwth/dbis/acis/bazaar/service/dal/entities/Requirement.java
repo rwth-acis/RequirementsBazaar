@@ -1,6 +1,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.Ownable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.UserVote;
 import jodd.vtor.constraint.*;
 
@@ -10,7 +11,7 @@ import java.util.List;
 /**
  * Requirement entity
  */
-public class Requirement extends EntityBase {
+public class Requirement extends EntityBase implements Ownable {
     @Min(-1)
     private final int id;
 
@@ -106,6 +107,11 @@ public class Requirement extends EntityBase {
 
     public void setCreatorId(int creatorId) {
         this.creatorId = creatorId;
+    }
+
+    @Override
+    public boolean isOwner(int userId) {
+        return userId == creatorId;
     }
 
     protected Requirement(Builder builder) {

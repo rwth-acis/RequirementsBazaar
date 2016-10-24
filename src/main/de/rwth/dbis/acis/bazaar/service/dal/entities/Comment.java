@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.Ownable;
 import jodd.vtor.constraint.MaxLength;
 import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
@@ -31,7 +32,7 @@ import java.util.Date;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/11/2014
  */
-public class Comment extends EntityBase {
+public class Comment extends EntityBase implements Ownable {
     @Min(-1)
     private final int requirementId;
     @Min(-1)
@@ -101,6 +102,11 @@ public class Comment extends EntityBase {
 
     public void setCreator(User creator) {
         this.creator = creator;
+    }
+
+    @Override
+    public boolean isOwner(int userId) {
+        return userId == creatorId;
     }
 
     public static Builder getBuilder(String message) {

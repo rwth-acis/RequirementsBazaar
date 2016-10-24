@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.Ownable;
 import jodd.vtor.constraint.MaxLength;
 import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
@@ -32,7 +33,7 @@ import java.util.List;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
  */
-public class Component extends EntityBase {
+public class Component extends EntityBase implements Ownable {
 
     @Min(-1)
     private final int id;
@@ -93,6 +94,11 @@ public class Component extends EntityBase {
 
     public void setLeader(User leader) {
         this.leader = leader;
+    }
+
+    @Override
+    public boolean isOwner(int userId) {
+        return userId == leaderId;
     }
 
     /**

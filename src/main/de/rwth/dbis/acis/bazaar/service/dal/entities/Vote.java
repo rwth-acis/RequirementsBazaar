@@ -20,6 +20,8 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.Ownable;
+
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/11/2014

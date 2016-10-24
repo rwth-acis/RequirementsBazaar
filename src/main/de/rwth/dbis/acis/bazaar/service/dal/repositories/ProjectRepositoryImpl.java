@@ -139,13 +139,10 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                     .from(PROJECTS)
                     .asField("idCount");
 
-            //TODO only authorized projects?
             List<Record> queryResults = jooq.select(PROJECTS.fields()).select(leaderUser.fields()).select(idCount)
                     .from(PROJECTS)
                     .join(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID))
-//                    .leftOuterJoin(AUTHORIZATIONS).on(AUTHORIZATIONS.PROJECT_ID.equal(PROJECTS.ID))
-//                    .join(USERS).on(AUTHORIZATIONS.USER_ID.equal(USERS.ID))
-//                    .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar())
+                    .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar()).or(PROJECTS.LEADER_ID.eq(leaderUser.ID)))
                     .orderBy(transformator.getSortFields(pageable.getSortDirection()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())

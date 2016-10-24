@@ -65,7 +65,6 @@ public class UsersResource extends Service {
     public HttpResponse getUser(@PathParam("userId") int userId) {
         DALFacade dalFacade = null;
         try {
-            // TODO: check whether the current user may request this project
             String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
