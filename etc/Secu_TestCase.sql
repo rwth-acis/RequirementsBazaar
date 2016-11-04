@@ -429,15 +429,15 @@ CREATE TABLE IF NOT EXISTS `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`Id`, `first_name`, `last_name`, `email`, `admin`, `Las2peer_Id`, `user_name`, `profile_image`)
+INSERT INTO `users` (`Id`, `first_name`, `last_name`, `email`, `Las2peer_Id`, `user_name`, `profile_image`)
 VALUES
-  (41, NULL, NULL, 'anonymous@requirements-bazaar.org', 0, -1722613621014065292, 'anonymous',
+  (41, NULL, NULL, 'anonymous@requirements-bazaar.org', -1722613621014065292, 'anonymous',
    'https://api.learning-layers.eu/profile.png'),
-  (42, NULL, NULL, 'no.email@warning.com', 0, -5021131362343084485, 'adam',
+  (42, NULL, NULL, 'no.email@warning.com', -5021131362343084485, 'adam',
    'https://api.learning-layers.eu/profile.png'),
-  (43, NULL, NULL, 'no.email@warning.com', 0, -7678677630072537742, 'abel',
+  (43, NULL, NULL, 'no.email@warning.com', -7678677630072537742, 'abel',
    'https://api.learning-layers.eu/profile.png'),
-  (44, NULL, NULL, 'no.email@warning.com', 0, -8626247308297765772, 'eve1st',
+  (44, NULL, NULL, 'no.email@warning.com', -8626247308297765772, 'eve1st',
    'https://api.learning-layers.eu/profile.png');
 
 -- --------------------------------------------------------

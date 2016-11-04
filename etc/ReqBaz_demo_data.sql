@@ -1,17 +1,17 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
 REPLACE INTO `reqbaz`.`users`
-(`Id`, `first_name`, `last_name`, `email`, `admin`, `Las2peer_Id`, `user_name`, `profile_image`, `email_lead_items`, `email_follow_items`)
+(`Id`, `first_name`, `last_name`, `email`, `Las2peer_Id`, `user_name`, `profile_image`, `email_lead_items`, `email_follow_items`)
 VALUES
-  ('1', NULL, NULL, 'anonymous@requirements-bazaar.org', '0', '-1722613621014065292', 'anonymous',
+  ('1', NULL, NULL, 'anonymous@requirements-bazaar.org', '-1722613621014065292', 'anonymous',
    'https://api.learning-layers.eu/profile.png', '0', '0'),
-  ('2', 'Max1', 'Mustermann1', 'Max@Mustermann1.de', '1', '1', 'MaxMustermann1',
+  ('2', 'Max1', 'Mustermann1', 'Max@Mustermann1.de', '1', 'MaxMustermann1',
    'https://api.learning-layers.eu/profile.png', '0', '0'),
-  ('3', 'Max2', 'Mustermann2', 'Max@Mustermann2.de', '1', '2', 'MaxMustermann2',
+  ('3', 'Max2', 'Mustermann2', 'Max@Mustermann2.de', '2', 'MaxMustermann2',
    'https://api.learning-layers.eu/profile.png', '0', '0'),
-  ('4', 'Max3', 'Mustermann3', 'Max@Mustermann3.de', '1', '3', 'MaxMustermann3',
+  ('4', 'Max3', 'Mustermann3', 'Max@Mustermann3.de', '3', 'MaxMustermann3',
    'https://api.learning-layers.eu/profile.png', '0', '0'),
-  ('5', 'Max4', 'Mustermann4', 'Max@Mustermann4.de', '1', '4', 'MaxMustermann4',
+  ('5', 'Max4', 'Mustermann4', 'Max@Mustermann4.de', '4', 'MaxMustermann4',
    'https://api.learning-layers.eu/profile.png', '0', '0');
 
 REPLACE INTO `reqbaz`.`projects`

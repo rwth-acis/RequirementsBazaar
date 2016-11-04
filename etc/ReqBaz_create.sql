@@ -198,7 +198,6 @@ CREATE TABLE IF NOT EXISTS users (
   first_name                      VARCHAR(150) NULL,
   last_name                       VARCHAR(150) NULL,
   email                           VARCHAR(255) NOT NULL,
-  admin                           BOOLEAN      NOT NULL,
   Las2peer_Id                     BIGINT       NOT NULL,
   user_name                       VARCHAR(255) NULL,
   profile_image                   TEXT         NULL,
