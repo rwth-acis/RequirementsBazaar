@@ -38,7 +38,6 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
     public UsersRecord createRecord(User entity) {
         UsersRecord record = new UsersRecord();
         record.setLas2peerId(entity.getLas2peerId());
-        record.setAdmin((byte) (entity.getAdmin() ? 1 : 0));
         record.setEmail(entity.geteMail());
         record.setFirstName(entity.getFirstName());
         record.setLastName(entity.getLastName());
@@ -53,7 +52,6 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
     public User getEntityFromTableRecord(UsersRecord record) {
         return User.geBuilder(record.getEmail())
                 .id(record.getId())
-                .admin(record.getAdmin() != 0)
                 .firstName(record.getFirstName())
                 .lastName(record.getLastName())
                 .las2peerId(record.getLas2peerId())
@@ -67,7 +65,6 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
     public User getEntityFromQueryResult(Users user, Result<Record> queryResult) {
         return User.geBuilder(queryResult.getValues(user.EMAIL).get(0))
                 .id(queryResult.getValues(user.ID).get(0))
-                .admin(queryResult.getValues(user.ADMIN).get(0) != 0)
                 .firstName(queryResult.getValues(user.FIRST_NAME).get(0))
                 .lastName(queryResult.getValues(user.LAST_NAME).get(0))
                 .las2peerId(queryResult.getValues(user.LAS2PEER_ID).get(0))

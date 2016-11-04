@@ -33,8 +33,6 @@ public class User extends EntityBase {
 
     private transient final String eMail;
 
-    private final Boolean admin;
-
     private final long Las2peerId;
 
     @NotBlank
@@ -51,7 +49,6 @@ public class User extends EntityBase {
         this.firstName = builder.firstName;
         this.lastName = builder.lastName;
         this.eMail = builder.eMail;
-        this.admin = builder.admin;
         Las2peerId = builder.las2peerId;
         this.userName = builder.userName;
         this.profileImage = builder.profileImage;
@@ -73,10 +70,6 @@ public class User extends EntityBase {
 
     public String geteMail() {
         return eMail;
-    }
-
-    public Boolean isAdmin() {
-        return admin;
     }
 
     public long getLas2peerId() {
@@ -103,16 +96,11 @@ public class User extends EntityBase {
         return new Builder(eMail);
     }
 
-    public boolean getAdmin() {
-        return admin;
-    }
-
     public static class Builder {
         private int id;
         private String firstName;
         private String lastName;
         private String eMail;
-        private Boolean admin;
         private long las2peerId;
         private String userName;
         private String profileImage;
@@ -140,11 +128,6 @@ public class User extends EntityBase {
 
         public Builder eMail(String eMail) {
             this.eMail = eMail;
-            return this;
-        }
-
-        public Builder admin(Boolean admin) {
-            this.admin = admin;
             return this;
         }
 

@@ -247,10 +247,10 @@ public class BazaarService extends Service {
                     userBuilder = userBuilder.firstName(givenName);
                 if (familyName != null)
                     userBuilder = userBuilder.lastName(familyName);
-                User user = userBuilder.admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).profileImage(profileImage)
+                User user = userBuilder.las2peerId(agent.getId()).userName(agent.getLoginName()).profileImage(profileImage)
                         .emailLeadItems(true).emailFollowItems(true).build();
                 int userId = dalFacade.createUser(user).getId();
-                dalFacade.addUserToRole(userId, "SystemAdmin", null);
+                dalFacade.addUserToRole(userId, "LoggedInUser", null);
             }
         } catch (Exception ex) {
             ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.first_login"));

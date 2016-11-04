@@ -35,7 +35,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Users extends TableImpl<UsersRecord> {
 
-    private static final long serialVersionUID = -1575795355;
+    private static final long serialVersionUID = 2057438241;
 
     /**
      * The reference instance of <code>reqbaz.users</code>
@@ -69,11 +69,6 @@ public class Users extends TableImpl<UsersRecord> {
      * The column <code>reqbaz.users.email</code>.
      */
     public final TableField<UsersRecord, String> EMAIL = createField("email", org.jooq.impl.SQLDataType.VARCHAR.length(255).nullable(false), this, "");
-
-    /**
-     * The column <code>reqbaz.users.admin</code>.
-     */
-    public final TableField<UsersRecord, Byte> ADMIN = createField("admin", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "");
 
     /**
      * The column <code>reqbaz.users.Las2peer_Id</code>.

@@ -37,7 +37,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Comments extends TableImpl<CommentsRecord> {
 
-    private static final long serialVersionUID = -1036214342;
+    private static final long serialVersionUID = -460565393;
 
     /**
      * The reference instance of <code>reqbaz.comments</code>
@@ -60,7 +60,7 @@ public class Comments extends TableImpl<CommentsRecord> {
     /**
      * The column <code>reqbaz.comments.message</code>.
      */
-    public final TableField<CommentsRecord, String> MESSAGE = createField("message", org.jooq.impl.SQLDataType.VARCHAR.length(140).nullable(false), this, "");
+    public final TableField<CommentsRecord, String> MESSAGE = createField("message", org.jooq.impl.SQLDataType.CLOB.nullable(false), this, "");
 
     /**
      * The column <code>reqbaz.comments.creation_time</code>.

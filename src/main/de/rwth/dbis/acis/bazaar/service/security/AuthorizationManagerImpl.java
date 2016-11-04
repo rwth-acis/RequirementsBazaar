@@ -51,11 +51,6 @@ public class AuthorizationManagerImpl implements AuthorizationManager {
     public boolean isAuthorized(int userId, PrivilegeEnum privilege, String context, Ownable element, DALFacade facade) throws BazaarException {
         List<Role> userRoles = facade.getRolesByUserId(userId, context);
 
-        // check admin status
-        if (facade.getUserById(userId).isAdmin()) {
-            return true;
-        }
-
         // check if owner
         if (privilege == Modify_PROJECT ||
                 privilege == Modify_COMPONENT ||
