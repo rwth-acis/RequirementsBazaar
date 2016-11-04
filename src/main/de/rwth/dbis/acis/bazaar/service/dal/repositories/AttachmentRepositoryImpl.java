@@ -58,7 +58,7 @@ public class AttachmentRepositoryImpl extends RepositoryImpl<Attachment, Attachm
     }
 
     @Override
-    public Attachment findById(int id) throws Exception {
+    public Attachment findById(int id) throws BazaarException {
         Attachment attachment = null;
         try {
             Users creatorUser = Users.USERS.as("creatorUser");

@@ -123,7 +123,7 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
     }
 
     @Override
-    public Comment findById(int id) throws Exception {
+    public Comment findById(int id) throws BazaarException {
         Comment returnComment = null;
         try {
             Users creatorUser = USERS.as("creatorUser");
