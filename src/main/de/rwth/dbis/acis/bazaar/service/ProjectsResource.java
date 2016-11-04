@@ -98,7 +98,7 @@ public class ProjectsResource extends Service {
             Map<String, String> parameter = new HashMap<>();
             parameter.put("page", String.valueOf(page));
             parameter.put("per_page", String.valueOf(perPage));
-            response = bazaarService.addPaginationToHtppResponse(projectsResult, "projects", parameter, response);
+            response = bazaarService.addPaginationToHttpResponse(projectsResult, "projects", parameter, response);
 
             return response;
         } catch (BazaarException bex) {
@@ -446,7 +446,7 @@ public class ProjectsResource extends Service {
             Map<String, String> parameter = new HashMap<>();
             parameter.put("page", String.valueOf(page));
             parameter.put("per_page", String.valueOf(perPage));
-            response = bazaarService.addPaginationToHtppResponse(componentsResult, "projects/" + String.valueOf(projectId) + "/components", parameter, response);
+            response = bazaarService.addPaginationToHttpResponse(componentsResult, "projects/" + String.valueOf(projectId) + "/components", parameter, response);
 
             return response;
         } catch (BazaarException bex) {
@@ -522,7 +522,7 @@ public class ProjectsResource extends Service {
             Map<String, String> parameter = new HashMap<>();
             parameter.put("page", String.valueOf(page));
             parameter.put("per_page", String.valueOf(perPage));
-            response = bazaarService.addPaginationToHtppResponse(requirementsResult, "projects/" + String.valueOf(projectId) + "/requirements", parameter, response);
+            response = bazaarService.addPaginationToHttpResponse(requirementsResult, "projects/" + String.valueOf(projectId) + "/requirements", parameter, response);
 
             return response;
         } catch (BazaarException bex) {

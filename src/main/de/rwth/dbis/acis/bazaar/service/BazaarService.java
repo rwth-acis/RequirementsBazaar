@@ -280,10 +280,10 @@ public class BazaarService extends Service {
         dalFacade.close();
     }
 
-    public HttpResponse addPaginationToHtppResponse(PaginationResult paginationResult,
+    public HttpResponse addPaginationToHttpResponse(PaginationResult paginationResult,
                                                     String path,
-                                                        Map<String, String> httpParameter,
-                                                        HttpResponse httpResponse) throws URISyntaxException {
+                                                    Map<String, String> httpParameter,
+                                                    HttpResponse httpResponse) throws URISyntaxException {
         httpResponse.setHeader("X-Page", String.valueOf(paginationResult.getPageable().getPageNumber()));
         httpResponse.setHeader("X-Per-Page", String.valueOf(paginationResult.getPageable().getPageSize()));
         if (paginationResult.getPrevPage() != -1) {

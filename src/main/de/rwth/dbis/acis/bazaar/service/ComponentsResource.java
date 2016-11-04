@@ -446,7 +446,7 @@ public class ComponentsResource extends Service {
             Map<String, String> parameter = new HashMap<>();
             parameter.put("page", String.valueOf(page));
             parameter.put("per_page", String.valueOf(perPage));
-            response = bazaarService.addPaginationToHtppResponse(requirementsResult, "components/" + String.valueOf(componentId) + "/requirements", parameter, response);
+            response = bazaarService.addPaginationToHttpResponse(requirementsResult, "components/" + String.valueOf(componentId) + "/requirements", parameter, response);
 
             return response;
         } catch (BazaarException bex) {

@@ -696,7 +696,7 @@ public class RequirementsResource extends Service {
             Map<String, String> parameter = new HashMap<>();
             parameter.put("page", String.valueOf(page));
             parameter.put("per_page", String.valueOf(perPage));
-            response = bazaarService.addPaginationToHtppResponse(commentsResult, "requirements/" + String.valueOf(requirementId) + "/comments", parameter, response);
+            response = bazaarService.addPaginationToHttpResponse(commentsResult, "requirements/" + String.valueOf(requirementId) + "/comments", parameter, response);
 
             return response;
 
@@ -770,7 +770,7 @@ public class RequirementsResource extends Service {
             Map<String, String> parameter = new HashMap<>();
             parameter.put("page", String.valueOf(page));
             parameter.put("per_page", String.valueOf(perPage));
-            response = bazaarService.addPaginationToHtppResponse(attachmentsResult, "requirements/" + String.valueOf(requirementId) + "/attachments", parameter, response);
+            response = bazaarService.addPaginationToHttpResponse(attachmentsResult, "requirements/" + String.valueOf(requirementId) + "/attachments", parameter, response);
 
             return response;
         } catch (BazaarException bex) {
