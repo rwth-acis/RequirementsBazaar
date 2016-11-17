@@ -32,7 +32,6 @@ public class RequirementEx extends Requirement {
         this.developers = builder.developers;
         this.followers = builder.followers;
         this.contributors = builder.contributors;
-        this.attachments = builder.attachments;
     }
 
     private final User creator;
@@ -40,7 +39,6 @@ public class RequirementEx extends Requirement {
     private final List<User> developers;
     private final List<User> followers;
     private final List<User> contributors;
-    private final List<Attachment> attachments;
 
     public User getCreator() {
         return creator;
@@ -62,10 +60,6 @@ public class RequirementEx extends Requirement {
         return contributors;
     }
 
-    public List<Attachment> getAttachments() {
-        return attachments;
-    }
-
     public static BuilderEx getBuilder(String title) {
         return new BuilderEx(title);
     }
@@ -76,7 +70,6 @@ public class RequirementEx extends Requirement {
         public List<User> developers;
         public List<User> followers;
         public List<User> contributors;
-        public List<Attachment> attachments;
         private User leadDeveloper;
 
         public BuilderEx(String title) {
@@ -165,5 +158,6 @@ public class RequirementEx extends Requirement {
             this.attachments = attachments;
             return this;
         }
+
     }
 }

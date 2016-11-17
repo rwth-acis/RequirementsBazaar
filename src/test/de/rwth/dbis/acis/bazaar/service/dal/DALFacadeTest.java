@@ -526,7 +526,7 @@
 //        assertEquals(1, followers.size());
 //        assertEquals(2, followers.get(0).getId());
 //
-//        facade.unFollow(2, 1);
+//        facade.unFollowRequirement(2, 1);
 //
 //        requirementById = facade.getRequirementById(1);
 //        followers = requirementById.getFollowers();
@@ -580,7 +580,7 @@
 //        assertEquals(1,components.size());
 //        assertEquals(1, components.get(0).getId());
 //
-//        facade.removeComponentTag(1,1);
+//        facade.deleteComponentTag(1,1);
 //
 //        components = facade.getRequirementById(1).getComponents();
 //        assertEquals(0,components.size());

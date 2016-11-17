@@ -22,6 +22,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.UserVote;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.*;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord;
@@ -34,6 +35,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.exception.DataAccessException;
@@ -56,11 +58,19 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     }
 
     @Override
-    public List<RequirementEx> findAllByProject(int projectId, Pageable pageable, int userId) throws BazaarException {
-        List<RequirementEx> entries = null;
+    public PaginationResult<RequirementEx> findAllByProject(int projectId, Pageable pageable, int userId) throws BazaarException {
+        PaginationResult<RequirementEx> result = null;
+        List<RequirementEx> requirements;
         try {
-            entries = new ArrayList<RequirementEx>();
-            List<RequirementsRecord> queryResults = jooq.selectFrom(REQUIREMENTS)
+            requirements = new ArrayList<>();
+
+            Field<Object> idCount = jooq.selectCount()
+                    .from(REQUIREMENTS)
+                    .where(REQUIREMENTS.PROJECT_ID.eq(projectId))
+                    .asField("idCount");
+
+            List<Record> queryResults = jooq.select(REQUIREMENTS.fields()).select(idCount)
+                    .from(REQUIREMENTS)
                     .where(REQUIREMENTS.PROJECT_ID.eq(projectId))
                     .groupBy(REQUIREMENTS.ID)
                     .orderBy(REQUIREMENTS.CREATION_TIME.desc(), REQUIREMENTS.ID.desc())
@@ -68,15 +78,19 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .offset(pageable.getOffset())
                     .fetch();
 
-            for (RequirementsRecord queryResult : queryResults) {
-                entries.add(findById(queryResult.getId(), userId));
+            for (Record queryResult : queryResults) {
+                RequirementsRecord requirementsRecord = queryResult.into(REQUIREMENTS);
+                Requirement requirement = transformator.getEntityFromTableRecord(requirementsRecord);
+                requirements.add(findById(requirement.getId(), userId));
             }
+            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
+            result = new PaginationResult<>(total, pageable, requirements);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
-        return entries;
+        return result;
     }
 
     private UserVote transformToUserVoted(Integer userVotedInt) {
@@ -97,13 +111,21 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     }
 
     @Override
-    public List<RequirementEx> findAllByComponent(int componentId, Pageable pageable, int userId) throws BazaarException {
-        List<RequirementEx> entries = null;
+    public PaginationResult<RequirementEx> findAllByComponent(int componentId, Pageable pageable, int userId) throws BazaarException {
+        PaginationResult<RequirementEx> result = null;
+        List<RequirementEx> requirements;
         try {
-            entries = new ArrayList<RequirementEx>();
+            requirements = new ArrayList<>();
 
-            List<Record> queryResults = jooq.selectFrom(REQUIREMENTS
-                    .join(TAGS).on(TAGS.REQUIREMENTS_ID.eq(REQUIREMENTS.ID)))
+            Field<Object> idCount = jooq.selectCount()
+                    .from(REQUIREMENTS)
+                    .join(TAGS).on(TAGS.REQUIREMENTS_ID.eq(REQUIREMENTS.ID))
+                    .where(TAGS.COMPONENTS_ID.eq(componentId))
+                    .asField("idCount");
+
+            List<Record> queryResults = jooq.select(REQUIREMENTS.fields()).select(idCount)
+                    .from(REQUIREMENTS)
+                    .join(TAGS).on(TAGS.REQUIREMENTS_ID.eq(REQUIREMENTS.ID))
                     .where(TAGS.COMPONENTS_ID.eq(componentId))
                     .groupBy(REQUIREMENTS.ID)
                     .orderBy(REQUIREMENTS.CREATION_TIME.desc(), REQUIREMENTS.ID.desc())
@@ -113,14 +135,16 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
             for (Record queryResult : queryResults) {
                 RequirementsRecord requirementsRecord = queryResult.into(RequirementsRecord.class);
-                entries.add(findById(requirementsRecord.getId(), userId));
+                requirements.add(findById(requirementsRecord.getId(), userId));
             }
+            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
+            result = new PaginationResult<>(total, pageable, requirements);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
-        return entries;
+        return result;
     }
 
     @Override
@@ -201,7 +225,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             );
 
             //Filling up developers list
-            List<User> devList = new ArrayList<User>();
+            List<User> devList = new ArrayList<>();
 
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(developerUsers.ID).entrySet()) {
                 if (entry.getKey() == null) continue;
@@ -213,7 +237,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             builder.developers(devList);
 
             //Filling up follower list
-            List<User> followers = new ArrayList<User>();
+            List<User> followers = new ArrayList<>();
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(followerUsers.ID).entrySet()) {
                 if (entry.getKey() == null) continue;
                 Result<Record> records = entry.getValue();
@@ -224,7 +248,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             builder.followers(followers);
 
             //Filling up contributors
-            List<User> contributorList = new ArrayList<User>();
+            List<User> contributorList = new ArrayList<>();
 
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(contributorUsers.ID).entrySet()) {
                 if (entry.getKey() == null) continue;
@@ -236,7 +260,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             builder.contributors(contributorList);
 
             //Filling up attachments
-            List<Attachment> attachments = new ArrayList<Attachment>();
+            List<Attachment> attachments = new ArrayList<>();
 
             AttachmentTransformator attachmentTransform = new AttachmentTransformator();
 
@@ -250,13 +274,10 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                         records.getValues(Attachments.ATTACHMENTS.REQUIREMENT_ID).get(0),
                         records.getValues(Attachments.ATTACHMENTS.USER_ID).get(0),
                         records.getValues(Attachments.ATTACHMENTS.TITLE).get(0),
-                        records.getValues(Attachments.ATTACHMENTS.DISCRIMINATOR).get(0),
-                        records.getValues(Attachments.ATTACHMENTS.FILE_PATH).get(0),
                         records.getValues(Attachments.ATTACHMENTS.DESCRIPTION).get(0),
-                        records.getValues(Attachments.ATTACHMENTS.STORY).get(0),
-                        records.getValues(Attachments.ATTACHMENTS.SUBJECT).get(0),
-                        records.getValues(Attachments.ATTACHMENTS.OBJECT).get(0),
-                        records.getValues(Attachments.ATTACHMENTS.OBJECT_DESC).get(0)
+                        records.getValues(Attachments.ATTACHMENTS.MIME_TYPE).get(0),
+                        records.getValues(Attachments.ATTACHMENTS.IDENTIFIER).get(0),
+                        records.getValues(Attachments.ATTACHMENTS.FILEURL).get(0)
                 );
                 attachments.add(
                         attachmentTransform.getEntityFromTableRecord(record)

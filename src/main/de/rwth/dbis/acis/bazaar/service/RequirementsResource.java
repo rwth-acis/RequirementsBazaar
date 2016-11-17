@@ -6,6 +6,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -24,10 +25,7 @@ import jodd.vtor.Vtor;
 
 import javax.ws.rs.*;
 import java.net.HttpURLConnection;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.List;
+import java.util.*;
 
 @Path("/bazaar/requirements")
 @Api(value = "/requirements", description = "Requirements resource")
@@ -118,7 +116,6 @@ public class RequirementsResource extends Service {
      * @return Response with the created requirement as a JSON object.
      */
     @POST
-    @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to create a new requirement.")
@@ -137,7 +134,6 @@ public class RequirementsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
             // TODO: check whether the current user may create a new requirement
-            // TODO: check whether all required parameters are entered
             dalFacade = bazaarService.getDBConnection();
             Gson gson = new Gson();
             Requirement requirementToCreate = gson.fromJson(requirement, Requirement.class);
@@ -153,6 +149,7 @@ public class RequirementsResource extends Service {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
             vtor.resetProfiles();
+
             // check if all components are in the same project
             for (Component component : requirementToCreate.getComponents()) {
                 component = dalFacade.getComponentById(component.getId());
@@ -165,7 +162,22 @@ public class RequirementsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.create"));
             }
             Requirement createdRequirement = dalFacade.createRequirement(requirementToCreate, internalUserId);
-            dalFacade.follow(internalUserId, createdRequirement.getId());
+            dalFacade.followRequirement(internalUserId, createdRequirement.getId());
+
+            // check if attachments are given
+            if (requirementToCreate.getAttachments() != null && !requirementToCreate.getAttachments().isEmpty()) {
+                for (Attachment attachment : requirementToCreate.getAttachments()) {
+                    attachment.setCreatorId(internalUserId);
+                    attachment.setRequirementId(createdRequirement.getId());
+                    vtor.validate(attachment);
+                    if (vtor.hasViolations()) {
+                        ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+                    }
+                    vtor.resetProfiles();
+                    dalFacade.createAttachment(attachment);
+                }
+            }
+
             createdRequirement = dalFacade.getRequirementById(createdRequirement.getId(), internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(this, createdRequirement.getCreation_time(), Activity.ActivityAction.CREATE, createdRequirement.getId(),
                     Activity.DataType.REQUIREMENT, createdRequirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
@@ -229,9 +241,9 @@ public class RequirementsResource extends Service {
             if (requirementToUpdate.getId() != 0 && requirementId != requirementToUpdate.getId()) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
             }
-            dalFacade.follow(internalUserId, requirementToUpdate.getId());
+            dalFacade.followRequirement(internalUserId, requirementToUpdate.getId());
             RequirementEx updatedRequirement = dalFacade.modifyRequirement(requirementToUpdate, internalUserId);
-            if(requirementToUpdate.getRealized() == null) {
+            if (requirementToUpdate.getRealized() == null) {
                 bazaarService.getNotificationDispatcher().dispatchNotification(this, updatedRequirement.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedRequirement.getId(),
                         Activity.DataType.REQUIREMENT, updatedRequirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
             } else {
@@ -332,8 +344,6 @@ public class RequirementsResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            // TODO: check whether the current user may create a new requirement
-            // TODO: check whether all required parameters are entered
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_DEVELOP, dalFacade);
@@ -341,7 +351,7 @@ public class RequirementsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.develop.create"));
             }
             dalFacade.wantToDevelop(internalUserId, requirementId);
-            dalFacade.follow(internalUserId, requirementId);
+            dalFacade.followRequirement(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(this, new Date(), Activity.ActivityAction.DEVELOP, requirement.getId(),
                     Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
@@ -387,8 +397,6 @@ public class RequirementsResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            // TODO: check whether the current user may create a new requirement
-            // TODO: check whether all required parameters are entered
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_DEVELOP, dalFacade);
@@ -428,7 +436,7 @@ public class RequirementsResource extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method add the current user to the followers list of a given requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement"),
+            @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the requirement"),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -441,20 +449,18 @@ public class RequirementsResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            // TODO: check whether the current user may create a new requirement
-            // TODO: check whether all required parameters are entered
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_FOLLOW, dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.follow.create"));
             }
-            dalFacade.follow(internalUserId, requirementId);
+            dalFacade.followRequirement(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
             bazaarService.getNotificationDispatcher().dispatchNotification(this, new Date(), Activity.ActivityAction.FOLLOW, requirement.getId(),
                     Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
-            return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_OK);
+            return new HttpResponse(gson.toJson(requirement), HttpURLConnection.HTTP_CREATED);
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
@@ -491,8 +497,6 @@ public class RequirementsResource extends Service {
         DALFacade dalFacade = null;
         try {
             long userId = ((UserAgent) getActiveAgent()).getId();
-            // TODO: check whether the current user may create a new requirement
-            // TODO: check whether all required parameters are entered
             String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
@@ -503,7 +507,7 @@ public class RequirementsResource extends Service {
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.follow.delete"));
             }
-            dalFacade.unFollow(internalUserId, requirementId);
+            dalFacade.unFollowRequirement(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Gson gson = new Gson();
             bazaarService.getNotificationDispatcher().dispatchNotification(this, new Date(), Activity.ActivityAction.UNFOLLOW, requirement.getId(),
@@ -564,7 +568,7 @@ public class RequirementsResource extends Service {
             }
             dalFacade.vote(internalUserId, requirementId, direction.equals("up"));
             if (direction.equals("up")) {
-                dalFacade.follow(internalUserId, requirementId);
+                dalFacade.followRequirement(internalUserId, requirementId);
             }
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(this, new Date(), Activity.ActivityAction.VOTE, requirement.getId(),
@@ -644,7 +648,7 @@ public class RequirementsResource extends Service {
     /**
      * This method returns the list of comments for a specific requirement.
      *
-     * @param requirementId id of the requirement, which was commented
+     * @param requirementId id of the requirement
      * @param page          page number
      * @param perPage       number of projects by page
      * @return Response with comments as a JSON array.
@@ -669,7 +673,7 @@ public class RequirementsResource extends Service {
             if (registratorErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
-            PageInfo pageInfo = new PageInfo(page, perPage, Pageable.SortDirection.ASC);
+            PageInfo pageInfo = new PageInfo(page, perPage, "", Pageable.SortDirection.ASC);
             Vtor vtor = bazaarService.getValidators();
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
@@ -689,9 +693,17 @@ public class RequirementsResource extends Service {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.read"));
                 }
             }
-            List<Comment> comments = dalFacade.listCommentsByRequirementId(requirementId, pageInfo);
+            PaginationResult<Comment> commentsResult = dalFacade.listCommentsByRequirementId(requirementId, pageInfo);
             Gson gson = new Gson();
-            return new HttpResponse(gson.toJson(comments), HttpURLConnection.HTTP_OK);
+
+            HttpResponse response = new HttpResponse(gson.toJson(commentsResult.getElements()), HttpURLConnection.HTTP_OK);
+            Map<String, String> parameter = new HashMap<>();
+            parameter.put("page", String.valueOf(page));
+            parameter.put("per_page", String.valueOf(perPage));
+            response = bazaarService.addPaginationToHtppResponse(commentsResult, "requirements/" + String.valueOf(requirementId) + "/comments", parameter, response);
+
+            return response;
+
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
@@ -708,41 +720,78 @@ public class RequirementsResource extends Service {
         }
     }
 
-//    /**
-//     * This method returns the list of attachments for a specific requirement.
-//     *
-//     * @param projectId     the ID of the project for the requirement.
-//     * @param componentId   the id of the component under a given project
-//     * @param requirementId the ID of the requirement, whose attachments should be returned.
-//     * @return a list of attachments
-//     */
-//    @GET
-//    @Path("/{requirementId}/attachments")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public String getAttachments(@PathParam("projectId") int projectId,
-//                                 @PathParam("componentId") int componentId,
-//                                 @PathParam("requirementId") int requirementId,
-//                                 @QueryParam(name = "page", defaultValue = "0")  int page,
-//                                 @QueryParam(name = "per_page", defaultValue = "10")  int perPage) {
-//
-//    }
+    /**
+     * This method returns the list of attachments for a specific requirement.
+     *
+     * @param requirementId id of the requirement
+     * @param page          page number
+     * @param perPage       number of projects by page
+     * @return Response with comments as a JSON array.
+     */
+    @GET
+    @Path("/{requirementId}/attachments")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "This method returns the list of attachments for a specific requirement.")
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of attachments for a given requirement"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+    })
+    public HttpResponse getAttachments(@PathParam("requirementId") int requirementId,
+                                       @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
+                                       @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
+        DALFacade dalFacade = null;
+        try {
+            long userId = ((UserAgent) getActiveAgent()).getId();
+            String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registratorErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
+            }
+            PageInfo pageInfo = new PageInfo(page, perPage, "", Pageable.SortDirection.ASC);
+            Vtor vtor = bazaarService.getValidators();
+            vtor.validate(pageInfo);
+            if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+            dalFacade = bazaarService.getDBConnection();
+            //Todo use requirement's projectId for serurity context, not the one sent from client
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
+            Project project = dalFacade.getProjectById(requirement.getProjectId());
+            if (dalFacade.isRequirementPublic(requirementId)) {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT, String.valueOf(project.getId()), dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
+                }
+            } else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMMENT, String.valueOf(project.getId()), dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.read"));
+                }
+            }
+            PaginationResult<Attachment> attachmentsResult = dalFacade.listAttachmentsByRequirementId(requirementId, pageInfo);
+            Gson gson = new Gson();
 
-//    /**
-//     * This method returns a specific attachment within a requirement.
-//     *
-//     * @param projectId     the ID of the project for the requirement.
-//     * @param componentId   the id of the component under a given project
-//     * @param requirementId the ID of the requirement, which was commented.
-//     * @param attachmentId  the ID of the attachment, which should be returned.
-//     * @return a specific attachment.
-//     */
-//    @GET
-//    @Path("/{requirementId}/attachments/{attachmentId}")
-//    public String getAttachment(@PathParam("projectId") int projectId,
-//                                @PathParam("componentId") int componentId,
-//                                @PathParam("requirementId") int requirementId,
-//                                @PathParam("attachmentId") int attachmentId) {
-//
-//    }
+            HttpResponse response = new HttpResponse(gson.toJson(attachmentsResult.getElements()), HttpURLConnection.HTTP_OK);
+            Map<String, String> parameter = new HashMap<>();
+            parameter.put("page", String.valueOf(page));
+            parameter.put("per_page", String.valueOf(perPage));
+            response = bazaarService.addPaginationToHtppResponse(attachmentsResult, "requirements/" + String.valueOf(requirementId) + "/attachments", parameter, response);
+
+            return response;
+        } catch (BazaarException bex) {
+            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
+            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
+            } else {
+                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
+            }
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
+        } finally {
+            bazaarService.closeDBConnection(dalFacade);
+        }
+    }
 
 }

@@ -41,6 +41,7 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
         record.setUserId(entity.getCreatorId());
         record.setMessage(entity.getMessage());
         record.setRequirementId(entity.getRequirementId());
+        record.setBelongstocommentId(entity.getBelongsToComment());
         record.setCreationTime(new Timestamp(Calendar.getInstance().getTime().getTime()));
         record.setLastupdatedTime(record.getCreationTime());
         return record;
@@ -52,6 +53,7 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
                 .id(record.getId())
                 .requirementId(record.getRequirementId())
                 .creatorId(record.getUserId())
+                .belongsToComment(record.getBelongstocommentId())
                 .creationTime(record.getCreationTime())
                 .lastupdatedTime(record.getLastupdatedTime())
                 .build();

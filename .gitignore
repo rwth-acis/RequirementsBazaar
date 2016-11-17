@@ -28,3 +28,5 @@ restMapping.xml
 # Eclipse
 .metadata
 .idea/workspace.xml
+/bin/start_network.sh
+/bin/start_network.bat

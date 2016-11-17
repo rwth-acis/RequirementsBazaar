@@ -30,6 +30,8 @@ public class Requirement extends EntityBase {
     @Size(min = 1, profiles = {"create"})
     private List<Component> components;
 
+    private List<Attachment> attachments;
+
     @Min(-1)
     private int projectId;
     @Min(-1)
@@ -64,6 +66,14 @@ public class Requirement extends EntityBase {
 
     public void setComponents(List<Component> components) {
         this.components = components;
+    }
+
+    public List<Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<Attachment> attachments) {
+        this.attachments = attachments;
     }
 
     public String getTitle() {
@@ -111,6 +121,7 @@ public class Requirement extends EntityBase {
         this.upVotes = builder.upVotes;
         this.downVotes = builder.downVotes;
         this.userVoted = builder.userVoted;
+        this.attachments = builder.attachments;
     }
 
     /**
@@ -135,7 +146,8 @@ public class Requirement extends EntityBase {
         private Date lastupdated_time;
         private int upVotes;
         private int downVotes;
-        public UserVote userVoted;
+        private UserVote userVoted;
+        protected List<Attachment> attachments;
 
         public Builder(String title) {
             this.title = title;

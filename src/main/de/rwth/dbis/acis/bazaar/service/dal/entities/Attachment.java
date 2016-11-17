@@ -23,55 +23,101 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 import jodd.vtor.constraint.MaxLength;
 import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
+import jodd.vtor.constraint.NotNull;
 
 import java.util.Date;
 
-/**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/11/2014
- */
-public abstract class Attachment extends EntityBase {
+public class Attachment extends EntityBase {
+
     @Min(-1)
     private final int Id;
 
     @Min(-1)
-    private final int creatorId;
+    private int creatorId;
 
     @Min(-1)
-    private final int requirementId;
+    private int requirementId;
 
+    @NotNull
     @NotBlank
-    @MaxLength(50)
+    @MaxLength(100)
     private final String title;
+
+    private final String description;
+
+    @NotNull
+    @NotBlank
+    @MaxLength(255)
+    private final String mimeType;
+
+    @NotNull
+    @NotBlank
+    @MaxLength(255)
+    private final String identifier;
+
+    @NotNull
+    @NotBlank
+    @MaxLength(1000)
+    private final String fileUrl;
 
     private final Date creation_time;
 
     private final Date lastupdated_time;
+
+    private User creator;
 
     public Attachment(Builder builder) {
         this.Id = builder.id;
         this.creatorId = builder.creatorId;
         this.requirementId = builder.requirementId;
         this.title = builder.title;
+        this.description = builder.description;
+        this.mimeType = builder.mimeType;
+        this.identifier = builder.identifier;
+        this.fileUrl = builder.fileUrl;
         this.creation_time = builder.creation_time;
         this.lastupdated_time = builder.lastupdated_time;
+        this.creator = builder.creator;
     }
 
     public int getId() {
         return Id;
     }
 
-    //TODO Create real object mapping extension
     public int getCreatorId() {
         return creatorId;
+    }
+
+    public void setCreatorId(int creatorId) {
+        this.creatorId = creatorId;
     }
 
     public int getRequirementId() {
         return requirementId;
     }
 
+    public void setRequirementId(int requirementId) {
+        this.requirementId = requirementId;
+    }
+
     public String getTitle() {
         return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getMimeType() {
+        return mimeType;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public String getFileUrl() {
+        return fileUrl;
     }
 
     public Date getCreation_time() {
@@ -82,13 +128,30 @@ public abstract class Attachment extends EntityBase {
         return lastupdated_time;
     }
 
-    public static abstract class Builder {
+    public User getCreator() {
+        return creator;
+    }
+
+    public void setCreator(User creator) {
+        this.creator = creator;
+    }
+
+    public static Builder getBuilder() {
+        return new Builder();
+    }
+
+    public static class Builder {
         private int id;
         private int creatorId;
         private int requirementId;
         private String title;
+        private String description;
+        private String mimeType;
+        private String identifier;
+        private String fileUrl;
         private Date creation_time;
         private Date lastupdated_time;
+        public User creator;
 
         public Builder id(int id) {
             this.id = id;
@@ -110,6 +173,26 @@ public abstract class Attachment extends EntityBase {
             return this;
         }
 
+        public Builder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder mimeType(String mimeType) {
+            this.mimeType = mimeType;
+            return this;
+        }
+
+        public Builder identifier(String identifier) {
+            this.identifier = identifier;
+            return this;
+        }
+
+        public Builder fileUrl(String fileUrl) {
+            this.fileUrl = fileUrl;
+            return this;
+        }
+
         public Builder creationTime(Date creationTime) {
             this.creation_time = creationTime;
             return this;
@@ -120,6 +203,14 @@ public abstract class Attachment extends EntityBase {
             return this;
         }
 
-        public abstract Attachment build();
+        public Builder creator(User creator) {
+            this.creator = creator;
+            return this;
+        }
+
+        public Attachment build() {
+            return new Attachment(this);
+        }
+
     }
 }

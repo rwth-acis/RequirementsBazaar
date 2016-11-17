@@ -476,7 +476,7 @@
 //    }
 //
 //    @Override
-//    public void unFollow(int userId, int requirementId) {
+//    public void unFollowRequirement(int userId, int requirementId) {
 //        Iterator<RequirementFollower> itr = followerList.iterator();
 //        while (itr.hasNext()) {
 //            RequirementFollower follower = itr.next();
@@ -514,7 +514,7 @@
 //    }
 //
 //    @Override
-//    public void removeComponentTag(int requirementId, int componentId) {
+//    public void deleteComponentTag(int requirementId, int componentId) {
 //        Iterator<Tag> itr = tagList.iterator();
 //        while (itr.hasNext()) {
 //            Tag tag = itr.next();

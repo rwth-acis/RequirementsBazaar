@@ -23,6 +23,8 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
@@ -35,6 +37,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
 
@@ -54,32 +57,64 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
     }
 
     @Override
-    public List<Comment> findAllByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
-        List<Comment> entries = null;
+    public PaginationResult<Comment> findAllByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
+        PaginationResult<Comment> result = null;
+        List<Comment> comments;
         try {
-            entries = new ArrayList<Comment>();
+            comments = new ArrayList<>();
             Users creatorUser = USERS.as("creatorUser");
-            List<Record> queryResults = jooq.selectFrom(COMMENTS
-                    .join(creatorUser).on(creatorUser.ID.equal(COMMENTS.USER_ID)))
+            Comments childComment = COMMENTS.as("childComment");
+            Users childCommentCreatorUser = USERS.as("childCommentCreatorUser");
+
+            Field<Object> idCount = jooq.selectCount()
+                    .from(COMMENTS)
                     .where(COMMENTS.REQUIREMENT_ID.equal(requirementId))
+                    .asField("idCount");
+
+            List<Record> queryResults = jooq.select(COMMENTS.fields())
+                    .select(childComment.fields()).select(creatorUser.fields()).select(childCommentCreatorUser.fields()).select(idCount)
+                    .from(COMMENTS)
+                    .leftJoin(childComment).on(childComment.BELONGSTOCOMMENT_ID.equal(COMMENTS.ID))
+                    .leftJoin(childCommentCreatorUser).on(childCommentCreatorUser.ID.equal(childComment.USER_ID))
+                    .join(creatorUser).on(creatorUser.ID.equal(COMMENTS.USER_ID))
+                    .where(COMMENTS.REQUIREMENT_ID.equal(requirementId).and(COMMENTS.BELONGSTOCOMMENT_ID.isNull()))
                     .orderBy(transformator.getSortFields(pageable.getSortDirection()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();
 
+            Comment entry = null;
             for (Record record : queryResults) {
-                Comment entry = convertToCommentWithUser(record, creatorUser);
-                entries.add(entry);
+                if (entry == null || transformator.getEntityFromTableRecord(record.into(CommentsRecord.class)).getId() != entry.getId()) {
+                    entry = convertToCommentWithUser(record, creatorUser);
+                    comments.add(entry);
+                }
+                CommentsRecord childRecor = record.into(childComment);
+                if (childRecor.getId() != null) {
+                    Comment childEntry = convertToCommentWithUser(record, childComment, childCommentCreatorUser);
+                    comments.add(childEntry);
+                }
             }
+            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
+            result = new PaginationResult<>(total, pageable, comments);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
 
-        return entries;
+        return result;
     }
 
     private Comment convertToCommentWithUser(Record record, Users creatorUser) {
         CommentsRecord commentsRecord = record.into(CommentsRecord.class);
+        Comment entry = transformator.getEntityFromTableRecord(commentsRecord);
+        UserTransformator userTransformator = new UserTransformator();
+        UsersRecord usersRecord = record.into(creatorUser);
+        entry.setCreator(userTransformator.getEntityFromTableRecord(usersRecord));
+        return entry;
+    }
+
+    private Comment convertToCommentWithUser(Record record, Comments comment, Users creatorUser) {
+        CommentsRecord commentsRecord = record.into(comment);
         Comment entry = transformator.getEntityFromTableRecord(commentsRecord);
         UserTransformator userTransformator = new UserTransformator();
         UsersRecord usersRecord = record.into(creatorUser);
