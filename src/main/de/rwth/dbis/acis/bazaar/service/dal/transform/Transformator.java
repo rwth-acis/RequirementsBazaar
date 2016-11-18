@@ -39,19 +39,16 @@ public interface Transformator<E, R extends Record> {
      */
     R createRecord(E entity);
 
-
     /**
      * @param record which holds the data from the database
      * @return an entity filled up with data from the record
      */
     E getEntityFromTableRecord(R record);
 
-
     /**
      * @return the JOOQ table representation, which holds all the records
      */
     Table<R> getTable();
-
 
     /**
      * @return identifier field for the table
@@ -69,14 +66,22 @@ public interface Transformator<E, R extends Record> {
      */
     Map<Field, Object> getUpdateMap(final E entity);
 
-
     /**
      * @param sortDirection
      * @return a collection of the fields, should be used for sorting. SortField also contains information about the sort direction.
      */
     Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection);
 
+    /**
+     * @param likeExpression
+     * @return a collection of conditions to search.
+     */
     Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception;
 
+    /**
+     * @param filters
+     * @return a collection of conditions to filter.
+     */
+    Collection<? extends Condition> getFilterConditions(Map<String, String> filters) throws Exception;
 
 }

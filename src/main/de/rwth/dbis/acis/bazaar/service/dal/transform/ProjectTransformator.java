@@ -117,4 +117,9 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
                         .or(PROJECTS.DESCRIPTION.likeIgnoreCase(likeExpression))
         );
     }
+
+    @Override
+    public Collection<? extends Condition> getFilterConditions(Map<String, String> filters) throws Exception {
+        return new ArrayList<>();
+    }
 }

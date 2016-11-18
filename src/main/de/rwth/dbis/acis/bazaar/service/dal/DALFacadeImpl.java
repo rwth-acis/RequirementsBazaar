@@ -34,6 +34,7 @@ import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 
 import javax.sql.DataSource;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -224,7 +225,7 @@ public class DALFacadeImpl implements DALFacade {
         requirementRepository.update(modifiedRequirement);
 
         if (modifiedRequirement.getComponents() != null) {
-            PaginationResult<Component> oldComponents = listComponentsByRequirementId(modifiedRequirement.getId(), new PageInfo(0, 1000, ""));
+            PaginationResult<Component> oldComponents = listComponentsByRequirementId(modifiedRequirement.getId(), new PageInfo(0, 1000, new HashMap<>()));
             for (Component oldComponent : oldComponents.getElements()) {
                 boolean containComponent = false;
                 for (Component newComponent : modifiedRequirement.getComponents()) {
@@ -306,7 +307,7 @@ public class DALFacadeImpl implements DALFacade {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
 
         //Get requirements for the component in question
-        PaginationResult<RequirementEx> requirements = listRequirementsByComponent(componentId, new PageInfo(0, Integer.MAX_VALUE, ""), 0);
+        PaginationResult<RequirementEx> requirements = listRequirementsByComponent(componentId, new PageInfo(0, Integer.MAX_VALUE, new HashMap<>()), 0);
 
         // Get default component
         Component componentById = getComponentById(componentId);

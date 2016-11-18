@@ -107,4 +107,9 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
         return Arrays.asList(COMPONENTS.NAME.likeIgnoreCase(likeExpression)
                 .or(COMPONENTS.DESCRIPTION.likeIgnoreCase(likeExpression)));
     }
+
+    @Override
+    public Collection<? extends Condition> getFilterConditions(Map<String, String> filters) throws Exception {
+        return new ArrayList<>();
+    }
 }

@@ -77,7 +77,7 @@ public class ProjectsResource extends Service {
             }
             UserAgent agent = (UserAgent) getActiveAgent();
             Gson gson = new Gson();
-            PageInfo pageInfo = new PageInfo(page, perPage, "");
+            PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>());
             Vtor vtor = bazaarService.getValidators();
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) {
@@ -418,7 +418,7 @@ public class ProjectsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
             Gson gson = new Gson();
-            PageInfo pageInfo = new PageInfo(page, perPage, "");
+            PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>());
             Vtor vtor = bazaarService.getValidators();
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) {
@@ -485,7 +485,8 @@ public class ProjectsResource extends Service {
     })
     public HttpResponse getRequirementsByProject(@PathParam("projectId") int projectId,
                                                  @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
-                                                 @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
+                                                 @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
+                                                 @ApiParam(value = "State filter", required = false, allowableValues = "all,open,realized") @DefaultValue("all") @QueryParam("state") String stateFilter) {
         DALFacade dalFacade = null;
         try {
             long userId = ((UserAgent) getActiveAgent()).getId();
@@ -494,7 +495,11 @@ public class ProjectsResource extends Service {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
             }
             Gson gson = new Gson();
-            PageInfo pageInfo = new PageInfo(page, perPage, "");
+            HashMap<String, String> filters = new HashMap<>();
+            if (stateFilter != "all") {
+                filters.put("realized", stateFilter);
+            }
+            PageInfo pageInfo = new PageInfo(page, perPage, filters);
             Vtor vtor = bazaarService.getValidators();
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) {

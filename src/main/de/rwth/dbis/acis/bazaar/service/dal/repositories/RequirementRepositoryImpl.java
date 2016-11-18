@@ -66,12 +66,12 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
             Field<Object> idCount = jooq.selectCount()
                     .from(REQUIREMENTS)
-                    .where(REQUIREMENTS.PROJECT_ID.eq(projectId))
+                    .where(transformator.getFilterConditions(pageable.getFilters())).and(REQUIREMENTS.PROJECT_ID.eq(projectId))
                     .asField("idCount");
 
             List<Record> queryResults = jooq.select(REQUIREMENTS.fields()).select(idCount)
                     .from(REQUIREMENTS)
-                    .where(REQUIREMENTS.PROJECT_ID.eq(projectId))
+                    .where(transformator.getFilterConditions(pageable.getFilters())).and(REQUIREMENTS.PROJECT_ID.eq(projectId))
                     .groupBy(REQUIREMENTS.ID)
                     .orderBy(REQUIREMENTS.CREATION_TIME.desc(), REQUIREMENTS.ID.desc())
                     .limit(pageable.getPageSize())
@@ -120,13 +120,13 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             Field<Object> idCount = jooq.selectCount()
                     .from(REQUIREMENTS)
                     .join(TAGS).on(TAGS.REQUIREMENTS_ID.eq(REQUIREMENTS.ID))
-                    .where(TAGS.COMPONENTS_ID.eq(componentId))
+                    .where(transformator.getFilterConditions(pageable.getFilters())).and(TAGS.COMPONENTS_ID.eq(componentId))
                     .asField("idCount");
 
             List<Record> queryResults = jooq.select(REQUIREMENTS.fields()).select(idCount)
                     .from(REQUIREMENTS)
                     .join(TAGS).on(TAGS.REQUIREMENTS_ID.eq(REQUIREMENTS.ID))
-                    .where(TAGS.COMPONENTS_ID.eq(componentId))
+                    .where(transformator.getFilterConditions(pageable.getFilters())).and(TAGS.COMPONENTS_ID.eq(componentId))
                     .groupBy(REQUIREMENTS.ID)
                     .orderBy(REQUIREMENTS.CREATION_TIME.desc(), REQUIREMENTS.ID.desc())
                     .limit(pageable.getPageSize())

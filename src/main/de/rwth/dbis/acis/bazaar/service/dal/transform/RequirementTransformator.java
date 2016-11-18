@@ -120,4 +120,20 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
                         .or(REQUIREMENTS.DESCRIPTION.likeIgnoreCase(likeExpression))
         );
     }
+
+    @Override
+    public Collection<? extends Condition> getFilterConditions(Map<String, String> filters) throws Exception {
+        List<Condition> conditions = new ArrayList<>();
+        for (Map.Entry<String, String> filterEntry : filters.entrySet()) {
+            if (filterEntry.getKey().equals("realized")) {
+                if (filterEntry.getValue().equals("realized")) {
+                    conditions.add(REQUIREMENTS.REALIZED.isNotNull());
+                }
+                if (filterEntry.getValue().equals("open")) {
+                    conditions.add(REQUIREMENTS.REALIZED.isNull());
+                }
+            }
+        }
+        return conditions;
+    }
 }

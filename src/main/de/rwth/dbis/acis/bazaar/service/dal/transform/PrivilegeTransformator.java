@@ -25,10 +25,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.PrivilegesRecord;
 import org.jooq.*;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privileges.PRIVILEGES;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Roles.ROLES;
@@ -93,6 +90,11 @@ public class PrivilegeTransformator implements Transformator<de.rwth.dbis.acis.b
         return Arrays.asList(
                 PRIVILEGES.NAME.likeIgnoreCase(likeExpression)
         );
+    }
+
+    @Override
+    public Collection<? extends Condition> getFilterConditions(Map<String, String> filters) throws Exception {
+        return new ArrayList<>();
     }
 }
 

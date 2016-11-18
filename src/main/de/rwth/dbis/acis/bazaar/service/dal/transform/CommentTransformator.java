@@ -104,4 +104,9 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
     public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
         return null;
     }
+
+    @Override
+    public Collection<? extends Condition> getFilterConditions(Map<String, String> filters) throws Exception {
+        return new ArrayList<>();
+    }
 }

@@ -25,10 +25,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord;
 import org.jooq.*;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Votes.VOTES;
 
@@ -96,5 +93,10 @@ public class VoteTransformator implements de.rwth.dbis.acis.bazaar.service.dal.t
     @Override
     public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
         throw new Exception("Search is not supported!");
+    }
+
+    @Override
+    public Collection<? extends Condition> getFilterConditions(Map<String, String> filters) throws Exception {
+        return new ArrayList<>();
     }
 }

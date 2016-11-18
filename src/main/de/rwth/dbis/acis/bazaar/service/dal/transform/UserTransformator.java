@@ -26,10 +26,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord;
 import org.jooq.*;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS;
 
@@ -143,5 +140,10 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
                         .or(USERS.FIRST_NAME.likeIgnoreCase(likeExpression))
                         .or(USERS.LAST_NAME.likeIgnoreCase(likeExpression))
         );
+    }
+
+    @Override
+    public Collection<? extends Condition> getFilterConditions(Map<String, String> filters) throws Exception {
+        return new ArrayList<>();
     }
 }

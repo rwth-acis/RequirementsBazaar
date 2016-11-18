@@ -25,10 +25,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolesRecord;
 import org.jooq.*;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Roles.ROLES;
 
@@ -91,5 +88,10 @@ public class RoleTransformator implements Transformator<Role, RolesRecord> {
     @Override
     public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
         return null;
+    }
+
+    @Override
+    public Collection<? extends Condition> getFilterConditions(Map<String, String> filters) throws Exception {
+        return new ArrayList<>();
     }
 }

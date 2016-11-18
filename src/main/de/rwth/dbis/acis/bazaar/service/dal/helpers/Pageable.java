@@ -20,6 +20,8 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.helpers;
 
+import java.util.Map;
+
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/12/2014
@@ -31,7 +33,7 @@ public interface Pageable {
 
     int getPageSize();
 
-    String getFilter();
+    Map<String, String> getFilters();
 
     SortDirection getSortDirection();
 

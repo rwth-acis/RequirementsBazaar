@@ -22,6 +22,8 @@ package de.rwth.dbis.acis.bazaar.service.dal.helpers;
 
 import jodd.vtor.constraint.Min;
 
+import java.util.Map;
+
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/15/2014
@@ -33,16 +35,16 @@ public class PageInfo implements Pageable {
     @Min(0)
     private final int pageSize;
     private final SortDirection sortDirection;
-    private final String filter;
+    private final Map<String, String> filters;
 
-    public PageInfo(int pageNumber, int pageSize, String filter) {
-        this(pageNumber, pageSize, filter, SortDirection.DEFAULT);
+    public PageInfo(int pageNumber, int pageSize, Map<String, String> filters) {
+        this(pageNumber, pageSize, filters, SortDirection.DEFAULT);
     }
 
-    public PageInfo(int pageNumber, int pageSize, String filter, SortDirection sortDirection) {
+    public PageInfo(int pageNumber, int pageSize, Map<String, String> filters, SortDirection sortDirection) {
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
-        this.filter = filter;
+        this.filters = filters;
         this.sortDirection = sortDirection;
     }
 
@@ -62,8 +64,8 @@ public class PageInfo implements Pageable {
     }
 
     @Override
-    public String getFilter() {
-        return filter;
+    public Map<String, String> getFilters() {
+        return filters;
     }
 
     @Override

@@ -25,10 +25,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.DevelopersRecord;
 import org.jooq.*;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Developers.DEVELOPERS;
 
@@ -94,5 +91,10 @@ public class DeveloperTransformator implements Transformator<de.rwth.dbis.acis.b
     @Override
     public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
         throw new Exception("Search is not supported!");
+    }
+
+    @Override
+    public Collection<? extends Condition> getFilterConditions(Map<String, String> filters) throws Exception {
+        return new ArrayList<>();
     }
 }

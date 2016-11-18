@@ -110,6 +110,11 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
                         .or(ATTACHMENTS.DESCRIPTION.likeIgnoreCase(likeExpression))
         );
     }
+
+    @Override
+    public Collection<? extends Condition> getFilterConditions(Map<String, String> filters) throws Exception {
+        return new ArrayList<>();
+    }
 }
 
 
