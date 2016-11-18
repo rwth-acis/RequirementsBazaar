@@ -39,7 +39,7 @@ public class Comment extends EntityBase {
 
     @NotBlank
     @MaxLength(65536)
-    private final String message;
+    private String message;
 
     @Min(-1)
     private int creatorId;
@@ -73,6 +73,10 @@ public class Comment extends EntityBase {
 
     public String getMessage() {
         return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public int getCreatorId() {

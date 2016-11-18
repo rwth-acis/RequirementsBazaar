@@ -20,6 +20,7 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
+import com.vdurmont.emoji.EmojiParser;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord;
@@ -34,6 +35,8 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
 
     @Override
     public AttachmentsRecord createRecord(Attachment entity) {
+        entity = this.cleanEntry(entity);
+
         AttachmentsRecord record = new AttachmentsRecord();
         record.setLastupdatedTime(record.getCreationTime());
         record.setRequirementId(entity.getRequirementId());
@@ -114,6 +117,12 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
     @Override
     public Collection<? extends Condition> getFilterConditions(Map<String, String> filters) throws Exception {
         return new ArrayList<>();
+    }
+
+    public Attachment cleanEntry(Attachment attachment) {
+        attachment.setTitle(EmojiParser.parseToAliases(attachment.getTitle()));
+        attachment.setDescription(EmojiParser.parseToAliases(attachment.getDescription()));
+        return attachment;
     }
 }
 

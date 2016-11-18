@@ -20,6 +20,7 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
+import com.vdurmont.emoji.EmojiParser;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord;
@@ -37,6 +38,8 @@ import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments.COMMENTS
 public class CommentTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Comment, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord> {
     @Override
     public CommentsRecord createRecord(Comment entity) {
+        entity = this.cleanEntity(entity);
+
         CommentsRecord record = new CommentsRecord();
         record.setUserId(entity.getCreatorId());
         record.setMessage(entity.getMessage());
@@ -108,5 +111,10 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
     @Override
     public Collection<? extends Condition> getFilterConditions(Map<String, String> filters) throws Exception {
         return new ArrayList<>();
+    }
+
+    private Comment cleanEntity(Comment comment) {
+        comment.setMessage(EmojiParser.parseToAliases(comment.getMessage()));
+        return comment;
     }
 }

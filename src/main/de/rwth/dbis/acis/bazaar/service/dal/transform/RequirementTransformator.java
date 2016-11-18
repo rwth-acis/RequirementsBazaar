@@ -20,6 +20,7 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
+import com.vdurmont.emoji.EmojiParser;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord;
@@ -32,6 +33,8 @@ import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQU
 public class RequirementTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord> {
     @Override
     public RequirementsRecord createRecord(Requirement entry) {
+        entry = this.cleanEntity(entry);
+
         RequirementsRecord record = new RequirementsRecord();
         record.setDescription(entry.getDescription());
         record.setTitle(entry.getTitle());
@@ -135,5 +138,11 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
             }
         }
         return conditions;
+    }
+
+    public Requirement cleanEntity(Requirement requirement) {
+        requirement.setTitle(EmojiParser.parseToAliases(requirement.getTitle()));
+        requirement.setDescription(EmojiParser.parseToAliases(requirement.getDescription()));
+        return requirement;
     }
 }

@@ -16,13 +16,13 @@ public class Requirement extends EntityBase {
 
     @NotBlank
     @MaxLength(50)
-    private final String title;
+    private String title;
 
     private final Date creation_time;
 
     private final Date lastupdated_time;
 
-    private final String description;
+    private String description;
 
     private final Date realized;
 
@@ -60,6 +60,10 @@ public class Requirement extends EntityBase {
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public List<Component> getComponents() {
         return components;
     }
@@ -78,6 +82,10 @@ public class Requirement extends EntityBase {
 
     public String getTitle() {
         return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public int getId() {

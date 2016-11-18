@@ -41,9 +41,9 @@ public class Attachment extends EntityBase {
     @NotNull
     @NotBlank
     @MaxLength(100)
-    private final String title;
+    private String title;
 
-    private final String description;
+    private String description;
 
     @NotNull
     @NotBlank
@@ -104,8 +104,16 @@ public class Attachment extends EntityBase {
         return title;
     }
 
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     public String getDescription() {
         return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getMimeType() {

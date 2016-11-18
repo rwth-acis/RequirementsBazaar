@@ -39,11 +39,11 @@ public class Component extends EntityBase {
 
     @NotBlank
     @MaxLength(255)
-    private final String description;
+    private String description;
 
     @NotBlank
     @MaxLength(50)
-    private final String name;
+    private String name;
 
     private final Date creation_time;
 
@@ -79,8 +79,16 @@ public class Component extends EntityBase {
         return description;
     }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getLeaderId() {

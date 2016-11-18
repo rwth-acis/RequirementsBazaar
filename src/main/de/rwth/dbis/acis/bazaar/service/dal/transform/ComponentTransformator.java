@@ -20,6 +20,7 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
+import com.vdurmont.emoji.EmojiParser;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Component;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentsRecord;
@@ -36,6 +37,8 @@ import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Components.COMPON
 public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Component, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentsRecord> {
     @Override
     public ComponentsRecord createRecord(Component entry) {
+        entry = this.cleanEntry(entry);
+
         ComponentsRecord record = new ComponentsRecord();
         record.setDescription(entry.getDescription());
         record.setName(entry.getName());
@@ -111,5 +114,11 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
     @Override
     public Collection<? extends Condition> getFilterConditions(Map<String, String> filters) throws Exception {
         return new ArrayList<>();
+    }
+
+    public Component cleanEntry(Component component) {
+        component.setName(EmojiParser.parseToAliases(component.getName()));
+        component.setDescription(EmojiParser.parseToAliases(component.getDescription()));
+        return component;
     }
 }
