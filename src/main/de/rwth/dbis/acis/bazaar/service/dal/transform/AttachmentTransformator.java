@@ -120,8 +120,12 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
     }
 
     public Attachment cleanEntry(Attachment attachment) {
-        attachment.setTitle(EmojiParser.parseToAliases(attachment.getTitle()));
-        attachment.setDescription(EmojiParser.parseToAliases(attachment.getDescription()));
+        if (attachment.getTitle() != null) {
+            attachment.setTitle(EmojiParser.parseToAliases(attachment.getTitle()));
+        }
+        if (attachment.getDescription() != null) {
+            attachment.setDescription(EmojiParser.parseToAliases(attachment.getDescription()));
+        }
         return attachment;
     }
 }

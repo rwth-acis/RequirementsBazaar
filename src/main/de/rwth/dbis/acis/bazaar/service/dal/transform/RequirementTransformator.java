@@ -141,8 +141,12 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
     }
 
     public Requirement cleanEntity(Requirement requirement) {
-        requirement.setTitle(EmojiParser.parseToAliases(requirement.getTitle()));
-        requirement.setDescription(EmojiParser.parseToAliases(requirement.getDescription()));
+        if (requirement.getTitle() != null) {
+            requirement.setTitle(EmojiParser.parseToAliases(requirement.getTitle()));
+        }
+        if (requirement.getDescription() != null) {
+            requirement.setDescription(EmojiParser.parseToAliases(requirement.getDescription()));
+        }
         return requirement;
     }
 }

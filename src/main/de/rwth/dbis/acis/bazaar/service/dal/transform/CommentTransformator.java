@@ -114,7 +114,9 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
     }
 
     private Comment cleanEntity(Comment comment) {
-        comment.setMessage(EmojiParser.parseToAliases(comment.getMessage()));
+        if (comment.getMessage() != null) {
+            comment.setMessage(EmojiParser.parseToAliases(comment.getMessage()));
+        }
         return comment;
     }
 }

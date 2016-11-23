@@ -117,8 +117,12 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
     }
 
     public Component cleanEntry(Component component) {
-        component.setName(EmojiParser.parseToAliases(component.getName()));
-        component.setDescription(EmojiParser.parseToAliases(component.getDescription()));
+        if (component.getName() != null) {
+            component.setName(EmojiParser.parseToAliases(component.getName()));
+        }
+        if (component.getDescription() != null) {
+            component.setDescription(EmojiParser.parseToAliases(component.getDescription()));
+        }
         return component;
     }
 }

@@ -127,8 +127,12 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
     }
 
     public Project cleanEntry(Project project) {
-        project.setName(EmojiParser.parseToAliases(project.getName()));
-        project.setDescription(EmojiParser.parseToAliases(project.getDescription()));
+        if (project.getName() != null) {
+            project.setName(EmojiParser.parseToAliases(project.getName()));
+        }
+        if (project.getDescription() != null) {
+            project.setDescription(EmojiParser.parseToAliases(project.getDescription()));
+        }
         return project;
     }
 }
