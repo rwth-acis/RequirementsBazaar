@@ -149,21 +149,21 @@ public class UsersResource extends Service {
     }
 
     /**
-     * This method allows to retrieve the current user.
+     * This method allows to retrieve the active user.
      *
-     * @return Response with user as a JSON object.
+     * @return Response with active user as a JSON object.
      */
     @GET
-    @Path("/current")
+    @Path("/me")
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "This method allows to retrieve the current user.")
+    @ApiOperation(value = "This method allows to retrieve the active user.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the current user"),
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the active user"),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public HttpResponse getCurrentUser() {
+    public HttpResponse getActiveUser() {
         DALFacade dalFacade = null;
         try {
             long userId = ((UserAgent) getActiveAgent()).getId();
