@@ -15,6 +15,7 @@ import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Context;
 import i5.las2peer.restMapper.RESTService;
+import i5.las2peer.restMapper.annotations.ServicePath;
 import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
 import jodd.vtor.Violation;
@@ -26,8 +27,8 @@ import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
 import java.util.*;
 
-@Path("/bazaar/requirements")
-@Api(value = "/requirements", description = "Requirements resource")
+
+@ServicePath("/bazaar4/requirements")
 public class RequirementsResource extends RESTService {
 
     private BazaarService bazaarService;

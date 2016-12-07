@@ -39,6 +39,7 @@ import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcherImp;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.restMapper.RESTService;
+import i5.las2peer.restMapper.annotations.ServicePath;
 import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
 import jodd.vtor.Vtor;
@@ -62,7 +63,7 @@ import java.util.*;
  *
  * @author István Koren
  */
-@Path("/bazaar")
+@ServicePath("/bazaar1")
 @Api
 @SwaggerDefinition(
         info = @Info(

@@ -13,6 +13,7 @@ import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Context;
 import i5.las2peer.restMapper.RESTService;
+import i5.las2peer.restMapper.annotations.ServicePath;
 import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
 import jodd.vtor.Vtor;
@@ -23,8 +24,8 @@ import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
 import java.util.*;
 
-@Path("/bazaar/projects")
-@Api(value = "/projects", description = "Projects resource")
+
+@ServicePath("/bazaar2/projects")
 public class ProjectsResource extends RESTService {
 
     private BazaarService bazaarService;

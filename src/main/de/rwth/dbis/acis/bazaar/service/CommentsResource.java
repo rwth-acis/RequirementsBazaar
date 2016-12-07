@@ -15,6 +15,7 @@ import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 
 import i5.las2peer.api.Context;
 import i5.las2peer.restMapper.RESTService;
+import i5.las2peer.restMapper.annotations.ServicePath;
 import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
 import jodd.vtor.Vtor;
@@ -26,8 +27,8 @@ import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.EnumSet;
 
-@Path("/bazaar/comments")
-@Api(value = "/comments", description = "Comments resource")
+
+@ServicePath("/bazaar4/comments")
 public class CommentsResource extends RESTService {
 
     private BazaarService bazaarService;

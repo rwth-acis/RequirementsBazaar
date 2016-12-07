@@ -14,6 +14,7 @@ import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Context;
 import i5.las2peer.restMapper.RESTService;
+import i5.las2peer.restMapper.annotations.ServicePath;
 import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
 import jodd.vtor.Vtor;
@@ -26,8 +27,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 
 
-@Path("/bazaar/attachments")
-@Api(value = "/attachments", description = "Attachments resource")
+@ServicePath("/bazaar5/attachments")
 public class AttachmentsResource extends RESTService {
 
     private BazaarService bazaarService;

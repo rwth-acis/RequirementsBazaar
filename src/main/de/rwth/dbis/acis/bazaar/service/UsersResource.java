@@ -9,6 +9,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import i5.las2peer.api.Context;
 import i5.las2peer.restMapper.RESTService;
+import i5.las2peer.restMapper.annotations.ServicePath;
 import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
 import jodd.vtor.Vtor;
@@ -19,8 +20,7 @@ import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
 import java.util.EnumSet;
 
-@Path("/bazaar/users")
-@Api(value = "/users", description = "Users resource")
+@ServicePath("/bazaar6/users")
 public class UsersResource extends RESTService {
 
     private BazaarService bazaarService;
