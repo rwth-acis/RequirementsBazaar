@@ -12,16 +12,15 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
-import i5.las2peer.api.Service;
-import i5.las2peer.restMapper.HttpResponse;
-import i5.las2peer.restMapper.MediaType;
-import i5.las2peer.restMapper.RESTMapper;
-import i5.las2peer.restMapper.annotations.ContentParam;
+import i5.las2peer.api.Context;
+import i5.las2peer.restMapper.RESTService;
 import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
 import jodd.vtor.Vtor;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -29,192 +28,187 @@ import java.util.EnumSet;
 
 @Path("/bazaar/attachments")
 @Api(value = "/attachments", description = "Attachments resource")
-public class AttachmentsResource extends Service {
+public class AttachmentsResource extends RESTService {
 
     private BazaarService bazaarService;
 
-    /**
-     * This method is needed for every RESTful application in LAS2peer.
-     *
-     * @return the mapping to the REST interface.
-     */
-    public String getRESTMapping() {
-        String result = "";
-        try {
-            result = RESTMapper.getMethodsAsXML(this.getClass());
-        } catch (Exception e) {
-
-            e.printStackTrace();
-        }
-        return result;
+    @Override
+    protected void initResources() {
+        getResourceConfig().register(AttachmentsResource.Resource.class);
     }
 
     public AttachmentsResource() throws Exception {
         bazaarService = new BazaarService();
     }
 
-    /**
-     * This method allows to retrieve a certain attachment.
-     *
-     * @param attachmentId id of the attachment
-     * @return Response with attachment as a JSON object.
-     */
-    @GET
-    @Path("/{attachmentId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "This method allows to retrieve a certain attachment")
-    @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain attachment"),
-            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
-            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
-            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
-    })
-    public HttpResponse getAttachment(@PathParam("attachmentId") int attachmentId) {
-        DALFacade dalFacade = null;
-        try {
-            long userId = ((UserAgent) getActiveAgent()).getId();
-            String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registratorErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
-            }
-            dalFacade = bazaarService.getDBConnection();
-            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            Attachment attachment = dalFacade.getAttachmentById(attachmentId);
-            Requirement requirement = dalFacade.getRequirementById(attachment.getRequirementId(), internalUserId);
-            if (dalFacade.isProjectPublic(requirement.getProjectId())) {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_ATTACHMENT, String.valueOf(requirement.getProjectId()), dalFacade);
-                if (!authorized) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
+    @Path("/")
+    public static class Resource {
+
+        private final AttachmentsResource service = (AttachmentsResource) Context.getCurrent().getService();
+
+        /**
+         * This method allows to retrieve a certain attachment.
+         *
+         * @param attachmentId id of the attachment
+         * @return Response with attachment as a JSON object.
+         */
+        @GET
+        @Path("/{attachmentId}")
+        @Produces(MediaType.APPLICATION_JSON)
+        @ApiOperation(value = "This method allows to retrieve a certain attachment")
+        @ApiResponses(value = {
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain attachment"),
+                @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+                @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+                @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+        })
+        public Response getAttachment(@PathParam("attachmentId") int attachmentId) {
+            DALFacade dalFacade = null;
+            try {
+                UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
+                long userId = agent.getId();
+                String registratorErrors = service.bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+                if (registratorErrors != null) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
                 }
-            } else {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_ATTACHMENT, String.valueOf(requirement.getProjectId()), dalFacade);
-                if (!authorized) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.attachment.read"));
+                dalFacade = service.bazaarService.getDBConnection();
+                Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+                Attachment attachment = dalFacade.getAttachmentById(attachmentId);
+                Requirement requirement = dalFacade.getRequirementById(attachment.getRequirementId(), internalUserId);
+                if (dalFacade.isProjectPublic(requirement.getProjectId())) {
+                    boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_ATTACHMENT, String.valueOf(requirement.getProjectId()), dalFacade);
+                    if (!authorized) {
+                        ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
+                    }
+                } else {
+                    boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_ATTACHMENT, String.valueOf(requirement.getProjectId()), dalFacade);
+                    if (!authorized) {
+                        ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.attachment.read"));
+                    }
                 }
+                Gson gson = new Gson();
+                return Response.ok(gson.toJson(attachment)).build();
+            } catch (BazaarException bex) {
+                if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                    return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                    return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else {
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                }
+            } catch (Exception ex) {
+                BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } finally {
+                service.bazaarService.closeDBConnection(dalFacade);
             }
-            Gson gson = new Gson();
-            return new HttpResponse(gson.toJson(attachment), HttpURLConnection.HTTP_OK);
-        } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
-            } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
+        }
+
+        /**
+         * This method allows to create a new attachment.
+         *
+         * @param attachment as JSON object
+         * @return Response with the created attachment as JSON object.
+         */
+        @POST
+        @Consumes(MediaType.APPLICATION_JSON)
+        @Produces(MediaType.APPLICATION_JSON)
+        @ApiOperation(value = "This method allows to create a new attachment.")
+        @ApiResponses(value = {
+                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created attachement"),
+                @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+                @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+                @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+        })
+        public Response createAttachment(@ApiParam(value = "Attachment entity as JSON", required = true) String attachment) {
+            DALFacade dalFacade = null;
+            try {
+                UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
+                long userId = agent.getId();
+                String registratorErrors = service.bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+                if (registratorErrors != null) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
+                }
+                Gson gson = new Gson();
+                Attachment attachmentToCreate = gson.fromJson(attachment, Attachment.class);
+                Vtor vtor = service.bazaarService.getValidators();
+                vtor.validate(attachmentToCreate);
+                if (vtor.hasViolations()) {
+                    ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+                }
+                dalFacade = service.bazaarService.getDBConnection();
+                Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+                Requirement requirement = dalFacade.getRequirementById(attachmentToCreate.getRequirementId(), internalUserId);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_ATTACHMENT, String.valueOf(requirement.getProjectId()), dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.attachment.create"));
+                }
+                attachmentToCreate.setCreatorId(internalUserId);
+                Attachment createdAttachment = dalFacade.createAttachment(attachmentToCreate);
+                return Response.status(Response.Status.CREATED).entity(gson.toJson(createdAttachment)).build();
+            } catch (BazaarException bex) {
+                if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                    return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else {
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                }
+            } catch (Exception ex) {
+                BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } finally {
+                service.bazaarService.closeDBConnection(dalFacade);
             }
-        } catch (Exception ex) {
-            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
-        } finally {
-            bazaarService.closeDBConnection(dalFacade);
+        }
+
+        /**
+         * This method deletes a specific attachment.
+         *
+         * @param attachmentId id of the attachment, which should be deleted
+         * @return Response with the deleted attachment as a JSON object.
+         */
+        @DELETE
+        @Path("/{attachmentId}")
+        @Produces(MediaType.APPLICATION_JSON)
+        @ApiOperation(value = "This method deletes a specific attachment.")
+        @ApiResponses(value = {
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the deleted attachment"),
+                @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+                @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+                @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+        })
+        public Response deleteAttachment(@PathParam("attachmentId") int attachmentId) {
+            DALFacade dalFacade = null;
+            try {
+                UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
+                long userId = agent.getId();
+                String registratorErrors = service.bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+                if (registratorErrors != null) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
+                }
+                dalFacade = service.bazaarService.getDBConnection();
+                Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+                Requirement requirement = dalFacade.getRequirementById(attachmentId, internalUserId);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_ATTACHMENT, Arrays.asList(String.valueOf(attachmentId), String.valueOf(requirement.getProjectId())), dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.attachment.modify"));
+                }
+                Attachment deletedAttachment = dalFacade.deleteAttachmentById(attachmentId);
+                Gson gson = new Gson();
+                return Response.ok(gson.toJson(deletedAttachment)).build();
+            } catch (BazaarException bex) {
+                if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                    return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                    return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else {
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                }
+            } catch (Exception ex) {
+                BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } finally {
+                service.bazaarService.closeDBConnection(dalFacade);
+            }
         }
     }
-
-    /**
-     * This method allows to create a new attachment.
-     *
-     * @param attachment as JSON object
-     * @return Response with the created attachment as JSON object.
-     */
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "This method allows to create a new attachment.")
-    @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created attachement"),
-            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
-            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
-            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
-    })
-    public HttpResponse createAttachment(@ApiParam(value = "Attachment entity as JSON", required = true) @ContentParam String attachment) {
-        DALFacade dalFacade = null;
-        try {
-            long userId = ((UserAgent) getActiveAgent()).getId();
-            String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registratorErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
-            }
-            Gson gson = new Gson();
-            Attachment attachmentToCreate = gson.fromJson(attachment, Attachment.class);
-            Vtor vtor = bazaarService.getValidators();
-            vtor.validate(attachmentToCreate);
-            if (vtor.hasViolations()) {
-                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            }
-            dalFacade = bazaarService.getDBConnection();
-            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            Requirement requirement = dalFacade.getRequirementById(attachmentToCreate.getRequirementId(), internalUserId);
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_ATTACHMENT, String.valueOf(requirement.getProjectId()), dalFacade);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.attachment.create"));
-            }
-            attachmentToCreate.setCreatorId(internalUserId);
-            Attachment createdAttachment = dalFacade.createAttachment(attachmentToCreate);
-            return new HttpResponse(gson.toJson(createdAttachment), HttpURLConnection.HTTP_CREATED);
-        } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
-            } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
-            }
-        } catch (Exception ex) {
-            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
-        } finally {
-            bazaarService.closeDBConnection(dalFacade);
-        }
-    }
-
-    /**
-     * This method deletes a specific attachment.
-     *
-     * @param attachmentId id of the attachment, which should be deleted
-     * @return Response with the deleted attachment as a JSON object.
-     */
-    @DELETE
-    @Path("/{attachmentId}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "This method deletes a specific attachment.")
-    @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the deleted attachment"),
-            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
-            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
-            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
-    })
-    public HttpResponse deleteAttachment(@PathParam("attachmentId") int attachmentId) {
-        DALFacade dalFacade = null;
-        try {
-            long userId = ((UserAgent) getActiveAgent()).getId();
-            String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registratorErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
-            }
-            dalFacade = bazaarService.getDBConnection();
-            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            Requirement requirement = dalFacade.getRequirementById(attachmentId, internalUserId);
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_ATTACHMENT, Arrays.asList(String.valueOf(attachmentId), String.valueOf(requirement.getProjectId())), dalFacade);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.attachment.modify"));
-            }
-            Attachment deletedAttachment = dalFacade.deleteAttachmentById(attachmentId);
-            Gson gson = new Gson();
-            return new HttpResponse(gson.toJson(deletedAttachment), HttpURLConnection.HTTP_OK);
-        } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_UNAUTHORIZED);
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_NOT_FOUND);
-            } else {
-                return new HttpResponse(ExceptionHandler.getInstance().toJSON(bex), HttpURLConnection.HTTP_INTERNAL_ERROR);
-            }
-        } catch (Exception ex) {
-            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return new HttpResponse(ExceptionHandler.getInstance().toJSON(bazaarException), HttpURLConnection.HTTP_INTERNAL_ERROR);
-        } finally {
-            bazaarService.closeDBConnection(dalFacade);
-        }
-    }
-
 }
