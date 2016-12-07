@@ -26,7 +26,7 @@ import java.text.MessageFormat;
 import java.util.*;
 
 
-@ServicePath("/bazaar3/components")
+@ServicePath("/bazaar/components")
 public class ComponentsResource extends RESTService {
 
     private BazaarService bazaarService;

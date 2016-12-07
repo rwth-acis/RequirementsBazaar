@@ -1,6 +1,5 @@
 package de.rwth.dbis.acis.bazaar.service;
 
-
 import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment;
@@ -27,7 +26,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 
 
-@ServicePath("/bazaar5/attachments")
+@ServicePath("/bazaar/attachments")
 public class AttachmentsResource extends RESTService {
 
     private BazaarService bazaarService;

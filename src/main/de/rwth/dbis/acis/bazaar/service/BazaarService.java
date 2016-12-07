@@ -49,7 +49,6 @@ import org.jooq.SQLDialect;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
-import javax.ws.rs.Path;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.Response;
 import java.net.URISyntaxException;
@@ -63,7 +62,7 @@ import java.util.*;
  *
  * @author István Koren
  */
-@ServicePath("/bazaar1")
+@ServicePath("/bazaar/main")
 @Api
 @SwaggerDefinition(
         info = @Info(

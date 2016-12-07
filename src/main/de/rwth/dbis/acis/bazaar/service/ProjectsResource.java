@@ -25,7 +25,7 @@ import java.net.HttpURLConnection;
 import java.util.*;
 
 
-@ServicePath("/bazaar2/projects")
+@ServicePath("/bazaar/projects")
 public class ProjectsResource extends RESTService {
 
     private BazaarService bazaarService;

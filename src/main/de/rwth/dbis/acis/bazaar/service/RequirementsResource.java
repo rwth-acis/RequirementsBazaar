@@ -1,6 +1,5 @@
 package de.rwth.dbis.acis.bazaar.service;
 
-
 import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
@@ -28,7 +27,7 @@ import java.net.HttpURLConnection;
 import java.util.*;
 
 
-@ServicePath("/bazaar4/requirements")
+@ServicePath("/bazaar/requirements")
 public class RequirementsResource extends RESTService {
 
     private BazaarService bazaarService;

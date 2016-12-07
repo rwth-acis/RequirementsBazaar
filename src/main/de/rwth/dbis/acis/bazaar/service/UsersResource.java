@@ -20,7 +20,7 @@ import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
 import java.util.EnumSet;
 
-@ServicePath("/bazaar6/users")
+@ServicePath("/bazaar/users")
 public class UsersResource extends RESTService {
 
     private BazaarService bazaarService;

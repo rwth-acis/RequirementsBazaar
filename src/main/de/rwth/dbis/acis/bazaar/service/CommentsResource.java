@@ -28,7 +28,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 
 
-@ServicePath("/bazaar4/comments")
+@ServicePath("/bazaar/comments")
 public class CommentsResource extends RESTService {
 
     private BazaarService bazaarService;
