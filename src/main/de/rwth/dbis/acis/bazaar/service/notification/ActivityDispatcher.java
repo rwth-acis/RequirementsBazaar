@@ -11,8 +11,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import i5.las2peer.api.Service;
-import i5.las2peer.restMapper.HttpResponse;
-import i5.las2peer.security.Context;
+import org.apache.http.HttpResponse;
 
 import java.io.Serializable;
 import java.net.HttpURLConnection;
@@ -91,11 +90,11 @@ public class ActivityDispatcher {
             Activity activity = activityBuilder.build();
             Object result = service.invokeServiceMethod(activityTrackerService,
                     "createActivity", new Serializable[]{gson.toJson(activity)});
-            if (((HttpResponse) result).getStatus() != HttpURLConnection.HTTP_CREATED) {
+            if (((HttpResponse) result).getStatusLine().getStatusCode() != HttpURLConnection.HTTP_CREATED) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.NETWORK, ErrorCode.RMI_ERROR, "");
             }
         } catch (Exception ex) {
-            Context.logError(this, "Could not send activity with RMI call to ActivityTracker");
+            //TODO log
         }
     }
 }
