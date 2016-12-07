@@ -276,14 +276,14 @@ public class BazaarService extends RESTService {
             uriBuilder.addParameter(entry.getKey(), entry.getValue());
         }
         if (paginationResult.getPrevPage() != -1) {
-            links.add(Link.valueOf("<" + uriBuilder.setParameter("page", String.valueOf(paginationResult.getPrevPage())).build() + ">; rel=\"prev\","));
+            links.add(Link.fromUri(uriBuilder.setParameter("page", String.valueOf(paginationResult.getPrevPage())).build()).rel("prev").build());
         }
         if (paginationResult.getNextPage() != -1) {
-            links.add(Link.valueOf("<" + uriBuilder.setParameter("page", String.valueOf(paginationResult.getNextPage())).build() + ">; rel=\"next\","));
+            links.add(Link.fromUri(uriBuilder.setParameter("page", String.valueOf(paginationResult.getNextPage())).build()).rel("next").build());
         }
-        links.add(Link.valueOf("<" + uriBuilder.setParameter("page", "0") + ">; rel=\"first\","));
-        links.add(Link.valueOf("<" + uriBuilder.setParameter("page", String.valueOf(paginationResult.getTotalPages() - 1)).build() + ">; rel=\"last\""));
-        responseBuilder = responseBuilder.links((Link[]) links.toArray());
+        links.add(Link.fromUri(uriBuilder.setParameter("page", "0").build()).rel("first").build());
+        links.add(Link.fromUri(uriBuilder.setParameter("page", String.valueOf(paginationResult.getTotalPages())).build()).rel("last").build());
+        responseBuilder = responseBuilder.links(links.toArray(new Link[links.size()]));
         return responseBuilder;
     }
 
