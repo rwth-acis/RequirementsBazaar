@@ -17,6 +17,8 @@ import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.util.Date;
 
+import static i5.las2peer.api.Context.getCurrent;
+
 /**
  * Created by martin on 15.02.2016.
  */
@@ -88,13 +90,15 @@ public class ActivityDispatcher {
             }
             activityBuilder = activityBuilder.userUrl(baseURL + "users" + "/" + String.valueOf(userId));
             Activity activity = activityBuilder.build();
-            Object result = service.invokeServiceMethod(activityTrackerService,
-                    "createActivity", new Serializable[]{gson.toJson(activity)});
+
+            Object result = service.getContext().invoke(activityTrackerService, "createActivity", new Serializable[]{gson.toJson(activity)});
+
             if (((HttpResponse) result).getStatusLine().getStatusCode() != HttpURLConnection.HTTP_CREATED) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.NETWORK, ErrorCode.RMI_ERROR, "");
             }
         } catch (Exception ex) {
             //TODO log
+            System.out.println(ex.getMessage());
         }
     }
 }
