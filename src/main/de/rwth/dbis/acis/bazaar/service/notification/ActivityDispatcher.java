@@ -13,6 +13,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import i5.las2peer.api.Service;
 import org.apache.http.HttpResponse;
 
+import javax.ws.rs.core.Response;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.util.Date;
@@ -92,9 +93,8 @@ public class ActivityDispatcher {
             Activity activity = activityBuilder.build();
 
             Object result = service.getContext().invoke(activityTrackerService, "createActivity", new Serializable[]{gson.toJson(activity)});
-
-            if (((HttpResponse) result).getStatusLine().getStatusCode() != HttpURLConnection.HTTP_CREATED) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.NETWORK, ErrorCode.RMI_ERROR, "");
+            if (!(result).equals(new Integer(Response.Status.CREATED.getStatusCode()).toString())) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.NETWORK, ErrorCode.RMI_ERROR, "ActivityTracker RMI call failed");
             }
         } catch (Exception ex) {
             //TODO log
