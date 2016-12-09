@@ -4,7 +4,6 @@ import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
-import i5.las2peer.security.Context;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -144,7 +143,7 @@ public class EmailDispatcher {
                 Transport.send(mailMessage);
             }
         } catch (Exception e) {
-            Context.logError(this, e.getMessage());
+            //TODO log
         }
     }
 }

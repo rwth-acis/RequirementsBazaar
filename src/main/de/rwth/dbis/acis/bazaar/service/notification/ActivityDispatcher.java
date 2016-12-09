@@ -11,12 +11,14 @@ import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import i5.las2peer.api.Service;
-import i5.las2peer.restMapper.HttpResponse;
-import i5.las2peer.security.Context;
+import org.apache.http.HttpResponse;
 
+import javax.ws.rs.core.Response;
 import java.io.Serializable;
 import java.net.HttpURLConnection;
 import java.util.Date;
+
+import static i5.las2peer.api.Context.getCurrent;
 
 /**
  * Created by martin on 15.02.2016.
@@ -89,13 +91,14 @@ public class ActivityDispatcher {
             }
             activityBuilder = activityBuilder.userUrl(baseURL + "users" + "/" + String.valueOf(userId));
             Activity activity = activityBuilder.build();
-            Object result = service.invokeServiceMethod(activityTrackerService,
-                    "createActivity", new Serializable[]{gson.toJson(activity)});
-            if (((HttpResponse) result).getStatus() != HttpURLConnection.HTTP_CREATED) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.NETWORK, ErrorCode.RMI_ERROR, "");
+
+            Object result = service.getContext().invoke(activityTrackerService, "createActivity", new Serializable[]{gson.toJson(activity)});
+            if (!(result).equals(new Integer(Response.Status.CREATED.getStatusCode()).toString())) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.NETWORK, ErrorCode.RMI_ERROR, "ActivityTracker RMI call failed");
             }
         } catch (Exception ex) {
-            Context.logError(this, "Could not send activity with RMI call to ActivityTracker");
+            //TODO log
+            System.out.println(ex.getMessage());
         }
     }
 }
