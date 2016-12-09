@@ -67,7 +67,7 @@ import java.util.*;
 @SwaggerDefinition(
         info = @Info(
                 title = "Requirements Bazaar",
-                version = "0.2",
+                version = "0.3",
                 description = "Requirements Bazaar project",
                 termsOfService = "http://requirements-bazaar.org",
                 contact = @Contact(
