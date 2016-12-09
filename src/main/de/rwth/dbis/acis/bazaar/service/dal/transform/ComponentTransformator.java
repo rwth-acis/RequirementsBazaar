@@ -93,15 +93,8 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
     }
 
     @Override
-    public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
-        switch (sortDirection) {
-            case DEFAULT:
-                return Arrays.asList(COMPONENTS.NAME.asc());
-            case ASC:
-                return Arrays.asList(COMPONENTS.NAME.asc());
-            case DESC:
-                return Arrays.asList(COMPONENTS.NAME.desc());
-        }
+    public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
+
         return null;
     }
 

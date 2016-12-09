@@ -131,7 +131,7 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                     .from(COMPONENTS)
                     .join(leaderUser).on(leaderUser.ID.equal(COMPONENTS.LEADER_ID))
                     .where(COMPONENTS.PROJECT_ID.equal(projectId))
-                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                    .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();
@@ -171,7 +171,7 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                     .join(leaderUser).on(leaderUser.ID.equal(COMPONENTS.LEADER_ID))
                     .join(Tags.TAGS).on(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
                     .where(Tags.TAGS.REQUIREMENTS_ID.equal(requirementId))
-                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                    .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();

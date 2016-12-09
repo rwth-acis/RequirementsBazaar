@@ -101,14 +101,9 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
     }
 
     @Override
-    public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
-        switch (sortDirection) {
-            case DEFAULT:
-                return Arrays.asList(PROJECTS.NAME.asc());
-            case ASC:
-                return Arrays.asList(PROJECTS.NAME.asc());
-            case DESC:
-                return Arrays.asList(PROJECTS.NAME.desc());
+    public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
+        if (sorts.isEmpty()) {
+            return Arrays.asList(PROJECTS.NAME.asc());
         }
         return null;
     }

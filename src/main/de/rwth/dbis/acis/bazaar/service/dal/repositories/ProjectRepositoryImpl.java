@@ -106,7 +106,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                     .from(PROJECTS)
                     .join(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID))
                     .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar()))
-                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                    .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();
@@ -146,7 +146,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
 //                    .leftOuterJoin(AUTHORIZATIONS).on(AUTHORIZATIONS.PROJECT_ID.equal(PROJECTS.ID))
 //                    .join(USERS).on(AUTHORIZATIONS.USER_ID.equal(USERS.ID))
 //                    .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar())
-                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                    .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();

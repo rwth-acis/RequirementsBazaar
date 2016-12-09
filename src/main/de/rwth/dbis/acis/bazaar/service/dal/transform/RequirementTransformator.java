@@ -104,16 +104,25 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
     }
 
     @Override
-    public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
-        switch (sortDirection) {
-            case DEFAULT:
-                return Arrays.asList(REQUIREMENTS.CREATION_TIME.desc());
-            case ASC:
-                return Arrays.asList(REQUIREMENTS.CREATION_TIME.asc());
-            case DESC:
-                return Arrays.asList(REQUIREMENTS.CREATION_TIME.desc());
+    public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
+        if (sorts.isEmpty()) {
+            return Arrays.asList(REQUIREMENTS.CREATION_TIME.desc());
         }
-        return null;
+        List<SortField<?>> sortFields = new ArrayList<>();
+        for (Pageable.SortField sort : sorts) {
+            // date,vote,comments,followers,lastActivity,realized
+            if (sort.getField().equals("date")) {
+                switch (sort.getSortDirection()) {
+                    case ASC:
+                        sortFields.add(REQUIREMENTS.CREATION_TIME.asc());
+                    case DESC:
+                        sortFields.add(REQUIREMENTS.CREATION_TIME.desc());
+                    default:
+                        sortFields.add(REQUIREMENTS.CREATION_TIME.desc());
+                }
+            }
+        }
+        return sortFields;
     }
 
     @Override

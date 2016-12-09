@@ -675,7 +675,7 @@ public class RequirementsResource extends RESTService {
                 if (registratorErrors != null) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
                 }
-                PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>(), Pageable.SortDirection.ASC);
+                PageInfo pageInfo = new PageInfo(page, perPage);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(pageInfo);
                 if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
@@ -754,7 +754,7 @@ public class RequirementsResource extends RESTService {
                 if (registratorErrors != null) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
                 }
-                PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>(), Pageable.SortDirection.ASC);
+                PageInfo pageInfo = new PageInfo(page, perPage);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(pageInfo);
                 if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
@@ -494,7 +495,8 @@ public class ProjectsResource extends RESTService {
         public Response getRequirementsByProject(@PathParam("projectId") int projectId,
                                                  @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
                                                  @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
-                                                 @ApiParam(value = "State filter", required = false, allowableValues = "all,open,realized") @DefaultValue("all") @QueryParam("state") String stateFilter) {
+                                                 @ApiParam(value = "State filter", required = false, allowableValues = "all,open,realized") @DefaultValue("all") @QueryParam("state") String stateFilter,
+                                                 @ApiParam(value = "Sort", required = false, allowableValues = "date,vote,comments,followers,lastActivity,realized") @DefaultValue("date") @QueryParam("sort") List<String> sort) {
             DALFacade dalFacade = null;
             try {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -508,7 +510,22 @@ public class ProjectsResource extends RESTService {
                 if (stateFilter != "all") {
                     filters.put("realized", stateFilter);
                 }
-                PageInfo pageInfo = new PageInfo(page, perPage, filters);
+                List<Pageable.SortField> sortList = new ArrayList<>();
+                for (String sortOption : sort) {
+                    Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
+                    if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { //TODO remove second check if + is working, at the moment "+" gets to " "
+                        direction = Pageable.SortDirection.ASC;
+                        sortOption = sortOption.substring(1);
+
+                    }
+                    if (sortOption.startsWith("-")) {
+                        direction = Pageable.SortDirection.DESC;
+                        sortOption = sortOption.substring(1);
+                    }
+                    Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
+                    sortList.add(sortField);
+                }
+                PageInfo pageInfo = new PageInfo(page, perPage, filters, sortList);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(pageInfo);
                 if (vtor.hasViolations()) {
@@ -535,6 +552,8 @@ public class ProjectsResource extends RESTService {
                 Map<String, String> parameter = new HashMap<>();
                 parameter.put("page", String.valueOf(page));
                 parameter.put("per_page", String.valueOf(perPage));
+                parameter.put("state", String.valueOf(stateFilter));
+                parameter.put("sort", String.valueOf(sort));
 
                 Response.ResponseBuilder responseBuilder = Response.ok();
                 responseBuilder = responseBuilder.entity(gson.toJson(requirementsResult.getElements()));

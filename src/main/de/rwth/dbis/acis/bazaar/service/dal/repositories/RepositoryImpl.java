@@ -125,7 +125,7 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
             entries = new ArrayList<E>();
 
             List<R> queryResults = jooq.selectFrom(transformator.getTable())
-                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                    .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetchInto(transformator.getRecordClass());
@@ -150,7 +150,7 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
 
             List<R> queryResults = jooq.selectFrom(transformator.getTable())
                     .where(transformator.getSearchFields(likeExpression))
-                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                    .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetchInto(transformator.getRecordClass());

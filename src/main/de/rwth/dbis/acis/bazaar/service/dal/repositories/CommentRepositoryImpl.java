@@ -78,7 +78,7 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
                     .leftJoin(childCommentCreatorUser).on(childCommentCreatorUser.ID.equal(childComment.USER_ID))
                     .join(creatorUser).on(creatorUser.ID.equal(COMMENTS.USER_ID))
                     .where(COMMENTS.REQUIREMENT_ID.equal(requirementId).and(COMMENTS.BELONGSTOCOMMENT_ID.isNull()))
-                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                    .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();
