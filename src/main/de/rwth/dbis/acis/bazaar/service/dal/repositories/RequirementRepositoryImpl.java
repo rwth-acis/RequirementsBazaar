@@ -57,6 +57,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
         super(jooq, new RequirementTransformator());
     }
 
+
+
     @Override
     public PaginationResult<RequirementEx> findAllByProject(int projectId, Pageable pageable, int userId) throws BazaarException {
         PaginationResult<RequirementEx> result = null;
@@ -69,11 +71,23 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .where(transformator.getFilterConditions(pageable.getFilters())).and(REQUIREMENTS.PROJECT_ID.eq(projectId))
                     .asField("idCount");
 
-            List<Record> queryResults = jooq.select(REQUIREMENTS.fields()).select(idCount)
+            Field<Object> voteCount = jooq.select(DSL.count(DSL.nullif(Votes.VOTES.IS_UPVOTE, 0)))
+                    .from(Votes.VOTES)
+                    .where(Votes.VOTES.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                    .asField("voteCount");
+
+            List<Record> queryResults = jooq.select(REQUIREMENTS.fields())
+                    .select(idCount)
+                    .select(voteCount)
                     .from(REQUIREMENTS)
+                    .leftOuterJoin(Votes.VOTES).on(Votes.VOTES.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+
                     .where(transformator.getFilterConditions(pageable.getFilters())).and(REQUIREMENTS.PROJECT_ID.eq(projectId))
                     .groupBy(REQUIREMENTS.ID)
-                    .orderBy(transformator.getSortFields(pageable.getSorts()))
+
+                    //.orderBy(transformator.getSortFields(pageable.getSorts()))
+                    .orderBy(voteCount.desc())
+
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();

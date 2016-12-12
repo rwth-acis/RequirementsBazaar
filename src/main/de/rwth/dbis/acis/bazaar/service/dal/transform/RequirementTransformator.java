@@ -121,6 +121,16 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
                         sortFields.add(REQUIREMENTS.CREATION_TIME.desc());
                 }
             }
+            if (sort.getField().equals("vote")) {
+                switch (sort.getSortDirection()) {
+                    case ASC:
+                        //sortFields.add(.asc());
+                    case DESC:
+                        //sortFields.add(.desc());
+                    default:
+                        //sortFields.add(.desc());
+                }
+            }
         }
         return sortFields;
     }
