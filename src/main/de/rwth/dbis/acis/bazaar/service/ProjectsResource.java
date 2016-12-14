@@ -496,7 +496,7 @@ public class ProjectsResource extends RESTService {
                                                  @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
                                                  @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
                                                  @ApiParam(value = "State filter", required = false, allowableValues = "all,open,realized") @DefaultValue("all") @QueryParam("state") String stateFilter,
-                                                 @ApiParam(value = "Sort", required = false, allowableValues = "date,vote,comments,followers,lastActivity,realized") @DefaultValue("date") @QueryParam("sort") List<String> sort) {
+                                                 @ApiParam(value = "Sort", required = false, allowableValues = "date,vote,comment,follower,lastActivity,realized") @DefaultValue("date") @QueryParam("sort") List<String> sort) {
             DALFacade dalFacade = null;
             try {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -513,12 +513,11 @@ public class ProjectsResource extends RESTService {
                 List<Pageable.SortField> sortList = new ArrayList<>();
                 for (String sortOption : sort) {
                     Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
-                    if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { //TODO remove second check if + is working, at the moment "+" gets to " "
+                    if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { // " " is needed because jersey does not pass "+"
                         direction = Pageable.SortDirection.ASC;
                         sortOption = sortOption.substring(1);
 
-                    }
-                    if (sortOption.startsWith("-")) {
+                    } else if (sortOption.startsWith("-")) {
                         direction = Pageable.SortDirection.DESC;
                         sortOption = sortOption.substring(1);
                     }

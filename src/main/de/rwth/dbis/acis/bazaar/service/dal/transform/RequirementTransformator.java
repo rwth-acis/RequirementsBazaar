@@ -23,8 +23,11 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 import com.vdurmont.emoji.EmojiParser;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Votes;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord;
 import org.jooq.*;
+import org.jooq.impl.DSL;
 
 import java.util.*;
 
@@ -110,7 +113,7 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
         }
         List<SortField<?>> sortFields = new ArrayList<>();
         for (Pageable.SortField sort : sorts) {
-            // date,vote,comments,followers,lastActivity,realized
+            // date,vote,comment,follower,lastActivity,realized
             if (sort.getField().equals("date")) {
                 switch (sort.getSortDirection()) {
                     case ASC:
@@ -120,15 +123,35 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
                     default:
                         sortFields.add(REQUIREMENTS.CREATION_TIME.desc());
                 }
-            }
-            if (sort.getField().equals("vote")) {
+            } else if (sort.getField().equals("vote")) {
+
+                Field<Object> voteCount = DSL.select(DSL.count(DSL.nullif(Votes.VOTES.IS_UPVOTE, 0)))
+                        .from(Votes.VOTES)
+                        .where(Votes.VOTES.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                        .asField("voteCount");
+
                 switch (sort.getSortDirection()) {
                     case ASC:
-                        //sortFields.add(.asc());
+                        sortFields.add(voteCount.asc());
                     case DESC:
-                        //sortFields.add(.desc());
+                        sortFields.add(voteCount.desc());
                     default:
-                        //sortFields.add(.desc());
+                        sortFields.add(voteCount.desc());
+                }
+            } else if (sort.getField().equals("comment")) {
+
+                Field<Object> commentCount = DSL.select(DSL.count())
+                        .from(Comments.COMMENTS)
+                        .where(Comments.COMMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                        .asField("commentCount");
+
+                switch (sort.getSortDirection()) {
+                    case ASC:
+                        sortFields.add(commentCount.asc());
+                    case DESC:
+                        sortFields.add(commentCount.desc());
+                    default:
+                        sortFields.add(commentCount.desc());
                 }
             }
         }
