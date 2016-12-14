@@ -79,9 +79,10 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .where(Comments.COMMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
                     .asField("commentCount");
 
-            // follower
-
-            // realized
+            Field<Object> followerCount = DSL.select(DSL.count())
+                    .from(REQUIREMENT_FOLLOWER)
+                    .where(REQUIREMENT_FOLLOWER.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                    .asField("followerCount");
 
             // last activity (if possible)
 
@@ -89,6 +90,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .select(idCount)
                     .select(voteCount)
                     .select(commentCount)
+                    .select(followerCount)
                     .from(REQUIREMENTS)
                     .where(transformator.getFilterConditions(pageable.getFilters())).and(REQUIREMENTS.PROJECT_ID.eq(projectId))
                     .groupBy(REQUIREMENTS.ID)

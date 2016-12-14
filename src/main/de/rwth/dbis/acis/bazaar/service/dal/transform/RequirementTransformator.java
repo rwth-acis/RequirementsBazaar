@@ -31,6 +31,7 @@ import org.jooq.impl.DSL;
 
 import java.util.*;
 
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementFollower.REQUIREMENT_FOLLOWER;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQUIREMENTS;
 
 public class RequirementTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord> {
@@ -113,7 +114,6 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
         }
         List<SortField<?>> sortFields = new ArrayList<>();
         for (Pageable.SortField sort : sorts) {
-            // date,vote,comment,follower,lastActivity,realized
             if (sort.getField().equals("date")) {
                 switch (sort.getSortDirection()) {
                     case ASC:
@@ -152,6 +152,30 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
                         sortFields.add(commentCount.desc());
                     default:
                         sortFields.add(commentCount.desc());
+                }
+            } else if (sort.getField().equals("follower")) {
+
+                Field<Object> followerCount = DSL.select(DSL.count())
+                        .from(REQUIREMENT_FOLLOWER)
+                        .where(REQUIREMENT_FOLLOWER.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                        .asField("followerCount");
+
+                switch (sort.getSortDirection()) {
+                    case ASC:
+                        sortFields.add(followerCount.asc());
+                    case DESC:
+                        sortFields.add(followerCount.desc());
+                    default:
+                        sortFields.add(followerCount.desc());
+                }
+            } else if (sort.getField().equals("realized")) {
+                switch (sort.getSortDirection()) {
+                    case ASC:
+                        sortFields.add(REQUIREMENTS.REALIZED.asc());
+                    case DESC:
+                        sortFields.add(REQUIREMENTS.REALIZED.desc());
+                    default:
+                        sortFields.add(REQUIREMENTS.REALIZED.desc());
                 }
             }
         }
