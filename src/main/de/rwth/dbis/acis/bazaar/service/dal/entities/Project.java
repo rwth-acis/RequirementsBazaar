@@ -32,7 +32,7 @@ import java.util.Date;
  */
 public class Project extends EntityBase {
     @Min(-1)
-    private final int id;
+    private int id;
 
     @NotBlank
     private String description;
@@ -41,11 +41,11 @@ public class Project extends EntityBase {
     @MaxLength(50)
     private String name;
 
-    private final ProjectVisibility visibility;
+    private ProjectVisibility visibility;
 
-    private final Date creation_time;
+    private Date creation_time;
 
-    private final Date lastupdated_time;
+    private Date lastupdated_time;
 
     public int getLeaderId() {
         return leaderId;
@@ -67,6 +67,9 @@ public class Project extends EntityBase {
 
     public void setLeader(User leader) {
         this.leader = leader;
+    }
+
+    public Project() {
     }
 
     /**

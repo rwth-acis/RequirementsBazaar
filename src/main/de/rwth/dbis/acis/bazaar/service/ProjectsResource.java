@@ -57,7 +57,7 @@ public class ProjectsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method returns the list of projects on the server.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "List of projects"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "List of projects",  response = Project.class, responseContainer = "List"),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
@@ -179,11 +179,11 @@ public class ProjectsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method allows to create a new project")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created project"),
+                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created project", response = Project.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
-        public Response createProject(@ApiParam(value = "Project entity as JSON", required = true) String project) {
+        public Response createProject(@ApiParam(value = "Project entity as JSON", required = true) Project project) {
             DALFacade dalFacade = null;
             try {
                 String registratorErrors = service.bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -193,7 +193,7 @@ public class ProjectsResource extends RESTService {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
                 long userId = agent.getId();
                 Gson gson = new Gson();
-                Project projectToCreate = gson.fromJson(project, Project.class);
+                Project projectToCreate = project; // gson.fromJson(project, Project.class);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(projectToCreate);
                 if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
