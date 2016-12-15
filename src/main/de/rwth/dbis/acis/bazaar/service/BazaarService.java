@@ -62,8 +62,8 @@ import java.util.*;
  *
  * @author István Koren
  */
+//TODO Service from BasaarService, here is no Endpoint
 @ServicePath("/bazaar/main")
-@Api
 @SwaggerDefinition(
         info = @Info(
                 title = "Requirements Bazaar",

@@ -43,6 +43,7 @@ public class CommentsResource extends RESTService {
         bazaarService = new BazaarService();
     }
 
+    @Api(value = "comments", description = "Comments resource")
     @Path("/")
     public static class Resource {
 

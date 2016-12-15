@@ -34,6 +34,7 @@ public class UsersResource extends RESTService {
         bazaarService = new BazaarService();
     }
 
+    @Api(value = "users", description = "Users resource")
     @Path("/")
     public static class Resource {
 

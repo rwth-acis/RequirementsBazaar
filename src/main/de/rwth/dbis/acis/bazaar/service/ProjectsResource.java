@@ -39,6 +39,7 @@ public class ProjectsResource extends RESTService {
         bazaarService = new BazaarService();
     }
 
+    @Api(value = "projects", description = "Projects resource")
     @Path("/")
     public static class Resource {
 

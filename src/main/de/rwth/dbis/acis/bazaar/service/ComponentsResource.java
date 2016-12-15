@@ -40,6 +40,7 @@ public class ComponentsResource extends RESTService {
         bazaarService = new BazaarService();
     }
 
+    @Api(value = "components", description = "Components resource")
     @Path("/")
     public static class Resource {
 

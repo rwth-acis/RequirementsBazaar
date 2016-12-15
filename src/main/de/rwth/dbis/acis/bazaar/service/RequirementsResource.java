@@ -41,6 +41,7 @@ public class RequirementsResource extends RESTService {
         bazaarService = new BazaarService();
     }
 
+    @Api(value = "requirements", description = "Requirements resource")
     @Path("/")
     public static class Resource {
 
