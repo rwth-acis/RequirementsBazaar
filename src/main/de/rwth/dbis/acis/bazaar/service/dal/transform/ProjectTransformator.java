@@ -23,8 +23,11 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 import com.vdurmont.emoji.EmojiParser;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ProjectFollower;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord;
 import org.jooq.*;
+import org.jooq.impl.DSL;
 
 import java.util.*;
 
@@ -105,7 +108,71 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
         if (sorts.isEmpty()) {
             return Arrays.asList(PROJECTS.NAME.asc());
         }
-        return null;
+        List<SortField<?>> sortFields = new ArrayList<>();
+        for (Pageable.SortField sort : sorts) {
+            if (sort.getField().equals("name")) {
+                switch (sort.getSortDirection()) {
+                    case ASC:
+                        sortFields.add(PROJECTS.NAME.asc());
+                        break;
+                    case DESC:
+                        sortFields.add(PROJECTS.NAME.desc());
+                        break;
+                    default:
+                        sortFields.add(PROJECTS.NAME.asc());
+                        break;
+                }
+            } else if (sort.getField().equals("date")) {
+                switch (sort.getSortDirection()) {
+                    case ASC:
+                        sortFields.add(PROJECTS.CREATION_TIME.asc());
+                        break;
+                    case DESC:
+                        sortFields.add(PROJECTS.CREATION_TIME.desc());
+                        break;
+                    default:
+                        sortFields.add(PROJECTS.CREATION_TIME.desc());
+                        break;
+                }
+            } else if (sort.getField().equals("requirement")) {
+
+                Field<Object> requirementCount = DSL.select(DSL.count())
+                        .from(Requirements.REQUIREMENTS)
+                        .where(Requirements.REQUIREMENTS.PROJECT_ID.equal(PROJECTS.ID))
+                        .asField("requirementCount");
+
+                switch (sort.getSortDirection()) {
+                    case ASC:
+                        sortFields.add(requirementCount.asc());
+                        break;
+                    case DESC:
+                        sortFields.add(requirementCount.desc());
+                        break;
+                    default:
+                        sortFields.add(requirementCount.desc());
+                        break;
+                }
+            } else if (sort.getField().equals("follower")) {
+
+                Field<Object> followerCount = DSL.select(DSL.count())
+                        .from(ProjectFollower.PROJECT_FOLLOWER)
+                        .where(ProjectFollower.PROJECT_FOLLOWER.PROJECT_ID.equal(PROJECTS.ID))
+                        .asField("followerCount");
+
+                switch (sort.getSortDirection()) {
+                    case ASC:
+                        sortFields.add(followerCount.asc());
+                        break;
+                    case DESC:
+                        sortFields.add(followerCount.desc());
+                        break;
+                    default:
+                        sortFields.add(followerCount.desc());
+                        break;
+                }
+            }
+        }
+        return sortFields;
     }
 
     @Override
