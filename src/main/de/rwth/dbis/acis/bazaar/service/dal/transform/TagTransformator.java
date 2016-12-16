@@ -74,14 +74,9 @@ public class TagTransformator implements Transformator<de.rwth.dbis.acis.bazaar.
     }
 
     @Override
-    public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
-        switch (sortDirection) {
-            case DEFAULT:
-                return Arrays.asList(TAGS.ID.asc());
-            case ASC:
-                return Arrays.asList(TAGS.ID.asc());
-            case DESC:
-                return Arrays.asList(TAGS.ID.desc());
+    public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
+        if (sorts.isEmpty()) {
+            return Arrays.asList(TAGS.ID.asc());
         }
         return null;
     }

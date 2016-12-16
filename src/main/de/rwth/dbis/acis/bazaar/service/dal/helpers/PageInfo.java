@@ -22,10 +22,13 @@ package de.rwth.dbis.acis.bazaar.service.dal.helpers;
 
 import jodd.vtor.constraint.Min;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
+ * @author Martin Hug
  * @since 6/15/2014
  */
 public class PageInfo implements Pageable {
@@ -34,18 +37,22 @@ public class PageInfo implements Pageable {
 
     @Min(0)
     private final int pageSize;
-    private final SortDirection sortDirection;
     private final Map<String, String> filters;
+    private final List<SortField> sorts;
 
-    public PageInfo(int pageNumber, int pageSize, Map<String, String> filters) {
-        this(pageNumber, pageSize, filters, SortDirection.DEFAULT);
+    public PageInfo(int pageNumber, int pageSize) {
+        this(pageNumber, pageSize, new HashMap<>(), new ArrayList<>());
     }
 
-    public PageInfo(int pageNumber, int pageSize, Map<String, String> filters, SortDirection sortDirection) {
+    public PageInfo(int pageNumber, int pageSize, Map<String, String> filters) {
+        this(pageNumber, pageSize, filters, new ArrayList<>());
+    }
+
+    public PageInfo(int pageNumber, int pageSize, Map<String, String> filters, List<SortField> sorts) {
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
         this.filters = filters;
-        this.sortDirection = sortDirection;
+        this.sorts = sorts;
     }
 
     @Override
@@ -69,7 +76,7 @@ public class PageInfo implements Pageable {
     }
 
     @Override
-    public SortDirection getSortDirection() {
-        return sortDirection;
+    public List<SortField> getSorts() {
+        return sorts;
     }
 }
