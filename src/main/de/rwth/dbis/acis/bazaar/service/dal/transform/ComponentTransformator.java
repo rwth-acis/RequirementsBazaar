@@ -22,9 +22,14 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import com.vdurmont.emoji.EmojiParser;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Component;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ComponentFollower;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Tags;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentsRecord;
 import org.jooq.*;
+import org.jooq.impl.DSL;
 
 import java.util.*;
 
@@ -94,8 +99,75 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
 
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
+        if (sorts.isEmpty()) {
+            return Arrays.asList(COMPONENTS.NAME.asc());
+        }
+        List<SortField<?>> sortFields = new ArrayList<>();
+        for (Pageable.SortField sort : sorts) {
+            if (sort.getField().equals("name")) {
+                switch (sort.getSortDirection()) {
+                    case ASC:
+                        sortFields.add(COMPONENTS.NAME.asc());
+                        break;
+                    case DESC:
+                        sortFields.add(COMPONENTS.NAME.desc());
+                        break;
+                    default:
+                        sortFields.add(COMPONENTS.NAME.asc());
+                        break;
+                }
+            } else if (sort.getField().equals("date")) {
+                switch (sort.getSortDirection()) {
+                    case ASC:
+                        sortFields.add(COMPONENTS.CREATION_TIME.asc());
+                        break;
+                    case DESC:
+                        sortFields.add(COMPONENTS.CREATION_TIME.desc());
+                        break;
+                    default:
+                        sortFields.add(COMPONENTS.CREATION_TIME.desc());
+                        break;
+                }
+            } else if (sort.getField().equals("requirement")) {
 
-        return null;
+                Field<Object> requirementCount = DSL.select(DSL.count())
+                        .from(Requirements.REQUIREMENTS)
+                        .leftJoin(Tags.TAGS).on(Requirements.REQUIREMENTS.ID.equal(Tags.TAGS.REQUIREMENTS_ID))
+                        .where(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
+                        .asField("requirementCount");
+
+                switch (sort.getSortDirection()) {
+                    case ASC:
+                        sortFields.add(requirementCount.asc());
+                        break;
+                    case DESC:
+                        sortFields.add(requirementCount.desc());
+                        break;
+                    default:
+                        sortFields.add(requirementCount.desc());
+                        break;
+                }
+            } else if (sort.getField().equals("follower")) {
+
+                Field<Object> followerCount = DSL.select(DSL.count())
+                        .from(ComponentFollower.COMPONENT_FOLLOWER)
+                        .where(ComponentFollower.COMPONENT_FOLLOWER.COMPONENT_ID.equal(COMPONENTS.ID))
+                        .asField("followerCount");
+
+                switch (sort.getSortDirection()) {
+                    case ASC:
+                        sortFields.add(followerCount.asc());
+                        break;
+                    case DESC:
+                        sortFields.add(followerCount.desc());
+                        break;
+                    default:
+                        sortFields.add(followerCount.desc());
+                        break;
+                }
+            }
+        }
+        return sortFields;
     }
 
     @Override

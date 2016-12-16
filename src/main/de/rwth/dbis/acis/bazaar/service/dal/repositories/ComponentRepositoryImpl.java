@@ -21,14 +21,11 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Component;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.ComponentFollower;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Tags;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.*;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentsRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.ComponentTransformator;
@@ -42,6 +39,7 @@ import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.exception.DataAccessException;
+import org.jooq.impl.DSL;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -127,7 +125,22 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                     .where(COMPONENTS.PROJECT_ID.equal(projectId))
                     .asField("idCount");
 
-            List<Record> queryResults = jooq.select(COMPONENTS.fields()).select(leaderUser.fields()).select(idCount)
+            Field<Object> requirementCount = jooq.select(DSL.count())
+                    .from(Requirements.REQUIREMENTS)
+                    .leftJoin(Tags.TAGS).on(Requirements.REQUIREMENTS.ID.equal(Tags.TAGS.REQUIREMENTS_ID))
+                    .where(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
+                    .asField("requirementCount");
+
+            Field<Object> followerCount = jooq.select(DSL.count())
+                    .from(ComponentFollower.COMPONENT_FOLLOWER)
+                    .where(ComponentFollower.COMPONENT_FOLLOWER.COMPONENT_ID.equal(COMPONENTS.ID))
+                    .asField("followerCount");
+
+            List<Record> queryResults = jooq.select(COMPONENTS.fields())
+                    .select(leaderUser.fields())
+                    .select(idCount)
+                    .select(requirementCount)
+                    .select(followerCount)
                     .from(COMPONENTS)
                     .join(leaderUser).on(leaderUser.ID.equal(COMPONENTS.LEADER_ID))
                     .where(COMPONENTS.PROJECT_ID.equal(projectId))

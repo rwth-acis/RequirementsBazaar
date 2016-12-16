@@ -473,6 +473,7 @@ public class ComponentsResource extends RESTService {
                 Map<String, String> parameter = new HashMap<>();
                 parameter.put("page", String.valueOf(page));
                 parameter.put("per_page", String.valueOf(perPage));
+                parameter.put("sort", String.valueOf(sort));
 
                 Response.ResponseBuilder responseBuilder = Response.ok();
                 responseBuilder = responseBuilder.entity(gson.toJson(requirementsResult.getElements()));

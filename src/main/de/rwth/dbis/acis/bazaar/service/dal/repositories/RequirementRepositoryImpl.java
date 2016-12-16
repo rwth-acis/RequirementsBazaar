@@ -149,12 +149,12 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .where(Votes.VOTES.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
                     .asField("voteCount");
 
-            Field<Object> commentCount = DSL.select(DSL.count())
+            Field<Object> commentCount = jooq.select(DSL.count())
                     .from(Comments.COMMENTS)
                     .where(Comments.COMMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
                     .asField("commentCount");
 
-            Field<Object> followerCount = DSL.select(DSL.count())
+            Field<Object> followerCount = jooq.select(DSL.count())
                     .from(REQUIREMENT_FOLLOWER)
                     .where(REQUIREMENT_FOLLOWER.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
                     .asField("followerCount");

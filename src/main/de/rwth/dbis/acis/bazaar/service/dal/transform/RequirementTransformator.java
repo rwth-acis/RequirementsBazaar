@@ -118,19 +118,25 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
                 switch (sort.getSortDirection()) {
                     case ASC:
                         sortFields.add(REQUIREMENTS.CREATION_TIME.asc());
+                        break;
                     case DESC:
                         sortFields.add(REQUIREMENTS.CREATION_TIME.desc());
+                        break;
                     default:
                         sortFields.add(REQUIREMENTS.CREATION_TIME.desc());
+                        break;
                 }
             } else if (sort.getField().equals("title")) {
                 switch (sort.getSortDirection()) {
                     case ASC:
                         sortFields.add(REQUIREMENTS.TITLE.asc());
+                        break;
                     case DESC:
                         sortFields.add(REQUIREMENTS.TITLE.desc());
+                        break;
                     default:
                         sortFields.add(REQUIREMENTS.TITLE.asc());
+                        break;
                 }
             } else if (sort.getField().equals("vote")) {
 
@@ -142,10 +148,13 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
                 switch (sort.getSortDirection()) {
                     case ASC:
                         sortFields.add(voteCount.asc());
+                        break;
                     case DESC:
                         sortFields.add(voteCount.desc());
+                        break;
                     default:
                         sortFields.add(voteCount.desc());
+                        break;
                 }
             } else if (sort.getField().equals("comment")) {
 
@@ -157,10 +166,13 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
                 switch (sort.getSortDirection()) {
                     case ASC:
                         sortFields.add(commentCount.asc());
+                        break;
                     case DESC:
                         sortFields.add(commentCount.desc());
+                        break;
                     default:
                         sortFields.add(commentCount.desc());
+                        break;
                 }
             } else if (sort.getField().equals("follower")) {
 
@@ -172,19 +184,25 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
                 switch (sort.getSortDirection()) {
                     case ASC:
                         sortFields.add(followerCount.asc());
+                        break;
                     case DESC:
                         sortFields.add(followerCount.desc());
+                        break;
                     default:
                         sortFields.add(followerCount.desc());
+                        break;
                 }
             } else if (sort.getField().equals("realized")) {
                 switch (sort.getSortDirection()) {
                     case ASC:
                         sortFields.add(REQUIREMENTS.REALIZED.asc());
+                        break;
                     case DESC:
                         sortFields.add(REQUIREMENTS.REALIZED.desc());
+                        break;
                     default:
                         sortFields.add(REQUIREMENTS.REALIZED.desc());
+                        break;
                 }
             }
         }

@@ -413,7 +413,9 @@ public class ProjectsResource extends RESTService {
         public Response getComponentsByProject(
                 @PathParam("projectId") int projectId,
                 @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
-                @ApiParam(value = "Elements of components by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
+                @ApiParam(value = "Elements of components by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
+                @ApiParam(value = "Sort", required = false, allowableValues = "name,date,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort) {
+
             DALFacade dalFacade = null;
             try {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -423,7 +425,21 @@ public class ProjectsResource extends RESTService {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
                 }
                 Gson gson = new Gson();
-                PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>());
+                List<Pageable.SortField> sortList = new ArrayList<>();
+                for (String sortOption : sort) {
+                    Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
+                    if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { // " " is needed because jersey does not pass "+"
+                        direction = Pageable.SortDirection.ASC;
+                        sortOption = sortOption.substring(1);
+
+                    } else if (sortOption.startsWith("-")) {
+                        direction = Pageable.SortDirection.DESC;
+                        sortOption = sortOption.substring(1);
+                    }
+                    Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
+                    sortList.add(sortField);
+                }
+                PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>(), sortList);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(pageInfo);
                 if (vtor.hasViolations()) {
@@ -450,6 +466,7 @@ public class ProjectsResource extends RESTService {
                 Map<String, String> parameter = new HashMap<>();
                 parameter.put("page", String.valueOf(page));
                 parameter.put("per_page", String.valueOf(perPage));
+                parameter.put("sort", String.valueOf(sort));
 
                 Response.ResponseBuilder responseBuilder = Response.ok();
                 responseBuilder = responseBuilder.entity(gson.toJson(componentsResult.getElements()));
