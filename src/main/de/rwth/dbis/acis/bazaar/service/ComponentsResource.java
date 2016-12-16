@@ -470,10 +470,14 @@ public class ComponentsResource extends RESTService {
                 }
                 PaginationResult<RequirementEx> requirementsResult = dalFacade.listRequirementsByComponent(componentId, pageInfo, internalUserId);
 
-                Map<String, String> parameter = new HashMap<>();
-                parameter.put("page", String.valueOf(page));
-                parameter.put("per_page", String.valueOf(perPage));
-                parameter.put("sort", String.valueOf(sort));
+                Map<String, List<String>> parameter = new HashMap<>();
+                parameter.put("page", new ArrayList() {{
+                    add(String.valueOf(page));
+                }});
+                parameter.put("per_page", new ArrayList() {{
+                    add(String.valueOf(perPage));
+                }});
+                parameter.put("sort", sort);
 
                 Response.ResponseBuilder responseBuilder = Response.ok();
                 responseBuilder = responseBuilder.entity(gson.toJson(requirementsResult.getElements()));

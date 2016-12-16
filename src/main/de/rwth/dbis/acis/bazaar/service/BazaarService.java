@@ -268,11 +268,13 @@ public class BazaarService extends RESTService {
     }
 
     public Response.ResponseBuilder paginationLinks(Response.ResponseBuilder responseBuilder, PaginationResult paginationResult,
-                                                    String path, Map<String, String> httpParameter) throws URISyntaxException {
+                                                    String path, Map<String, List<String>> httpParameter) throws URISyntaxException {
         List<Link> links = new ArrayList<>();
         URIBuilder uriBuilder = new URIBuilder(baseURL + path);
-        for (Map.Entry<String, String> entry : httpParameter.entrySet()) {
-            uriBuilder.addParameter(entry.getKey(), entry.getValue());
+        for (Map.Entry<String, List<String>> entry : httpParameter.entrySet()) {
+            for (String parameter : entry.getValue()) {
+                uriBuilder.addParameter(entry.getKey(), parameter);
+            }
         }
         if (paginationResult.getPrevPage() != -1) {
             links.add(Link.fromUri(uriBuilder.setParameter("page", String.valueOf(paginationResult.getPrevPage())).build()).rel("prev").build());
