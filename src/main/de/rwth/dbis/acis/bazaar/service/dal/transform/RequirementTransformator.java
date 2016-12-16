@@ -123,6 +123,15 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
                     default:
                         sortFields.add(REQUIREMENTS.CREATION_TIME.desc());
                 }
+            } else if (sort.getField().equals("title")) {
+                switch (sort.getSortDirection()) {
+                    case ASC:
+                        sortFields.add(REQUIREMENTS.TITLE.asc());
+                    case DESC:
+                        sortFields.add(REQUIREMENTS.TITLE.desc());
+                    default:
+                        sortFields.add(REQUIREMENTS.TITLE.asc());
+                }
             } else if (sort.getField().equals("vote")) {
 
                 Field<Object> voteCount = DSL.select(DSL.count(DSL.nullif(Votes.VOTES.IS_UPVOTE, 0)))

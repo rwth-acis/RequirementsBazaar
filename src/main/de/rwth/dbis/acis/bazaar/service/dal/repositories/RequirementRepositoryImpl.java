@@ -144,12 +144,31 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .where(transformator.getFilterConditions(pageable.getFilters())).and(TAGS.COMPONENTS_ID.eq(componentId))
                     .asField("idCount");
 
-            List<Record> queryResults = jooq.select(REQUIREMENTS.fields()).select(idCount)
+            Field<Object> voteCount = jooq.select(DSL.count(DSL.nullif(Votes.VOTES.IS_UPVOTE, 0)))
+                    .from(Votes.VOTES)
+                    .where(Votes.VOTES.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                    .asField("voteCount");
+
+            Field<Object> commentCount = DSL.select(DSL.count())
+                    .from(Comments.COMMENTS)
+                    .where(Comments.COMMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                    .asField("commentCount");
+
+            Field<Object> followerCount = DSL.select(DSL.count())
+                    .from(REQUIREMENT_FOLLOWER)
+                    .where(REQUIREMENT_FOLLOWER.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                    .asField("followerCount");
+
+            List<Record> queryResults = jooq.select(REQUIREMENTS.fields())
+                    .select(idCount)
+                    .select(voteCount)
+                    .select(commentCount)
+                    .select(followerCount)
                     .from(REQUIREMENTS)
                     .join(TAGS).on(TAGS.REQUIREMENTS_ID.eq(REQUIREMENTS.ID))
                     .where(transformator.getFilterConditions(pageable.getFilters())).and(TAGS.COMPONENTS_ID.eq(componentId))
                     .groupBy(REQUIREMENTS.ID)
-                    .orderBy(REQUIREMENTS.CREATION_TIME.desc(), REQUIREMENTS.ID.desc())
+                    .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();
