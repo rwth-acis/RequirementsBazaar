@@ -98,7 +98,7 @@ public class AttachmentRepositoryImpl extends RepositoryImpl<Attachment, Attachm
                     .from(Attachments.ATTACHMENTS)
                     .join(creatorUser).on(creatorUser.ID.equal(Attachments.ATTACHMENTS.USER_ID))
                     .where(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(requirementId))
-                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                    .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();

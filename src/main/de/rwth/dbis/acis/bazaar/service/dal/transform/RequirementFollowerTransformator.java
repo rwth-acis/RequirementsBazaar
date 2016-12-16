@@ -75,14 +75,9 @@ public class RequirementFollowerTransformator implements Transformator<Requireme
     }
 
     @Override
-    public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
-        switch (sortDirection) {
-            case DEFAULT:
-                return Arrays.asList(REQUIREMENT_FOLLOWER.ID.asc());
-            case ASC:
-                return Arrays.asList(REQUIREMENT_FOLLOWER.ID.asc());
-            case DESC:
-                return Arrays.asList(REQUIREMENT_FOLLOWER.ID.desc());
+    public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
+        if (sorts.isEmpty()) {
+            return Arrays.asList(REQUIREMENT_FOLLOWER.ID.asc());
         }
         return null;
     }

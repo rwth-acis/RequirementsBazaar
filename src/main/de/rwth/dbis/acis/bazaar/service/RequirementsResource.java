@@ -676,7 +676,7 @@ public class RequirementsResource extends RESTService {
                 if (registratorErrors != null) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
                 }
-                PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>(), Pageable.SortDirection.ASC);
+                PageInfo pageInfo = new PageInfo(page, perPage);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(pageInfo);
                 if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
@@ -699,9 +699,13 @@ public class RequirementsResource extends RESTService {
                 PaginationResult<Comment> commentsResult = dalFacade.listCommentsByRequirementId(requirementId, pageInfo);
                 Gson gson = new Gson();
 
-                Map<String, String> parameter = new HashMap<>();
-                parameter.put("page", String.valueOf(page));
-                parameter.put("per_page", String.valueOf(perPage));
+                Map<String, List<String>> parameter = new HashMap<>();
+                parameter.put("page", new ArrayList() {{
+                    add(String.valueOf(page));
+                }});
+                parameter.put("per_page", new ArrayList() {{
+                    add(String.valueOf(perPage));
+                }});
 
                 Response.ResponseBuilder responseBuilder = Response.ok();
                 responseBuilder = responseBuilder.entity(gson.toJson(commentsResult.getElements()));
@@ -755,7 +759,7 @@ public class RequirementsResource extends RESTService {
                 if (registratorErrors != null) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
                 }
-                PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>(), Pageable.SortDirection.ASC);
+                PageInfo pageInfo = new PageInfo(page, perPage);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(pageInfo);
                 if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
@@ -778,9 +782,13 @@ public class RequirementsResource extends RESTService {
                 PaginationResult<Attachment> attachmentsResult = dalFacade.listAttachmentsByRequirementId(requirementId, pageInfo);
                 Gson gson = new Gson();
 
-                Map<String, String> parameter = new HashMap<>();
-                parameter.put("page", String.valueOf(page));
-                parameter.put("per_page", String.valueOf(perPage));
+                Map<String, List<String>> parameter = new HashMap<>();
+                parameter.put("page", new ArrayList() {{
+                    add(String.valueOf(page));
+                }});
+                parameter.put("per_page", new ArrayList() {{
+                    add(String.valueOf(perPage));
+                }});
 
                 Response.ResponseBuilder responseBuilder = Response.ok();
                 responseBuilder = responseBuilder.entity(gson.toJson(attachmentsResult.getElements()));

@@ -73,14 +73,9 @@ public class PrivilegeTransformator implements Transformator<de.rwth.dbis.acis.b
     }
 
     @Override
-    public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
-        switch (sortDirection) {
-            case DEFAULT:
-                return Arrays.asList(ROLES.ID.asc());
-            case ASC:
-                return Arrays.asList(ROLES.ID.asc());
-            case DESC:
-                return Arrays.asList(ROLES.ID.desc());
+    public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
+        if (sorts.isEmpty()) {
+            return Arrays.asList(ROLES.ID.asc());
         }
         return null;
     }

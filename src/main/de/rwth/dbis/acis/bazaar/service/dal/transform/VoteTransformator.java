@@ -78,14 +78,9 @@ public class VoteTransformator implements de.rwth.dbis.acis.bazaar.service.dal.t
     }
 
     @Override
-    public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
-        switch (sortDirection) {
-            case DEFAULT:
-                return Arrays.asList(VOTES.ID.asc());
-            case ASC:
-                return Arrays.asList(VOTES.ID.asc());
-            case DESC:
-                return Arrays.asList(VOTES.ID.desc());
+    public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
+        if (sorts.isEmpty()) {
+            return Arrays.asList(VOTES.ID.asc());
         }
         return null;
     }
