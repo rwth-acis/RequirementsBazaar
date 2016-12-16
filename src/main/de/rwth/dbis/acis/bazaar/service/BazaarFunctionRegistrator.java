@@ -27,5 +27,5 @@ import java.util.EnumSet;
  * @since 1/9/2015
  */
 public interface BazaarFunctionRegistrator {
-    public void registerFunction(EnumSet<BazaarFunction> functions) throws Exception;
+    void registerFunction(EnumSet<BazaarFunction> functions) throws Exception;
 }

@@ -38,22 +38,19 @@ import de.rwth.dbis.acis.bazaar.service.notification.EmailDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcherImp;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
-import i5.las2peer.api.Service;
-import i5.las2peer.restMapper.HttpResponse;
-import i5.las2peer.restMapper.RESTMapper;
-import i5.las2peer.restMapper.annotations.Version;
+import i5.las2peer.restMapper.RESTService;
+import i5.las2peer.restMapper.annotations.ServicePath;
 import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
-
 import jodd.vtor.Vtor;
 import org.apache.commons.dbcp2.*;
-
 import org.apache.http.client.utils.URIBuilder;
 import org.jooq.SQLDialect;
 
+import javax.annotation.Resource;
 import javax.sql.DataSource;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.Link;
+import javax.ws.rs.core.Response;
 import java.net.URISyntaxException;
 import java.util.*;
 
@@ -65,13 +62,12 @@ import java.util.*;
  *
  * @author István Koren
  */
-@Path("/bazaar")
-@Version("0.2")
-@Api
+//TODO Service from BasaarService, here is no Endpoint
+@ServicePath("/bazaar/main")
 @SwaggerDefinition(
         info = @Info(
                 title = "Requirements Bazaar",
-                version = "0.2",
+                version = "0.3",
                 description = "Requirements Bazaar project",
                 termsOfService = "http://requirements-bazaar.org",
                 contact = @Contact(
@@ -88,7 +84,7 @@ import java.util.*;
         basePath = "",
         schemes = SwaggerDefinition.Scheme.HTTPS
 )
-public class BazaarService extends Service {
+public class BazaarService extends RESTService {
 
     //CONFIG PROPERTIES
     protected String dbUserName;
@@ -107,20 +103,9 @@ public class BazaarService extends Service {
     private NotificationDispatcher notificationDispatcher;
     private DataSource dataSource;
 
-    /**
-     * This method is needed for every RESTful application in LAS2peer.
-     *
-     * @return the mapping to the REST interface.
-     */
-    public String getRESTMapping() {
-        String result = "";
-        try {
-            result = RESTMapper.getMethodsAsXML(this.getClass());
-        } catch (Exception e) {
-
-            e.printStackTrace();
-        }
-        return result;
+    @Override
+    protected void initResources() {
+        getResourceConfig().register(Resource.class);
     }
 
     public BazaarService() throws Exception {
@@ -170,10 +155,10 @@ public class BazaarService extends Service {
         });
 
         notificationDispatcher = new NotificationDispatcherImp();
-        if (! activityTrackerService.isEmpty()) {
+        if (!activityTrackerService.isEmpty()) {
             notificationDispatcher.setActivityDispatcher(new ActivityDispatcher(this, activityTrackerService, baseURL, frontendBaseURL));
         }
-        if (! smtpServer.isEmpty()) {
+        if (!smtpServer.isEmpty()) {
             Properties props = System.getProperties();
             props.put("mail.smtp.host", smtpServer);
             notificationDispatcher.setEmailDispatcher(new EmailDispatcher(this, smtpServer, emailFromAddress, frontendBaseURL));
@@ -282,36 +267,37 @@ public class BazaarService extends Service {
         dalFacade.close();
     }
 
-    public HttpResponse addPaginationToHtppResponse(PaginationResult paginationResult,
-                                                    String path,
-                                                        Map<String, String> httpParameter,
-                                                        HttpResponse httpResponse) throws URISyntaxException {
-        httpResponse.setHeader("X-Page", String.valueOf(paginationResult.getPageable().getPageNumber()));
-        httpResponse.setHeader("X-Per-Page", String.valueOf(paginationResult.getPageable().getPageSize()));
-        if (paginationResult.getPrevPage() != -1) {
-            httpResponse.setHeader("X-Prev-Page", String.valueOf(paginationResult.getPrevPage()));
-        }
-        if (paginationResult.getNextPage() != -1) {
-            httpResponse.setHeader("X-Next-Page", String.valueOf(paginationResult.getNextPage()));
-        }
-        httpResponse.setHeader("X-Total-Pages", String.valueOf(paginationResult.getTotalPages()));
-        httpResponse.setHeader("X-Total", String.valueOf(paginationResult.getTotal()));
-
+    public Response.ResponseBuilder paginationLinks(Response.ResponseBuilder responseBuilder, PaginationResult paginationResult,
+                                                    String path, Map<String, String> httpParameter) throws URISyntaxException {
+        List<Link> links = new ArrayList<>();
         URIBuilder uriBuilder = new URIBuilder(baseURL + path);
         for (Map.Entry<String, String> entry : httpParameter.entrySet()) {
             uriBuilder.addParameter(entry.getKey(), entry.getValue());
         }
-        String links = new String();
         if (paginationResult.getPrevPage() != -1) {
-            links = links.concat("<" + uriBuilder.setParameter("page", String.valueOf(paginationResult.getPrevPage())).build() + ">; rel=\"prev\",");
+            links.add(Link.fromUri(uriBuilder.setParameter("page", String.valueOf(paginationResult.getPrevPage())).build()).rel("prev").build());
         }
         if (paginationResult.getNextPage() != -1) {
-            links = links.concat("<" + uriBuilder.setParameter("page", String.valueOf(paginationResult.getNextPage())).build() + ">; rel=\"next\",");
+            links.add(Link.fromUri(uriBuilder.setParameter("page", String.valueOf(paginationResult.getNextPage())).build()).rel("next").build());
         }
-        links = links.concat("<" + uriBuilder.setParameter("page", "0") + ">; rel=\"first\",");
-        links = links.concat("<" + uriBuilder.setParameter("page", String.valueOf(paginationResult.getTotalPages() - 1)).build() + ">; rel=\"last\"");
-        httpResponse.setHeader("Link", links);
-        return httpResponse;
+        links.add(Link.fromUri(uriBuilder.setParameter("page", "0").build()).rel("first").build());
+        links.add(Link.fromUri(uriBuilder.setParameter("page", String.valueOf(paginationResult.getTotalPages())).build()).rel("last").build());
+        responseBuilder = responseBuilder.links(links.toArray(new Link[links.size()]));
+        return responseBuilder;
+    }
+
+    public Response.ResponseBuilder xHeaderFields(Response.ResponseBuilder responseBuilder, PaginationResult paginationResult) {
+        responseBuilder = responseBuilder.header("X-Page", String.valueOf(paginationResult.getPageable().getPageNumber()));
+        responseBuilder = responseBuilder.header("X-Per-Page", String.valueOf(paginationResult.getPageable().getPageSize()));
+        if (paginationResult.getPrevPage() != -1) {
+            responseBuilder = responseBuilder.header("X-Prev-Page", String.valueOf(paginationResult.getPrevPage()));
+        }
+        if (paginationResult.getNextPage() != -1) {
+            responseBuilder = responseBuilder.header("X-Next-Page", String.valueOf(paginationResult.getNextPage()));
+        }
+        responseBuilder = responseBuilder.header("X-Total-Pages", String.valueOf(paginationResult.getTotalPages()));
+        responseBuilder = responseBuilder.header("X-Total", String.valueOf(paginationResult.getTotal()));
+        return responseBuilder;
     }
 
 }
