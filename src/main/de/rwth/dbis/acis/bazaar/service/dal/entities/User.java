@@ -22,6 +22,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
+import jodd.vtor.constraint.NotNull;
 
 public class User extends EntityBase {
     @Min(-1)
@@ -38,6 +39,7 @@ public class User extends EntityBase {
     private long Las2peerId;
 
     @NotBlank
+    @NotNull
     private String userName;
 
     private String profileImage;

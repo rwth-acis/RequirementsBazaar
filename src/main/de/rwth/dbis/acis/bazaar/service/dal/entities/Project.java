@@ -23,6 +23,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 import jodd.vtor.constraint.MaxLength;
 import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
+import jodd.vtor.constraint.NotNull;
 
 import java.util.Date;
 
@@ -35,9 +36,11 @@ public class Project extends EntityBase {
     private int id;
 
     @NotBlank
+    @NotNull
     private String description;
 
     @NotBlank
+    @NotNull
     @MaxLength(50)
     private String name;
 

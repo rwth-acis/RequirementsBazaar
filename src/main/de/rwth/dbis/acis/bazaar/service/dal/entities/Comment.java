@@ -24,6 +24,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 import jodd.vtor.constraint.MaxLength;
 import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
+import jodd.vtor.constraint.NotNull;
 
 import java.util.Date;
 
@@ -38,6 +39,7 @@ public class Comment extends EntityBase {
     private int Id;
 
     @NotBlank
+    @NotNull
     @MaxLength(65536)
     private String message;
 

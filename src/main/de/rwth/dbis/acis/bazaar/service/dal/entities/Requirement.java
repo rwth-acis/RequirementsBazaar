@@ -15,6 +15,7 @@ public class Requirement extends EntityBase {
     private int id;
 
     @NotBlank
+    @NotNull
     @MaxLength(50)
     private String title;
 
@@ -22,6 +23,8 @@ public class Requirement extends EntityBase {
 
     private Date lastupdated_time;
 
+    @NotBlank
+    @NotNull
     private String description;
 
     private Date realized;
