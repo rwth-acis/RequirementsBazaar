@@ -44,6 +44,26 @@ public class CommentsResource extends RESTService {
     }
 
     @Api(value = "comments", description = "Comments resource")
+    @SwaggerDefinition(
+            info = @Info(
+                    title = "Requirements Bazaar",
+                    version = "0.3",
+                    description = "Requirements Bazaar project",
+                    termsOfService = "http://requirements-bazaar.org",
+                    contact = @Contact(
+                            name = "Requirements Bazaar Dev Team",
+                            url = "http://requirements-bazaar.org",
+                            email = "info@requirements-bazaar.org"
+                    ),
+                    license = @License(
+                            name = "Apache2",
+                            url = "http://requirements-bazaar.org/license"
+                    )
+            ),
+            host = "requirements-bazaar.org",
+            basePath = "",
+            schemes = SwaggerDefinition.Scheme.HTTPS
+    )
     @Path("/")
     public static class Resource {
 
@@ -60,7 +80,7 @@ public class CommentsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method allows to retrieve a certain comment")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain comment"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain comment", response = Comment.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -111,7 +131,7 @@ public class CommentsResource extends RESTService {
         /**
          * This method allows to create a new comment.
          *
-         * @param comment comment as JSON object
+         * @param commentToCreate comment as JSON object
          * @return Response with the created comment as JSON object.
          */
         @POST
@@ -119,12 +139,12 @@ public class CommentsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method allows to create a new comment.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created comment"),
+                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created comment", response = Comment.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
-        public Response createComment(@ApiParam(value = "Comment entity as JSON", required = true) String comment) {
+        public Response createComment(@ApiParam(value = "Comment entity", required = true) Comment commentToCreate) {
             DALFacade dalFacade = null;
             try {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -136,7 +156,6 @@ public class CommentsResource extends RESTService {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
                 }
                 Gson gson = new Gson();
-                Comment commentToCreate = gson.fromJson(comment, Comment.class);
                 dalFacade = service.bazaarService.getDBConnection();
                 Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
                 Requirement requirement = dalFacade.getRequirementById(commentToCreate.getRequirementId(), internalUserId);
@@ -180,7 +199,7 @@ public class CommentsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method deletes a specific comment.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the deleted comment"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the deleted comment", response = Comment.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")

@@ -33,9 +33,9 @@ import java.util.Date;
  */
 public class Comment extends EntityBase {
     @Min(-1)
-    private final int requirementId;
+    private int requirementId;
     @Min(-1)
-    private final int Id;
+    private int Id;
 
     @NotBlank
     @MaxLength(65536)
@@ -44,13 +44,16 @@ public class Comment extends EntityBase {
     @Min(-1)
     private int creatorId;
 
-    private final Integer belongsToComment;
+    private Integer belongsToComment;
 
-    private final Date creationTime;
+    private Date creationTime;
 
-    private final Date lastupdatedTime;
+    private Date lastupdatedTime;
 
     private User creator;
+
+    public Comment() {
+    }
 
     public Comment(Builder builder) {
         this.Id = builder.id;

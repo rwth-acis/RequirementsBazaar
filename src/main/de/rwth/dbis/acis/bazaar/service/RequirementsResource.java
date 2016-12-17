@@ -42,6 +42,26 @@ public class RequirementsResource extends RESTService {
     }
 
     @Api(value = "requirements", description = "Requirements resource")
+    @SwaggerDefinition(
+            info = @Info(
+                    title = "Requirements Bazaar",
+                    version = "0.3",
+                    description = "Requirements Bazaar project",
+                    termsOfService = "http://requirements-bazaar.org",
+                    contact = @Contact(
+                            name = "Requirements Bazaar Dev Team",
+                            url = "http://requirements-bazaar.org",
+                            email = "info@requirements-bazaar.org"
+                    ),
+                    license = @License(
+                            name = "Apache2",
+                            url = "http://requirements-bazaar.org/license"
+                    )
+            ),
+            host = "requirements-bazaar.org",
+            basePath = "",
+            schemes = SwaggerDefinition.Scheme.HTTPS
+    )
     @Path("/")
     public static class Resource {
 
@@ -58,7 +78,7 @@ public class RequirementsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method returns a specific requirement.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain requirement"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain requirement", response = RequirementEx.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -107,7 +127,7 @@ public class RequirementsResource extends RESTService {
         /**
          * This method allows to create a new requirement.
          *
-         * @param requirement requirement as a JSON object
+         * @param requirementToCreate requirement as a JSON object
          * @return Response with the created requirement as a JSON object.
          */
         @POST
@@ -115,12 +135,12 @@ public class RequirementsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method allows to create a new requirement.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created requirement"),
+                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created requirement", response = RequirementEx.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
-        public Response createRequirement(@ApiParam(value = "Requirement entity as JSON", required = true) String requirement) {
+        public Response createRequirement(@ApiParam(value = "Requirement entity", required = true) Requirement requirementToCreate) {
             DALFacade dalFacade = null;
             try {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -132,7 +152,6 @@ public class RequirementsResource extends RESTService {
                 // TODO: check whether the current user may create a new requirement
                 dalFacade = service.bazaarService.getDBConnection();
                 Gson gson = new Gson();
-                Requirement requirementToCreate = gson.fromJson(requirement, Requirement.class);
                 Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
                 requirementToCreate.setCreatorId(internalUserId);
                 if (requirementToCreate.getLeadDeveloperId() == 0) {
@@ -196,7 +215,7 @@ public class RequirementsResource extends RESTService {
          * This method updates a specific requirement within a project and component.
          *
          * @param requirementId id of the requirement to update
-         * @param requirement   requirement as a JSON object
+         * @param requirementToUpdate requirement as a JSON object
          * @return Response with updated requirement as a JSON object.
          */
         @PUT
@@ -205,13 +224,13 @@ public class RequirementsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method updates a specific requirement.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the updated requirement"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the updated requirement", response = RequirementEx.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
         public Response updateRequirement(@PathParam("requirementId") int requirementId,
-                                          @ApiParam(value = "Requirement entity as JSON", required = true) String requirement) {
+                                          @ApiParam(value = "Requirement entity", required = true) Requirement requirementToUpdate) {
             DALFacade dalFacade = null;
             try {
                 String registratorErrors = service.bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -221,7 +240,6 @@ public class RequirementsResource extends RESTService {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
                 long userId = agent.getId();
                 Gson gson = new Gson();
-                Requirement requirementToUpdate = gson.fromJson(requirement, Requirement.class);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(requirementToUpdate);
                 if (vtor.hasViolations()) {
@@ -273,7 +291,7 @@ public class RequirementsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method deletes a specific requirement.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the deleted requirement"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the deleted requirement", response = RequirementEx.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -327,7 +345,7 @@ public class RequirementsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method add the current user to the developers list of a given requirement.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = RequirementEx.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -381,7 +399,7 @@ public class RequirementsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method remove the current user from a developers list of a given requirement.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = RequirementEx.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -434,7 +452,7 @@ public class RequirementsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method add the current user to the followers list of a given requirement.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the requirement"),
+                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the requirement", response = RequirementEx.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -487,7 +505,7 @@ public class RequirementsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method removes the current user from a followers list of a given requirement.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = RequirementEx.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -541,7 +559,7 @@ public class RequirementsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method creates a vote for the given requirement in the name of the current user.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = RequirementEx.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -603,7 +621,7 @@ public class RequirementsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method removes the vote of the given requirement made by the current user.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = RequirementEx.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -660,7 +678,7 @@ public class RequirementsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method returns the list of comments for a specific requirement.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of comments for a given requirement"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of comments for a given requirement", response = Comment.class, responseContainer = "List"),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -739,7 +757,7 @@ public class RequirementsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method returns the list of attachments for a specific requirement.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of attachments for a given requirement"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of attachments for a given requirement", response = Attachment.class, responseContainer = "List"),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
