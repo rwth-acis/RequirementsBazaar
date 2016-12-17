@@ -20,6 +20,7 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.helpers;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -35,7 +36,25 @@ public interface Pageable {
 
     Map<String, String> getFilters();
 
-    SortDirection getSortDirection();
+    List<SortField> getSorts();
+
+    class SortField {
+        String field;
+        SortDirection sortDirection;
+
+        public SortField(String field, SortDirection sortDirection) {
+            this.field = field;
+            this.sortDirection = sortDirection;
+        }
+
+        public String getField() {
+            return field;
+        }
+
+        public SortDirection getSortDirection() {
+            return sortDirection;
+        }
+    }
 
     enum SortDirection {
         DEFAULT, ASC, DESC

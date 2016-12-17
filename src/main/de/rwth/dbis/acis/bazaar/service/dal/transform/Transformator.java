@@ -24,6 +24,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import org.jooq.*;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -67,10 +68,10 @@ public interface Transformator<E, R extends Record> {
     Map<Field, Object> getUpdateMap(final E entity);
 
     /**
-     * @param sortDirection
+     * @param sorts
      * @return a collection of the fields, should be used for sorting. SortField also contains information about the sort direction.
      */
-    Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection);
+    Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts);
 
     /**
      * @param likeExpression

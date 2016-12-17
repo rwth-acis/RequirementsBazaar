@@ -94,14 +94,9 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
     }
 
     @Override
-    public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
-        switch (sortDirection) {
-            case DEFAULT:
-                return Arrays.asList(ATTACHMENTS.CREATION_TIME.desc());
-            case ASC:
-                return Arrays.asList(ATTACHMENTS.CREATION_TIME.asc());
-            case DESC:
-                return Arrays.asList(ATTACHMENTS.CREATION_TIME.desc());
+    public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
+        if (sorts.isEmpty()) {
+            return Arrays.asList(ATTACHMENTS.CREATION_TIME.desc());
         }
         return null;
     }

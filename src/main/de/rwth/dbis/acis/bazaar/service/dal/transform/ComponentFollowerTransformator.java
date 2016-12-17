@@ -51,14 +51,9 @@ public class ComponentFollowerTransformator implements Transformator<ComponentFo
     }
 
     @Override
-    public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
-        switch (sortDirection) {
-            case DEFAULT:
-                return Arrays.asList(COMPONENT_FOLLOWER.ID.asc());
-            case ASC:
-                return Arrays.asList(COMPONENT_FOLLOWER.ID.asc());
-            case DESC:
-                return Arrays.asList(COMPONENT_FOLLOWER.ID.desc());
+    public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
+        if (sorts.isEmpty()) {
+            return Arrays.asList(COMPONENT_FOLLOWER.ID.asc());
         }
         return null;
     }

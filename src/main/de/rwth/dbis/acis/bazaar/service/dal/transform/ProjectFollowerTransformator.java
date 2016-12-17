@@ -52,14 +52,9 @@ public class ProjectFollowerTransformator implements Transformator<ProjectFollow
     }
 
     @Override
-    public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
-        switch (sortDirection) {
-            case DEFAULT:
-                return Arrays.asList(PROJECT_FOLLOWER.ID.asc());
-            case ASC:
-                return Arrays.asList(PROJECT_FOLLOWER.ID.asc());
-            case DESC:
-                return Arrays.asList(PROJECT_FOLLOWER.ID.desc());
+    public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
+        if (sorts.isEmpty()) {
+            return Arrays.asList(PROJECT_FOLLOWER.ID.asc());
         }
         return null;
     }

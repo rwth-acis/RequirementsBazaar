@@ -120,14 +120,9 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
     }
 
     @Override
-    public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
-        switch (sortDirection) {
-            case DEFAULT:
-                return Arrays.asList(USERS.USER_NAME.asc());
-            case ASC:
-                return Arrays.asList(USERS.USER_NAME.asc());
-            case DESC:
-                return Arrays.asList(USERS.USER_NAME.desc());
+    public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
+        if (sorts.isEmpty()) {
+            return Arrays.asList(USERS.USER_NAME.asc());
         }
         return null;
     }

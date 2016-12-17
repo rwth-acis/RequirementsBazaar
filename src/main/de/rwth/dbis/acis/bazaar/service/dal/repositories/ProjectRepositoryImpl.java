@@ -24,7 +24,9 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ProjectFollower;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord;
@@ -102,11 +104,25 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                     .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar()))
                     .asField("idCount");
 
-            Result<Record> queryResults = jooq.select(PROJECTS.fields()).select(leaderUser.fields()).select(idCount)
+            Field<Object> requirementCount = jooq.select(DSL.count())
+                    .from(Requirements.REQUIREMENTS)
+                    .where(Requirements.REQUIREMENTS.PROJECT_ID.equal(PROJECTS.ID))
+                    .asField("requirementCount");
+
+            Field<Object> followerCount = DSL.select(DSL.count())
+                    .from(ProjectFollower.PROJECT_FOLLOWER)
+                    .where(ProjectFollower.PROJECT_FOLLOWER.PROJECT_ID.equal(PROJECTS.ID))
+                    .asField("followerCount");
+
+            Result<Record> queryResults = jooq.select(PROJECTS.fields())
+                    .select(leaderUser.fields())
+                    .select(idCount)
+                    .select(requirementCount)
+                    .select(followerCount)
                     .from(PROJECTS)
                     .join(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID))
                     .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar()))
-                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                    .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();
@@ -139,14 +155,28 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                     .from(PROJECTS)
                     .asField("idCount");
 
+            Field<Object> requirementCount = jooq.select(DSL.count())
+                    .from(Requirements.REQUIREMENTS)
+                    .where(Requirements.REQUIREMENTS.PROJECT_ID.equal(PROJECTS.ID))
+                    .asField("requirementCount");
+
+            Field<Object> followerCount = DSL.select(DSL.count())
+                    .from(ProjectFollower.PROJECT_FOLLOWER)
+                    .where(ProjectFollower.PROJECT_FOLLOWER.PROJECT_ID.equal(PROJECTS.ID))
+                    .asField("followerCount");
+
             //TODO only authorized projects?
-            List<Record> queryResults = jooq.select(PROJECTS.fields()).select(leaderUser.fields()).select(idCount)
+            List<Record> queryResults = jooq.select(PROJECTS.fields())
+                    .select(leaderUser.fields())
+                    .select(idCount)
+                    .select(requirementCount)
+                    .select(followerCount)
                     .from(PROJECTS)
                     .join(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID))
 //                    .leftOuterJoin(AUTHORIZATIONS).on(AUTHORIZATIONS.PROJECT_ID.equal(PROJECTS.ID))
 //                    .join(USERS).on(AUTHORIZATIONS.USER_ID.equal(USERS.ID))
 //                    .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar())
-                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                    .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();

@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
@@ -83,7 +84,9 @@ public class ProjectsResource extends RESTService {
         })
         public Response getProjects(
                 @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
-                @ApiParam(value = "Elements of project by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
+                @ApiParam(value = "Elements of project by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
+                @ApiParam(value = "Sort", required = false, allowableValues = "name,date,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort) {
+
             DALFacade dalFacade = null;
             try {
                 String registratorErrors = service.bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -93,7 +96,21 @@ public class ProjectsResource extends RESTService {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
                 long userId = agent.getId();
                 Gson gson = new Gson();
-                PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>());
+                List<Pageable.SortField> sortList = new ArrayList<>();
+                for (String sortOption : sort) {
+                    Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
+                    if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { // " " is needed because jersey does not pass "+"
+                        direction = Pageable.SortDirection.ASC;
+                        sortOption = sortOption.substring(1);
+
+                    } else if (sortOption.startsWith("-")) {
+                        direction = Pageable.SortDirection.DESC;
+                        sortOption = sortOption.substring(1);
+                    }
+                    Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
+                    sortList.add(sortField);
+                }
+                PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>(), sortList);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(pageInfo);
                 if (vtor.hasViolations()) {
@@ -109,9 +126,14 @@ public class ProjectsResource extends RESTService {
                     projectsResult = dalFacade.listPublicAndAuthorizedProjects(pageInfo, userId);
                 }
 
-                Map<String, String> parameter = new HashMap<>();
-                parameter.put("page", String.valueOf(page));
-                parameter.put("per_page", String.valueOf(perPage));
+                Map<String, List<String>> parameter = new HashMap<>();
+                parameter.put("page", new ArrayList() {{
+                    add(String.valueOf(page));
+                }});
+                parameter.put("per_page", new ArrayList() {{
+                  add(String.valueOf(perPage));
+                }});
+                parameter.put("sort", sort);
 
                 Response.ResponseBuilder responseBuilder = Response.ok();
                 responseBuilder = responseBuilder.entity(gson.toJson(projectsResult.getElements()));
@@ -431,7 +453,9 @@ public class ProjectsResource extends RESTService {
         public Response getComponentsByProject(
                 @PathParam("projectId") int projectId,
                 @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
-                @ApiParam(value = "Elements of components by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
+                @ApiParam(value = "Elements of components by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
+                @ApiParam(value = "Sort", required = false, allowableValues = "name,date,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort) {
+
             DALFacade dalFacade = null;
             try {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -441,7 +465,21 @@ public class ProjectsResource extends RESTService {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
                 }
                 Gson gson = new Gson();
-                PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>());
+                List<Pageable.SortField> sortList = new ArrayList<>();
+                for (String sortOption : sort) {
+                    Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
+                    if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { // " " is needed because jersey does not pass "+"
+                        direction = Pageable.SortDirection.ASC;
+                        sortOption = sortOption.substring(1);
+
+                    } else if (sortOption.startsWith("-")) {
+                        direction = Pageable.SortDirection.DESC;
+                        sortOption = sortOption.substring(1);
+                    }
+                    Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
+                    sortList.add(sortField);
+                }
+                PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>(), sortList);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(pageInfo);
                 if (vtor.hasViolations()) {
@@ -465,9 +503,14 @@ public class ProjectsResource extends RESTService {
                 }
                 PaginationResult<Component> componentsResult = dalFacade.listComponentsByProjectId(projectId, pageInfo);
 
-                Map<String, String> parameter = new HashMap<>();
-                parameter.put("page", String.valueOf(page));
-                parameter.put("per_page", String.valueOf(perPage));
+                Map<String, List<String>> parameter = new HashMap<>();
+                parameter.put("page", new ArrayList() {{
+                    add(String.valueOf(page));
+                }});
+                parameter.put("per_page", new ArrayList() {{
+                    add(String.valueOf(perPage));
+                }});
+                parameter.put("sort", sort);
 
                 Response.ResponseBuilder responseBuilder = Response.ok();
                 responseBuilder = responseBuilder.entity(gson.toJson(componentsResult.getElements()));
@@ -513,7 +556,8 @@ public class ProjectsResource extends RESTService {
         public Response getRequirementsByProject(@PathParam("projectId") int projectId,
                                                  @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
                                                  @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
-                                                 @ApiParam(value = "State filter", required = false, allowableValues = "all,open,realized") @DefaultValue("all") @QueryParam("state") String stateFilter) {
+                                                 @ApiParam(value = "State filter", required = false, allowableValues = "all,open,realized") @DefaultValue("all") @QueryParam("state") String stateFilter,
+                                                 @ApiParam(value = "Sort", required = false, allowableValues = "date,title,vote,comment,follower,realized") @DefaultValue("date") @QueryParam("sort") List<String> sort) {
             DALFacade dalFacade = null;
             try {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -527,7 +571,21 @@ public class ProjectsResource extends RESTService {
                 if (stateFilter != "all") {
                     filters.put("realized", stateFilter);
                 }
-                PageInfo pageInfo = new PageInfo(page, perPage, filters);
+                List<Pageable.SortField> sortList = new ArrayList<>();
+                for (String sortOption : sort) {
+                    Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
+                    if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { // " " is needed because jersey does not pass "+"
+                        direction = Pageable.SortDirection.ASC;
+                        sortOption = sortOption.substring(1);
+
+                    } else if (sortOption.startsWith("-")) {
+                        direction = Pageable.SortDirection.DESC;
+                        sortOption = sortOption.substring(1);
+                    }
+                    Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
+                    sortList.add(sortField);
+                }
+                PageInfo pageInfo = new PageInfo(page, perPage, filters, sortList);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(pageInfo);
                 if (vtor.hasViolations()) {
@@ -551,9 +609,17 @@ public class ProjectsResource extends RESTService {
                 }
                 PaginationResult<RequirementEx> requirementsResult = dalFacade.listRequirementsByProject(projectId, pageInfo, internalUserId);
 
-                Map<String, String> parameter = new HashMap<>();
-                parameter.put("page", String.valueOf(page));
-                parameter.put("per_page", String.valueOf(perPage));
+                Map<String, List<String>> parameter = new HashMap<>();
+                parameter.put("page", new ArrayList() {{
+                    add(String.valueOf(page));
+                }});
+                parameter.put("per_page", new ArrayList() {{
+                    add(String.valueOf(perPage));
+                }});
+                parameter.put("state", new ArrayList() {{
+                    add(String.valueOf(stateFilter));
+                }});
+                parameter.put("sort", sort);
 
                 Response.ResponseBuilder responseBuilder = Response.ok();
                 responseBuilder = responseBuilder.entity(gson.toJson(requirementsResult.getElements()));
