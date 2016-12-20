@@ -236,6 +236,7 @@ public class ProjectsResource extends RESTService {
                 long userId = agent.getId();
                 Gson gson = new Gson();
                 Vtor vtor = service.bazaarService.getValidators();
+                vtor.useProfiles("create");
                 vtor.validate(projectToCreate);
                 if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
                 dalFacade = service.bazaarService.getDBConnection();

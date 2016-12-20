@@ -15,7 +15,7 @@ public class Requirement extends EntityBase {
     private int id;
 
     @NotBlank
-    @NotNull
+    @NotNull(profiles = {"create"})
     @MaxLength(50)
     private String title;
 
@@ -24,7 +24,7 @@ public class Requirement extends EntityBase {
     private Date lastupdated_time;
 
     @NotBlank
-    @NotNull
+    @NotNull(profiles = {"create"})
     private String description;
 
     private Date realized;

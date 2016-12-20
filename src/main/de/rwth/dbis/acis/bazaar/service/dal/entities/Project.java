@@ -36,11 +36,11 @@ public class Project extends EntityBase {
     private int id;
 
     @NotBlank
-    @NotNull
+    @NotNull(profiles = {"create"})
     private String description;
 
     @NotBlank
-    @NotNull
+    @NotNull(profiles = {"create"})
     @MaxLength(50)
     private String name;
 

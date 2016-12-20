@@ -151,6 +151,7 @@ public class AttachmentsResource extends RESTService {
                 }
                 Gson gson = new Gson();
                 Vtor vtor = service.bazaarService.getValidators();
+                vtor.useProfiles("create");
                 vtor.validate(attachmentToCreate);
                 if (vtor.hasViolations()) {
                     ExceptionHandler.getInstance().handleViolations(vtor.getViolations());

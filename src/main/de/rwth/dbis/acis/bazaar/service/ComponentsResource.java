@@ -153,6 +153,7 @@ public class ComponentsResource extends RESTService {
                 }
                 Gson gson = new Gson();
                 Vtor vtor = service.bazaarService.getValidators();
+                vtor.useProfiles("create");
                 vtor.validate(componentToCreate);
                 if (vtor.hasViolations()) {
                     ExceptionHandler.getInstance().handleViolations(vtor.getViolations());

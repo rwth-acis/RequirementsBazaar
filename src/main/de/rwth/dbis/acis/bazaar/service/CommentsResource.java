@@ -165,6 +165,7 @@ public class CommentsResource extends RESTService {
                 }
                 commentToCreate.setCreatorId(internalUserId);
                 Vtor vtor = service.bazaarService.getValidators();
+                vtor.useProfiles("create");
                 vtor.validate(commentToCreate);
                 if (vtor.hasViolations()) {
                     ExceptionHandler.getInstance().handleViolations(vtor.getViolations());

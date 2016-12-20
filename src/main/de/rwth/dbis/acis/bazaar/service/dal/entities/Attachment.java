@@ -38,24 +38,24 @@ public class Attachment extends EntityBase {
     @Min(-1)
     private int requirementId;
 
-    @NotNull
+    @NotNull(profiles = {"create"})
     @NotBlank
     @MaxLength(100)
     private String title;
 
     private String description;
 
-    @NotNull
+    @NotNull(profiles = {"create"})
     @NotBlank
     @MaxLength(255)
     private String mimeType;
 
-    @NotNull
+    @NotNull(profiles = {"create"})
     @NotBlank
     @MaxLength(255)
     private String identifier;
 
-    @NotNull
+    @NotNull(profiles = {"create"})
     @NotBlank
     @MaxLength(1000)
     private String fileUrl;

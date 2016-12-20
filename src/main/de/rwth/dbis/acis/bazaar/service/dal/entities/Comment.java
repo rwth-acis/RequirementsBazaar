@@ -39,7 +39,7 @@ public class Comment extends EntityBase {
     private int Id;
 
     @NotBlank
-    @NotNull
+    @NotNull(profiles = {"create"})
     @MaxLength(65536)
     private String message;
 
