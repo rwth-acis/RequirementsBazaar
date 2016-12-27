@@ -21,13 +21,11 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ProjectFollower;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.*;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.ProjectTransformator;
@@ -43,7 +41,9 @@ import org.jooq.Result;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 
+import java.security.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS;
@@ -210,5 +210,78 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return false;
+    }
+
+    @Override
+    public Statistic getStatisticsForAllProjects(int userId, java.sql.Timestamp timestamp) throws BazaarException {
+        Statistic result = null;
+        try {
+            Record record = jooq
+                    .select(DSL.countDistinct(PROJECTS.ID).as("numberOfProjects"))
+                    .select(DSL.countDistinct(Components.COMPONENTS.ID).as("numberOfComponents"))
+                    .select(DSL.countDistinct(Requirements.REQUIREMENTS.ID).as("numberOfRequirements"))
+                    .select(DSL.countDistinct(Comments.COMMENTS.ID).as("numberOfComments"))
+                    .select(DSL.countDistinct(Attachments.ATTACHMENTS.ID).as("numberOfAttachments"))
+                    .select(DSL.countDistinct(Votes.VOTES.ID).as("numberOfVotes"))
+                    .from(PROJECTS)
+                    .leftJoin(Components.COMPONENTS).on(Components.COMPONENTS.PROJECT_ID.equal(PROJECTS.ID))
+                    .leftJoin(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.PROJECT_ID.equal(PROJECTS.ID))
+                    .leftJoin(Comments.COMMENTS).on(Comments.COMMENTS.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID))
+                    .leftJoin(Attachments.ATTACHMENTS).on(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID))
+                    .leftJoin(Votes.VOTES).on(Votes.VOTES.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID))
+                    .where(PROJECTS.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(PROJECTS.LASTUPDATED_TIME.greaterOrEqual(timestamp)))
+                    .fetchOne();
+
+            result = Statistic.getBuilder()
+                    .numberOfProjects((Integer) record.get("numberOfProjects"))
+                    .numberOfComponents((Integer) record.get("numberOfComponents"))
+                    .numberOfRequirements((Integer) record.get("numberOfRequirements"))
+                    .numberOfComments((Integer) record.get("numberOfComments"))
+                    .numberOfAttachments((Integer) record.get("numberOfAttachments"))
+                    .numberOfVotes((Integer) record.get("numberOfVotes"))
+                    .build();
+
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return result;
+    }
+
+    @Override
+    public Statistic getStatisticsForProject(int userId, int projectId, java.sql.Timestamp timestamp) throws BazaarException {
+        Statistic result = null;
+        try {
+            Record record = jooq
+                    .select(DSL.countDistinct(PROJECTS.ID).as("numberOfProjects"))
+                    .select(DSL.countDistinct(Components.COMPONENTS.ID).as("numberOfComponents"))
+                    .select(DSL.countDistinct(Requirements.REQUIREMENTS.ID).as("numberOfRequirements"))
+                    .select(DSL.countDistinct(Comments.COMMENTS.ID).as("numberOfComments"))
+                    .select(DSL.countDistinct(Attachments.ATTACHMENTS.ID).as("numberOfAttachments"))
+                    .select(DSL.countDistinct(Votes.VOTES.ID).as("numberOfVotes"))
+                    .from(PROJECTS)
+                    .leftJoin(Components.COMPONENTS).on(Components.COMPONENTS.PROJECT_ID.equal(PROJECTS.ID))
+                    .leftJoin(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.PROJECT_ID.equal(PROJECTS.ID))
+                    .leftJoin(Comments.COMMENTS).on(Comments.COMMENTS.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID))
+                    .leftJoin(Attachments.ATTACHMENTS).on(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID))
+                    .leftJoin(Votes.VOTES).on(Votes.VOTES.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID))
+                    .where(PROJECTS.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(PROJECTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(PROJECTS.ID.eq(projectId)))
+                    .fetchOne();
+
+            result = Statistic.getBuilder()
+                    .numberOfProjects((Integer) record.get("numberOfProjects"))
+                    .numberOfComponents((Integer) record.get("numberOfComponents"))
+                    .numberOfRequirements((Integer) record.get("numberOfRequirements"))
+                    .numberOfComments((Integer) record.get("numberOfComments"))
+                    .numberOfAttachments((Integer) record.get("numberOfAttachments"))
+                    .numberOfVotes((Integer) record.get("numberOfVotes"))
+                    .build();
+
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return result;
     }
 }

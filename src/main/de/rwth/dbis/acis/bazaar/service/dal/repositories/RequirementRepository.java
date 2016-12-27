@@ -22,10 +22,12 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementEx;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 public interface RequirementRepository extends Repository<Requirement> {
@@ -37,4 +39,6 @@ public interface RequirementRepository extends Repository<Requirement> {
     boolean belongsToPublicProject(int id) throws BazaarException;
 
     RequirementEx findById(int id, int userId) throws Exception;
+
+    Statistic getStatisticsForRequirement(int userId, int requirementId, Timestamp timestamp) throws BazaarException;
 }

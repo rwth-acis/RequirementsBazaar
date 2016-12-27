@@ -22,6 +22,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Component;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
@@ -41,12 +42,14 @@ import org.jooq.Result;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Components.COMPONENTS;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ComponentFollower.COMPONENT_FOLLOWER;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS;
 
 public class ComponentRepositoryImpl extends RepositoryImpl<Component, ComponentsRecord> implements ComponentRepository {
     /**
@@ -220,5 +223,43 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return false;
+    }
+
+    @Override
+    public Statistic getStatisticsForComponent(int userId, int componentId, Timestamp timestamp) throws BazaarException {
+        Statistic result = null;
+        try {
+            Record record = jooq
+                    .select(DSL.countDistinct(PROJECTS.ID).as("numberOfProjects"))
+                    .select(DSL.countDistinct(Components.COMPONENTS.ID).as("numberOfComponents"))
+                    .select(DSL.countDistinct(Requirements.REQUIREMENTS.ID).as("numberOfRequirements"))
+                    .select(DSL.countDistinct(Comments.COMMENTS.ID).as("numberOfComments"))
+                    .select(DSL.countDistinct(Attachments.ATTACHMENTS.ID).as("numberOfAttachments"))
+                    .select(DSL.countDistinct(Votes.VOTES.ID).as("numberOfVotes"))
+                    .from(COMPONENTS)
+                    .leftJoin(Projects.PROJECTS).on(Projects.PROJECTS.ID.equal(COMPONENTS.PROJECT_ID))
+                    .leftJoin(Tags.TAGS).on(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
+                    .leftJoin(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.ID.equal(Tags.TAGS.REQUIREMENTS_ID))
+                    .leftJoin(Comments.COMMENTS).on(Comments.COMMENTS.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID))
+                    .leftJoin(Attachments.ATTACHMENTS).on(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID))
+                    .leftJoin(Votes.VOTES).on(Votes.VOTES.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID))
+                    .where(COMPONENTS.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(COMPONENTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(COMPONENTS.ID.eq(componentId)))
+                    .fetchOne();
+
+            result = Statistic.getBuilder()
+                    .numberOfProjects((Integer) record.get("numberOfProjects"))
+                    .numberOfComponents((Integer) record.get("numberOfComponents"))
+                    .numberOfRequirements((Integer) record.get("numberOfRequirements"))
+                    .numberOfComments((Integer) record.get("numberOfComments"))
+                    .numberOfAttachments((Integer) record.get("numberOfAttachments"))
+                    .numberOfVotes((Integer) record.get("numberOfVotes"))
+                    .build();
+
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return result;
     }
 }

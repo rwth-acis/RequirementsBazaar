@@ -41,6 +41,7 @@ import org.jooq.Result;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -363,5 +364,43 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return requirementEx;
+    }
+
+    @Override
+    public Statistic getStatisticsForRequirement(int userId, int requirementId, Timestamp timestamp) throws BazaarException {
+        Statistic result = null;
+        try {
+            Record record = jooq
+                    .select(DSL.countDistinct(Projects.PROJECTS.ID).as("numberOfProjects"))
+                    .select(DSL.countDistinct(Components.COMPONENTS.ID).as("numberOfComponents"))
+                    .select(DSL.countDistinct(Requirements.REQUIREMENTS.ID).as("numberOfRequirements"))
+                    .select(DSL.countDistinct(Comments.COMMENTS.ID).as("numberOfComments"))
+                    .select(DSL.countDistinct(Attachments.ATTACHMENTS.ID).as("numberOfAttachments"))
+                    .select(DSL.countDistinct(Votes.VOTES.ID).as("numberOfVotes"))
+                    .from(REQUIREMENTS)
+                    .leftJoin(Projects.PROJECTS).on(Projects.PROJECTS.ID.equal(REQUIREMENTS.PROJECT_ID))
+                    .leftJoin(Tags.TAGS).on(Tags.TAGS.REQUIREMENTS_ID.equal(REQUIREMENTS.ID))
+                    .leftJoin(Components.COMPONENTS).on(Components.COMPONENTS.ID.equal(Tags.TAGS.COMPONENTS_ID))
+                    .leftJoin(Comments.COMMENTS).on(Comments.COMMENTS.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID))
+                    .leftJoin(Attachments.ATTACHMENTS).on(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID))
+                    .leftJoin(Votes.VOTES).on(Votes.VOTES.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID))
+                    .where(REQUIREMENTS.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(REQUIREMENTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(REQUIREMENTS.ID.eq(requirementId)))
+                    .fetchOne();
+
+            result = Statistic.getBuilder()
+                    .numberOfProjects((Integer) record.get("numberOfProjects"))
+                    .numberOfComponents((Integer) record.get("numberOfComponents"))
+                    .numberOfRequirements((Integer) record.get("numberOfRequirements"))
+                    .numberOfComments((Integer) record.get("numberOfComments"))
+                    .numberOfAttachments((Integer) record.get("numberOfAttachments"))
+                    .numberOfVotes((Integer) record.get("numberOfVotes"))
+                    .build();
+
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return result;
     }
 }

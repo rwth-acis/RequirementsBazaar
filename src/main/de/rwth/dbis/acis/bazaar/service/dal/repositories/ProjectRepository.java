@@ -21,12 +21,13 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
-import java.util.List;
+import java.sql.Timestamp;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -41,4 +42,8 @@ public interface ProjectRepository extends Repository<Project> {
     PaginationResult<Project> findAllPublicAndAuthorized(PageInfo pageable, long userId) throws BazaarException;
 
     boolean belongsToPublicProject(int id) throws BazaarException;
+
+    Statistic getStatisticsForAllProjects(int userId, Timestamp timestamp) throws BazaarException;
+
+    Statistic getStatisticsForProject(int userId, int projectId, Timestamp timestamp) throws BazaarException;
 }
