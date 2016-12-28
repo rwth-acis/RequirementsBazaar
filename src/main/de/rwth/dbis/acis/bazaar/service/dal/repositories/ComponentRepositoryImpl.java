@@ -229,32 +229,59 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
     public Statistic getStatisticsForComponent(int userId, int componentId, Timestamp timestamp) throws BazaarException {
         Statistic result = null;
         try {
-            Record record = jooq
+            // If you want to change something here, please know what you are doing! Its SQL and even worse JOOQ :-|
+            Record record1 = jooq
                     .select(DSL.countDistinct(PROJECTS.ID).as("numberOfProjects"))
-                    .select(DSL.countDistinct(Components.COMPONENTS.ID).as("numberOfComponents"))
-                    .select(DSL.countDistinct(Requirements.REQUIREMENTS.ID).as("numberOfRequirements"))
-                    .select(DSL.countDistinct(Comments.COMMENTS.ID).as("numberOfComments"))
-                    .select(DSL.countDistinct(Attachments.ATTACHMENTS.ID).as("numberOfAttachments"))
-                    .select(DSL.countDistinct(Votes.VOTES.ID).as("numberOfVotes"))
                     .from(COMPONENTS)
-                    .leftJoin(Projects.PROJECTS).on(Projects.PROJECTS.ID.equal(COMPONENTS.PROJECT_ID))
-                    .leftJoin(Tags.TAGS).on(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
-                    .leftJoin(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.ID.equal(Tags.TAGS.REQUIREMENTS_ID))
-                    .leftJoin(Comments.COMMENTS).on(Comments.COMMENTS.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID))
-                    .leftJoin(Attachments.ATTACHMENTS).on(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID))
-                    .leftJoin(Votes.VOTES).on(Votes.VOTES.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID))
+                    .leftJoin(Projects.PROJECTS).on(Projects.PROJECTS.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(Projects.PROJECTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(Projects.PROJECTS.ID.equal(COMPONENTS.PROJECT_ID)))
+                    .where(COMPONENTS.ID.eq(componentId))
+                    .fetchOne();
+
+            Record record2 = jooq
+                    .select(DSL.countDistinct(COMPONENTS.ID).as("numberOfComponents"))
+                    .from(COMPONENTS)
                     .where(COMPONENTS.CREATION_TIME.greaterOrEqual(timestamp)
                             .or(COMPONENTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
                             .and(COMPONENTS.ID.eq(componentId)))
                     .fetchOne();
 
+            Record record3 = jooq
+                    .select(DSL.countDistinct(Requirements.REQUIREMENTS.ID).as("numberOfRequirements"))
+                    .from(COMPONENTS)
+                    .leftJoin(Tags.TAGS).on(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
+                    .leftJoin(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(Requirements.REQUIREMENTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(Requirements.REQUIREMENTS.ID.equal(Tags.TAGS.REQUIREMENTS_ID)))
+                    .where(COMPONENTS.ID.eq(componentId))
+                    .fetchOne();
+
+            Record record4 = jooq
+                    .select(DSL.countDistinct(Comments.COMMENTS.ID).as("numberOfComments"))
+                    .select(DSL.countDistinct(Attachments.ATTACHMENTS.ID).as("numberOfAttachments"))
+                    .select(DSL.countDistinct(Votes.VOTES.ID).as("numberOfVotes"))
+                    .from(COMPONENTS)
+                    .leftJoin(Tags.TAGS).on(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
+                    .leftJoin(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.ID.equal(Tags.TAGS.REQUIREMENTS_ID))
+                    .leftJoin(Comments.COMMENTS).on(Comments.COMMENTS.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(Comments.COMMENTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(Comments.COMMENTS.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID)))
+                    .leftJoin(Attachments.ATTACHMENTS).on(Attachments.ATTACHMENTS.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(Attachments.ATTACHMENTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID)))
+                    .leftJoin(Votes.VOTES).on(Votes.VOTES.CREATION_TIME.greaterOrEqual(timestamp)
+                            .and(Votes.VOTES.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID)))
+                    .where(COMPONENTS.ID.eq(componentId))
+                    .fetchOne();
+
             result = Statistic.getBuilder()
-                    .numberOfProjects((Integer) record.get("numberOfProjects"))
-                    .numberOfComponents((Integer) record.get("numberOfComponents"))
-                    .numberOfRequirements((Integer) record.get("numberOfRequirements"))
-                    .numberOfComments((Integer) record.get("numberOfComments"))
-                    .numberOfAttachments((Integer) record.get("numberOfAttachments"))
-                    .numberOfVotes((Integer) record.get("numberOfVotes"))
+                    .numberOfProjects((Integer) record1.get("numberOfProjects"))
+                    .numberOfComponents((Integer) record2.get("numberOfComponents"))
+                    .numberOfRequirements((Integer) record3.get("numberOfRequirements"))
+                    .numberOfComments((Integer) record4.get("numberOfComments"))
+                    .numberOfAttachments((Integer) record4.get("numberOfAttachments"))
+                    .numberOfVotes((Integer) record4.get("numberOfVotes"))
                     .build();
 
         } catch (DataAccessException e) {
