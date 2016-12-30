@@ -41,6 +41,7 @@ import org.jooq.Result;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -363,5 +364,58 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return requirementEx;
+    }
+
+    @Override
+    public Statistic getStatisticsForRequirement(int userId, int requirementId, Timestamp timestamp) throws BazaarException {
+        Statistic result = null;
+        try {
+            // If you want to change something here, please know what you are doing! Its SQL and even worse JOOQ :-|
+            Record record1 = jooq
+                    .select(DSL.countDistinct(Projects.PROJECTS.ID).as("numberOfProjects"))
+                    .select(DSL.countDistinct(Components.COMPONENTS.ID).as("numberOfComponents"))
+                    .select(DSL.countDistinct(Comments.COMMENTS.ID).as("numberOfComments"))
+                    .select(DSL.countDistinct(Attachments.ATTACHMENTS.ID).as("numberOfAttachments"))
+                    .select(DSL.countDistinct(Votes.VOTES.ID).as("numberOfVotes"))
+                    .from(REQUIREMENTS)
+                    .leftJoin(Projects.PROJECTS).on(Projects.PROJECTS.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(Projects.PROJECTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(Projects.PROJECTS.ID.equal(REQUIREMENTS.PROJECT_ID)))
+                    .leftJoin(Tags.TAGS).on(Tags.TAGS.REQUIREMENTS_ID.equal(REQUIREMENTS.ID))
+                    .leftJoin(Components.COMPONENTS).on(Components.COMPONENTS.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(Components.COMPONENTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(Components.COMPONENTS.ID.equal(Tags.TAGS.COMPONENTS_ID)))
+                    .leftJoin(Comments.COMMENTS).on(Comments.COMMENTS.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(Comments.COMMENTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(Comments.COMMENTS.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID)))
+                    .leftJoin(Attachments.ATTACHMENTS).on(Attachments.ATTACHMENTS.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(Attachments.ATTACHMENTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID)))
+                    .leftJoin(Votes.VOTES).on(Votes.VOTES.CREATION_TIME.greaterOrEqual(timestamp)
+                            .and(Votes.VOTES.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID)))
+                    .where(REQUIREMENTS.ID.eq(requirementId))
+                    .fetchOne();
+
+            Record record2 = jooq
+                    .select(DSL.countDistinct(REQUIREMENTS.ID).as("numberOfRequirements"))
+                    .from(REQUIREMENTS)
+                    .where(REQUIREMENTS.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(REQUIREMENTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(REQUIREMENTS.ID.eq(requirementId)))
+                    .fetchOne();
+
+            result = Statistic.getBuilder()
+                    .numberOfProjects((Integer) record1.get("numberOfProjects"))
+                    .numberOfComponents((Integer) record1.get("numberOfComponents"))
+                    .numberOfRequirements((Integer) record2.get("numberOfRequirements"))
+                    .numberOfComments((Integer) record1.get("numberOfComments"))
+                    .numberOfAttachments((Integer) record1.get("numberOfAttachments"))
+                    .numberOfVotes((Integer) record1.get("numberOfVotes"))
+                    .build();
+
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return result;
     }
 }

@@ -28,6 +28,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.sql.Connection;
+import java.util.Calendar;
 import java.util.List;
 
 
@@ -137,6 +138,20 @@ public interface DALFacade {
     boolean isProjectPublic(int projectId) throws BazaarException;
 
     /**
+     * This method returns statistics filtered with userId, timestamp
+     *
+     * @param userId
+     * @return the statistics with the given pageable parameters
+     * @throws BazaarException
+     */
+    Statistic getStatisticsForAllProjects(int userId, Calendar since) throws BazaarException;
+
+    Statistic getStatisticsForProject(int userId, int projectId, Calendar since) throws BazaarException;
+    //endregion
+
+    //region ProjectFollower
+
+    /**
      * This method create a new follow relation between a user and a project
      *
      * @param userId        the identifier of the user, who wants to follow the project
@@ -219,6 +234,8 @@ public interface DALFacade {
      * @return
      */
     boolean isRequirementPublic(int requirementId) throws BazaarException;
+
+    Statistic getStatisticsForRequirement(int userId, int requirementId, Calendar timestamp) throws BazaarException;
     //endregion
 
     //region Component
@@ -272,6 +289,11 @@ public interface DALFacade {
      */
     boolean isComponentPublic(int componentId) throws BazaarException;
 
+    Statistic getStatisticsForComponent(int userId, int componentId, Calendar timestamp) throws BazaarException;
+    //endregion
+
+    //region ComponentFollower
+
     /**
      * This method create a new follow relation between a user and a component
      *
@@ -313,7 +335,6 @@ public interface DALFacade {
      * @param attachmentId id of the attachment should be deleted
      */
     Attachment deleteAttachmentById(int attachmentId) throws Exception;
-
     //endregion
 
     //region Comment
@@ -340,10 +361,9 @@ public interface DALFacade {
      * @param commentId to identify the comment to be deleted
      */
     Comment deleteCommentById(int commentId) throws Exception;
-
     //endregion
 
-    //region Follow
+    //region Requirement Follower
 
     /**
      * This method create a new follow relation between a user and a requirement
@@ -360,7 +380,6 @@ public interface DALFacade {
      * @param requirementId the the identifier of the requirement to unfollow
      */
     void unFollowRequirement(int userId, int requirementId) throws BazaarException;
-
     //endregion
 
     //region Developer
@@ -380,7 +399,6 @@ public interface DALFacade {
      * @param requirementId
      */
     void notWantToDevelop(int userId, int requirementId) throws BazaarException;
-
     //endregion
 
     //region Tag (Component >-< Requirement)
@@ -400,7 +418,6 @@ public interface DALFacade {
      * @param componentId   the id of the component
      */
     void deleteComponentTag(int requirementId, int componentId) throws BazaarException;
-
     //endregion
 
     //region Vote
@@ -431,7 +448,6 @@ public interface DALFacade {
      * @return true if the user has voted for the requirement, false otherwise
      */
     boolean hasUserVotedForRequirement(int userId, int requirementId) throws BazaarException;
-
     //endregion
 
     //region Authorization
@@ -448,7 +464,5 @@ public interface DALFacade {
     void createPrivilegeIfNotExists(PrivilegeEnum privilege) throws BazaarException;
 
     void addUserToRole(int userId, String roleName, String context) throws BazaarException;
-
-
     //endregion
 }

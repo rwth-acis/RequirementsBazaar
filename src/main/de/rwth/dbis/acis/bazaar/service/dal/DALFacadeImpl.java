@@ -34,6 +34,8 @@ import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
 
 import javax.sql.DataSource;
+import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -180,6 +182,20 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public Statistic getStatisticsForAllProjects(int userId, Calendar since) throws BazaarException {
+        projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
+        Timestamp timestamp  = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
+        return projectRepository.getStatisticsForAllProjects(userId, timestamp);
+    }
+
+    @Override
+    public Statistic getStatisticsForProject(int userId, int projectId, Calendar since) throws BazaarException {
+        projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
+        Timestamp timestamp  = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
+        return projectRepository.getStatisticsForProject(userId, projectId, timestamp);
+    }
+
+    @Override
     public List<Requirement> listRequirements(Pageable pageable) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         return requirementRepository.findAll(pageable);
@@ -272,6 +288,13 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public Statistic getStatisticsForRequirement(int userId, int requirementId, Calendar since) throws BazaarException {
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        Timestamp timestamp  = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
+        return requirementRepository.getStatisticsForRequirement(userId, requirementId, timestamp);
+    }
+
+    @Override
     public PaginationResult<Component> listComponentsByProjectId(int projectId, Pageable pageable) throws BazaarException {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
         return componentRepository.findByProjectId(projectId, pageable);
@@ -330,6 +353,13 @@ public class DALFacadeImpl implements DALFacade {
     public boolean isComponentPublic(int componentId) throws BazaarException {
         componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
         return componentRepository.belongsToPublicProject(componentId);
+    }
+
+    @Override
+    public Statistic getStatisticsForComponent(int userId, int componentId, Calendar since) throws BazaarException {
+        componentRepository = (componentRepository != null) ? componentRepository : new ComponentRepositoryImpl(dslContext);
+        Timestamp timestamp  = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
+        return componentRepository.getStatisticsForComponent(userId, componentId, timestamp);
     }
 
     @Override
