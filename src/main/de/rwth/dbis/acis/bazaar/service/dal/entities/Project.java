@@ -26,6 +26,7 @@ import jodd.vtor.constraint.NotBlank;
 import jodd.vtor.constraint.NotNull;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -50,13 +51,7 @@ public class Project extends EntityBase {
 
     private Date lastupdated_time;
 
-    public int getLeaderId() {
-        return leaderId;
-    }
-
-    public void setLeaderId(int leaderId) {
-        this.leaderId = leaderId;
-    }
+    private List<User> followers;
 
     private int leaderId;
 
@@ -66,6 +61,14 @@ public class Project extends EntityBase {
 
     public ProjectVisibility getVisibility() {
         return visibility;
+    }
+
+    public int getLeaderId() {
+        return leaderId;
+    }
+
+    public void setLeaderId(int leaderId) {
+        this.leaderId = leaderId;
     }
 
     public void setLeader(User leader) {
@@ -85,6 +88,7 @@ public class Project extends EntityBase {
         this.description = builder.description;
         this.name = builder.name;
         this.visibility = builder.visibility;
+        this.followers = builder.followers;
         this.leader = builder.leader;
         this.leaderId = builder.leaderId;
         this.defaultComponentId = builder.defaultComponentId;
@@ -149,6 +153,7 @@ public class Project extends EntityBase {
         private String description;
         private String name;
         private ProjectVisibility visibility;
+        private List<User> followers;
         private User leader;
         private int leaderId;
         private Date creation_time;
@@ -171,6 +176,11 @@ public class Project extends EntityBase {
 
         public Builder visibility(ProjectVisibility visibility) {
             this.visibility = visibility;
+            return this;
+        }
+
+        public Builder followers(List<User> followers) {
+            this.followers = followers;
             return this;
         }
 

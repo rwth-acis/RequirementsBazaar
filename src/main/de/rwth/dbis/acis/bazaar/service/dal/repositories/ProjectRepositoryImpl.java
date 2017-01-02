@@ -22,6 +22,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
@@ -45,7 +46,9 @@ import java.security.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.PROJECT_FOLLOWER;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS;
 
 /**
@@ -65,11 +68,14 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
         Project project = null;
         try {
             Users leaderUser = Users.USERS.as("leaderUser");
+            Users followerUsers = Users.USERS.as("followerUsers");
 
-            Record queryResult = jooq.selectFrom(PROJECTS
-                    .join(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID)))
+            Result<Record> queryResult = jooq.selectFrom(PROJECTS
+                    .join(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID))
+                    .leftOuterJoin(PROJECT_FOLLOWER).on(PROJECT_FOLLOWER.PROJECT_ID.equal(PROJECTS.ID))
+                    .leftOuterJoin(followerUsers).on(PROJECT_FOLLOWER.USER_ID.equal(followerUsers.ID)))
                     .where(transformator.getTableId().equal(id))
-                    .fetchOne();
+                    .fetch();
 
             if (queryResult == null || queryResult.size() == 0) {
                 ExceptionHandler.getInstance().convertAndThrowException(
@@ -77,11 +83,31 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                         ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
             }
 
-            ProjectsRecord projectsRecord = queryResult.into(PROJECTS);
-            project = transformator.getEntityFromTableRecord(projectsRecord);
+            Project.Builder builder = Project.getBuilder(queryResult.getValues(PROJECTS.NAME).get(0))
+                    .description(queryResult.getValues(PROJECTS.DESCRIPTION).get(0))
+                    .id(queryResult.getValues(PROJECTS.ID).get(0))
+                    .leaderId(queryResult.getValues(PROJECTS.LEADER_ID).get(0))
+                    .defaultComponentId(queryResult.getValues(PROJECTS.DEFAULT_COMPONENTS_ID).get(0))
+                    .visibility(Project.ProjectVisibility.getVisibility(queryResult.getValues(PROJECTS.VISIBILITY).get(0)))
+                    .creationTime(queryResult.getValues(PROJECTS.CREATION_TIME).get(0))
+                    .lastupdatedTime(queryResult.getValues(PROJECTS.LASTUPDATED_TIME).get(0));
+
             UserTransformator userTransformator = new UserTransformator();
-            UsersRecord usersRecord = queryResult.into(leaderUser);
-            project.setLeader(userTransformator.getEntityFromTableRecord(usersRecord));
+            //Filling up LeadDeveloper
+            builder.leader(userTransformator.getEntityFromQueryResult(leaderUser, queryResult));
+
+            //Filling up follower list
+            List<User> followers = new ArrayList<>();
+            for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(followerUsers.ID).entrySet()) {
+                if (entry.getKey() == null) continue;
+                Result<Record> records = entry.getValue();
+                followers.add(
+                        userTransformator.getEntityFromQueryResult(followerUsers, records)
+                );
+            }
+            builder.followers(followers);
+
+            project = builder.build();
 
         } catch (BazaarException be) {
             ExceptionHandler.getInstance().convertAndThrowException(be);
