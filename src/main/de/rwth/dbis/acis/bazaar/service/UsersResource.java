@@ -38,7 +38,7 @@ public class UsersResource extends RESTService {
     @SwaggerDefinition(
             info = @Info(
                     title = "Requirements Bazaar",
-                    version = "0.3",
+                    version = "0.4",
                     description = "Requirements Bazaar project",
                     termsOfService = "http://requirements-bazaar.org",
                     contact = @Contact(
