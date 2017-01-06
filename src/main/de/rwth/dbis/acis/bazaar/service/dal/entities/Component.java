@@ -24,6 +24,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 import jodd.vtor.constraint.MaxLength;
 import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
+import jodd.vtor.constraint.NotNull;
 
 import java.util.Date;
 import java.util.List;
@@ -35,19 +36,21 @@ import java.util.List;
 public class Component extends EntityBase {
 
     @Min(-1)
-    private final int id;
+    private int id;
 
     @NotBlank
+    @NotNull(profiles = {"create"})
     @MaxLength(255)
     private String description;
 
     @NotBlank
+    @NotNull(profiles = {"create"})
     @MaxLength(50)
     private String name;
 
-    private final Date creation_time;
+    private Date creation_time;
 
-    private final Date lastupdated_time;
+    private Date lastupdated_time;
 
     @Min(-1)
     private int leaderId;
@@ -57,7 +60,7 @@ public class Component extends EntityBase {
     private List<User> followers;
 
     @Min(-1)
-    private final int projectId;
+    private int projectId;
 
     public int getProjectId() {
         return projectId;
@@ -101,6 +104,9 @@ public class Component extends EntityBase {
 
     public void setLeader(User leader) {
         this.leader = leader;
+    }
+
+    public Component() {
     }
 
     /**

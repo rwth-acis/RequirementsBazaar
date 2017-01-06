@@ -23,8 +23,10 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 import jodd.vtor.constraint.MaxLength;
 import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
+import jodd.vtor.constraint.NotNull;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -32,28 +34,24 @@ import java.util.Date;
  */
 public class Project extends EntityBase {
     @Min(-1)
-    private final int id;
+    private int id;
 
     @NotBlank
+    @NotNull(profiles = {"create"})
     private String description;
 
     @NotBlank
+    @NotNull(profiles = {"create"})
     @MaxLength(50)
     private String name;
 
-    private final ProjectVisibility visibility;
+    private ProjectVisibility visibility;
 
-    private final Date creation_time;
+    private Date creation_time;
 
-    private final Date lastupdated_time;
+    private Date lastupdated_time;
 
-    public int getLeaderId() {
-        return leaderId;
-    }
-
-    public void setLeaderId(int leaderId) {
-        this.leaderId = leaderId;
-    }
+    private List<User> followers;
 
     private int leaderId;
 
@@ -65,8 +63,19 @@ public class Project extends EntityBase {
         return visibility;
     }
 
+    public int getLeaderId() {
+        return leaderId;
+    }
+
+    public void setLeaderId(int leaderId) {
+        this.leaderId = leaderId;
+    }
+
     public void setLeader(User leader) {
         this.leader = leader;
+    }
+
+    public Project() {
     }
 
     /**
@@ -79,6 +88,7 @@ public class Project extends EntityBase {
         this.description = builder.description;
         this.name = builder.name;
         this.visibility = builder.visibility;
+        this.followers = builder.followers;
         this.leader = builder.leader;
         this.leaderId = builder.leaderId;
         this.defaultComponentId = builder.defaultComponentId;
@@ -143,6 +153,7 @@ public class Project extends EntityBase {
         private String description;
         private String name;
         private ProjectVisibility visibility;
+        private List<User> followers;
         private User leader;
         private int leaderId;
         private Date creation_time;
@@ -165,6 +176,11 @@ public class Project extends EntityBase {
 
         public Builder visibility(ProjectVisibility visibility) {
             this.visibility = visibility;
+            return this;
+        }
+
+        public Builder followers(List<User> followers) {
+            this.followers = followers;
             return this;
         }
 

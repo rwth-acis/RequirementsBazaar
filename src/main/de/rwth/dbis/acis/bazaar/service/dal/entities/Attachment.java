@@ -30,7 +30,7 @@ import java.util.Date;
 public class Attachment extends EntityBase {
 
     @Min(-1)
-    private final int Id;
+    private int Id;
 
     @Min(-1)
     private int creatorId;
@@ -38,33 +38,36 @@ public class Attachment extends EntityBase {
     @Min(-1)
     private int requirementId;
 
-    @NotNull
+    @NotNull(profiles = {"create"})
     @NotBlank
     @MaxLength(100)
     private String title;
 
     private String description;
 
-    @NotNull
+    @NotNull(profiles = {"create"})
     @NotBlank
     @MaxLength(255)
-    private final String mimeType;
+    private String mimeType;
 
-    @NotNull
+    @NotNull(profiles = {"create"})
     @NotBlank
     @MaxLength(255)
-    private final String identifier;
+    private String identifier;
 
-    @NotNull
+    @NotNull(profiles = {"create"})
     @NotBlank
     @MaxLength(1000)
-    private final String fileUrl;
+    private String fileUrl;
 
-    private final Date creation_time;
+    private Date creation_time;
 
-    private final Date lastupdated_time;
+    private Date lastupdated_time;
 
     private User creator;
+
+    public Attachment() {
+    }
 
     public Attachment(Builder builder) {
         this.Id = builder.id;

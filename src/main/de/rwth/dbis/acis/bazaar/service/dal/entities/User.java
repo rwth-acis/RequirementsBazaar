@@ -22,29 +22,34 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
+import jodd.vtor.constraint.NotNull;
 
 public class User extends EntityBase {
     @Min(-1)
-    private final int id;
+    private int id;
 
-    private final String firstName;
+    private String firstName;
 
-    private final String lastName;
+    private String lastName;
 
-    private transient final String eMail;
+    private transient String eMail;
 
-    private final Boolean admin;
+    private Boolean admin;
 
-    private final long Las2peerId;
+    private long Las2peerId;
 
     @NotBlank
-    private final String userName;
+    @NotNull
+    private String userName;
 
-    private final String profileImage;
+    private String profileImage;
 
-    private final Boolean emailLeadItems;
+    private Boolean emailLeadItems;
 
-    private final Boolean emailFollowItems;
+    private Boolean emailFollowItems;
+
+    public User() {
+    }
 
     public User(Builder builder) {
         id = builder.id;

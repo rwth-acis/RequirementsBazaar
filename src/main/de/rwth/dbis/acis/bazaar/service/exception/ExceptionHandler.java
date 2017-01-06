@@ -72,7 +72,6 @@ public enum ExceptionHandler {
         for (Violation violation : violations) {
             builder.append(String.format(Localization.getInstance().getResourceBundle().getString("error.validation"), violation.getName(), violation.getInvalidValue(), violation.toString()));
         }
-
         bazaarException.setMessage(builder.toString());
         throw bazaarException;
     }

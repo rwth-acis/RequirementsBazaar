@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
@@ -41,6 +42,26 @@ public class ComponentsResource extends RESTService {
     }
 
     @Api(value = "components", description = "Components resource")
+    @SwaggerDefinition(
+            info = @Info(
+                    title = "Requirements Bazaar",
+                    version = "0.4",
+                    description = "Requirements Bazaar project",
+                    termsOfService = "http://requirements-bazaar.org",
+                    contact = @Contact(
+                            name = "Requirements Bazaar Dev Team",
+                            url = "http://requirements-bazaar.org",
+                            email = "info@requirements-bazaar.org"
+                    ),
+                    license = @License(
+                            name = "Apache2",
+                            url = "http://requirements-bazaar.org/license"
+                    )
+            ),
+            host = "requirements-bazaar.org",
+            basePath = "",
+            schemes = SwaggerDefinition.Scheme.HTTPS
+    )
     @Path("/")
     public static class Resource {
 
@@ -57,7 +78,7 @@ public class ComponentsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method allows to retrieve a certain component.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain component"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain component", response = Component.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -106,7 +127,7 @@ public class ComponentsResource extends RESTService {
         /**
          * This method allows to create a new component.
          *
-         * @param component component as a JSON object
+         * @param componentToCreate component as a JSON object
          * @return Response with the created project as a JSON object.
          */
         @POST
@@ -115,11 +136,11 @@ public class ComponentsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method allows to create a new component under a given a project.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created component"),
+                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created component", response = Component.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
-        public Response createComponent(@ApiParam(value = "Component entity as JSON", required = true) String component) {
+        public Response createComponent(@ApiParam(value = "Component entity", required = true) Component componentToCreate) {
             DALFacade dalFacade = null;
             try {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -131,8 +152,8 @@ public class ComponentsResource extends RESTService {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
                 }
                 Gson gson = new Gson();
-                Component componentToCreate = gson.fromJson(component, Component.class);
                 Vtor vtor = service.bazaarService.getValidators();
+                vtor.useProfiles("create");
                 vtor.validate(componentToCreate);
                 if (vtor.hasViolations()) {
                     ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
@@ -166,7 +187,7 @@ public class ComponentsResource extends RESTService {
          * Allows to update a certain component.
          *
          * @param componentId id of the component under a given project
-         * @param component   updated component as a JSON object
+         * @param componentToUpdate updated component as a JSON object
          * @return Response with the updated component as a JSON object.
          */
         @PUT
@@ -175,15 +196,15 @@ public class ComponentsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method allows to update a certain component.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the updated component"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the updated component", response = Component.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
         public Response updateComponent(@PathParam("componentId") int componentId,
-                                            @ApiParam(value = "Tag entity as JSON", required = true) String component) {
-            DALFacade dalFacade = null;
-            try {
+                                        @ApiParam(value = "Component entity", required = true) Component componentToUpdate) {
+
+            DALFacade dalFacade = null;            try {
                 String registratorErrors = service.bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
                 if (registratorErrors != null) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
@@ -191,9 +212,8 @@ public class ComponentsResource extends RESTService {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
                 long userId = agent.getId();
                 Gson gson = new Gson();
-                Component updatedComponent = gson.fromJson(component, Component.class);
                 Vtor vtor = service.bazaarService.getValidators();
-                vtor.validate(updatedComponent);
+                vtor.validate(componentToUpdate);
                 if (vtor.hasViolations()) {
                     ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
                 }
@@ -203,10 +223,10 @@ public class ComponentsResource extends RESTService {
                 if (!authorized) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.modify"));
                 }
-                if (updatedComponent.getId() != 0 && componentId != updatedComponent.getId()) {
+                if (componentToUpdate.getId() != 0 && componentId != componentToUpdate.getId()) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
                 }
-                updatedComponent = dalFacade.modifyComponent(updatedComponent);
+                Component updatedComponent = dalFacade.modifyComponent(componentToUpdate);
                 service.bazaarService.getNotificationDispatcher().dispatchNotification(service, updatedComponent.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedComponent.getId(),
                         Activity.DataType.COMPONENT, updatedComponent.getProjectId(), Activity.DataType.PROJECT, internalUserId);
                 return Response.ok(gson.toJson(updatedComponent)).build();
@@ -237,7 +257,7 @@ public class ComponentsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method deletes a specific component.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the deleted component"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the deleted component", response = Component.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -299,7 +319,7 @@ public class ComponentsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method add the current user to the followers list of a given component.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the component"),
+                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the component", response = Component.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -352,7 +372,7 @@ public class ComponentsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method removes the current user from a followers list of a given component.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the component"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the component", response = Component.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -407,15 +427,16 @@ public class ComponentsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method returns the list of requirements for a specific component.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of requirements for a given project"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of requirements for a given project", response = Component.class, responseContainer = "List"),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
         public Response getRequirementsByComponent(@PathParam("componentId") int componentId,
-                                                       @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
-                                                       @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
-                                                       @ApiParam(value = "State filter", required = false, allowableValues = "all,open,realized") @DefaultValue("all") @QueryParam("state") String stateFilter) {
+                                                   @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
+                                                   @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
+                                                   @ApiParam(value = "State filter", required = false, allowableValues = "all,open,realized") @DefaultValue("all") @QueryParam("state") String stateFilter,
+                                                   @ApiParam(value = "Sort", required = false, allowableValues = "date,title,vote,comment,follower,realized") @DefaultValue("date") @QueryParam("sort") List<String> sort) {
             DALFacade dalFacade = null;
             try {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -429,7 +450,21 @@ public class ComponentsResource extends RESTService {
                 if (stateFilter != "all") {
                     filters.put("realized", stateFilter);
                 }
-                PageInfo pageInfo = new PageInfo(page, perPage, filters);
+                List<Pageable.SortField> sortList = new ArrayList<>();
+                for (String sortOption : sort) {
+                    Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
+                    if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { // " " is needed because jersey does not pass "+"
+                        direction = Pageable.SortDirection.ASC;
+                        sortOption = sortOption.substring(1);
+
+                    } else if (sortOption.startsWith("-")) {
+                        direction = Pageable.SortDirection.DESC;
+                        sortOption = sortOption.substring(1);
+                    }
+                    Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
+                    sortList.add(sortField);
+                }
+                PageInfo pageInfo = new PageInfo(page, perPage, filters, sortList);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(pageInfo);
                 if (vtor.hasViolations()) {
@@ -455,9 +490,14 @@ public class ComponentsResource extends RESTService {
                 }
                 PaginationResult<RequirementEx> requirementsResult = dalFacade.listRequirementsByComponent(componentId, pageInfo, internalUserId);
 
-                Map<String, String> parameter = new HashMap<>();
-                parameter.put("page", String.valueOf(page));
-                parameter.put("per_page", String.valueOf(perPage));
+                Map<String, List<String>> parameter = new HashMap<>();
+                parameter.put("page", new ArrayList() {{
+                    add(String.valueOf(page));
+                }});
+                parameter.put("per_page", new ArrayList() {{
+                    add(String.valueOf(perPage));
+                }});
+                parameter.put("sort", sort);
 
                 Response.ResponseBuilder responseBuilder = Response.ok();
                 responseBuilder = responseBuilder.entity(gson.toJson(requirementsResult.getElements()));

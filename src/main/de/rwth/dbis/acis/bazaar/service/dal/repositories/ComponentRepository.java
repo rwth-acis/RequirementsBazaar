@@ -21,10 +21,12 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Component;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -40,4 +42,6 @@ public interface ComponentRepository extends Repository<Component> {
     PaginationResult<Component> findByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
 
     boolean belongsToPublicProject(int id) throws BazaarException;
+
+    Statistic getStatisticsForComponent(int userId, int componentId, Timestamp timestamp) throws BazaarException;
 }

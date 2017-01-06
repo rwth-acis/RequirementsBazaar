@@ -64,26 +64,6 @@ import java.util.*;
  */
 //TODO Service from BasaarService, here is no Endpoint
 @ServicePath("/bazaar/main")
-@SwaggerDefinition(
-        info = @Info(
-                title = "Requirements Bazaar",
-                version = "0.3",
-                description = "Requirements Bazaar project",
-                termsOfService = "http://requirements-bazaar.org",
-                contact = @Contact(
-                        name = "Requirements Bazaar Dev Team",
-                        url = "http://requirements-bazaar.org",
-                        email = "info@requirements-bazaar.org"
-                ),
-                license = @License(
-                        name = "Apache2",
-                        url = "http://requirements-bazaar.org/license"
-                )
-        ),
-        host = "requirements-bazaar.org",
-        basePath = "",
-        schemes = SwaggerDefinition.Scheme.HTTPS
-)
 public class BazaarService extends RESTService {
 
     //CONFIG PROPERTIES
@@ -268,11 +248,13 @@ public class BazaarService extends RESTService {
     }
 
     public Response.ResponseBuilder paginationLinks(Response.ResponseBuilder responseBuilder, PaginationResult paginationResult,
-                                                    String path, Map<String, String> httpParameter) throws URISyntaxException {
+                                                    String path, Map<String, List<String>> httpParameter) throws URISyntaxException {
         List<Link> links = new ArrayList<>();
         URIBuilder uriBuilder = new URIBuilder(baseURL + path);
-        for (Map.Entry<String, String> entry : httpParameter.entrySet()) {
-            uriBuilder.addParameter(entry.getKey(), entry.getValue());
+        for (Map.Entry<String, List<String>> entry : httpParameter.entrySet()) {
+            for (String parameter : entry.getValue()) {
+                uriBuilder.addParameter(entry.getKey(), parameter);
+            }
         }
         if (paginationResult.getPrevPage() != -1) {
             links.add(Link.fromUri(uriBuilder.setParameter("page", String.valueOf(paginationResult.getPrevPage())).build()).rel("prev").build());

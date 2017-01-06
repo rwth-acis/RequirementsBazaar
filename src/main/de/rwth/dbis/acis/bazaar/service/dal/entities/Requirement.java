@@ -12,19 +12,22 @@ import java.util.List;
  */
 public class Requirement extends EntityBase {
     @Min(-1)
-    private final int id;
+    private int id;
 
     @NotBlank
+    @NotNull(profiles = {"create"})
     @MaxLength(50)
     private String title;
 
-    private final Date creation_time;
+    private Date creation_time;
 
-    private final Date lastupdated_time;
+    private Date lastupdated_time;
 
+    @NotBlank
+    @NotNull(profiles = {"create"})
     private String description;
 
-    private final Date realized;
+    private Date realized;
 
     @NotNull(profiles = {"create"})
     @Size(min = 1, profiles = {"create"})
@@ -37,9 +40,9 @@ public class Requirement extends EntityBase {
     @Min(-1)
     private int leadDeveloperId;
 
-    private final int upVotes;
-    private final int downVotes;
-    private final UserVote userVoted;
+    private int upVotes;
+    private int downVotes;
+    private UserVote userVoted;
 
     @Min(-1)
     private int creatorId;
@@ -114,6 +117,9 @@ public class Requirement extends EntityBase {
 
     public void setCreatorId(int creatorId) {
         this.creatorId = creatorId;
+    }
+
+    public Requirement() {
     }
 
     protected Requirement(Builder builder) {

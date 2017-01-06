@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
@@ -40,6 +41,26 @@ public class ProjectsResource extends RESTService {
     }
 
     @Api(value = "projects", description = "Projects resource")
+    @SwaggerDefinition(
+            info = @Info(
+                    title = "Requirements Bazaar",
+                    version = "0.4",
+                    description = "Requirements Bazaar project",
+                    termsOfService = "http://requirements-bazaar.org",
+                    contact = @Contact(
+                            name = "Requirements Bazaar Dev Team",
+                            url = "http://requirements-bazaar.org",
+                            email = "info@requirements-bazaar.org"
+                    ),
+                    license = @License(
+                            name = "Apache2",
+                            url = "http://requirements-bazaar.org/license"
+                    )
+            ),
+            host = "requirements-bazaar.org",
+            basePath = "",
+            schemes = SwaggerDefinition.Scheme.HTTPS
+    )
     @Path("/")
     public static class Resource {
 
@@ -57,13 +78,15 @@ public class ProjectsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method returns the list of projects on the server.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "List of projects"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "List of projects", response = Project.class, responseContainer = "List"),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
         public Response getProjects(
                 @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
-                @ApiParam(value = "Elements of project by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
+                @ApiParam(value = "Elements of project by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
+                @ApiParam(value = "Sort", required = false, allowableValues = "name,date,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort) {
+
             DALFacade dalFacade = null;
             try {
                 String registratorErrors = service.bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -73,7 +96,21 @@ public class ProjectsResource extends RESTService {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
                 long userId = agent.getId();
                 Gson gson = new Gson();
-                PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>());
+                List<Pageable.SortField> sortList = new ArrayList<>();
+                for (String sortOption : sort) {
+                    Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
+                    if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { // " " is needed because jersey does not pass "+"
+                        direction = Pageable.SortDirection.ASC;
+                        sortOption = sortOption.substring(1);
+
+                    } else if (sortOption.startsWith("-")) {
+                        direction = Pageable.SortDirection.DESC;
+                        sortOption = sortOption.substring(1);
+                    }
+                    Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
+                    sortList.add(sortField);
+                }
+                PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>(), sortList);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(pageInfo);
                 if (vtor.hasViolations()) {
@@ -89,9 +126,14 @@ public class ProjectsResource extends RESTService {
                     projectsResult = dalFacade.listPublicAndAuthorizedProjects(pageInfo, userId);
                 }
 
-                Map<String, String> parameter = new HashMap<>();
-                parameter.put("page", String.valueOf(page));
-                parameter.put("per_page", String.valueOf(perPage));
+                Map<String, List<String>> parameter = new HashMap<>();
+                parameter.put("page", new ArrayList() {{
+                    add(String.valueOf(page));
+                }});
+                parameter.put("per_page", new ArrayList() {{
+                  add(String.valueOf(perPage));
+                }});
+                parameter.put("sort", sort);
 
                 Response.ResponseBuilder responseBuilder = Response.ok();
                 responseBuilder = responseBuilder.entity(gson.toJson(projectsResult.getElements()));
@@ -121,7 +163,7 @@ public class ProjectsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method allows to retrieve a certain project.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain project"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain project", response = Project.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -170,20 +212,20 @@ public class ProjectsResource extends RESTService {
         /**
          * This method allows to create a new project.
          *
-         * @param project project as a JSON object
+         * @param projectToCreate project
          * @return Response with the created project as a JSON object.
          */
         @POST
         @Path("/")
         @Consumes(MediaType.APPLICATION_JSON)
         @Produces(MediaType.APPLICATION_JSON)
-        @ApiOperation(value = "This method allows to create a new project")
+        @ApiOperation(value = "This method allows to create a new project.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created project"),
+                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created project", response = Project.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
-        public Response createProject(@ApiParam(value = "Project entity as JSON", required = true) String project) {
+        public Response createProject(@ApiParam(value = "Project entity", required = true) Project projectToCreate) {
             DALFacade dalFacade = null;
             try {
                 String registratorErrors = service.bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -193,8 +235,8 @@ public class ProjectsResource extends RESTService {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
                 long userId = agent.getId();
                 Gson gson = new Gson();
-                Project projectToCreate = gson.fromJson(project, Project.class);
                 Vtor vtor = service.bazaarService.getValidators();
+                vtor.useProfiles("create");
                 vtor.validate(projectToCreate);
                 if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
                 dalFacade = service.bazaarService.getDBConnection();
@@ -225,8 +267,8 @@ public class ProjectsResource extends RESTService {
         /**
          * Allows to update a certain project.
          *
-         * @param projectId id of the project to update
-         * @param project   updated project as a JSON object
+         * @param projectId       id of the project to update
+         * @param projectToUpdate updated project
          * @return Response with the updated project as a JSON object.
          */
         @PUT
@@ -235,13 +277,13 @@ public class ProjectsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method allows to update a certain project.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the updated project"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the updated project", response = Project.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
         public Response updateProject(@PathParam("projectId") int projectId,
-                                      @ApiParam(value = "Project entity as JSON", required = true) String project) {
+                                      @ApiParam(value = "Project entity", required = true) Project projectToUpdate) {
             DALFacade dalFacade = null;
             try {
                 String registratorErrors = service.bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -251,7 +293,6 @@ public class ProjectsResource extends RESTService {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
                 long userId = agent.getId();
                 Gson gson = new Gson();
-                Project projectToUpdate = gson.fromJson(project, Project.class);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(projectToUpdate);
                 if (vtor.hasViolations()) {
@@ -297,7 +338,7 @@ public class ProjectsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method add the current user to the followers list of a given project.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the project"),
+                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the project", response = Project.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -350,7 +391,7 @@ public class ProjectsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method removes the current user from a followers list of a given project.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the project"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the project", response = Project.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -405,7 +446,7 @@ public class ProjectsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method returns the list of components under a given project.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of components for a given project"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of components for a given project", response = Component.class, responseContainer = "List"),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -413,7 +454,9 @@ public class ProjectsResource extends RESTService {
         public Response getComponentsByProject(
                 @PathParam("projectId") int projectId,
                 @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
-                @ApiParam(value = "Elements of components by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
+                @ApiParam(value = "Elements of components by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
+                @ApiParam(value = "Sort", required = false, allowableValues = "name,date,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort) {
+
             DALFacade dalFacade = null;
             try {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -423,7 +466,21 @@ public class ProjectsResource extends RESTService {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
                 }
                 Gson gson = new Gson();
-                PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>());
+                List<Pageable.SortField> sortList = new ArrayList<>();
+                for (String sortOption : sort) {
+                    Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
+                    if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { // " " is needed because jersey does not pass "+"
+                        direction = Pageable.SortDirection.ASC;
+                        sortOption = sortOption.substring(1);
+
+                    } else if (sortOption.startsWith("-")) {
+                        direction = Pageable.SortDirection.DESC;
+                        sortOption = sortOption.substring(1);
+                    }
+                    Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
+                    sortList.add(sortField);
+                }
+                PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>(), sortList);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(pageInfo);
                 if (vtor.hasViolations()) {
@@ -447,9 +504,14 @@ public class ProjectsResource extends RESTService {
                 }
                 PaginationResult<Component> componentsResult = dalFacade.listComponentsByProjectId(projectId, pageInfo);
 
-                Map<String, String> parameter = new HashMap<>();
-                parameter.put("page", String.valueOf(page));
-                parameter.put("per_page", String.valueOf(perPage));
+                Map<String, List<String>> parameter = new HashMap<>();
+                parameter.put("page", new ArrayList() {{
+                    add(String.valueOf(page));
+                }});
+                parameter.put("per_page", new ArrayList() {{
+                    add(String.valueOf(perPage));
+                }});
+                parameter.put("sort", sort);
 
                 Response.ResponseBuilder responseBuilder = Response.ok();
                 responseBuilder = responseBuilder.entity(gson.toJson(componentsResult.getElements()));
@@ -487,7 +549,7 @@ public class ProjectsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method returns the list of requirements for a specific project.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of requirements for a given project"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of requirements for a given project", response = Requirement.class, responseContainer = "List"),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -495,7 +557,8 @@ public class ProjectsResource extends RESTService {
         public Response getRequirementsByProject(@PathParam("projectId") int projectId,
                                                  @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
                                                  @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
-                                                 @ApiParam(value = "State filter", required = false, allowableValues = "all,open,realized") @DefaultValue("all") @QueryParam("state") String stateFilter) {
+                                                 @ApiParam(value = "State filter", required = false, allowableValues = "all,open,realized") @DefaultValue("all") @QueryParam("state") String stateFilter,
+                                                 @ApiParam(value = "Sort", required = false, allowableValues = "date,title,vote,comment,follower,realized") @DefaultValue("date") @QueryParam("sort") List<String> sort) {
             DALFacade dalFacade = null;
             try {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -509,7 +572,21 @@ public class ProjectsResource extends RESTService {
                 if (stateFilter != "all") {
                     filters.put("realized", stateFilter);
                 }
-                PageInfo pageInfo = new PageInfo(page, perPage, filters);
+                List<Pageable.SortField> sortList = new ArrayList<>();
+                for (String sortOption : sort) {
+                    Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
+                    if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { // " " is needed because jersey does not pass "+"
+                        direction = Pageable.SortDirection.ASC;
+                        sortOption = sortOption.substring(1);
+
+                    } else if (sortOption.startsWith("-")) {
+                        direction = Pageable.SortDirection.DESC;
+                        sortOption = sortOption.substring(1);
+                    }
+                    Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
+                    sortList.add(sortField);
+                }
+                PageInfo pageInfo = new PageInfo(page, perPage, filters, sortList);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(pageInfo);
                 if (vtor.hasViolations()) {
@@ -533,9 +610,17 @@ public class ProjectsResource extends RESTService {
                 }
                 PaginationResult<RequirementEx> requirementsResult = dalFacade.listRequirementsByProject(projectId, pageInfo, internalUserId);
 
-                Map<String, String> parameter = new HashMap<>();
-                parameter.put("page", String.valueOf(page));
-                parameter.put("per_page", String.valueOf(perPage));
+                Map<String, List<String>> parameter = new HashMap<>();
+                parameter.put("page", new ArrayList() {{
+                    add(String.valueOf(page));
+                }});
+                parameter.put("per_page", new ArrayList() {{
+                    add(String.valueOf(perPage));
+                }});
+                parameter.put("state", new ArrayList() {{
+                    add(String.valueOf(stateFilter));
+                }});
+                parameter.put("sort", sort);
 
                 Response.ResponseBuilder responseBuilder = Response.ok();
                 responseBuilder = responseBuilder.entity(gson.toJson(requirementsResult.getElements()));

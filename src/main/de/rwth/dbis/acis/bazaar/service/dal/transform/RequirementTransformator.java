@@ -23,11 +23,15 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 import com.vdurmont.emoji.EmojiParser;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Votes;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord;
 import org.jooq.*;
+import org.jooq.impl.DSL;
 
 import java.util.*;
 
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementFollower.REQUIREMENT_FOLLOWER;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQUIREMENTS;
 
 public class RequirementTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord> {
@@ -104,16 +108,105 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
     }
 
     @Override
-    public Collection<? extends SortField<?>> getSortFields(Pageable.SortDirection sortDirection) {
-        switch (sortDirection) {
-            case DEFAULT:
-                return Arrays.asList(REQUIREMENTS.CREATION_TIME.desc());
-            case ASC:
-                return Arrays.asList(REQUIREMENTS.CREATION_TIME.asc());
-            case DESC:
-                return Arrays.asList(REQUIREMENTS.CREATION_TIME.desc());
+    public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
+        if (sorts.isEmpty()) {
+            return Arrays.asList(REQUIREMENTS.CREATION_TIME.desc());
         }
-        return null;
+        List<SortField<?>> sortFields = new ArrayList<>();
+        for (Pageable.SortField sort : sorts) {
+            if (sort.getField().equals("date")) {
+                switch (sort.getSortDirection()) {
+                    case ASC:
+                        sortFields.add(REQUIREMENTS.CREATION_TIME.asc());
+                        break;
+                    case DESC:
+                        sortFields.add(REQUIREMENTS.CREATION_TIME.desc());
+                        break;
+                    default:
+                        sortFields.add(REQUIREMENTS.CREATION_TIME.desc());
+                        break;
+                }
+            } else if (sort.getField().equals("title")) {
+                switch (sort.getSortDirection()) {
+                    case ASC:
+                        sortFields.add(REQUIREMENTS.TITLE.asc());
+                        break;
+                    case DESC:
+                        sortFields.add(REQUIREMENTS.TITLE.desc());
+                        break;
+                    default:
+                        sortFields.add(REQUIREMENTS.TITLE.asc());
+                        break;
+                }
+            } else if (sort.getField().equals("vote")) {
+
+                Field<Object> voteCount = DSL.select(DSL.count(DSL.nullif(Votes.VOTES.IS_UPVOTE, 0)))
+                        .from(Votes.VOTES)
+                        .where(Votes.VOTES.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                        .asField("voteCount");
+
+                switch (sort.getSortDirection()) {
+                    case ASC:
+                        sortFields.add(voteCount.asc());
+                        break;
+                    case DESC:
+                        sortFields.add(voteCount.desc());
+                        break;
+                    default:
+                        sortFields.add(voteCount.desc());
+                        break;
+                }
+            } else if (sort.getField().equals("comment")) {
+
+                Field<Object> commentCount = DSL.select(DSL.count())
+                        .from(Comments.COMMENTS)
+                        .where(Comments.COMMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                        .asField("commentCount");
+
+                switch (sort.getSortDirection()) {
+                    case ASC:
+                        sortFields.add(commentCount.asc());
+                        break;
+                    case DESC:
+                        sortFields.add(commentCount.desc());
+                        break;
+                    default:
+                        sortFields.add(commentCount.desc());
+                        break;
+                }
+            } else if (sort.getField().equals("follower")) {
+
+                Field<Object> followerCount = DSL.select(DSL.count())
+                        .from(REQUIREMENT_FOLLOWER)
+                        .where(REQUIREMENT_FOLLOWER.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                        .asField("followerCount");
+
+                switch (sort.getSortDirection()) {
+                    case ASC:
+                        sortFields.add(followerCount.asc());
+                        break;
+                    case DESC:
+                        sortFields.add(followerCount.desc());
+                        break;
+                    default:
+                        sortFields.add(followerCount.desc());
+                        break;
+                }
+            } else if (sort.getField().equals("realized")) {
+                switch (sort.getSortDirection()) {
+                    case ASC:
+                        sortFields.add(REQUIREMENTS.REALIZED.asc());
+                        break;
+                    case DESC:
+                        sortFields.add(REQUIREMENTS.REALIZED.desc());
+                        break;
+                    default:
+                        sortFields.add(REQUIREMENTS.REALIZED.desc());
+                        break;
+                }
+            }
+        }
+        return sortFields;
     }
 
     @Override

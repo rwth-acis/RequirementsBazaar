@@ -21,14 +21,12 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Component;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.ComponentFollower;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Tags;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.*;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentsRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.ComponentTransformator;
@@ -42,13 +40,16 @@ import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.Result;
 import org.jooq.exception.DataAccessException;
+import org.jooq.impl.DSL;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Components.COMPONENTS;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ComponentFollower.COMPONENT_FOLLOWER;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS;
 
 public class ComponentRepositoryImpl extends RepositoryImpl<Component, ComponentsRecord> implements ComponentRepository {
     /**
@@ -127,11 +128,26 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                     .where(COMPONENTS.PROJECT_ID.equal(projectId))
                     .asField("idCount");
 
-            List<Record> queryResults = jooq.select(COMPONENTS.fields()).select(leaderUser.fields()).select(idCount)
+            Field<Object> requirementCount = jooq.select(DSL.count())
+                    .from(Requirements.REQUIREMENTS)
+                    .leftJoin(Tags.TAGS).on(Requirements.REQUIREMENTS.ID.equal(Tags.TAGS.REQUIREMENTS_ID))
+                    .where(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
+                    .asField("requirementCount");
+
+            Field<Object> followerCount = jooq.select(DSL.count())
+                    .from(ComponentFollower.COMPONENT_FOLLOWER)
+                    .where(ComponentFollower.COMPONENT_FOLLOWER.COMPONENT_ID.equal(COMPONENTS.ID))
+                    .asField("followerCount");
+
+            List<Record> queryResults = jooq.select(COMPONENTS.fields())
+                    .select(leaderUser.fields())
+                    .select(idCount)
+                    .select(requirementCount)
+                    .select(followerCount)
                     .from(COMPONENTS)
                     .join(leaderUser).on(leaderUser.ID.equal(COMPONENTS.LEADER_ID))
                     .where(COMPONENTS.PROJECT_ID.equal(projectId))
-                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                    .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();
@@ -171,7 +187,7 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                     .join(leaderUser).on(leaderUser.ID.equal(COMPONENTS.LEADER_ID))
                     .join(Tags.TAGS).on(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
                     .where(Tags.TAGS.REQUIREMENTS_ID.equal(requirementId))
-                    .orderBy(transformator.getSortFields(pageable.getSortDirection()))
+                    .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();
@@ -207,5 +223,70 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return false;
+    }
+
+    @Override
+    public Statistic getStatisticsForComponent(int userId, int componentId, Timestamp timestamp) throws BazaarException {
+        Statistic result = null;
+        try {
+            // If you want to change something here, please know what you are doing! Its SQL and even worse JOOQ :-|
+            Record record1 = jooq
+                    .select(DSL.countDistinct(PROJECTS.ID).as("numberOfProjects"))
+                    .from(COMPONENTS)
+                    .leftJoin(Projects.PROJECTS).on(Projects.PROJECTS.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(Projects.PROJECTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(Projects.PROJECTS.ID.equal(COMPONENTS.PROJECT_ID)))
+                    .where(COMPONENTS.ID.eq(componentId))
+                    .fetchOne();
+
+            Record record2 = jooq
+                    .select(DSL.countDistinct(COMPONENTS.ID).as("numberOfComponents"))
+                    .from(COMPONENTS)
+                    .where(COMPONENTS.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(COMPONENTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(COMPONENTS.ID.eq(componentId)))
+                    .fetchOne();
+
+            Record record3 = jooq
+                    .select(DSL.countDistinct(Requirements.REQUIREMENTS.ID).as("numberOfRequirements"))
+                    .from(COMPONENTS)
+                    .leftJoin(Tags.TAGS).on(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
+                    .leftJoin(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(Requirements.REQUIREMENTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(Requirements.REQUIREMENTS.ID.equal(Tags.TAGS.REQUIREMENTS_ID)))
+                    .where(COMPONENTS.ID.eq(componentId))
+                    .fetchOne();
+
+            Record record4 = jooq
+                    .select(DSL.countDistinct(Comments.COMMENTS.ID).as("numberOfComments"))
+                    .select(DSL.countDistinct(Attachments.ATTACHMENTS.ID).as("numberOfAttachments"))
+                    .select(DSL.countDistinct(Votes.VOTES.ID).as("numberOfVotes"))
+                    .from(COMPONENTS)
+                    .leftJoin(Tags.TAGS).on(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
+                    .leftJoin(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.ID.equal(Tags.TAGS.REQUIREMENTS_ID))
+                    .leftJoin(Comments.COMMENTS).on(Comments.COMMENTS.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(Comments.COMMENTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(Comments.COMMENTS.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID)))
+                    .leftJoin(Attachments.ATTACHMENTS).on(Attachments.ATTACHMENTS.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(Attachments.ATTACHMENTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID)))
+                    .leftJoin(Votes.VOTES).on(Votes.VOTES.CREATION_TIME.greaterOrEqual(timestamp)
+                            .and(Votes.VOTES.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID)))
+                    .where(COMPONENTS.ID.eq(componentId))
+                    .fetchOne();
+
+            result = Statistic.getBuilder()
+                    .numberOfProjects((Integer) record1.get("numberOfProjects"))
+                    .numberOfComponents((Integer) record2.get("numberOfComponents"))
+                    .numberOfRequirements((Integer) record3.get("numberOfRequirements"))
+                    .numberOfComments((Integer) record4.get("numberOfComments"))
+                    .numberOfAttachments((Integer) record4.get("numberOfAttachments"))
+                    .numberOfVotes((Integer) record4.get("numberOfVotes"))
+                    .build();
+
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return result;
     }
 }

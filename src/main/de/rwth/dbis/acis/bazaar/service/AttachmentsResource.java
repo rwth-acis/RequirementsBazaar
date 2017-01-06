@@ -41,6 +41,26 @@ public class AttachmentsResource extends RESTService {
     }
 
     @Api(value = "attachments", description = "Attachments resource")
+    @SwaggerDefinition(
+            info = @Info(
+                    title = "Requirements Bazaar",
+                    version = "0.4",
+                    description = "Requirements Bazaar project",
+                    termsOfService = "http://requirements-bazaar.org",
+                    contact = @Contact(
+                            name = "Requirements Bazaar Dev Team",
+                            url = "http://requirements-bazaar.org",
+                            email = "info@requirements-bazaar.org"
+                    ),
+                    license = @License(
+                            name = "Apache2",
+                            url = "http://requirements-bazaar.org/license"
+                    )
+            ),
+            host = "requirements-bazaar.org",
+            basePath = "",
+            schemes = SwaggerDefinition.Scheme.HTTPS
+    )
     @Path("/")
     public static class Resource {
 
@@ -57,7 +77,7 @@ public class AttachmentsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method allows to retrieve a certain attachment")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain attachment"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain attachment", response = Attachment.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -107,7 +127,7 @@ public class AttachmentsResource extends RESTService {
         /**
          * This method allows to create a new attachment.
          *
-         * @param attachment as JSON object
+         * @param attachmentToCreate as JSON object
          * @return Response with the created attachment as JSON object.
          */
         @POST
@@ -115,12 +135,12 @@ public class AttachmentsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method allows to create a new attachment.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created attachement"),
+                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created attachment", response = Attachment.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
-        public Response createAttachment(@ApiParam(value = "Attachment entity as JSON", required = true) String attachment) {
+        public Response createAttachment(@ApiParam(value = "Attachment entity as JSON", required = true) Attachment attachmentToCreate) {
             DALFacade dalFacade = null;
             try {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -130,8 +150,8 @@ public class AttachmentsResource extends RESTService {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
                 }
                 Gson gson = new Gson();
-                Attachment attachmentToCreate = gson.fromJson(attachment, Attachment.class);
                 Vtor vtor = service.bazaarService.getValidators();
+                vtor.useProfiles("create");
                 vtor.validate(attachmentToCreate);
                 if (vtor.hasViolations()) {
                     ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
@@ -171,7 +191,7 @@ public class AttachmentsResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method deletes a specific attachment.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the deleted attachment"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the deleted attachment", response = Attachment.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")

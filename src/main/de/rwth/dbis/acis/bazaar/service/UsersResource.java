@@ -35,6 +35,26 @@ public class UsersResource extends RESTService {
     }
 
     @Api(value = "users", description = "Users resource")
+    @SwaggerDefinition(
+            info = @Info(
+                    title = "Requirements Bazaar",
+                    version = "0.4",
+                    description = "Requirements Bazaar project",
+                    termsOfService = "http://requirements-bazaar.org",
+                    contact = @Contact(
+                            name = "Requirements Bazaar Dev Team",
+                            url = "http://requirements-bazaar.org",
+                            email = "info@requirements-bazaar.org"
+                    ),
+                    license = @License(
+                            name = "Apache2",
+                            url = "http://requirements-bazaar.org/license"
+                    )
+            ),
+            host = "requirements-bazaar.org",
+            basePath = "",
+            schemes = SwaggerDefinition.Scheme.HTTPS
+    )
     @Path("/")
     public static class Resource {
 
@@ -51,7 +71,7 @@ public class UsersResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method allows to retrieve a certain user.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain user"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain user", response = User.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -88,7 +108,7 @@ public class UsersResource extends RESTService {
          * Allows to update a certain user.
          *
          * @param userId id of the user to update
-         * @param user   updated user as a JSON object
+         * @param userToUpdate updated user as a JSON object
          * @return Response with the updated user as a JSON object.
          */
         @PUT
@@ -97,13 +117,13 @@ public class UsersResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method allows to update the user profile.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the updated user"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the updated user", response = User.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
         public Response updateUser(@PathParam("userId") int userId,
-                                   @ApiParam(value = "User entity as JSON", required = true) String user) {
+                                   @ApiParam(value = "User entity as JSON", required = true) User userToUpdate) {
             DALFacade dalFacade = null;
             try {
                 String registratorErrors = service.bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -112,7 +132,6 @@ public class UsersResource extends RESTService {
                 }
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
                 Gson gson = new Gson();
-                User userToUpdate = gson.fromJson(user, User.class);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(userToUpdate);
                 if (vtor.hasViolations()) {
@@ -152,7 +171,7 @@ public class UsersResource extends RESTService {
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method allows to retrieve the active user.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the active user"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the active user", response = User.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")

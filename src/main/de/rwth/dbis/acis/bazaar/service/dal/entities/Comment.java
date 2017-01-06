@@ -24,6 +24,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 import jodd.vtor.constraint.MaxLength;
 import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
+import jodd.vtor.constraint.NotNull;
 
 import java.util.Date;
 
@@ -33,24 +34,28 @@ import java.util.Date;
  */
 public class Comment extends EntityBase {
     @Min(-1)
-    private final int requirementId;
+    private int requirementId;
     @Min(-1)
-    private final int Id;
+    private int Id;
 
     @NotBlank
+    @NotNull(profiles = {"create"})
     @MaxLength(65536)
     private String message;
 
     @Min(-1)
     private int creatorId;
 
-    private final Integer belongsToComment;
+    private Integer belongsToComment;
 
-    private final Date creationTime;
+    private Date creationTime;
 
-    private final Date lastupdatedTime;
+    private Date lastupdatedTime;
 
     private User creator;
+
+    public Comment() {
+    }
 
     public Comment(Builder builder) {
         this.Id = builder.id;

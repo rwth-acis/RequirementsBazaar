@@ -25,6 +25,9 @@ import java.util.List;
 
 public class RequirementEx extends Requirement {
 
+    public RequirementEx() {
+    }
+
     private RequirementEx(BuilderEx builder) {
         super(builder);
         this.creator = builder.creator;
@@ -34,11 +37,11 @@ public class RequirementEx extends Requirement {
         this.contributors = builder.contributors;
     }
 
-    private final User creator;
-    private final User leadDeveloper;
-    private final List<User> developers;
-    private final List<User> followers;
-    private final List<User> contributors;
+    private User creator;
+    private User leadDeveloper;
+    private List<User> developers;
+    private List<User> followers;
+    private List<User> contributors;
 
     public User getCreator() {
         return creator;
