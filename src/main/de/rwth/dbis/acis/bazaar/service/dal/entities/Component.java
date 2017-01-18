@@ -175,7 +175,7 @@ public class Component extends EntityBase {
 
         public Builder followers(List<User> followers) {
             this.followers = followers;
-            return  this;
+            return this;
         }
 
         public Builder projectId(int projectId) {
