@@ -96,7 +96,7 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(ATTACHMENTS.CREATION_TIME.desc());
+            return Arrays.asList(ATTACHMENTS.CREATION_TIME.asc());
         }
         return null;
     }

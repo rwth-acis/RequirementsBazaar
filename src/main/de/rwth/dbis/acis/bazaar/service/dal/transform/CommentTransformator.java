@@ -93,7 +93,7 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(COMMENTS.CREATION_TIME.desc());
+            return Arrays.asList(COMMENTS.CREATION_TIME.asc());
         }
         return null;
     }
