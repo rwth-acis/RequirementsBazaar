@@ -550,7 +550,7 @@ public class RequirementsResource extends RESTService {
          * @return Response with requirement as a JSON object.
          */
         @POST
-        @Path("/{requirementId}/vote")
+        @Path("/{requirementId}/votes")
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method creates a vote for the given requirement in the name of the current user.")
         @ApiResponses(value = {
@@ -612,7 +612,7 @@ public class RequirementsResource extends RESTService {
          * @return Response with requirement as a JSON object.
          */
         @DELETE
-        @Path("/{requirementId}/vote")
+        @Path("/{requirementId}/votes")
         @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method removes the vote of the given requirement made by the current user.")
         @ApiResponses(value = {
