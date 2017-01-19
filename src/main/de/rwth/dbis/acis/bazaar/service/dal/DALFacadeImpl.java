@@ -274,11 +274,23 @@ public class DALFacadeImpl implements DALFacade {
     @Override
     public RequirementEx deleteRequirementById(int requirementId, int userId) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
-
-        //TODO it's a very heavy call for very little
         RequirementEx requirement = requirementRepository.findById(requirementId, userId);
         requirementRepository.delete(requirementId);
         return requirement;
+    }
+
+    @Override
+    public RequirementEx setRequirementToRealized(int requirementId, int userId) throws Exception {
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        requirementRepository.setRealized(requirementId, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+        return getRequirementById(requirementId, userId);
+    }
+
+    @Override
+    public RequirementEx setRequirementToUnRealized(int requirementId, int userId) throws Exception {
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        requirementRepository.setRealized(requirementId, null);
+        return getRequirementById(requirementId, userId);
     }
 
     @Override

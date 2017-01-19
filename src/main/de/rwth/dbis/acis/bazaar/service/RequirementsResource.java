@@ -145,7 +145,7 @@ public class RequirementsResource extends RESTService {
             try {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
                 long userId = agent.getId();
-                String registratorErrors =service.bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+                String registratorErrors = service.bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
                 if (registratorErrors != null) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
                 }
@@ -214,7 +214,7 @@ public class RequirementsResource extends RESTService {
         /**
          * This method updates a specific requirement within a project and component.
          *
-         * @param requirementId id of the requirement to update
+         * @param requirementId       id of the requirement to update
          * @param requirementToUpdate requirement as a JSON object
          * @return Response with updated requirement as a JSON object.
          */
@@ -256,13 +256,8 @@ public class RequirementsResource extends RESTService {
                 }
                 dalFacade.followRequirement(internalUserId, requirementToUpdate.getId());
                 RequirementEx updatedRequirement = dalFacade.modifyRequirement(requirementToUpdate, internalUserId);
-                if (requirementToUpdate.getRealized() == null) {
-                    service.bazaarService.getNotificationDispatcher().dispatchNotification(service, updatedRequirement.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedRequirement.getId(),
-                            Activity.DataType.REQUIREMENT, updatedRequirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
-                } else {
-                    service.bazaarService.getNotificationDispatcher().dispatchNotification(service, updatedRequirement.getLastupdated_time(), Activity.ActivityAction.REALIZE, updatedRequirement.getId(),
-                            Activity.DataType.REQUIREMENT, updatedRequirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
-                }
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, updatedRequirement.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedRequirement.getId(),
+                        Activity.DataType.REQUIREMENT, updatedRequirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
                 return Response.ok(gson.toJson(updatedRequirement)).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -631,8 +626,6 @@ public class RequirementsResource extends RESTService {
             try {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
                 long userId = agent.getId();
-                // TODO: check whether the current user may create a new requirement
-                // TODO: check whether all required parameters are entered
                 String registratorErrors = service.bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
                 if (registratorErrors != null) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
@@ -647,6 +640,110 @@ public class RequirementsResource extends RESTService {
                 Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
                 Gson gson = new Gson();
                 service.bazaarService.getNotificationDispatcher().dispatchNotification(service, new Date(), Activity.ActivityAction.UNVOTE, requirement.getId(),
+                        Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
+                return Response.ok(gson.toJson(requirement)).build();
+            } catch (BazaarException bex) {
+                if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                    return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                    return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else {
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                }
+            } catch (Exception ex) {
+                BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } finally {
+                service.bazaarService.closeDBConnection(dalFacade);
+            }
+        }
+
+        /**
+         * This method set the realized field to now for the given requirement
+         *
+         * @param requirementId id of the requirement
+         * @return Response with requirement as a JSON object.
+         */
+        @POST
+        @Path("/{requirementId}/realized")
+        @Produces(MediaType.APPLICATION_JSON)
+        @ApiOperation(value = "This method set the realized field to now for a given requirement.")
+        @ApiResponses(value = {
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = RequirementEx.class),
+                @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+                @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+                @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+        })
+        public Response realize(@PathParam("requirementId") int requirementId) {
+            DALFacade dalFacade = null;
+            try {
+                UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
+                long userId = agent.getId();
+                String registratorErrors = service.bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+                if (registratorErrors != null) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
+                }
+                dalFacade = service.bazaarService.getDBConnection();
+                Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.create"));
+                }
+                RequirementEx requirement = dalFacade.setRequirementToRealized(requirementId, internalUserId);
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, new Date(), Activity.ActivityAction.REALIZE, requirement.getId(),
+                        Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
+                Gson gson = new Gson();
+                return Response.status(Response.Status.CREATED).entity(gson.toJson(requirement)).build();
+            } catch (BazaarException bex) {
+                if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                    return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                    return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else {
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                }
+            } catch (Exception ex) {
+                BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } finally {
+                service.bazaarService.closeDBConnection(dalFacade);
+            }
+        }
+
+        /**
+         * This method removes the realized information for the given requirement
+         *
+         * @param requirementId id of the requirement
+         * @return Response with requirement as a JSON object.
+         */
+        @DELETE
+        @Path("/{requirementId}/realized")
+        @Produces(MediaType.APPLICATION_JSON)
+        @ApiOperation(value = "This method removes the realized information for the given requirement.")
+        @ApiResponses(value = {
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = RequirementEx.class),
+                @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+                @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+                @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+        })
+        public Response unrealize(@PathParam("requirementId") int requirementId) {
+            DALFacade dalFacade = null;
+            try {
+                UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
+                long userId = agent.getId();
+                String registratorErrors = service.bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+                if (registratorErrors != null) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
+                }
+                dalFacade = service.bazaarService.getDBConnection();
+                Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.delete"));
+                }
+                RequirementEx requirement = dalFacade.setRequirementToUnRealized(requirementId, internalUserId);
+                Gson gson = new Gson();
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, new Date(), Activity.ActivityAction.UNREALIZE, requirement.getId(),
                         Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
                 return Response.ok(gson.toJson(requirement)).build();
             } catch (BazaarException bex) {

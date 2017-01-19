@@ -138,6 +138,7 @@ public class Activity extends EntityBase {
         UPDATE,
         DELETE,
         REALIZE,
+        UNREALIZE,
         VOTE,
         UNVOTE,
         DEVELOP,

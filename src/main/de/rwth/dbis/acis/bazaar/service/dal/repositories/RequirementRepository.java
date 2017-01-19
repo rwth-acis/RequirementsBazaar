@@ -28,6 +28,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 
 public interface RequirementRepository extends Repository<Requirement> {
@@ -39,6 +40,8 @@ public interface RequirementRepository extends Repository<Requirement> {
     boolean belongsToPublicProject(int id) throws BazaarException;
 
     RequirementEx findById(int id, int userId) throws Exception;
+
+    void setRealized(int id, Timestamp realized) throws BazaarException;
 
     Statistic getStatisticsForRequirement(int userId, int requirementId, Timestamp timestamp) throws BazaarException;
 }

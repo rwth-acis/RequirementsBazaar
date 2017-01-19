@@ -42,9 +42,7 @@ import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQUIREMENTS;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Tags.TAGS;
@@ -364,6 +362,19 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return requirementEx;
+    }
+
+    @Override
+    public void setRealized(int id, Timestamp realized) throws BazaarException {
+        try {
+            jooq.update(REQUIREMENTS)
+                    .set(REQUIREMENTS.REALIZED, realized)
+                    .set(REQUIREMENTS.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()))
+                    .where(REQUIREMENTS.ID.eq(id))
+                    .execute();
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
     }
 
     @Override

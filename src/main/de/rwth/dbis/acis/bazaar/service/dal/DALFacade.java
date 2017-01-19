@@ -226,6 +226,25 @@ public interface DALFacade {
      */
     RequirementEx deleteRequirementById(int requirementId, int userId) throws Exception;
 
+    /**
+     * This method set a requirements realized flag to now
+     *
+     * @param requirementId
+     * @param userId
+     * @return updated RequirementEx
+     * @throws Exception
+     */
+    RequirementEx setRequirementToRealized(int requirementId, int userId) throws Exception;
+
+    /**
+     * This method set a requirements realized flag to NULL
+     *
+     * @param requirementId
+     * @param userId
+     * @return updated RequirementEx
+     * @throws Exception
+     */
+    RequirementEx setRequirementToUnRealized(int requirementId, int userId) throws Exception;
 
     /**
      * Returns true if requirement belongs to a public project
