@@ -144,6 +144,8 @@ public class Activity extends EntityBase {
         DEVELOP,
         UNDEVELOP,
         FOLLOW,
-        UNFOLLOW
+        UNFOLLOW,
+        LEADDEVELOP,
+        UNLEADDEVELOP
     }
 }

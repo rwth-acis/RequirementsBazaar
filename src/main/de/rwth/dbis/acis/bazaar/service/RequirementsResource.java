@@ -154,9 +154,6 @@ public class RequirementsResource extends RESTService {
                 Gson gson = new Gson();
                 Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
                 requirementToCreate.setCreatorId(internalUserId);
-                if (requirementToCreate.getLeadDeveloperId() == 0) {
-                    requirementToCreate.setLeadDeveloperId(1);
-                }
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.useProfiles("create");
                 vtor.validate(requirementToCreate);
@@ -313,6 +310,114 @@ public class RequirementsResource extends RESTService {
                 service.bazaarService.getNotificationDispatcher().dispatchNotification(service, deletedRequirement.getLastupdated_time(), Activity.ActivityAction.DELETE, deletedRequirement.getId(),
                         Activity.DataType.REQUIREMENT, deletedRequirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
                 return Response.ok(gson.toJson(deletedRequirement)).build();
+            } catch (BazaarException bex) {
+                if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                    return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                    return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else {
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                }
+            } catch (Exception ex) {
+                BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } finally {
+                service.bazaarService.closeDBConnection(dalFacade);
+            }
+        }
+
+        /**
+         * This method set the current user as lead developer for a given requirement
+         *
+         * @param requirementId id of the requirement
+         * @return Response with requirement as a JSON object.
+         */
+        @POST
+        @Path("/{requirementId}/leaddevelopers")
+        @Produces(MediaType.APPLICATION_JSON)
+        @ApiOperation(value = "This method set the current user as lead developer for a given requirement.")
+        @ApiResponses(value = {
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = RequirementEx.class),
+                @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+                @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+                @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+        })
+        public Response setUserAsLeadDeveloper(@PathParam("requirementId") int requirementId) {
+            DALFacade dalFacade = null;
+            try {
+                UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
+                long userId = agent.getId();
+                String registratorErrors = service.bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+                if (registratorErrors != null) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
+                }
+                dalFacade = service.bazaarService.getDBConnection();
+                Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.create"));
+                }
+                RequirementEx requirement = dalFacade.setUserAsLeadDeveloper(requirementId, internalUserId);
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, new Date(), Activity.ActivityAction.LEADDEVELOP, requirement.getId(),
+                        Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
+                Gson gson = new Gson();
+                return Response.status(Response.Status.CREATED).entity(gson.toJson(requirement)).build();
+            } catch (BazaarException bex) {
+                if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                    return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                    return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else {
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                }
+            } catch (Exception ex) {
+                BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } finally {
+                service.bazaarService.closeDBConnection(dalFacade);
+            }
+        }
+
+        /**
+         * This method removes the current user as lead developer for a given requirement
+         *
+         * @param requirementId id of the requirement
+         * @return Response with requirement as a JSON object.
+         */
+        @DELETE
+        @Path("/{requirementId}/leaddevelopers")
+        @Produces(MediaType.APPLICATION_JSON)
+        @ApiOperation(value = "This method removes the current user as lead developer for a given requirement.")
+        @ApiResponses(value = {
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = RequirementEx.class),
+                @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+                @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+                @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+        })
+        public Response removeUserAsLeadDeveloper(@PathParam("requirementId") int requirementId) {
+            DALFacade dalFacade = null;
+            try {
+                UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
+                long userId = agent.getId();
+                String registratorErrors = service.bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+                if (registratorErrors != null) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
+                }
+                dalFacade = service.bazaarService.getDBConnection();
+                Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.delete"));
+                }
+                RequirementEx requirement = dalFacade.getRequirementById(requirementId, internalUserId);
+                if (requirement.getLeadDeveloper().getId() != internalUserId) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "You are not lead developer.");
+                }
+                requirement = dalFacade.deleteUserAsLeadDeveloper(requirementId, internalUserId);
+                Gson gson = new Gson();
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, new Date(), Activity.ActivityAction.UNLEADDEVELOP, requirement.getId(),
+                        Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
+                return Response.ok(gson.toJson(requirement)).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                     return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();

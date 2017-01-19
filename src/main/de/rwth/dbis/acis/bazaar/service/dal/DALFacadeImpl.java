@@ -294,6 +294,20 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public RequirementEx setUserAsLeadDeveloper(int requirementId, int userId) throws Exception {
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        requirementRepository.setLeadDeveloper(requirementId, userId);
+        return getRequirementById(requirementId, userId);
+    }
+
+    @Override
+    public RequirementEx deleteUserAsLeadDeveloper(int requirementId, int userId) throws Exception {
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        requirementRepository.setLeadDeveloper(requirementId, null);
+        return getRequirementById(requirementId, userId);
+    }
+
+    @Override
     public boolean isRequirementPublic(int requirementId) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         return requirementRepository.belongsToPublicProject(requirementId);

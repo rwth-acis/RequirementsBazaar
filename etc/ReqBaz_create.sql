@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS requirements (
   realized          TIMESTAMP    NULL      DEFAULT NULL,
   creation_time     TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP,
   lastupdated_time  TIMESTAMP    NULL,
-  Lead_developer_Id INT          NOT NULL,
+  Lead_developer_Id INT          NULL,
   Creator_Id        INT          NOT NULL,
   Project_Id        INT          NOT NULL,
   CONSTRAINT requirements_pk PRIMARY KEY (Id),

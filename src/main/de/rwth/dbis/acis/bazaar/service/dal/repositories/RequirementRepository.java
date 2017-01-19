@@ -43,5 +43,7 @@ public interface RequirementRepository extends Repository<Requirement> {
 
     void setRealized(int id, Timestamp realized) throws BazaarException;
 
+    void setLeadDeveloper(int id, Integer userId) throws BazaarException;
+
     Statistic getStatisticsForRequirement(int userId, int requirementId, Timestamp timestamp) throws BazaarException;
 }

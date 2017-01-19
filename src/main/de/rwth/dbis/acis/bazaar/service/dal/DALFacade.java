@@ -247,6 +247,26 @@ public interface DALFacade {
     RequirementEx setRequirementToUnRealized(int requirementId, int userId) throws Exception;
 
     /**
+     *  This method set userId as lead developer for requirement
+     *
+     * @param requirementId
+     * @param userId
+     * @return
+     * @throws Exception
+     */
+    RequirementEx setUserAsLeadDeveloper(int requirementId, int userId) throws Exception;
+
+    /**
+     * This method set lead developer for requirement to NULL
+     *
+     * @param requirementId
+     * @param userId
+     * @return
+     * @throws Exception
+     */
+    RequirementEx deleteUserAsLeadDeveloper(int requirementId, int userId) throws Exception;
+
+    /**
      * Returns true if requirement belongs to a public project
      *
      * @param requirementId
