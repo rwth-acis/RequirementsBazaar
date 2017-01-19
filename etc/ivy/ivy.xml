@@ -10,8 +10,8 @@
     </publications>
     <dependencies>
         <!-- platform dependencies -->
-        <dependency org="i5" name="las2peer" rev="0.6.6" changing="true" conf="platform->*"/>
-        <dependency org="i5" name="las2peer-web-connector" rev="0.6.6" changing="true" conf="platform->*"/>
+        <dependency org="i5" name="las2peer" rev="0.6.7" changing="true" conf="platform->*"/>
+        <dependency org="i5" name="las2peer-web-connector" rev="0.6.7" changing="true" conf="platform->*"/>
         <dependency org="junit" name="junit" rev="4.12" conf="platform->*"/>
         <!-- service dependencies -->
         <dependency org="mysql" name="mysql-connector-java" rev="5.1.6" conf="bundle->default"/>
