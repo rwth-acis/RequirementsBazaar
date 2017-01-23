@@ -42,9 +42,7 @@ import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQUIREMENTS;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Tags.TAGS;
@@ -227,7 +225,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .leftOuterJoin(developerUsers).on(Developers.DEVELOPERS.USER_ID.equal(developerUsers.ID))
 
                     .join(creatorUser).on(creatorUser.ID.equal(REQUIREMENTS.CREATOR_ID))
-                    .join(leadDeveloperUser).on(leadDeveloperUser.ID.equal(REQUIREMENTS.LEAD_DEVELOPER_ID))
+                    .leftOuterJoin(leadDeveloperUser).on(leadDeveloperUser.ID.equal(REQUIREMENTS.LEAD_DEVELOPER_ID))
 
                     .leftOuterJoin(contributorUsers).on(Attachments.ATTACHMENTS.USER_ID.equal(contributorUsers.ID))
 
@@ -251,7 +249,6 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .creationTime(queryResult.getValues(REQUIREMENTS.CREATION_TIME).get(0))
                     .lastupdatedTime(queryResult.getValues(REQUIREMENTS.LASTUPDATED_TIME).get(0))
                     .projectId(queryResult.getValues(REQUIREMENTS.PROJECT_ID).get(0))
-                    .leadDeveloperId(queryResult.getValues(REQUIREMENTS.LEAD_DEVELOPER_ID).get(0))
                     .creatorId(queryResult.getValues(REQUIREMENTS.CREATOR_ID).get(0));
 
             UserTransformator userTransformator = new UserTransformator();
@@ -261,9 +258,11 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             );
 
             //Filling up LeadDeveloper
-            builder.leadDeveloper(
-                    userTransformator.getEntityFromQueryResult(leadDeveloperUser, queryResult)
-            );
+            if(queryResult.getValues(leadDeveloperUser.ID).get(0) != null){
+                builder.leadDeveloper(
+                        userTransformator.getEntityFromQueryResult(leadDeveloperUser, queryResult)
+                );
+            }
 
             //Filling up developers list
             List<User> devList = new ArrayList<>();
@@ -364,6 +363,32 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return requirementEx;
+    }
+
+    @Override
+    public void setRealized(int id, Timestamp realized) throws BazaarException {
+        try {
+            jooq.update(REQUIREMENTS)
+                    .set(REQUIREMENTS.REALIZED, realized)
+                    .set(REQUIREMENTS.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()))
+                    .where(REQUIREMENTS.ID.eq(id))
+                    .execute();
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
+        }
+    }
+
+    @Override
+    public void setLeadDeveloper(int id, Integer userId) throws BazaarException {
+        try {
+            jooq.update(REQUIREMENTS)
+                    .set(REQUIREMENTS.LEAD_DEVELOPER_ID, userId)
+                    .set(REQUIREMENTS.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()))
+                    .where(REQUIREMENTS.ID.eq(id))
+                    .execute();
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
+        }
     }
 
     @Override

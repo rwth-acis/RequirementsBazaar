@@ -42,12 +42,8 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
         RequirementsRecord record = new RequirementsRecord();
         record.setDescription(entry.getDescription());
         record.setTitle(entry.getTitle());
-        if (entry.getRealized() != null) {
-            record.setRealized(new java.sql.Timestamp(entry.getRealized().getTime()));
-        }
         record.setCreationTime(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         record.setLastupdatedTime(record.getCreationTime());
-        record.setLeadDeveloperId(entry.getLeadDeveloperId());
         record.setCreatorId(entry.getCreatorId());
         record.setProjectId(entry.getProjectId());
 
@@ -61,7 +57,6 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
                 .realized(record.getRealized())
                 .creationTime(record.getCreationTime())
                 .lastupdatedTime(record.getLastupdatedTime())
-                .leadDeveloperId(record.getLeadDeveloperId())
                 .projectId(record.getProjectId())
                 .creatorId(record.getCreatorId());
     }
@@ -96,10 +91,6 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
             if (entry.getTitle() != null) {
                 put(REQUIREMENTS.TITLE, entry.getTitle());
             }
-            if (entry.getLeadDeveloperId() != 0) {
-                put(REQUIREMENTS.LEAD_DEVELOPER_ID, entry.getLeadDeveloperId());
-            }
-            put(REQUIREMENTS.REALIZED, entry.getRealized());
         }};
         if (!updateMap.isEmpty()) {
             updateMap.put(REQUIREMENTS.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));

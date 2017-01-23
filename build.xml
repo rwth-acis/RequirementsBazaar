@@ -352,14 +352,14 @@
             <arg value='-p'/>
             <arg value='9011'/>
             <arg value='uploadStartupDirectory'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.BazaarService@0.4\",\"SampleServicePass\")'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.UsersResource@0.4\",\"SampleServicePass\")'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.ProjectsResource@0.4\",\"SampleServicePass\")'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.ComponentsResource@0.4\",\"SampleServicePass\")'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.RequirementsResource@0.4\",\"SampleServicePass\")'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.CommentsResource@0.4\",\"SampleServicePass\")'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.AttachmentsResource@0.4\",\"SampleServicePass\")'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.StatisticsResource@0.4\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.BazaarService@0.5\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.UsersResource@0.5\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.ProjectsResource@0.5\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.ComponentsResource@0.5\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.RequirementsResource@0.5\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.CommentsResource@0.5\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.AttachmentsResource@0.5\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.StatisticsResource@0.5\",\"SampleServicePass\")'/>
             <arg value='startWebConnector'/>
             <arg value='interactive'/>
         </java>

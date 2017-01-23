@@ -114,12 +114,6 @@ public class RequirementEx extends Requirement {
         }
 
         @Override
-        public BuilderEx leadDeveloperId(int userId) {
-            super.leadDeveloperId(userId);
-            return this;
-        }
-
-        @Override
         public BuilderEx creatorId(int userId) {
             super.creatorId(userId);
             return this;
