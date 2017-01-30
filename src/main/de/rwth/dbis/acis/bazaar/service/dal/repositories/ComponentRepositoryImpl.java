@@ -126,6 +126,7 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
             Field<Object> idCount = jooq.selectCount()
                     .from(COMPONENTS)
                     .where(COMPONENTS.PROJECT_ID.equal(projectId))
+                    .and(transformator.getSearchCondition(pageable.getSearch()))
                     .asField("idCount");
 
             Field<Object> requirementCount = jooq.select(DSL.count())
@@ -147,6 +148,7 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                     .from(COMPONENTS)
                     .join(leaderUser).on(leaderUser.ID.equal(COMPONENTS.LEADER_ID))
                     .where(COMPONENTS.PROJECT_ID.equal(projectId))
+                    .and(transformator.getSearchCondition(pageable.getSearch()))
                     .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
@@ -162,7 +164,7 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
             result = new PaginationResult<>(total, pageable, components);
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return result;

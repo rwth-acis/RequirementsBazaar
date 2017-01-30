@@ -420,6 +420,9 @@ public class ComponentsResource extends RESTService {
          * @param componentId id of the component under a given project
          * @param page        page number
          * @param perPage     number of projects by page
+         * @param search      search string
+         * @param stateFilter     requirement state
+         * @param sort        sort order
          * @return Response with requirements as a JSON array.
          */
         @GET
@@ -435,6 +438,7 @@ public class ComponentsResource extends RESTService {
         public Response getRequirementsByComponent(@PathParam("componentId") int componentId,
                                                    @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
                                                    @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
+                                                   @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
                                                    @ApiParam(value = "State filter", required = false, allowableValues = "all,open,realized") @DefaultValue("all") @QueryParam("state") String stateFilter,
                                                    @ApiParam(value = "Sort", required = false, allowableValues = "date,title,vote,comment,follower,realized") @DefaultValue("date") @QueryParam("sort") List<String> sort) {
             DALFacade dalFacade = null;
@@ -464,7 +468,7 @@ public class ComponentsResource extends RESTService {
                     Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
                     sortList.add(sortField);
                 }
-                PageInfo pageInfo = new PageInfo(page, perPage, filters, sortList);
+                PageInfo pageInfo = new PageInfo(page, perPage, filters, sortList, search);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(pageInfo);
                 if (vtor.hasViolations()) {
@@ -496,6 +500,14 @@ public class ComponentsResource extends RESTService {
                 }});
                 parameter.put("per_page", new ArrayList() {{
                     add(String.valueOf(perPage));
+                }});
+                if (search != null) {
+                    parameter.put("search", new ArrayList() {{
+                        add(String.valueOf(search));
+                    }});
+                }
+                parameter.put("state", new ArrayList() {{
+                    add(String.valueOf(stateFilter));
                 }});
                 parameter.put("sort", sort);
 

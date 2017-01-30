@@ -149,7 +149,7 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
             String likeExpression = "%" + searchTerm + "%";
 
             List<R> queryResults = jooq.selectFrom(transformator.getTable())
-                    .where(transformator.getSearchFields(likeExpression))
+                    .where(transformator.getSearchCondition(likeExpression))
                     .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())

@@ -59,7 +59,7 @@ public class ComponentFollowerTransformator implements Transformator<ComponentFo
     }
 
     @Override
-    public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
+    public Condition getSearchCondition(String search) throws Exception {
         throw new Exception("Search is not supported!");
     }
 

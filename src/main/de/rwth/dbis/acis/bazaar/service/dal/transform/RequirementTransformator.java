@@ -201,11 +201,9 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
     }
 
     @Override
-    public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
-        return Arrays.asList(
-                REQUIREMENTS.TITLE.likeIgnoreCase(likeExpression)
-                        .or(REQUIREMENTS.DESCRIPTION.likeIgnoreCase(likeExpression))
-        );
+    public Condition getSearchCondition(String search) throws Exception {
+        return REQUIREMENTS.TITLE.likeIgnoreCase("%" + search + "%")
+                .or(REQUIREMENTS.DESCRIPTION.likeIgnoreCase("%" + search + "%"));
     }
 
     @Override

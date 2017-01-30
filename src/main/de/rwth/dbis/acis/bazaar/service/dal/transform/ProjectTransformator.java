@@ -176,11 +176,9 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
     }
 
     @Override
-    public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
-        return Arrays.asList(
-                PROJECTS.NAME.likeIgnoreCase(likeExpression)
-                        .or(PROJECTS.DESCRIPTION.likeIgnoreCase(likeExpression))
-        );
+    public Condition getSearchCondition(String search) throws Exception {
+        return PROJECTS.NAME.likeIgnoreCase("%" + search + "%")
+                .or(PROJECTS.DESCRIPTION.likeIgnoreCase("%" + search + "%"));
     }
 
     @Override

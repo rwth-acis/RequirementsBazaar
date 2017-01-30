@@ -22,7 +22,6 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import com.vdurmont.emoji.EmojiParser;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Component;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ComponentFollower;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements;
@@ -171,9 +170,9 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
     }
 
     @Override
-    public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
-        return Arrays.asList(COMPONENTS.NAME.likeIgnoreCase(likeExpression)
-                .or(COMPONENTS.DESCRIPTION.likeIgnoreCase(likeExpression)));
+    public Condition getSearchCondition(String search) throws Exception {
+        return COMPONENTS.NAME.likeIgnoreCase("%" + search + "%")
+                .or(COMPONENTS.DESCRIPTION.likeIgnoreCase("%" + search + "%"));
     }
 
     @Override

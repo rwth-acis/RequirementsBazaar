@@ -128,6 +128,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
             Field<Object> idCount = jooq.selectCount()
                     .from(PROJECTS)
                     .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar()))
+                    .and(transformator.getSearchCondition(pageable.getSearch()))
                     .asField("idCount");
 
             Field<Object> requirementCount = jooq.select(DSL.count())
@@ -148,6 +149,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                     .from(PROJECTS)
                     .join(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID))
                     .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar()))
+                    .and(transformator.getSearchCondition(pageable.getSearch()))
                     .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
@@ -179,6 +181,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
 
             Field<Object> idCount = jooq.selectCount()
                     .from(PROJECTS)
+                    .where(transformator.getSearchCondition(pageable.getSearch()))
                     .asField("idCount");
 
             Field<Object> requirementCount = jooq.select(DSL.count())
@@ -202,6 +205,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
 //                    .leftOuterJoin(AUTHORIZATIONS).on(AUTHORIZATIONS.PROJECT_ID.equal(PROJECTS.ID))
 //                    .join(USERS).on(AUTHORIZATIONS.USER_ID.equal(USERS.ID))
 //                    .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar())
+                    .where(transformator.getSearchCondition(pageable.getSearch()))
                     .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
@@ -217,7 +221,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
             result = new PaginationResult<>(total, pageable, projects);
-        } catch (DataAccessException e) {
+        } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return result;

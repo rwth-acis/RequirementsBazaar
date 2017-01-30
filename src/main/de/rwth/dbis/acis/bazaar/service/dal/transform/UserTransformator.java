@@ -128,13 +128,11 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
     }
 
     @Override
-    public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
-        return Arrays.asList(
-                USERS.USER_NAME.likeIgnoreCase(likeExpression)
-                        .or(USERS.EMAIL.likeIgnoreCase(likeExpression))
-                        .or(USERS.FIRST_NAME.likeIgnoreCase(likeExpression))
-                        .or(USERS.LAST_NAME.likeIgnoreCase(likeExpression))
-        );
+    public Condition getSearchCondition(String search) throws Exception {
+        return USERS.USER_NAME.likeIgnoreCase("%" + search + "%")
+                .or(USERS.EMAIL.likeIgnoreCase("%" + search + "%"))
+                .or(USERS.FIRST_NAME.likeIgnoreCase("%" + search + "%"))
+                .or(USERS.LAST_NAME.likeIgnoreCase("%" + search + "%"));
     }
 
     @Override
