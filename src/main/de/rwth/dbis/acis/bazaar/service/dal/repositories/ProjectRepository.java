@@ -43,7 +43,7 @@ public interface ProjectRepository extends Repository<Project> {
 
     boolean belongsToPublicProject(int id) throws BazaarException;
 
-    Statistic getStatisticsForAllProjects(int userId, Timestamp timestamp) throws BazaarException;
+    Statistic getStatisticsForVisibleProjects(int userId, Timestamp timestamp) throws BazaarException;
 
     Statistic getStatisticsForProject(int userId, int projectId, Timestamp timestamp) throws BazaarException;
 }

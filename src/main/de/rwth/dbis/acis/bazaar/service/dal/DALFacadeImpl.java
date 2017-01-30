@@ -185,7 +185,7 @@ public class DALFacadeImpl implements DALFacade {
     public Statistic getStatisticsForAllProjects(int userId, Calendar since) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         Timestamp timestamp  = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
-        return projectRepository.getStatisticsForAllProjects(userId, timestamp);
+        return projectRepository.getStatisticsForVisibleProjects(userId, timestamp);
     }
 
     @Override
