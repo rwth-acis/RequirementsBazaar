@@ -65,7 +65,9 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
             Field<Object> idCount = jooq.selectCount()
                     .from(REQUIREMENTS)
-                    .where(transformator.getFilterConditions(pageable.getFilters())).and(REQUIREMENTS.PROJECT_ID.eq(projectId))
+                    .where(transformator.getFilterConditions(pageable.getFilters()))
+                    .and(transformator.getSearchCondition(pageable.getSearch()))
+                    .and(REQUIREMENTS.PROJECT_ID.eq(projectId))
                     .asField("idCount");
 
             Field<Object> voteCount = jooq.select(DSL.count(DSL.nullif(Votes.VOTES.IS_UPVOTE, 0)))
@@ -91,7 +93,9 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .select(commentCount)
                     .select(followerCount)
                     .from(REQUIREMENTS)
-                    .where(transformator.getFilterConditions(pageable.getFilters())).and(REQUIREMENTS.PROJECT_ID.eq(projectId))
+                    .where(transformator.getFilterConditions(pageable.getFilters()))
+                    .and(transformator.getSearchCondition(pageable.getSearch()))
+                    .and(REQUIREMENTS.PROJECT_ID.eq(projectId))
                     .groupBy(REQUIREMENTS.ID)
                     .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
@@ -140,7 +144,9 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             Field<Object> idCount = jooq.selectCount()
                     .from(REQUIREMENTS)
                     .join(TAGS).on(TAGS.REQUIREMENTS_ID.eq(REQUIREMENTS.ID))
-                    .where(transformator.getFilterConditions(pageable.getFilters())).and(TAGS.COMPONENTS_ID.eq(componentId))
+                    .where(transformator.getFilterConditions(pageable.getFilters()))
+                    .and(transformator.getSearchCondition(pageable.getSearch()))
+                    .and(TAGS.COMPONENTS_ID.eq(componentId))
                     .asField("idCount");
 
             Field<Object> voteCount = jooq.select(DSL.count(DSL.nullif(Votes.VOTES.IS_UPVOTE, 0)))
@@ -165,7 +171,9 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .select(followerCount)
                     .from(REQUIREMENTS)
                     .join(TAGS).on(TAGS.REQUIREMENTS_ID.eq(REQUIREMENTS.ID))
-                    .where(transformator.getFilterConditions(pageable.getFilters())).and(TAGS.COMPONENTS_ID.eq(componentId))
+                    .where(transformator.getFilterConditions(pageable.getFilters()))
+                    .and(transformator.getSearchCondition(pageable.getSearch()))
+                    .and(TAGS.COMPONENTS_ID.eq(componentId))
                     .groupBy(REQUIREMENTS.ID)
                     .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
@@ -178,8 +186,6 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
             result = new PaginationResult<>(total, pageable, requirements);
-        } catch (DataAccessException e) {
-            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
@@ -258,7 +264,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             );
 
             //Filling up LeadDeveloper
-            if(queryResult.getValues(leadDeveloperUser.ID).get(0) != null){
+            if (queryResult.getValues(leadDeveloperUser.ID).get(0) != null) {
                 builder.leadDeveloper(
                         userTransformator.getEntityFromQueryResult(leadDeveloperUser, queryResult)
                 );

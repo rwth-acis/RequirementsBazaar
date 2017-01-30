@@ -81,7 +81,7 @@ public class RoleTransformator implements Transformator<Role, RolesRecord> {
     }
 
     @Override
-    public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
+    public Condition getSearchCondition(String search) throws Exception {
         return null;
     }
 

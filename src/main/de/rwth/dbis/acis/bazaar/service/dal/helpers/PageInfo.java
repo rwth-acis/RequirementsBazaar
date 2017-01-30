@@ -34,25 +34,26 @@ import java.util.Map;
 public class PageInfo implements Pageable {
     @Min(-1)
     private final int pageNumber;
-
     @Min(0)
     private final int pageSize;
     private final Map<String, String> filters;
     private final List<SortField> sorts;
+    private final String search;
 
     public PageInfo(int pageNumber, int pageSize) {
-        this(pageNumber, pageSize, new HashMap<>(), new ArrayList<>());
+        this(pageNumber, pageSize, new HashMap<>(), new ArrayList<>(), null);
     }
 
     public PageInfo(int pageNumber, int pageSize, Map<String, String> filters) {
-        this(pageNumber, pageSize, filters, new ArrayList<>());
+        this(pageNumber, pageSize, filters, new ArrayList<>(), null);
     }
 
-    public PageInfo(int pageNumber, int pageSize, Map<String, String> filters, List<SortField> sorts) {
+    public PageInfo(int pageNumber, int pageSize, Map<String, String> filters, List<SortField> sorts, String search) {
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
         this.filters = filters;
         this.sorts = sorts;
+        this.search = search != null ? search : new String();
     }
 
     @Override
@@ -79,4 +80,7 @@ public class PageInfo implements Pageable {
     public List<SortField> getSorts() {
         return sorts;
     }
+
+    @Override
+    public String getSearch() {return search;}
 }

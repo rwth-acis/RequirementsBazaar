@@ -99,7 +99,7 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
     }
 
     @Override
-    public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
+    public Condition getSearchCondition(String search) throws Exception {
         return null;
     }
 

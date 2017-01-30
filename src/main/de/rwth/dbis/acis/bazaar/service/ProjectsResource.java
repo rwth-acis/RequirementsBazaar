@@ -71,6 +71,8 @@ public class ProjectsResource extends RESTService {
          *
          * @param page    page number
          * @param perPage number of projects by page
+         * @param search  search string
+         * @param sort    sort order
          * @return Response with list of all projects
          */
         @GET
@@ -85,6 +87,7 @@ public class ProjectsResource extends RESTService {
         public Response getProjects(
                 @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
                 @ApiParam(value = "Elements of project by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
+                @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
                 @ApiParam(value = "Sort", required = false, allowableValues = "name,date,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort) {
 
             DALFacade dalFacade = null;
@@ -110,7 +113,7 @@ public class ProjectsResource extends RESTService {
                     Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
                     sortList.add(sortField);
                 }
-                PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>(), sortList);
+                PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>(), sortList, search);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(pageInfo);
                 if (vtor.hasViolations()) {
@@ -131,8 +134,13 @@ public class ProjectsResource extends RESTService {
                     add(String.valueOf(page));
                 }});
                 parameter.put("per_page", new ArrayList() {{
-                  add(String.valueOf(perPage));
+                    add(String.valueOf(perPage));
                 }});
+                if (search != null) {
+                    parameter.put("search", new ArrayList() {{
+                        add(String.valueOf(search));
+                    }});
+                }
                 parameter.put("sort", sort);
 
                 Response.ResponseBuilder responseBuilder = Response.ok();
@@ -439,6 +447,8 @@ public class ProjectsResource extends RESTService {
          * @param projectId id of the project
          * @param page      page number
          * @param perPage   number of projects by page
+         * @param search    search string
+         * @param sort      sort order
          * @return Response with components as a JSON array.
          */
         @GET
@@ -455,6 +465,7 @@ public class ProjectsResource extends RESTService {
                 @PathParam("projectId") int projectId,
                 @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
                 @ApiParam(value = "Elements of components by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
+                @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
                 @ApiParam(value = "Sort", required = false, allowableValues = "name,date,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort) {
 
             DALFacade dalFacade = null;
@@ -480,7 +491,7 @@ public class ProjectsResource extends RESTService {
                     Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
                     sortList.add(sortField);
                 }
-                PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>(), sortList);
+                PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>(), sortList, search);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(pageInfo);
                 if (vtor.hasViolations()) {
@@ -511,6 +522,11 @@ public class ProjectsResource extends RESTService {
                 parameter.put("per_page", new ArrayList() {{
                     add(String.valueOf(perPage));
                 }});
+                if (search != null) {
+                    parameter.put("search", new ArrayList() {{
+                        add(String.valueOf(search));
+                    }});
+                }
                 parameter.put("sort", sort);
 
                 Response.ResponseBuilder responseBuilder = Response.ok();
@@ -541,7 +557,10 @@ public class ProjectsResource extends RESTService {
          *
          * @param projectId id of the project to retrieve requirements for
          * @param page      page number
-         * @param perPage   number of projects by page
+         * @param perPage   number of requirements by page
+         * @param search    search string
+         * @param stateFilter     requirement state
+         * @param sort      sort order
          * @return Response with requirements as a JSON array.
          */
         @GET
@@ -557,6 +576,7 @@ public class ProjectsResource extends RESTService {
         public Response getRequirementsByProject(@PathParam("projectId") int projectId,
                                                  @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
                                                  @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
+                                                 @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
                                                  @ApiParam(value = "State filter", required = false, allowableValues = "all,open,realized") @DefaultValue("all") @QueryParam("state") String stateFilter,
                                                  @ApiParam(value = "Sort", required = false, allowableValues = "date,title,vote,comment,follower,realized") @DefaultValue("date") @QueryParam("sort") List<String> sort) {
             DALFacade dalFacade = null;
@@ -586,7 +606,7 @@ public class ProjectsResource extends RESTService {
                     Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
                     sortList.add(sortField);
                 }
-                PageInfo pageInfo = new PageInfo(page, perPage, filters, sortList);
+                PageInfo pageInfo = new PageInfo(page, perPage, filters, sortList, search);
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.validate(pageInfo);
                 if (vtor.hasViolations()) {
@@ -617,6 +637,11 @@ public class ProjectsResource extends RESTService {
                 parameter.put("per_page", new ArrayList() {{
                     add(String.valueOf(perPage));
                 }});
+                if (search != null) {
+                    parameter.put("search", new ArrayList() {{
+                        add(String.valueOf(search));
+                    }});
+                }
                 parameter.put("state", new ArrayList() {{
                     add(String.valueOf(stateFilter));
                 }});

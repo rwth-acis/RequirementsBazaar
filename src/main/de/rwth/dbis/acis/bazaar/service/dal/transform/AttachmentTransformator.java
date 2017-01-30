@@ -102,11 +102,8 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
     }
 
     @Override
-    public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
-        return Arrays.asList(
-                ATTACHMENTS.TITLE.likeIgnoreCase(likeExpression)
-                        .or(ATTACHMENTS.DESCRIPTION.likeIgnoreCase(likeExpression))
-        );
+    public Condition getSearchCondition(String search) throws Exception {
+        throw new Exception("Search is not supported!");
     }
 
     @Override

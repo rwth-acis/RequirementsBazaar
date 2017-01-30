@@ -81,10 +81,8 @@ public class PrivilegeTransformator implements Transformator<de.rwth.dbis.acis.b
     }
 
     @Override
-    public Collection<? extends Condition> getSearchFields(String likeExpression) throws Exception {
-        return Arrays.asList(
-                PRIVILEGES.NAME.likeIgnoreCase(likeExpression)
-        );
+    public Condition getSearchCondition(String search) throws Exception {
+        return PRIVILEGES.NAME.likeIgnoreCase(search);
     }
 
     @Override
