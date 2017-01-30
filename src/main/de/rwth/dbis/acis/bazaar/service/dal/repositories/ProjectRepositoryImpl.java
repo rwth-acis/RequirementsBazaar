@@ -243,14 +243,15 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
     }
 
     @Override
-    public Statistic getStatisticsForAllProjects(int userId, java.sql.Timestamp timestamp) throws BazaarException {
+    public Statistic getStatisticsForVisibleProjects(int userId, java.sql.Timestamp timestamp) throws BazaarException {
         Statistic result = null;
         try {
             // If you want to change something here, please know what you are doing! Its SQL and even worse JOOQ :-|
             Record record1 = jooq
                     .select(DSL.countDistinct(PROJECTS.ID).as("numberOfProjects"))
                     .from(PROJECTS)
-                    .where(PROJECTS.CREATION_TIME.greaterOrEqual(timestamp)
+                    .where(PROJECTS.VISIBILITY.eq("+"))
+                            .and(PROJECTS.CREATION_TIME.greaterOrEqual(timestamp)
                             .or(PROJECTS.LASTUPDATED_TIME.greaterOrEqual(timestamp)))
                     .fetchOne();
 
@@ -264,6 +265,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                     .leftJoin(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.CREATION_TIME.greaterOrEqual(timestamp)
                             .or(Requirements.REQUIREMENTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
                             .and(Requirements.REQUIREMENTS.PROJECT_ID.equal(PROJECTS.ID)))
+                    .where(PROJECTS.VISIBILITY.eq("+"))
                     .fetchOne();
 
             Record record3 = jooq
@@ -280,6 +282,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                             .and(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID)))
                     .leftJoin(Votes.VOTES).on(Votes.VOTES.CREATION_TIME.greaterOrEqual(timestamp)
                             .and(Votes.VOTES.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID)))
+                    .where(PROJECTS.VISIBILITY.eq("+"))
                     .fetchOne();
 
             result = Statistic.getBuilder()
