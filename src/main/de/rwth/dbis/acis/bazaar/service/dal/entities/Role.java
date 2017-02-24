@@ -30,7 +30,6 @@ import java.util.List;
  */
 public class Role extends EntityBase {
 
-    @Min(-1)
     private final int Id;
 
     private final List<Privilege> privileges;

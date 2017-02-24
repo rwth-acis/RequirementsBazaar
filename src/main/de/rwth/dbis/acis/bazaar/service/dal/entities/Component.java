@@ -35,31 +35,29 @@ import java.util.List;
  */
 public class Component extends EntityBase {
 
-    @Min(-1)
     private int id;
 
-    @NotBlank
+    @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
-    @MaxLength(255)
+    @MaxLength(value= 255, profiles = {"*"})
     private String description;
 
-    @NotBlank
+    @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
-    @MaxLength(50)
+    @MaxLength(value= 50, profiles = {"*"})
     private String name;
 
     private Date creation_time;
 
     private Date lastupdated_time;
 
-    @Min(-1)
     private int leaderId;
 
     private User leader;
 
     private List<User> followers;
 
-    @Min(-1)
+    @Min(value= 0, profiles = {"create"})
     private int projectId;
 
     public int getProjectId() {

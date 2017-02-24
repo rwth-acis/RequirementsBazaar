@@ -33,19 +33,20 @@ import java.util.Date;
  * @since 6/11/2014
  */
 public class Comment extends EntityBase {
-    @Min(-1)
-    private int requirementId;
-    @Min(-1)
+
     private int Id;
 
-    @NotBlank
+    @Min(value = 0, profiles = {"create"})
+    private int requirementId;
+
+    @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
-    @MaxLength(65536)
+    @MaxLength(value = 1000, profiles = {"*"})
     private String message;
 
-    @Min(-1)
     private int creatorId;
 
+    @Min(value = 0, profiles = {"create"})
     private Integer belongsToComment;
 
     private Date creationTime;
@@ -68,12 +69,12 @@ public class Comment extends EntityBase {
         this.creator = builder.creator;
     }
 
-    public int getRequirementId() {
-        return requirementId;
-    }
-
     public int getId() {
         return Id;
+    }
+
+    public int getRequirementId() {
+        return requirementId;
     }
 
     public String getMessage() {
@@ -161,10 +162,6 @@ public class Comment extends EntityBase {
             return this;
         }
 
-        public Comment build() {
-            return new Comment(this);
-        }
-
         public Builder requirementId(int requirementId) {
             this.requirementId = requirementId;
             return this;
@@ -173,6 +170,10 @@ public class Comment extends EntityBase {
         public Builder creator(User creator) {
             this.creator = creator;
             return this;
+        }
+
+        public Comment build() {
+            return new Comment(this);
         }
     }
 }

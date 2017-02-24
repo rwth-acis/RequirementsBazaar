@@ -29,35 +29,33 @@ import java.util.Date;
 
 public class Attachment extends EntityBase {
 
-    @Min(-1)
     private int Id;
 
-    @Min(-1)
     private int creatorId;
 
-    @Min(-1)
+    @Min(value = 0, profiles = {"create"})
     private int requirementId;
 
     @NotNull(profiles = {"create"})
-    @NotBlank
-    @MaxLength(100)
+    @NotBlank(profiles = {"*"})
+    @MaxLength(value = 100, profiles = {"*"})
     private String title;
 
     private String description;
 
     @NotNull(profiles = {"create"})
-    @NotBlank
-    @MaxLength(255)
+    @NotBlank(profiles = {"*"})
+    @MaxLength(value = 255, profiles = {"*"})
     private String mimeType;
 
     @NotNull(profiles = {"create"})
-    @NotBlank
-    @MaxLength(255)
+    @NotBlank(profiles = {"*"})
+    @MaxLength(value = 255, profiles = {"*"})
     private String identifier;
 
     @NotNull(profiles = {"create"})
-    @NotBlank
-    @MaxLength(1000)
+    @NotBlank(profiles = {"*"})
+    @MaxLength(value = 1000, profiles = {"*"})
     private String fileUrl;
 
     private Date creation_time;

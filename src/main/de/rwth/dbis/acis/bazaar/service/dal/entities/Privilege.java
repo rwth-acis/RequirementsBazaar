@@ -27,7 +27,7 @@ import jodd.vtor.constraint.Min;
  * @since 2/17/2015
  */
 public class Privilege extends EntityBase {
-    @Min(-1)
+
     private final int Id;
 
     private final PrivilegeEnum name;
