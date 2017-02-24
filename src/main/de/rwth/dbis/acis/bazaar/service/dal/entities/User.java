@@ -25,7 +25,7 @@ import jodd.vtor.constraint.NotBlank;
 import jodd.vtor.constraint.NotNull;
 
 public class User extends EntityBase {
-    @Min(-1)
+
     private int id;
 
     private String firstName;
@@ -38,8 +38,8 @@ public class User extends EntityBase {
 
     private long Las2peerId;
 
-    @NotBlank
-    @NotNull
+    @NotBlank(profiles = {"*"})
+    @NotNull(profiles = {"*"})
     private String userName;
 
     private String profileImage;

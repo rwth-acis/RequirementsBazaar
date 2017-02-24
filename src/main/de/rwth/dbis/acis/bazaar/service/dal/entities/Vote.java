@@ -25,6 +25,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
  * @since 6/11/2014
  */
 public class Vote extends EntityBase {
+
     private final int Id;
     private final boolean isUpvote;
     private final int RequirementId;

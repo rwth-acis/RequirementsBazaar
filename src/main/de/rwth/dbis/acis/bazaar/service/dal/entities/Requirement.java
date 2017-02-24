@@ -11,20 +11,21 @@ import java.util.List;
  * Requirement entity
  */
 public class Requirement extends EntityBase {
-    @Min(-1)
+
     private int id;
 
-    @NotBlank
+    @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
-    @MaxLength(50)
+    @MaxLength(value = 50, profiles = {"*"})
     private String title;
 
     private Date creation_time;
 
     private Date lastupdated_time;
 
-    @NotBlank
+    @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
+    @MaxLength(value = 1000, profiles = {"*"})
     private String description;
 
     private Date realized;
@@ -35,7 +36,7 @@ public class Requirement extends EntityBase {
 
     private List<Attachment> attachments;
 
-    @Min(-1)
+    @Min(value = 0, profiles = {"create"})
     private int projectId;
 
     private int upVotes;

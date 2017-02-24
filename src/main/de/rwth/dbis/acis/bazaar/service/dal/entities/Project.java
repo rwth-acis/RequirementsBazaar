@@ -33,16 +33,16 @@ import java.util.List;
  * @since 6/9/2014
  */
 public class Project extends EntityBase {
-    @Min(-1)
+
     private int id;
 
-    @NotBlank
+    @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
     private String description;
 
-    @NotBlank
+    @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
-    @MaxLength(50)
+    @MaxLength(value= 50, profiles = {"*"})
     private String name;
 
     private ProjectVisibility visibility;
