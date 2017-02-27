@@ -59,6 +59,12 @@ public class Project extends EntityBase {
 
     private Integer defaultComponentId;
 
+    private Integer numberOfComponents;
+
+    private Integer numberOfRequirements;
+
+    private Integer numberOfFollowers;
+
     public ProjectVisibility getVisibility() {
         return visibility;
     }
@@ -73,6 +79,18 @@ public class Project extends EntityBase {
 
     public void setLeader(User leader) {
         this.leader = leader;
+    }
+
+    public void setNumberOfComponents(Integer numberOfComponents) {
+        this.numberOfComponents = numberOfComponents;
+    }
+
+    public void setNumberOfRequirements(Integer numberOfRequirements) {
+        this.numberOfRequirements = numberOfRequirements;
+    }
+
+    public void setNumberOfFollowers(Integer numberOfFollowers) {
+        this.numberOfFollowers = numberOfFollowers;
     }
 
     public Project() {

@@ -215,13 +215,38 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             Users developerUsers = Users.USERS.as("developerUsers");
             Users creatorUser = Users.USERS.as("creatorUser");
             Users leadDeveloperUser = Users.USERS.as("leadDeveloperUser");
-            Users contributorUsers = Users.USERS.as("contributorUsers");
+            //Users contributorUsers = Users.USERS.as("contributorUsers");
             Votes votes = Votes.VOTES.as("votes");
             Votes userVotes = Votes.VOTES.as("userVotes");
 
-            Result<Record> queryResult = jooq.select()
+            Field<Object> commentCount = jooq.select(DSL.count())
+                    .from(Comments.COMMENTS)
+                    .where(Comments.COMMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                    .asField("commentCount");
+
+            Field<Object> attachmentCount = jooq.select(DSL.count())
+                    .from(Attachments.ATTACHMENTS)
+                    .where(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                    .asField("attachmentCount");
+
+            Field<Object> followerCount = jooq.select(DSL.count())
+                    .from(REQUIREMENT_FOLLOWER)
+                    .where(REQUIREMENT_FOLLOWER.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                    .asField("followerCount");
+
+            Result<Record> queryResult = jooq.select(REQUIREMENTS.fields())
+                    .select(commentCount)
+                    .select(attachmentCount)
+                    .select(followerCount)
+                    .select(followerUsers.fields())
+                    .select(developerUsers.fields())
+                    .select(creatorUser.fields())
+                    .select(leadDeveloperUser.fields())
+                    .select(Attachments.ATTACHMENTS.fields())
+                    .select(Components.COMPONENTS.fields())
+
                     .from(REQUIREMENTS)
-                    .leftOuterJoin(Comments.COMMENTS).on(Comments.COMMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                    //.leftOuterJoin(Comments.COMMENTS).on(Comments.COMMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
                     .leftOuterJoin(Attachments.ATTACHMENTS).on(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
 
                     .leftOuterJoin(REQUIREMENT_FOLLOWER).on(REQUIREMENT_FOLLOWER.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
@@ -233,7 +258,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .join(creatorUser).on(creatorUser.ID.equal(REQUIREMENTS.CREATOR_ID))
                     .leftOuterJoin(leadDeveloperUser).on(leadDeveloperUser.ID.equal(REQUIREMENTS.LEAD_DEVELOPER_ID))
 
-                    .leftOuterJoin(contributorUsers).on(Attachments.ATTACHMENTS.USER_ID.equal(contributorUsers.ID))
+                    //.leftOuterJoin(contributorUsers).on(Attachments.ATTACHMENTS.USER_ID.equal(contributorUsers.ID))
 
                     .leftOuterJoin(TAGS).on(TAGS.REQUIREMENTS_ID.equal(REQUIREMENTS.ID))
                     .leftOuterJoin(Components.COMPONENTS).on(Components.COMPONENTS.ID.equal(TAGS.COMPONENTS_ID))
@@ -294,6 +319,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             builder.followers(followers);
 
             //Filling up contributors
+            /*
             List<User> contributorList = new ArrayList<>();
 
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(contributorUsers.ID).entrySet()) {
@@ -304,6 +330,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 );
             }
             builder.contributors(contributorList);
+            */
 
             //Filling up attachments
             List<Attachment> attachments = new ArrayList<>();
@@ -362,6 +389,12 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 );
             }
             requirementEx.setComponents(components);
+
+            //Filling up additional information
+            requirementEx.setNumberOfComments((Integer) queryResult.getValues(commentCount).get(0));
+            requirementEx.setNumberOfAttachments((Integer) queryResult.getValues(attachmentCount).get(0));
+            requirementEx.setNumberOfFollowers((Integer) queryResult.getValues(followerCount).get(0));
+
 
         } catch (BazaarException be) {
             ExceptionHandler.getInstance().convertAndThrowException(be);

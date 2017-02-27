@@ -42,12 +42,12 @@ import org.jooq.Result;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 
-import java.security.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.COMPONENTS;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.REQUIREMENTS;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.PROJECT_FOLLOWER;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS;
 
@@ -70,10 +70,30 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
             Users leaderUser = Users.USERS.as("leaderUser");
             Users followerUsers = Users.USERS.as("followerUsers");
 
-            Result<Record> queryResult = jooq.selectFrom(PROJECTS
-                    .join(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID))
+            Field<Object> componentCount = jooq.select(DSL.count())
+                    .from(COMPONENTS)
+                    .where(COMPONENTS.PROJECT_ID.equal(PROJECTS.ID))
+                    .asField("componentCount");
+
+            Field<Object> requirementCount = jooq.select(DSL.count())
+                    .from(REQUIREMENTS)
+                    .where(REQUIREMENTS.PROJECT_ID.equal(PROJECTS.ID))
+                    .asField("requirementCount");
+
+            Field<Object> followerCount = DSL.select(DSL.count())
+                    .from(ProjectFollower.PROJECT_FOLLOWER)
+                    .where(ProjectFollower.PROJECT_FOLLOWER.PROJECT_ID.equal(PROJECTS.ID))
+                    .asField("followerCount");
+
+            Result<Record> queryResult = jooq.select(PROJECTS.fields())
+                    .select(componentCount)
+                    .select(requirementCount)
+                    .select(followerCount)
+                    .select(leaderUser.fields())
+                    .from(PROJECTS)
+                    .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID))
                     .leftOuterJoin(PROJECT_FOLLOWER).on(PROJECT_FOLLOWER.PROJECT_ID.equal(PROJECTS.ID))
-                    .leftOuterJoin(followerUsers).on(PROJECT_FOLLOWER.USER_ID.equal(followerUsers.ID)))
+                    .leftOuterJoin(followerUsers).on(followerUsers.ID.equal(PROJECT_FOLLOWER.USER_ID))
                     .where(transformator.getTableId().equal(id))
                     .fetch();
 
@@ -109,6 +129,11 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
 
             project = builder.build();
 
+            // Filling additional information TODO: add other additional informations here (leaddev, followers)
+            project.setNumberOfComponents((Integer) queryResult.getValues(componentCount).get(0));
+            project.setNumberOfRequirements((Integer) queryResult.getValues(requirementCount).get(0));
+            project.setNumberOfFollowers((Integer) queryResult.getValues(followerCount).get(0));
+
         } catch (BazaarException be) {
             ExceptionHandler.getInstance().convertAndThrowException(be);
         } catch (Exception e) {
@@ -131,9 +156,14 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                     .and(transformator.getSearchCondition(pageable.getSearch()))
                     .asField("idCount");
 
+            Field<Object> componentCount = jooq.select(DSL.count())
+                    .from(COMPONENTS)
+                    .where(COMPONENTS.PROJECT_ID.equal(PROJECTS.ID))
+                    .asField("componentCount");
+
             Field<Object> requirementCount = jooq.select(DSL.count())
-                    .from(Requirements.REQUIREMENTS)
-                    .where(Requirements.REQUIREMENTS.PROJECT_ID.equal(PROJECTS.ID))
+                    .from(REQUIREMENTS)
+                    .where(REQUIREMENTS.PROJECT_ID.equal(PROJECTS.ID))
                     .asField("requirementCount");
 
             Field<Object> followerCount = DSL.select(DSL.count())
@@ -142,12 +172,13 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                     .asField("followerCount");
 
             Result<Record> queryResults = jooq.select(PROJECTS.fields())
-                    .select(leaderUser.fields())
                     .select(idCount)
+                    .select(componentCount)
                     .select(requirementCount)
                     .select(followerCount)
+                    .select(leaderUser.fields())
                     .from(PROJECTS)
-                    .join(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID))
+                    .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID))
                     .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar()))
                     .and(transformator.getSearchCondition(pageable.getSearch()))
                     .orderBy(transformator.getSortFields(pageable.getSorts()))
@@ -161,6 +192,9 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                 UserTransformator userTransformator = new UserTransformator();
                 UsersRecord usersRecord = queryResult.into(leaderUser);
                 project.setLeader(userTransformator.getEntityFromTableRecord(usersRecord));
+                project.setNumberOfComponents((Integer) queryResult.getValue(componentCount));
+                project.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
+                project.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
                 projects.add(project);
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
@@ -184,9 +218,14 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                     .where(transformator.getSearchCondition(pageable.getSearch()))
                     .asField("idCount");
 
+            Field<Object> componentCount = jooq.select(DSL.count())
+                    .from(COMPONENTS)
+                    .where(COMPONENTS.PROJECT_ID.equal(PROJECTS.ID))
+                    .asField("componentCount");
+
             Field<Object> requirementCount = jooq.select(DSL.count())
-                    .from(Requirements.REQUIREMENTS)
-                    .where(Requirements.REQUIREMENTS.PROJECT_ID.equal(PROJECTS.ID))
+                    .from(REQUIREMENTS)
+                    .where(REQUIREMENTS.PROJECT_ID.equal(PROJECTS.ID))
                     .asField("requirementCount");
 
             Field<Object> followerCount = DSL.select(DSL.count())
@@ -196,12 +235,13 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
 
             //TODO only authorized projects?
             List<Record> queryResults = jooq.select(PROJECTS.fields())
-                    .select(leaderUser.fields())
                     .select(idCount)
+                    .select(componentCount)
                     .select(requirementCount)
                     .select(followerCount)
+                    .select(leaderUser.fields())
                     .from(PROJECTS)
-                    .join(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID))
+                    .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(PROJECTS.LEADER_ID))
 //                    .leftOuterJoin(AUTHORIZATIONS).on(AUTHORIZATIONS.PROJECT_ID.equal(PROJECTS.ID))
 //                    .join(USERS).on(AUTHORIZATIONS.USER_ID.equal(USERS.ID))
 //                    .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar())
@@ -217,6 +257,9 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectsRecor
                 UserTransformator userTransformator = new UserTransformator();
                 UsersRecord usersRecord = queryResult.into(leaderUser);
                 project.setLeader(userTransformator.getEntityFromTableRecord(usersRecord));
+                project.setNumberOfComponents((Integer) queryResult.getValue(componentCount));
+                project.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
+                project.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
                 projects.add(project);
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));

@@ -46,6 +46,10 @@ public class Requirement extends EntityBase {
     @Min(-1)
     private int creatorId;
 
+    private Integer numberOfComments;
+    private Integer numberOfAttachments;
+    private Integer numberOfFollowers;
+
     public Date getRealized() {
         return realized;
     }
@@ -108,6 +112,18 @@ public class Requirement extends EntityBase {
 
     public void setCreatorId(int creatorId) {
         this.creatorId = creatorId;
+    }
+
+    public void setNumberOfComments(Integer numberOfComments) {
+        this.numberOfComments = numberOfComments;
+    }
+
+    public void setNumberOfAttachments(Integer numberOfAttachments) {
+        this.numberOfAttachments = numberOfAttachments;
+    }
+
+    public void setNumberOfFollowers(Integer numberOfFollowers) {
+        this.numberOfFollowers = numberOfFollowers;
     }
 
     public Requirement() {
