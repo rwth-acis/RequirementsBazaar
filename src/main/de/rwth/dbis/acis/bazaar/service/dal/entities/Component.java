@@ -60,6 +60,10 @@ public class Component extends EntityBase {
     @Min(value= 0, profiles = {"create"})
     private int projectId;
 
+    private Integer numberOfRequirements;
+
+    private Integer numberOfFollowers;
+
     public int getProjectId() {
         return projectId;
     }
@@ -102,6 +106,14 @@ public class Component extends EntityBase {
 
     public void setLeader(User leader) {
         this.leader = leader;
+    }
+
+    public void setNumberOfRequirements(Integer numberOfRequirements) {
+        this.numberOfRequirements = numberOfRequirements;
+    }
+
+    public void setNumberOfFollowers(Integer numberOfFollowers) {
+        this.numberOfFollowers = numberOfFollowers;
     }
 
     public Component() {

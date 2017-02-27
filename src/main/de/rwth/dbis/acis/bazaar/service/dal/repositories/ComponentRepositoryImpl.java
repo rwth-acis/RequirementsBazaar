@@ -66,13 +66,25 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
             Users leaderUser = Users.USERS.as("leaderUser");
             Users followerUsers = Users.USERS.as("followerUsers");
 
-            Result<Record> queryResult = jooq.select()
-                    .from(COMPONENTS)
-                    .join(leaderUser).on(leaderUser.ID.equal(COMPONENTS.LEADER_ID))
+            Field<Object> requirementCount = jooq.select(DSL.count())
+                    .from(Requirements.REQUIREMENTS)
+                    .leftJoin(Tags.TAGS).on(Requirements.REQUIREMENTS.ID.equal(Tags.TAGS.REQUIREMENTS_ID))
+                    .where(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
+                    .asField("requirementCount");
 
+            Field<Object> followerCount = DSL.select(DSL.count())
+                    .from(COMPONENT_FOLLOWER)
+                    .where(COMPONENT_FOLLOWER.COMPONENT_ID.equal(COMPONENTS.ID))
+                    .asField("followerCount");
+
+            Result<Record> queryResult = jooq.select(COMPONENTS.fields())
+                    .select(requirementCount)
+                    .select(followerCount)
+                    .select(leaderUser.fields())
+                    .from(COMPONENTS)
+                    .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(COMPONENTS.LEADER_ID))
                     .leftOuterJoin(COMPONENT_FOLLOWER).on(COMPONENT_FOLLOWER.COMPONENT_ID.equal(COMPONENTS.ID))
                     .leftOuterJoin(followerUsers).on(COMPONENT_FOLLOWER.USER_ID.equal(followerUsers.ID))
-
                     .where(transformator.getTableId().equal(id))
                     .fetch();
 
@@ -106,6 +118,10 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
             builder.followers(followers);
 
             component = builder.build();
+
+            // Filling additional information
+            component.setNumberOfRequirements((Integer) queryResult.getValues(requirementCount).get(0));
+            component.setNumberOfFollowers((Integer) queryResult.getValues(followerCount).get(0));
 
         } catch (BazaarException be) {
             ExceptionHandler.getInstance().convertAndThrowException(be);
@@ -141,12 +157,12 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                     .asField("followerCount");
 
             List<Record> queryResults = jooq.select(COMPONENTS.fields())
-                    .select(leaderUser.fields())
                     .select(idCount)
                     .select(requirementCount)
                     .select(followerCount)
+                    .select(leaderUser.fields())
                     .from(COMPONENTS)
-                    .join(leaderUser).on(leaderUser.ID.equal(COMPONENTS.LEADER_ID))
+                    .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(COMPONENTS.LEADER_ID))
                     .where(COMPONENTS.PROJECT_ID.equal(projectId))
                     .and(transformator.getSearchCondition(pageable.getSearch()))
                     .orderBy(transformator.getSortFields(pageable.getSorts()))
@@ -160,6 +176,8 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                 UserTransformator userTransformator = new UserTransformator();
                 UsersRecord usersRecord = queryResult.into(leaderUser);
                 component.setLeader(userTransformator.getEntityFromTableRecord(usersRecord));
+                component.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
+                component.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
                 components.add(component);
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
@@ -184,10 +202,25 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                     .where(Tags.TAGS.REQUIREMENTS_ID.equal(requirementId))
                     .asField("idCount");
 
-            List<Record> queryResults = jooq.select(COMPONENTS.fields()).select(leaderUser.fields()).select(idCount)
+            Field<Object> requirementCount = jooq.select(DSL.count())
+                    .from(Requirements.REQUIREMENTS)
+                    .leftJoin(Tags.TAGS).on(Requirements.REQUIREMENTS.ID.equal(Tags.TAGS.REQUIREMENTS_ID))
+                    .where(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
+                    .asField("requirementCount");
+
+            Field<Object> followerCount = jooq.select(DSL.count())
+                    .from(ComponentFollower.COMPONENT_FOLLOWER)
+                    .where(ComponentFollower.COMPONENT_FOLLOWER.COMPONENT_ID.equal(COMPONENTS.ID))
+                    .asField("followerCount");
+
+            List<Record> queryResults = jooq.select(COMPONENTS.fields())
+                    .select(idCount)
+                    .select(requirementCount)
+                    .select(followerCount)
+                    .select(leaderUser.fields())
                     .from(COMPONENTS)
-                    .join(leaderUser).on(leaderUser.ID.equal(COMPONENTS.LEADER_ID))
-                    .join(Tags.TAGS).on(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
+                    .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(COMPONENTS.LEADER_ID))
+                    .leftOuterJoin(Tags.TAGS).on(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
                     .where(Tags.TAGS.REQUIREMENTS_ID.equal(requirementId))
                     .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
@@ -200,6 +233,8 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                 UserTransformator userTransformator = new UserTransformator();
                 UsersRecord usersRecord = queryResult.into(leaderUser);
                 component.setLeader(userTransformator.getEntityFromTableRecord(usersRecord));
+                component.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
+                component.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
                 components.add(component);
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
