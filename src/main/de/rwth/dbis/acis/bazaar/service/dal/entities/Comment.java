@@ -41,7 +41,6 @@ public class Comment extends EntityBase {
 
     @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
-    @MaxLength(value = 1000, profiles = {"*"})
     private String message;
 
     private int creatorId;

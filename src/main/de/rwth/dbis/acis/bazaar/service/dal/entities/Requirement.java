@@ -25,7 +25,6 @@ public class Requirement extends EntityBase {
 
     @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
-    @MaxLength(value = 1000, profiles = {"*"})
     private String description;
 
     private Date realized;

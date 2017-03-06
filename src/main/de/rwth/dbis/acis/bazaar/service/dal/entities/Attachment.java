@@ -38,19 +38,19 @@ public class Attachment extends EntityBase {
 
     @NotNull(profiles = {"create"})
     @NotBlank(profiles = {"*"})
-    @MaxLength(value = 100, profiles = {"*"})
+    @MaxLength(value = 50, profiles = {"*"})
     private String title;
 
     private String description;
 
     @NotNull(profiles = {"create"})
     @NotBlank(profiles = {"*"})
-    @MaxLength(value = 255, profiles = {"*"})
+    @MaxLength(value = 1000, profiles = {"*"})
     private String mimeType;
 
     @NotNull(profiles = {"create"})
     @NotBlank(profiles = {"*"})
-    @MaxLength(value = 255, profiles = {"*"})
+    @MaxLength(value = 1000, profiles = {"*"})
     private String identifier;
 
     @NotNull(profiles = {"create"})

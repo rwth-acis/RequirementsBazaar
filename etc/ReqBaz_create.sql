@@ -10,10 +10,10 @@ CREATE TABLE IF NOT EXISTS attachments (
   lastupdated_time TIMESTAMP     NULL,
   Requirement_Id   INT           NOT NULL,
   User_Id          INT           NOT NULL,
-  title            VARCHAR(255)  NOT NULL,
+  title            VARCHAR(50)   NOT NULL,
   description      TEXT          NULL,
-  mime_type        VARCHAR(255)  NOT NULL,
-  identifier       VARCHAR(900)  NOT NULL,
+  mime_type        VARCHAR(1000) NOT NULL,
+  identifier       VARCHAR(1000) NOT NULL,
   fileUrl          VARCHAR(1000) NOT NULL,
   CONSTRAINT attachments_pk PRIMARY KEY (Id),
   CONSTRAINT Attachement_Requirement FOREIGN KEY Attachement_Requirement (Requirement_Id) REFERENCES requirements (Id)
@@ -39,13 +39,13 @@ CREATE TABLE IF NOT EXISTS comments (
 
 -- Table components
 CREATE TABLE IF NOT EXISTS components (
-  Id               INT          NOT NULL  AUTO_INCREMENT,
-  name             VARCHAR(255) NOT NULL,
-  description      TEXT         NOT NULL,
-  creation_time    TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP,
-  lastupdated_time TIMESTAMP    NULL,
-  Project_Id       INT          NOT NULL,
-  Leader_Id        INT          NOT NULL,
+  Id               INT         NOT NULL  AUTO_INCREMENT,
+  name             VARCHAR(50) NOT NULL,
+  description      TEXT        NOT NULL,
+  creation_time    TIMESTAMP   NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+  lastupdated_time TIMESTAMP   NULL,
+  Project_Id       INT         NOT NULL,
+  Leader_Id        INT         NOT NULL,
   CONSTRAINT components_pk PRIMARY KEY (Id),
   CONSTRAINT Component_Project FOREIGN KEY Component_Project (Project_Id) REFERENCES projects (Id),
   CONSTRAINT Components_Users FOREIGN KEY Components_Users (Leader_Id) REFERENCES users (Id)
@@ -101,21 +101,21 @@ CREATE TABLE IF NOT EXISTS project_follower (
 
 -- Table privileges
 CREATE TABLE IF NOT EXISTS privileges (
-  Id   INT          NOT NULL  AUTO_INCREMENT,
-  name VARCHAR(100) NOT NULL,
+  Id   INT         NOT NULL  AUTO_INCREMENT,
+  name VARCHAR(50) NOT NULL,
   CONSTRAINT privileges_pk PRIMARY KEY (Id)
 );
 
 -- Table projects
 CREATE TABLE IF NOT EXISTS projects (
-  Id                    INT          NOT NULL  AUTO_INCREMENT,
-  name                  VARCHAR(255) NOT NULL,
-  description           TEXT         NOT NULL,
-  visibility            CHAR(1)      NOT NULL,
-  creation_time         TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP,
-  lastupdated_time      TIMESTAMP    NULL,
-  Leader_Id             INT          NOT NULL,
-  Default_Components_Id INT          NULL,
+  Id                    INT         NOT NULL  AUTO_INCREMENT,
+  name                  VARCHAR(50) NOT NULL,
+  description           TEXT        NOT NULL,
+  visibility            CHAR(1)     NOT NULL,
+  creation_time         TIMESTAMP   NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+  lastupdated_time      TIMESTAMP   NULL,
+  Leader_Id             INT         NOT NULL,
+  Default_Components_Id INT         NULL,
   CONSTRAINT projects_pk PRIMARY KEY (Id),
   CONSTRAINT Projects_Components FOREIGN KEY Projects_Components (Default_Components_Id) REFERENCES components (Id),
   CONSTRAINT Projects_Users FOREIGN KEY Projects_Users (Leader_Id) REFERENCES users (Id)
@@ -123,15 +123,15 @@ CREATE TABLE IF NOT EXISTS projects (
 
 -- Table requirements
 CREATE TABLE IF NOT EXISTS requirements (
-  Id                INT          NOT NULL  AUTO_INCREMENT,
-  title             VARCHAR(255) NOT NULL,
-  description       TEXT         NULL,
-  realized          TIMESTAMP    NULL      DEFAULT NULL,
-  creation_time     TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP,
-  lastupdated_time  TIMESTAMP    NULL,
-  Lead_developer_Id INT          NULL,
-  Creator_Id        INT          NOT NULL,
-  Project_Id        INT          NOT NULL,
+  Id                INT         NOT NULL  AUTO_INCREMENT,
+  title             VARCHAR(50) NOT NULL,
+  description       TEXT        NULL,
+  realized          TIMESTAMP   NULL      DEFAULT NULL,
+  creation_time     TIMESTAMP   NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+  lastupdated_time  TIMESTAMP   NULL,
+  Lead_developer_Id INT         NULL,
+  Creator_Id        INT         NOT NULL,
+  Project_Id        INT         NOT NULL,
   CONSTRAINT requirements_pk PRIMARY KEY (Id),
   CONSTRAINT Creator FOREIGN KEY Creator (Creator_Id) REFERENCES users (Id),
   CONSTRAINT LeadDeveloper FOREIGN KEY LeadDeveloper (Lead_developer_Id) REFERENCES users (Id),
@@ -183,10 +183,10 @@ CREATE TABLE IF NOT EXISTS tags (
 
 -- Table user_role
 CREATE TABLE IF NOT EXISTS user_role (
-  Id           INT          NOT NULL  AUTO_INCREMENT,
-  Roles_Id     INT          NOT NULL,
-  Users_Id     INT          NOT NULL,
-  context_info VARCHAR(255) NULL,
+  Id           INT           NOT NULL  AUTO_INCREMENT,
+  Roles_Id     INT           NOT NULL,
+  Users_Id     INT           NOT NULL,
+  context_info VARCHAR(1000) NULL,
   CONSTRAINT user_role_pk PRIMARY KEY (Id),
   CONSTRAINT User_Role_Roles FOREIGN KEY User_Role_Roles (Roles_Id) REFERENCES roles (Id)
     ON DELETE CASCADE,
@@ -196,16 +196,16 @@ CREATE TABLE IF NOT EXISTS user_role (
 
 -- Table users
 CREATE TABLE IF NOT EXISTS users (
-  Id                 INT          NOT NULL  AUTO_INCREMENT,
-  first_name         VARCHAR(150) NULL,
-  last_name          VARCHAR(150) NULL,
-  email              VARCHAR(255) NOT NULL,
-  admin              BOOLEAN      NOT NULL,
-  Las2peer_Id        BIGINT       NOT NULL,
-  user_name          VARCHAR(255) NULL,
-  profile_image      TEXT         NULL,
-  email_lead_items   BOOLEAN      NOT NULL  DEFAULT TRUE,
-  email_follow_items BOOLEAN      NOT NULL  DEFAULT TRUE,
+  Id                 INT           NOT NULL  AUTO_INCREMENT,
+  first_name         VARCHAR(1000) NULL,
+  last_name          VARCHAR(1000) NULL,
+  email              VARCHAR(1000) NOT NULL,
+  admin              BOOLEAN       NOT NULL,
+  Las2peer_Id        BIGINT        NOT NULL,
+  user_name          VARCHAR(1000) NULL,
+  profile_image      TEXT          NULL,
+  email_lead_items   BOOLEAN       NOT NULL  DEFAULT TRUE,
+  email_follow_items BOOLEAN       NOT NULL  DEFAULT TRUE,
   CONSTRAINT users_pk PRIMARY KEY (Id)
 );
 

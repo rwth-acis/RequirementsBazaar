@@ -20,6 +20,7 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
+import jodd.vtor.constraint.MaxLength;
 import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
 import jodd.vtor.constraint.NotNull;
@@ -28,18 +29,25 @@ public class User extends EntityBase {
 
     private int id;
 
+    @MaxLength(value = 1000, profiles = {"*"})
     private String firstName;
 
+    @MaxLength(value = 1000, profiles = {"*"})
     private String lastName;
 
+    @NotBlank(profiles = {"*"})
+    @NotNull(profiles = {"*"})
+    @MaxLength(value = 1000, profiles = {"*"})
     private transient String eMail;
 
     private Boolean admin;
 
+    @Min(value = 0, profiles = {"*"})
     private long Las2peerId;
 
     @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"*"})
+    @MaxLength(value = 1000, profiles = {"*"})
     private String userName;
 
     private String profileImage;
