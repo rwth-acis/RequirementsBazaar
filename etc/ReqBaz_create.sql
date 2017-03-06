@@ -1,17 +1,19 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
+DROP TABLE IF EXISTS attachments, comments, components, developers, requirement_follower, component_follower, project_follower, privileges, projects, requirements, role_privilege, role_role, roles, tags, user_role, users, votes;
+
 -- tables
 -- Table attachments
 CREATE TABLE IF NOT EXISTS attachments (
-  Id               INT          NOT NULL  AUTO_INCREMENT,
-  creation_time    TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP,
-  lastupdated_time TIMESTAMP    NULL,
-  Requirement_Id   INT          NOT NULL,
-  User_Id          INT          NOT NULL,
-  title            VARCHAR(255) NOT NULL,
-  description      TEXT         NULL,
-  mime_type        VARCHAR(255) NOT NULL,
-  identifier       VARCHAR(900) NOT NULL,
+  Id               INT           NOT NULL  AUTO_INCREMENT,
+  creation_time    TIMESTAMP     NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+  lastupdated_time TIMESTAMP     NULL,
+  Requirement_Id   INT           NOT NULL,
+  User_Id          INT           NOT NULL,
+  title            VARCHAR(255)  NOT NULL,
+  description      TEXT          NULL,
+  mime_type        VARCHAR(255)  NOT NULL,
+  identifier       VARCHAR(900)  NOT NULL,
   fileUrl          VARCHAR(1000) NOT NULL,
   CONSTRAINT attachments_pk PRIMARY KEY (Id),
   CONSTRAINT Attachement_Requirement FOREIGN KEY Attachement_Requirement (Requirement_Id) REFERENCES requirements (Id)
@@ -21,12 +23,12 @@ CREATE TABLE IF NOT EXISTS attachments (
 
 -- Table comments
 CREATE TABLE IF NOT EXISTS comments (
-  Id               INT       NOT NULL  AUTO_INCREMENT,
-  message          TEXT      NOT NULL,
-  creation_time    TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
-  lastupdated_time TIMESTAMP NULL,
-  Requirement_Id   INT       NOT NULL,
-  User_Id          INT       NOT NULL,
+  Id                  INT       NOT NULL  AUTO_INCREMENT,
+  message             TEXT      NOT NULL,
+  creation_time       TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+  lastupdated_time    TIMESTAMP NULL,
+  Requirement_Id      INT       NOT NULL,
+  User_Id             INT       NOT NULL,
   BelongsToComment_Id INT,
   CONSTRAINT comments_pk PRIMARY KEY (Id),
   CONSTRAINT Comment_Requirement FOREIGN KEY Comment_Requirement (Requirement_Id) REFERENCES requirements (Id)
@@ -194,16 +196,16 @@ CREATE TABLE IF NOT EXISTS user_role (
 
 -- Table users
 CREATE TABLE IF NOT EXISTS users (
-  Id                              INT          NOT NULL  AUTO_INCREMENT,
-  first_name                      VARCHAR(150) NULL,
-  last_name                       VARCHAR(150) NULL,
-  email                           VARCHAR(255) NOT NULL,
-  admin                           BOOLEAN      NOT NULL,
-  Las2peer_Id                     BIGINT       NOT NULL,
-  user_name                       VARCHAR(255) NULL,
-  profile_image                   TEXT         NULL,
-  email_lead_items            BOOLEAN      NOT NULL  DEFAULT TRUE,
-  email_follow_items          BOOLEAN      NOT NULL  DEFAULT TRUE,
+  Id                 INT          NOT NULL  AUTO_INCREMENT,
+  first_name         VARCHAR(150) NULL,
+  last_name          VARCHAR(150) NULL,
+  email              VARCHAR(255) NOT NULL,
+  admin              BOOLEAN      NOT NULL,
+  Las2peer_Id        BIGINT       NOT NULL,
+  user_name          VARCHAR(255) NULL,
+  profile_image      TEXT         NULL,
+  email_lead_items   BOOLEAN      NOT NULL  DEFAULT TRUE,
+  email_follow_items BOOLEAN      NOT NULL  DEFAULT TRUE,
   CONSTRAINT users_pk PRIMARY KEY (Id)
 );
 
