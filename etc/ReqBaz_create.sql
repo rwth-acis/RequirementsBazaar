@@ -51,52 +51,52 @@ CREATE TABLE IF NOT EXISTS component (
   CONSTRAINT component_user FOREIGN KEY component_user (leader_id) REFERENCES user (id)
 );
 
--- Table developer
-CREATE TABLE IF NOT EXISTS developer (
+-- Table developer_map
+CREATE TABLE IF NOT EXISTS developer_map (
   id             INT       NOT NULL  AUTO_INCREMENT,
   requirement_id INT       NOT NULL,
   user_id        INT       NOT NULL,
   creation_time  TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT developer_pk PRIMARY KEY (id),
-  CONSTRAINT developer_requirement FOREIGN KEY developer_requirement (requirement_id) REFERENCES requirement (id)
+  CONSTRAINT developer_map_pk PRIMARY KEY (id),
+  CONSTRAINT developer_map_requirement FOREIGN KEY developer_map_requirement (requirement_id) REFERENCES requirement (id)
     ON DELETE CASCADE,
-  CONSTRAINT developer_user FOREIGN KEY developer_user (user_id) REFERENCES user (id)
+  CONSTRAINT developer_map_user FOREIGN KEY developer_map_user (user_id) REFERENCES user (id)
 );
 
--- Table follower_requirement
-CREATE TABLE IF NOT EXISTS requirement_follower (
+-- Table follower_requirement_map
+CREATE TABLE IF NOT EXISTS requirement_follower_map (
   id             INT       NOT NULL  AUTO_INCREMENT,
   requirement_id INT       NOT NULL,
   user_id        INT       NOT NULL,
   creation_time  TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT requirement_follower_pk PRIMARY KEY (id),
-  CONSTRAINT requirement_follower FOREIGN KEY requirement_follower (requirement_id) REFERENCES requirement (id)
+  CONSTRAINT requirement_follower_map_pk PRIMARY KEY (id),
+  CONSTRAINT requirement_follower_map_requirement FOREIGN KEY requirement_follower_map_requirement (requirement_id) REFERENCES requirement (id)
     ON DELETE CASCADE,
-  CONSTRAINT requirement_follower_user FOREIGN KEY requirement_follower_user (user_id) REFERENCES user (id)
+  CONSTRAINT requirement_follower_map_user FOREIGN KEY requirement_follower_user (user_id) REFERENCES user (id)
 );
 
--- Table component_follower
-CREATE TABLE IF NOT EXISTS component_follower (
+-- Table component_follower_map
+CREATE TABLE IF NOT EXISTS component_follower_map (
   id            INT       NOT NULL  AUTO_INCREMENT,
   component_id  INT       NOT NULL,
   user_id       INT       NOT NULL,
   creation_time TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT component_follower_pk PRIMARY KEY (id),
-  CONSTRAINT component_follower FOREIGN KEY component_follower (component_id) REFERENCES component (id)
+  CONSTRAINT component_follower_map_pk PRIMARY KEY (id),
+  CONSTRAINT component_follower_map_component FOREIGN KEY component_follower_map_component (component_id) REFERENCES component (id)
     ON DELETE CASCADE,
-  CONSTRAINT component_follower_user FOREIGN KEY component_follower_user (user_id) REFERENCES user (id)
+  CONSTRAINT component_follower_map_user FOREIGN KEY component_follower_map_user (user_id) REFERENCES user (id)
 );
 
--- Table project_follower
-CREATE TABLE IF NOT EXISTS project_follower (
+-- Table project_follower_map
+CREATE TABLE IF NOT EXISTS project_follower_map (
   id            INT       NOT NULL  AUTO_INCREMENT,
   project_id    INT       NOT NULL,
   user_id       INT       NOT NULL,
   creation_time TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT project_follower_pk PRIMARY KEY (id),
-  CONSTRAINT project_follower FOREIGN KEY project_follower (project_id) REFERENCES project (id)
+  CONSTRAINT project_follower_map_pk PRIMARY KEY (id),
+  CONSTRAINT project_follower_map_project FOREIGN KEY project_follower_map_project (project_id) REFERENCES project (id)
     ON DELETE CASCADE,
-  CONSTRAINT project_follower_user FOREIGN KEY project_follower_user (user_id) REFERENCES user (id)
+  CONSTRAINT project_follower_map_user FOREIGN KEY project_follower_map_user (user_id) REFERENCES user (id)
 );
 
 -- Table privilege
@@ -138,27 +138,27 @@ CREATE TABLE IF NOT EXISTS requirement (
   CONSTRAINT requirement_project FOREIGN KEY requirement_project (project_id) REFERENCES project (id)
 );
 
--- Table role_privilege
-CREATE TABLE IF NOT EXISTS role_privilege (
+-- Table role_privilege_map
+CREATE TABLE IF NOT EXISTS role_privilege_map (
   id           INT NOT NULL  AUTO_INCREMENT,
   role_id      INT NOT NULL,
   privilege_id INT NOT NULL,
-  CONSTRAINT role_privilege_pk PRIMARY KEY (id),
-  CONSTRAINT role_privilege_privilege FOREIGN KEY role_privilege_privilege (privilege_id) REFERENCES privilege (id)
+  CONSTRAINT role_privilege_map_pk PRIMARY KEY (id),
+  CONSTRAINT role_privilege_map_privilege FOREIGN KEY role_privilege_map_privilege (privilege_id) REFERENCES privilege (id)
     ON DELETE CASCADE,
-  CONSTRAINT role_privilege_role FOREIGN KEY role_privilege_role (role_id) REFERENCES role (id)
+  CONSTRAINT role_privilege_map_role FOREIGN KEY role_privilege_map_role (role_id) REFERENCES role (id)
     ON DELETE CASCADE
 );
 
--- Table role_role
-CREATE TABLE IF NOT EXISTS role_role (
+-- Table role_role_map
+CREATE TABLE IF NOT EXISTS role_role_map (
   id        INT NOT NULL  AUTO_INCREMENT,
   child_id  INT NOT NULL,
   parent_id INT NOT NULL,
-  CONSTRAINT role_role_pk PRIMARY KEY (id),
-  CONSTRAINT role_child FOREIGN KEY role_child (child_id) REFERENCES role (id)
+  CONSTRAINT role_role_map_pk PRIMARY KEY (id),
+  CONSTRAINT role_role_map_child FOREIGN KEY role_role_map_child (child_id) REFERENCES role (id)
     ON DELETE CASCADE,
-  CONSTRAINT role_parent FOREIGN KEY role_parent (parent_id) REFERENCES role (id)
+  CONSTRAINT role_role_map_parent FOREIGN KEY role_role_map_parent (parent_id) REFERENCES role (id)
     ON DELETE CASCADE
 );
 
@@ -170,27 +170,27 @@ CREATE TABLE IF NOT EXISTS role (
   UNIQUE KEY role_idx_1 (name)
 );
 
--- Table requirement_component
-CREATE TABLE IF NOT EXISTS requirement_component (
+-- Table requirement_component_map
+CREATE TABLE IF NOT EXISTS requirement_component_map (
   id             INT NOT NULL  AUTO_INCREMENT,
   component_id   INT NOT NULL,
   requirement_id INT NOT NULL,
-  CONSTRAINT requirement_component_pk PRIMARY KEY (id),
-  CONSTRAINT requirement_component_component FOREIGN KEY requirement_component_component (component_id) REFERENCES component (id),
-  CONSTRAINT requirement_component_requirement FOREIGN KEY requirement_component_requirement (requirement_id) REFERENCES requirement (id)
+  CONSTRAINT requirement_component_map_pk PRIMARY KEY (id),
+  CONSTRAINT requirement_component_map_component FOREIGN KEY requirement_component_map_component (component_id) REFERENCES component (id),
+  CONSTRAINT requirement_component_map_requirement FOREIGN KEY requirement_component_map_requirement (requirement_id) REFERENCES requirement (id)
     ON DELETE CASCADE
 );
 
--- Table user_role
-CREATE TABLE IF NOT EXISTS user_role (
+-- Table user_role_map
+CREATE TABLE IF NOT EXISTS user_role_map (
   id           INT          NOT NULL  AUTO_INCREMENT,
   role_id      INT          NOT NULL,
   user_id      INT          NOT NULL,
   context_info VARCHAR(255) NULL,
-  CONSTRAINT user_role_pk PRIMARY KEY (id),
-  CONSTRAINT user_role_role FOREIGN KEY user_role_role (role_id) REFERENCES role (id)
+  CONSTRAINT user_role_map_pk PRIMARY KEY (id),
+  CONSTRAINT user_role_map_role FOREIGN KEY user_role_map_role (role_id) REFERENCES role (id)
     ON DELETE CASCADE,
-  CONSTRAINT user_role_user FOREIGN KEY user_role_user (user_id) REFERENCES user (id)
+  CONSTRAINT user_role_map_user FOREIGN KEY user_role_map_user (user_id) REFERENCES user (id)
     ON DELETE CASCADE
 );
 
