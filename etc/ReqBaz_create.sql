@@ -51,16 +51,16 @@ CREATE TABLE IF NOT EXISTS component (
   CONSTRAINT component_user FOREIGN KEY component_user (leader_id) REFERENCES user (id)
 );
 
--- Table developer_map
-CREATE TABLE IF NOT EXISTS developer_map (
+-- Table requirement_developer_map
+CREATE TABLE IF NOT EXISTS requirement_developer_map (
   id             INT       NOT NULL  AUTO_INCREMENT,
   requirement_id INT       NOT NULL,
   user_id        INT       NOT NULL,
   creation_time  TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT developer_map_pk PRIMARY KEY (id),
-  CONSTRAINT developer_map_requirement FOREIGN KEY developer_map_requirement (requirement_id) REFERENCES requirement (id)
+  CONSTRAINT requirement_developer_map_pk PRIMARY KEY (id),
+  CONSTRAINT requirement_developer_map_requirement FOREIGN KEY requirement_developer_map_requirement (requirement_id) REFERENCES requirement (id)
     ON DELETE CASCADE,
-  CONSTRAINT developer_map_user FOREIGN KEY developer_map_user (user_id) REFERENCES user (id)
+  CONSTRAINT requirement_developer_map_user FOREIGN KEY requirement_developer_map_user (user_id) REFERENCES user (id)
 );
 
 -- Table follower_requirement_map
