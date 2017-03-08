@@ -1,25 +1,25 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
-TRUNCATE TABLE `reqbaz`.`user`;
-TRUNCATE TABLE `reqbaz`.`project`;
-TRUNCATE TABLE `reqbaz`.`component`;
-TRUNCATE TABLE `reqbaz`.`requirement`;
-TRUNCATE TABLE `reqbaz`.`requirement_component_map`;
-TRUNCATE TABLE `reqbaz`.`project_follower_map`;
-TRUNCATE TABLE `reqbaz`.`component_follower_map`;
-TRUNCATE TABLE `reqbaz`.`requirement_follower_map`;
-TRUNCATE TABLE `reqbaz`.`requirement_developer_map`;
-TRUNCATE TABLE `reqbaz`.`comment`;
-TRUNCATE TABLE `reqbaz`.`attachment`;
-TRUNCATE TABLE `reqbaz`.`vote`;
-TRUNCATE TABLE `reqbaz`.`role`;
-TRUNCATE TABLE `reqbaz`.`privilege`;
-TRUNCATE TABLE `reqbaz`.`role_privilege_map`;
-TRUNCATE TABLE `reqbaz`.`role_role_map`;
-TRUNCATE TABLE `reqbaz`.`user_role_map`;
+TRUNCATE TABLE reqbaz.user;
+TRUNCATE TABLE reqbaz.project;
+TRUNCATE TABLE reqbaz.component;
+TRUNCATE TABLE reqbaz.requirement;
+TRUNCATE TABLE reqbaz.requirement_component_map;
+TRUNCATE TABLE reqbaz.project_follower_map;
+TRUNCATE TABLE reqbaz.component_follower_map;
+TRUNCATE TABLE reqbaz.requirement_follower_map;
+TRUNCATE TABLE reqbaz.requirement_developer_map;
+TRUNCATE TABLE reqbaz.comment;
+TRUNCATE TABLE reqbaz.attachment;
+TRUNCATE TABLE reqbaz.vote;
+TRUNCATE TABLE reqbaz.role;
+TRUNCATE TABLE reqbaz.privilege;
+TRUNCATE TABLE reqbaz.role_privilege_map;
+TRUNCATE TABLE reqbaz.role_role_map;
+TRUNCATE TABLE reqbaz.user_role_map;
 
-REPLACE INTO `reqbaz`.`user`
-(`id`, `first_name`, `last_name`, `email`, `admin`, `las2peer_id`, `user_name`, `profile_image`, `email_lead_subscription`, `email_follow_subscription`)
+REPLACE INTO reqbaz.user
+(id, first_name, last_name, email, admin, las2peer_id, user_name, profile_image, email_lead_subscription, email_follow_subscription)
 VALUES
   (1, NULL, NULL, 'anonymous@requirements-bazaar.org', 0, '-1722613621014065292', 'anonymous',
    'https://api.learning-layers.eu/profile.png', 0, 0),
@@ -64,8 +64,8 @@ VALUES
   (40, 'Max39', 'Mustermann39', 'Max@Mustermann39.de', 0, 39, 'MaxMustermann39', 'https://api.learning-layers.eu/profile.png', 0, 0),
   (41, 'Max40', 'Mustermann40', 'Max@Mustermann40.de', 0, 40, 'MaxMustermann40', 'https://api.learning-layers.eu/profile.png', 0, 0);
 
-REPLACE INTO `reqbaz`.`project`
-(`id`, `name`, `description`, `visibility`, `leader_id`, `default_component_id`)
+REPLACE INTO reqbaz.project
+(id, name, description, visibility, leader_id, default_component_id)
 VALUES
   (1, 'Project 1', 'Project 1 - 26 components - This project is public - Leader MaxMustermann1', TRUE, 2, 1),
   (2, 'Project 2', 'Project 2 - 41 components - This project is public - Leader MaxMustermann1', TRUE, 2, 2),
@@ -93,8 +93,8 @@ VALUES
   (24, 'Project 24', 'Project 24 - This project is private - Leader MaxMustermann8', FALSE, 9, 24),
   (25, 'Project 25', 'Project 25 - This project is private - Leader MaxMustermann8', FALSE, 9, 25);
 
-REPLACE INTO `reqbaz`.`component`
-(`id`, `name`, `description`, `project_id`, `leader_id`)
+REPLACE INTO reqbaz.component
+(id, name, description, project_id, leader_id)
 VALUES
   (1, 'Default-P1',
    'Default component for Project 1 - 1. Component of Project 1 - 30 unrealized Requirements - Leader MaxMustermann1',
@@ -191,8 +191,8 @@ VALUES
   (89, 'Component 89', 'Component 89 - 40. Component of Project 2 - Leader MaxMustermann18', 2, 19),
   (90, 'Component 90', 'Component 90 - 41. Component of Project 2 - Leader MaxMustermann18', 2, 19);
 
-REPLACE INTO `reqbaz`.`requirement`
-(`id`, `name`, `description`, `realized`, `lead_developer_id`, `creator_id`, `project_id`)
+REPLACE INTO reqbaz.requirement
+(id, name, description, realized, lead_developer_id, creator_id, project_id)
 VALUES
   (1, 'Requirement 1', 'Requirement 1 - 1. Requirement of Component 1 - 20 normal comments - 20 attachments', NULL, 2, 2, 1),
   (2, 'Requirement 2', 'Requirement 2 - 2. Requirement of Component 1 - 30 comments with belongsTo comments - 10 attachments', NULL, 2, 2, 1),
@@ -301,8 +301,8 @@ VALUES
   (101, 'Requirement 101', 'Requirement 101 - 1. Requirement of Component 52, 53, 54, 55, 56', NULL, 19, 2, 1),
   (102, 'Requirement 102', 'Requirement 102 - 2. Requirement of Component 52, 53, 54, 55, 56', NULL, 19, 3, 1);
 
-REPLACE INTO `reqbaz`.`requirement_component_map`
-(`id`, `component_id`, `requirement_id`)
+REPLACE INTO reqbaz.requirement_component_map
+(id, component_id, requirement_id)
 VALUES
   (1, 1, 1),
   (2, 1, 2),
@@ -420,8 +420,8 @@ VALUES
   (109, 55, 102),
   (110, 56, 102);
 
-REPLACE INTO `reqbaz`.`project_follower_map`
-(`id`, `project_id`, `user_id`)
+REPLACE INTO reqbaz.project_follower_map
+(id, project_id, user_id)
 VALUES
   (1, 1, 2),
   (2, 1, 3),
@@ -444,8 +444,8 @@ VALUES
   (19, 8, 29),
   (20, 8, 29);
 
-REPLACE INTO `reqbaz`.`component_follower_map`
-(`id`, `component_id`, `user_id`)
+REPLACE INTO reqbaz.component_follower_map
+(id, component_id, user_id)
 VALUES
   (1, 1, 2),
   (2, 1, 3),
@@ -457,8 +457,8 @@ VALUES
   (8, 2, 5),
   (9, 2, 6);
 
-REPLACE INTO `reqbaz`.`requirement_follower_map`
-(`id`, `requirement_id`, `user_id`)
+REPLACE INTO reqbaz.requirement_follower_map
+(id, requirement_id, user_id)
 VALUES
   (1, 1, 2),
   (2, 1, 3),
@@ -470,8 +470,8 @@ VALUES
   (8, 2, 5),
   (9, 2, 6);
 
-REPLACE INTO `reqbaz`.`requirement_developer_map`
-(`id`, `requirement_id`, `user_id`)
+REPLACE INTO reqbaz.requirement_developer_map
+(id, requirement_id, user_id)
 VALUES
   (1, 1, 2),
   (2, 1, 3),
@@ -494,8 +494,8 @@ VALUES
   (19, 5, 11),
   (20, 6, 12);
 
-REPLACE INTO `reqbaz`.`comment`
-(`id`, `message`, `requirement_id`, `reply_to_comment_id`, `user_id`)
+REPLACE INTO reqbaz.comment
+(id, message, requirement_id, reply_to_comment_id, user_id)
 VALUES
   (1, 'Comment 1 - 1. Comment of Requirement 1', 1, NULL, 2),
   (2, 'Comment 2 - 2. Comment of Requirement 1', 1, NULL, 2),
@@ -549,8 +549,8 @@ VALUES
   (49, 'Comment 49 - 14. Reply of Comment 5', 2, NULL, 2),
   (50, 'Comment 50 - 15. Reply of Comment 5', 2, NULL, 2);
 
-REPLACE INTO `reqbaz`.`attachment`
-(`id`, `requirement_id`, `user_id`, `name`, `description`, `mime_type`, `identifier`, `file_url`)
+REPLACE INTO reqbaz.attachment
+(id, requirement_id, user_id, name, description, mime_type, identifier, file_url)
 VALUES
   (1, 1, 2, 'Image 1', 'Image Attachment 1 - 1. Attachment of Requirement 1', 'image/jpeg', 'affe1', 'https://localhost:8080/fileservice/affe1'),
   (2, 1, 2, 'Image 2', 'Image Attachment 2 - 2. Attachment of Requirement 1', 'image/jpeg', 'affe2', 'https://localhost:8080/fileservice/affe2'),
@@ -584,8 +584,8 @@ VALUES
   (29, 2, 9, 'Image 29', 'Image Attachment 29 - 9. Attachment of Requirement 2', 'image/jpeg', 'affe29', 'https://localhost:8080/fileservice/affe29'),
   (30, 2, 9, 'Image 20', 'Image Attachment 30 - 10. Attachment of Requirement 2', 'image/jpeg', 'affe30', 'https://localhost:8080/fileservice/affe30');
 
-REPLACE INTO `reqbaz`.`vote`
-(`id`, `is_upvote`, `requirement_id`, `user_id`)
+REPLACE INTO reqbaz.vote
+(id, is_upvote, requirement_id, user_id)
 VALUES
   (1, 1, 1, 2),
   (2, 1, 1, 3),
@@ -609,16 +609,16 @@ VALUES
   (20, 1, 15, 6),
   (21, 1, 16, 7);
 
-REPLACE INTO `reqbaz`.`role`
-(`id`, `name`)
+REPLACE INTO reqbaz.role
+(id, name)
 VALUES
   (1, 'Anonymous'),
   (2, 'LoggedInUser'),
   (3, 'ProjectAdmin'),
   (4, 'SystemAdmin');
 
-REPLACE INTO `reqbaz`.`privilege`
-(`id`, `name`)
+REPLACE INTO reqbaz.privilege
+(id, name)
 VALUES
   (1, 'Create_PROJECT'),
   (2, 'Read_PROJECT'),
@@ -647,8 +647,8 @@ VALUES
   (25, 'Create_DEVELOP'),
   (26, 'Delete_DEVELOP');
 
-REPLACE INTO `reqbaz`.`role_privilege_map`
-(`id`, `role_id`, `privilege_id`)
+REPLACE INTO reqbaz.role_privilege_map
+(id, role_id, privilege_id)
 VALUES
   (1, 1, 3),
   (2, 1, 7),
@@ -681,15 +681,15 @@ VALUES
   (29, 4, 25),
   (30, 4, 26);
 
-REPLACE INTO `reqbaz`.`role_role_map`
-(`id`, `child_id`, `parent_id`)
+REPLACE INTO reqbaz.role_role_map
+(id, child_id, parent_id)
 VALUES
   (1, 2, 1),
   (2, 3, 2),
   (3, 4, 3);
 
-REPLACE INTO `reqbaz`.`user_role_map`
-(`id`, `role_id`, `user_id`)
+REPLACE INTO reqbaz.user_role_map
+(id, role_id, user_id)
 VALUES
   (1, 1, 1);
 
