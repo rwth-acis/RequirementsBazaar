@@ -1,25 +1,25 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
-TRUNCATE TABLE `reqbaz`.`users`;
-TRUNCATE TABLE `reqbaz`.`projects`;
-TRUNCATE TABLE `reqbaz`.`components`;
-TRUNCATE TABLE `reqbaz`.`requirements`;
-TRUNCATE TABLE `reqbaz`.`tags`;
-TRUNCATE TABLE `reqbaz`.`project_follower`;
-TRUNCATE TABLE `reqbaz`.`component_follower`;
-TRUNCATE TABLE `reqbaz`.`requirement_follower`;
-TRUNCATE TABLE `reqbaz`.`developers`;
-TRUNCATE TABLE `reqbaz`.`comments`;
-TRUNCATE TABLE `reqbaz`.`attachments`;
-TRUNCATE TABLE `reqbaz`.`votes`;
-TRUNCATE TABLE `reqbaz`.`roles`;
-TRUNCATE TABLE `reqbaz`.`privileges`;
-TRUNCATE TABLE `reqbaz`.`role_privilege`;
-TRUNCATE TABLE `reqbaz`.`role_role`;
-TRUNCATE TABLE `reqbaz`.`user_role`;
+TRUNCATE TABLE `reqbaz`.`user`;
+TRUNCATE TABLE `reqbaz`.`project`;
+TRUNCATE TABLE `reqbaz`.`component`;
+TRUNCATE TABLE `reqbaz`.`requirement`;
+TRUNCATE TABLE `reqbaz`.`requirement_component_map`;
+TRUNCATE TABLE `reqbaz`.`project_follower_map`;
+TRUNCATE TABLE `reqbaz`.`component_follower_map`;
+TRUNCATE TABLE `reqbaz`.`requirement_follower_map`;
+TRUNCATE TABLE `reqbaz`.`requirement_developer_map`;
+TRUNCATE TABLE `reqbaz`.`comment`;
+TRUNCATE TABLE `reqbaz`.`attachment`;
+TRUNCATE TABLE `reqbaz`.`vote`;
+TRUNCATE TABLE `reqbaz`.`role`;
+TRUNCATE TABLE `reqbaz`.`privilege`;
+TRUNCATE TABLE `reqbaz`.`role_privilege_map`;
+TRUNCATE TABLE `reqbaz`.`role_role_map`;
+TRUNCATE TABLE `reqbaz`.`user_role_map`;
 
-REPLACE INTO `reqbaz`.`users`
-(`Id`, `first_name`, `last_name`, `email`, `admin`, `Las2peer_Id`, `user_name`, `profile_image`, `email_lead_items`, `email_follow_items`)
+REPLACE INTO `reqbaz`.`user`
+(`id`, `first_name`, `last_name`, `email`, `admin`, `las2peer_id`, `user_name`, `profile_image`, `email_lead_subscription`, `email_follow_subscription`)
 VALUES
   (1, NULL, NULL, 'anonymous@requirements-bazaar.org', 0, '-1722613621014065292', 'anonymous',
    'https://api.learning-layers.eu/profile.png', 0, 0),
@@ -64,37 +64,37 @@ VALUES
   (40, 'Max39', 'Mustermann39', 'Max@Mustermann39.de', 0, 39, 'MaxMustermann39', 'https://api.learning-layers.eu/profile.png', 0, 0),
   (41, 'Max40', 'Mustermann40', 'Max@Mustermann40.de', 0, 40, 'MaxMustermann40', 'https://api.learning-layers.eu/profile.png', 0, 0);
 
-REPLACE INTO `reqbaz`.`projects`
-(`Id`, `name`, `description`, `visibility`, `Leader_Id`, `Default_Components_Id`)
+REPLACE INTO `reqbaz`.`project`
+(`id`, `name`, `description`, `visibility`, `leader_id`, `default_component_id`)
 VALUES
-  (1, 'Project 1', 'Project 1 - 26 components - This project is public - Leader MaxMustermann1', '+', 2, 1),
-  (2, 'Project 2', 'Project 2 - 41 components - This project is public - Leader MaxMustermann1', '+', 2, 2),
-  (3, 'Project 3', 'Project 3 - This project is public - Leader MaxMustermann1', '+', 2, 3),
-  (4, 'Project 4', 'Project 4 - This project is public - Leader MaxMustermann2', '+', 3, 4),
-  (5, 'Project 5', 'Project 5 - This project is public - Leader MaxMustermann3', '+', 3, 5),
-  (6, 'Project 6', 'Project 6 - This project is public - Leader MaxMustermann4', '+', 5, 6),
-  (7, 'Project 7', 'Project 7 - This project is public - Leader MaxMustermann5', '+', 6, 7),
-  (8, 'Project 8', 'Project 8 - This project is public - Leader MaxMustermann6', '+', 7, 8),
-  (9, 'Project 9', 'Project 9 - This project is public - Leader MaxMustermann7', '+', 8, 9),
-  (10, 'Project 10', 'Project 10 - This project is public - Leader MaxMustermann8', '+', 9, 10),
-  (11, 'Project 11', 'Project 11 - This project is public - Leader MaxMustermann8', '+', 9, 11),
-  (12, 'Project 12', 'Project 12 - This project is public - Leader MaxMustermann8', '+', 9, 12),
-  (13, 'Project 13', 'Project 13 - This project is public - Leader MaxMustermann8', '+', 9, 13),
-  (14, 'Project 14', 'Project 14 - This project is public - Leader MaxMustermann8', '+', 9, 14),
-  (15, 'Project 15', 'Project 15 - This project is public - Leader MaxMustermann8', '+', 9, 15),
-  (16, 'Project 16', 'Project 16 - This project is public - Leader MaxMustermann8', '+', 9, 16),
-  (17, 'Project 17', 'Project 17 - This project is public - Leader MaxMustermann8', '+', 9, 17),
-  (18, 'Project 18', 'Project 18 - This project is public - Leader MaxMustermann8', '+', 9, 18),
-  (19, 'Project 19', 'Project 19 - This project is public - Leader MaxMustermann8', '+', 9, 19),
-  (20, 'Project 20', 'Project 20 - This project is public - Leader MaxMustermann8', '+', 9, 20),
-  (21, 'Project 21', 'Project 21 - This project is private - Leader MaxMustermann8', '-', 9, 21),
-  (22, 'Project 22', 'Project 22 - This project is private - Leader MaxMustermann8', '-', 9, 22),
-  (23, 'Project 23', 'Project 23 - This project is private - Leader MaxMustermann8', '-', 9, 23),
-  (24, 'Project 24', 'Project 24 - This project is private - Leader MaxMustermann8', '-', 9, 24),
-  (25, 'Project 25', 'Project 25 - This project is private - Leader MaxMustermann8', '-', 9, 25);
+  (1, 'Project 1', 'Project 1 - 26 components - This project is public - Leader MaxMustermann1', TRUE, 2, 1),
+  (2, 'Project 2', 'Project 2 - 41 components - This project is public - Leader MaxMustermann1', TRUE, 2, 2),
+  (3, 'Project 3', 'Project 3 - This project is public - Leader MaxMustermann1', TRUE, 2, 3),
+  (4, 'Project 4', 'Project 4 - This project is public - Leader MaxMustermann2', TRUE, 3, 4),
+  (5, 'Project 5', 'Project 5 - This project is public - Leader MaxMustermann3', TRUE, 3, 5),
+  (6, 'Project 6', 'Project 6 - This project is public - Leader MaxMustermann4', TRUE, 5, 6),
+  (7, 'Project 7', 'Project 7 - This project is public - Leader MaxMustermann5', TRUE, 6, 7),
+  (8, 'Project 8', 'Project 8 - This project is public - Leader MaxMustermann6', TRUE, 7, 8),
+  (9, 'Project 9', 'Project 9 - This project is public - Leader MaxMustermann7', TRUE, 8, 9),
+  (10, 'Project 10', 'Project 10 - This project is public - Leader MaxMustermann8', TRUE, 9, 10),
+  (11, 'Project 11', 'Project 11 - This project is public - Leader MaxMustermann8', TRUE, 9, 11),
+  (12, 'Project 12', 'Project 12 - This project is public - Leader MaxMustermann8', TRUE, 9, 12),
+  (13, 'Project 13', 'Project 13 - This project is public - Leader MaxMustermann8', TRUE, 9, 13),
+  (14, 'Project 14', 'Project 14 - This project is public - Leader MaxMustermann8', TRUE, 9, 14),
+  (15, 'Project 15', 'Project 15 - This project is public - Leader MaxMustermann8', TRUE, 9, 15),
+  (16, 'Project 16', 'Project 16 - This project is public - Leader MaxMustermann8', TRUE, 9, 16),
+  (17, 'Project 17', 'Project 17 - This project is public - Leader MaxMustermann8', TRUE, 9, 17),
+  (18, 'Project 18', 'Project 18 - This project is public - Leader MaxMustermann8', TRUE, 9, 18),
+  (19, 'Project 19', 'Project 19 - This project is public - Leader MaxMustermann8', TRUE, 9, 19),
+  (20, 'Project 20', 'Project 20 - This project is public - Leader MaxMustermann8', TRUE, 9, 20),
+  (21, 'Project 21', 'Project 21 - This project is private - Leader MaxMustermann8', FALSE, 9, 21),
+  (22, 'Project 22', 'Project 22 - This project is private - Leader MaxMustermann8', FALSE, 9, 22),
+  (23, 'Project 23', 'Project 23 - This project is private - Leader MaxMustermann8', FALSE, 9, 23),
+  (24, 'Project 24', 'Project 24 - This project is private - Leader MaxMustermann8', FALSE, 9, 24),
+  (25, 'Project 25', 'Project 25 - This project is private - Leader MaxMustermann8', FALSE, 9, 25);
 
-REPLACE INTO `reqbaz`.`components`
-(`Id`, `name`, `description`, `Project_Id`, `Leader_Id`)
+REPLACE INTO `reqbaz`.`component`
+(`id`, `name`, `description`, `project_id`, `leader_id`)
 VALUES
   (1, 'Default-P1',
    'Default component for Project 1 - 1. Component of Project 1 - 30 unrealized Requirements - Leader MaxMustermann1',
@@ -191,8 +191,8 @@ VALUES
   (89, 'Component 89', 'Component 89 - 40. Component of Project 2 - Leader MaxMustermann18', 2, 19),
   (90, 'Component 90', 'Component 90 - 41. Component of Project 2 - Leader MaxMustermann18', 2, 19);
 
-REPLACE INTO `reqbaz`.`requirements`
-(`Id`, `title`, `description`, `realized`, `Lead_developer_Id`, `Creator_Id`, `Project_Id`)
+REPLACE INTO `reqbaz`.`requirement`
+(`id`, `name`, `description`, `realized`, `lead_developer_id`, `creator_id`, `project_id`)
 VALUES
   (1, 'Requirement 1', 'Requirement 1 - 1. Requirement of Component 1 - 20 normal comments - 20 attachments', NULL, 2, 2, 1),
   (2, 'Requirement 2', 'Requirement 2 - 2. Requirement of Component 1 - 30 comments with belongsTo comments - 10 attachments', NULL, 2, 2, 1),
@@ -301,8 +301,8 @@ VALUES
   (101, 'Requirement 101', 'Requirement 101 - 1. Requirement of Component 52, 53, 54, 55, 56', NULL, 19, 2, 1),
   (102, 'Requirement 102', 'Requirement 102 - 2. Requirement of Component 52, 53, 54, 55, 56', NULL, 19, 3, 1);
 
-REPLACE INTO `reqbaz`.`tags`
-(`Id`, `Components_Id`, `Requirements_Id`)
+REPLACE INTO `reqbaz`.`requirement_component_map`
+(`id`, `component_id`, `requirement_id`)
 VALUES
   (1, 1, 1),
   (2, 1, 2),
@@ -420,8 +420,8 @@ VALUES
   (109, 55, 102),
   (110, 56, 102);
 
-REPLACE INTO `reqbaz`.`requirement_follower`
-(`Id`, `Requirement_Id`, `User_Id`)
+REPLACE INTO `reqbaz`.`project_follower_map`
+(`id`, `project_id`, `user_id`)
 VALUES
   (1, 1, 2),
   (2, 1, 3),
@@ -444,8 +444,8 @@ VALUES
   (19, 8, 29),
   (20, 8, 29);
 
-REPLACE INTO `reqbaz`.`component_follower`
-(`Id`, `Component_Id`, `User_Id`)
+REPLACE INTO `reqbaz`.`component_follower_map`
+(`id`, `component_id`, `user_id`)
 VALUES
   (1, 1, 2),
   (2, 1, 3),
@@ -457,8 +457,8 @@ VALUES
   (8, 2, 5),
   (9, 2, 6);
 
-REPLACE INTO `reqbaz`.`project_follower`
-(`Id`, `Project_Id`, `User_Id`)
+REPLACE INTO `reqbaz`.`requirement_follower_map`
+(`id`, `requirement_id`, `user_id`)
 VALUES
   (1, 1, 2),
   (2, 1, 3),
@@ -470,8 +470,8 @@ VALUES
   (8, 2, 5),
   (9, 2, 6);
 
-REPLACE INTO `reqbaz`.`developers`
-(`Id`, `Requirement_Id`, `User_Id`)
+REPLACE INTO `reqbaz`.`requirement_developer_map`
+(`id`, `requirement_id`, `user_id`)
 VALUES
   (1, 1, 2),
   (2, 1, 3),
@@ -494,8 +494,8 @@ VALUES
   (19, 5, 11),
   (20, 6, 12);
 
-REPLACE INTO `reqbaz`.`comments`
-(`Id`, `message`, `Requirement_Id`, `BelongsToComment_Id`, `User_Id`)
+REPLACE INTO `reqbaz`.`comment`
+(`id`, `message`, `requirement_id`, `reply_to_comment_id`, `user_id`)
 VALUES
   (1, 'Comment 1 - 1. Comment of Requirement 1', 1, NULL, 2),
   (2, 'Comment 2 - 2. Comment of Requirement 1', 1, NULL, 2),
@@ -549,8 +549,8 @@ VALUES
   (49, 'Comment 49 - 14. Reply of Comment 5', 2, NULL, 2),
   (50, 'Comment 50 - 15. Reply of Comment 5', 2, NULL, 2);
 
-REPLACE INTO `reqbaz`.`attachments`
-(`Id`, `Requirement_Id`, `User_Id`, `Title`, `description`, `Mime_Type`, `identifier`, `fileUrl`)
+REPLACE INTO `reqbaz`.`attachment`
+(`id`, `requirement_id`, `user_id`, `name`, `description`, `mime_type`, `identifier`, `file_url`)
 VALUES
   (1, 1, 2, 'Image 1', 'Image Attachment 1 - 1. Attachment of Requirement 1', 'image/jpeg', 'affe1', 'https://localhost:8080/fileservice/affe1'),
   (2, 1, 2, 'Image 2', 'Image Attachment 2 - 2. Attachment of Requirement 1', 'image/jpeg', 'affe2', 'https://localhost:8080/fileservice/affe2'),
@@ -584,8 +584,8 @@ VALUES
   (29, 2, 9, 'Image 29', 'Image Attachment 29 - 9. Attachment of Requirement 2', 'image/jpeg', 'affe29', 'https://localhost:8080/fileservice/affe29'),
   (30, 2, 9, 'Image 20', 'Image Attachment 30 - 10. Attachment of Requirement 2', 'image/jpeg', 'affe30', 'https://localhost:8080/fileservice/affe30');
 
-REPLACE INTO `reqbaz`.`votes`
-(`Id`, `is_upvote`, `Requirement_Id`, `User_Id`)
+REPLACE INTO `reqbaz`.`vote`
+(`id`, `is_upvote`, `requirement_id`, `user_id`)
 VALUES
   (1, 1, 1, 2),
   (2, 1, 1, 3),
@@ -609,13 +609,17 @@ VALUES
   (20, 1, 15, 6),
   (21, 1, 16, 7);
 
-REPLACE INTO `reqbaz`.`roles` (`Id`, `name`) VALUES
+REPLACE INTO `reqbaz`.`role`
+(`id`, `name`)
+VALUES
   (1, 'Anonymous'),
   (2, 'LoggedInUser'),
   (3, 'ProjectAdmin'),
   (4, 'SystemAdmin');
 
-REPLACE INTO `reqbaz`.`privileges` (`Id`, `name`) VALUES
+REPLACE INTO `reqbaz`.`privilege`
+(`id`, `name`)
+VALUES
   (1, 'Create_PROJECT'),
   (2, 'Read_PROJECT'),
   (3, 'Read_PUBLIC_PROJECT'),
@@ -643,7 +647,9 @@ REPLACE INTO `reqbaz`.`privileges` (`Id`, `name`) VALUES
   (25, 'Create_DEVELOP'),
   (26, 'Delete_DEVELOP');
 
-REPLACE INTO `reqbaz`.`role_privilege` (`Id`, `Roles_Id`, `Privileges_Id`) VALUES
+REPLACE INTO `reqbaz`.`role_privilege_map`
+(`id`, `role_id`, `privilege_id`)
+VALUES
   (1, 1, 3),
   (2, 1, 7),
   (3, 1, 11),
@@ -675,12 +681,16 @@ REPLACE INTO `reqbaz`.`role_privilege` (`Id`, `Roles_Id`, `Privileges_Id`) VALUE
   (29, 4, 25),
   (30, 4, 26);
 
-REPLACE INTO `reqbaz`.`role_role` (`Id`, `Child_Id`, `Parent_Id`) VALUES
+REPLACE INTO `reqbaz`.`role_role_map`
+(`id`, `child_id`, `parent_id`)
+VALUES
   (1, 2, 1),
   (2, 3, 2),
   (3, 4, 3);
 
-REPLACE INTO `reqbaz`.`user_role` (`Id`, `Roles_Id`, `Users_Id`) VALUES
+REPLACE INTO `reqbaz`.`user_role_map`
+(`id`, `role_id`, `user_id`)
+VALUES
   (1, 1, 1);
 
 SET FOREIGN_KEY_CHECKS = 1;
