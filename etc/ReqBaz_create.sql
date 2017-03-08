@@ -1,10 +1,16 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS attachment, comment, component, requirement_developer_map, requirement_follower_map, component_follower_map, project_follower_map, privilege, project, requirement, requirement_component_map, role_privilege_map, role_role_map, role, user_role_map, vote;
+CREATE DATABASE IF NOT EXISTS reqbaz;
+
+DROP TABLE IF EXISTS reqbaz.attachment, reqbaz.comment, reqbaz.component,
+reqbaz.requirement_developer_map, reqbaz.requirement_follower_map, reqbaz.component_follower_map,
+reqbaz.project_follower_map, reqbaz.privilege, reqbaz.project, reqbaz.requirement,
+reqbaz.requirement_component_map, reqbaz.role_privilege_map, reqbaz.role_role_map,
+reqbaz.role, reqbaz.user_role_map, reqbaz.vote;
 
 -- tables
 -- Table attachment
-CREATE TABLE IF NOT EXISTS attachment (
+CREATE TABLE IF NOT EXISTS reqbaz.attachment (
   id               INT           NOT NULL  AUTO_INCREMENT,
   creation_time    TIMESTAMP     NOT NULL  DEFAULT CURRENT_TIMESTAMP,
   lastupdated_time TIMESTAMP     NULL,
@@ -22,7 +28,7 @@ CREATE TABLE IF NOT EXISTS attachment (
 );
 
 -- Table comment
-CREATE TABLE IF NOT EXISTS comment (
+CREATE TABLE IF NOT EXISTS reqbaz.comment (
   id                  INT       NOT NULL  AUTO_INCREMENT,
   message             TEXT      NOT NULL,
   creation_time       TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
@@ -38,7 +44,7 @@ CREATE TABLE IF NOT EXISTS comment (
 );
 
 -- Table component
-CREATE TABLE IF NOT EXISTS component (
+CREATE TABLE IF NOT EXISTS reqbaz.component (
   id               INT          NOT NULL  AUTO_INCREMENT,
   name             VARCHAR(255) NOT NULL,
   description      TEXT         NOT NULL,
@@ -52,7 +58,7 @@ CREATE TABLE IF NOT EXISTS component (
 );
 
 -- Table requirement_developer_map
-CREATE TABLE IF NOT EXISTS requirement_developer_map (
+CREATE TABLE IF NOT EXISTS reqbaz.requirement_developer_map (
   id             INT       NOT NULL  AUTO_INCREMENT,
   requirement_id INT       NOT NULL,
   user_id        INT       NOT NULL,
@@ -64,7 +70,7 @@ CREATE TABLE IF NOT EXISTS requirement_developer_map (
 );
 
 -- Table follower_requirement_map
-CREATE TABLE IF NOT EXISTS requirement_follower_map (
+CREATE TABLE IF NOT EXISTS reqbaz.requirement_follower_map (
   id             INT       NOT NULL  AUTO_INCREMENT,
   requirement_id INT       NOT NULL,
   user_id        INT       NOT NULL,
@@ -76,7 +82,7 @@ CREATE TABLE IF NOT EXISTS requirement_follower_map (
 );
 
 -- Table component_follower_map
-CREATE TABLE IF NOT EXISTS component_follower_map (
+CREATE TABLE IF NOT EXISTS reqbaz.component_follower_map (
   id            INT       NOT NULL  AUTO_INCREMENT,
   component_id  INT       NOT NULL,
   user_id       INT       NOT NULL,
@@ -88,7 +94,7 @@ CREATE TABLE IF NOT EXISTS component_follower_map (
 );
 
 -- Table project_follower_map
-CREATE TABLE IF NOT EXISTS project_follower_map (
+CREATE TABLE IF NOT EXISTS reqbaz.project_follower_map (
   id            INT       NOT NULL  AUTO_INCREMENT,
   project_id    INT       NOT NULL,
   user_id       INT       NOT NULL,
@@ -100,14 +106,14 @@ CREATE TABLE IF NOT EXISTS project_follower_map (
 );
 
 -- Table privilege
-CREATE TABLE IF NOT EXISTS privilege (
+CREATE TABLE IF NOT EXISTS reqbaz.privilege (
   id   INT          NOT NULL  AUTO_INCREMENT,
   name VARCHAR(100) NOT NULL,
   CONSTRAINT privilege_pk PRIMARY KEY (id)
 );
 
 -- Table project
-CREATE TABLE IF NOT EXISTS project (
+CREATE TABLE IF NOT EXISTS reqbaz.project (
   id                   INT          NOT NULL  AUTO_INCREMENT,
   name                 VARCHAR(255) NOT NULL,
   description          TEXT         NOT NULL,
@@ -122,7 +128,7 @@ CREATE TABLE IF NOT EXISTS project (
 );
 
 -- Table requirement
-CREATE TABLE IF NOT EXISTS requirement (
+CREATE TABLE IF NOT EXISTS reqbaz.requirement (
   id                INT          NOT NULL  AUTO_INCREMENT,
   name              VARCHAR(255) NOT NULL,
   description       TEXT         NULL,
@@ -139,7 +145,7 @@ CREATE TABLE IF NOT EXISTS requirement (
 );
 
 -- Table requirement_component_map
-CREATE TABLE IF NOT EXISTS requirement_component_map (
+CREATE TABLE IF NOT EXISTS reqbaz.requirement_component_map (
   id             INT NOT NULL  AUTO_INCREMENT,
   component_id   INT NOT NULL,
   requirement_id INT NOT NULL,
@@ -150,7 +156,7 @@ CREATE TABLE IF NOT EXISTS requirement_component_map (
 );
 
 -- Table role_privilege_map
-CREATE TABLE IF NOT EXISTS role_privilege_map (
+CREATE TABLE IF NOT EXISTS reqbaz.role_privilege_map (
   id           INT NOT NULL  AUTO_INCREMENT,
   role_id      INT NOT NULL,
   privilege_id INT NOT NULL,
@@ -162,7 +168,7 @@ CREATE TABLE IF NOT EXISTS role_privilege_map (
 );
 
 -- Table role_role_map
-CREATE TABLE IF NOT EXISTS role_role_map (
+CREATE TABLE IF NOT EXISTS reqbaz.role_role_map (
   id        INT NOT NULL  AUTO_INCREMENT,
   child_id  INT NOT NULL,
   parent_id INT NOT NULL,
@@ -174,7 +180,7 @@ CREATE TABLE IF NOT EXISTS role_role_map (
 );
 
 -- Table role
-CREATE TABLE IF NOT EXISTS role (
+CREATE TABLE IF NOT EXISTS reqbaz.role (
   id   INT         NOT NULL  AUTO_INCREMENT,
   name VARCHAR(50) NULL,
   CONSTRAINT role_pk PRIMARY KEY (id),
@@ -182,7 +188,7 @@ CREATE TABLE IF NOT EXISTS role (
 );
 
 -- Table user_role_map
-CREATE TABLE IF NOT EXISTS user_role_map (
+CREATE TABLE IF NOT EXISTS reqbaz.user_role_map (
   id           INT          NOT NULL  AUTO_INCREMENT,
   role_id      INT          NOT NULL,
   user_id      INT          NOT NULL,
@@ -195,7 +201,7 @@ CREATE TABLE IF NOT EXISTS user_role_map (
 );
 
 -- Table user
-CREATE TABLE IF NOT EXISTS user (
+CREATE TABLE IF NOT EXISTS reqbaz.user (
   id                        INT          NOT NULL  AUTO_INCREMENT,
   first_name                VARCHAR(150) NULL,
   last_name                 VARCHAR(150) NULL,
@@ -210,7 +216,7 @@ CREATE TABLE IF NOT EXISTS user (
 );
 
 -- Table vote
-CREATE TABLE IF NOT EXISTS vote (
+CREATE TABLE IF NOT EXISTS reqbaz.vote (
   id             INT       NOT NULL  AUTO_INCREMENT,
   is_upvote      BOOLEAN   NOT NULL,
   requirement_id INT       NOT NULL,
