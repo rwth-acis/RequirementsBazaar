@@ -21,15 +21,13 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Project;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirement;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.CommentTransformator;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -44,10 +42,10 @@ import org.jooq.exception.DataAccessException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments.COMMENTS;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment.COMMENT;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User.USER;
 
-public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecord> implements CommentRepository {
+public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord> implements CommentRepository {
 
     /**
      * @param jooq DSLContext for JOOQ connection
@@ -57,27 +55,27 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
     }
 
     @Override
-    public PaginationResult<Comment> findAllByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
+    public PaginationResult<de.rwth.dbis.acis.bazaar.service.dal.entities.Comment> findAllByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
         PaginationResult<Comment> result = null;
         List<Comment> comments;
         try {
             comments = new ArrayList<>();
-            Users creatorUser = USERS.as("creatorUser");
-            Comments childComment = COMMENTS.as("childComment");
-            Users childCommentCreatorUser = USERS.as("childCommentCreatorUser");
+            de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User creatorUser = USER.as("creatorUser");
+            de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment childComment = COMMENT.as("childComment");
+            User childCommentCreatorUser = USER.as("childCommentCreatorUser");
 
             Field<Object> idCount = jooq.selectCount()
-                    .from(COMMENTS)
-                    .where(COMMENTS.REQUIREMENT_ID.equal(requirementId))
+                    .from(COMMENT)
+                    .where(COMMENT.REQUIREMENT_ID.equal(requirementId))
                     .asField("idCount");
 
-            List<Record> queryResults = jooq.select(COMMENTS.fields())
+            List<Record> queryResults = jooq.select(COMMENT.fields())
                     .select(childComment.fields()).select(creatorUser.fields()).select(childCommentCreatorUser.fields()).select(idCount)
-                    .from(COMMENTS)
-                    .leftJoin(childComment).on(childComment.BELONGSTOCOMMENT_ID.equal(COMMENTS.ID))
+                    .from(COMMENT)
+                    .leftJoin(childComment).on(childComment.REPLY_TO_COMMENT_ID.equal(COMMENT.ID))
                     .leftJoin(childCommentCreatorUser).on(childCommentCreatorUser.ID.equal(childComment.USER_ID))
-                    .join(creatorUser).on(creatorUser.ID.equal(COMMENTS.USER_ID))
-                    .where(COMMENTS.REQUIREMENT_ID.equal(requirementId).and(COMMENTS.BELONGSTOCOMMENT_ID.isNull()))
+                    .join(creatorUser).on(creatorUser.ID.equal(COMMENT.USER_ID))
+                    .where(COMMENT.REQUIREMENT_ID.equal(requirementId).and(COMMENT.REPLY_TO_COMMENT_ID.isNull()))
                     .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
@@ -85,11 +83,11 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
 
             Comment entry = null;
             for (Record record : queryResults) {
-                if (entry == null || transformator.getEntityFromTableRecord(record.into(CommentsRecord.class)).getId() != entry.getId()) {
+                if (entry == null || transformator.getEntityFromTableRecord(record.into(CommentRecord.class)).getId() != entry.getId()) {
                     entry = convertToCommentWithUser(record, creatorUser);
                     comments.add(entry);
                 }
-                CommentsRecord childRecor = record.into(childComment);
+                CommentRecord childRecor = record.into(childComment);
                 if (childRecor.getId() != null) {
                     Comment childEntry = convertToCommentWithUser(record, childComment, childCommentCreatorUser);
                     comments.add(childEntry);
@@ -104,31 +102,31 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
         return result;
     }
 
-    private Comment convertToCommentWithUser(Record record, Users creatorUser) {
-        CommentsRecord commentsRecord = record.into(CommentsRecord.class);
-        Comment entry = transformator.getEntityFromTableRecord(commentsRecord);
+    private Comment convertToCommentWithUser(Record record, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User creatorUser) {
+        CommentRecord commentRecord = record.into(CommentRecord.class);
+        Comment entry = transformator.getEntityFromTableRecord(commentRecord);
         UserTransformator userTransformator = new UserTransformator();
-        UsersRecord usersRecord = record.into(creatorUser);
-        entry.setCreator(userTransformator.getEntityFromTableRecord(usersRecord));
+        UserRecord userRecord = record.into(creatorUser);
+        entry.setCreator(userTransformator.getEntityFromTableRecord(userRecord));
         return entry;
     }
 
-    private Comment convertToCommentWithUser(Record record, Comments comment, Users creatorUser) {
-        CommentsRecord commentsRecord = record.into(comment);
-        Comment entry = transformator.getEntityFromTableRecord(commentsRecord);
+    private Comment convertToCommentWithUser(Record record, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment comment, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User creatorUser) {
+        CommentRecord commentRecord = record.into(comment);
+        Comment entry = transformator.getEntityFromTableRecord(commentRecord);
         UserTransformator userTransformator = new UserTransformator();
-        UsersRecord usersRecord = record.into(creatorUser);
-        entry.setCreator(userTransformator.getEntityFromTableRecord(usersRecord));
+        UserRecord userRecord = record.into(creatorUser);
+        entry.setCreator(userTransformator.getEntityFromTableRecord(userRecord));
         return entry;
     }
 
     @Override
-    public Comment findById(int id) throws Exception {
+    public de.rwth.dbis.acis.bazaar.service.dal.entities.Comment findById(int id) throws Exception {
         Comment returnComment = null;
         try {
-            Users creatorUser = USERS.as("creatorUser");
-            Record record = jooq.selectFrom(COMMENTS
-                    .join(creatorUser).on(creatorUser.ID.equal(COMMENTS.USER_ID)))
+            User creatorUser = USER.as("creatorUser");
+            Record record = jooq.selectFrom(COMMENT
+                    .join(creatorUser).on(creatorUser.ID.equal(COMMENT.USER_ID)))
                     .where(transformator.getTableId().equal(id))
                     .fetchOne();
             returnComment = convertToCommentWithUser(record, creatorUser);
@@ -145,12 +143,11 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentsRecor
     @Override
     public boolean belongsToPublicProject(int id) throws BazaarException {
         try {
-
             Integer countOfPublicProjects = jooq.selectCount()
                     .from(transformator.getTable())
-                    .join(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.ID.eq(COMMENTS.REQUIREMENT_ID))
-                    .join(Projects.PROJECTS).on(Projects.PROJECTS.ID.eq(Requirements.REQUIREMENTS.PROJECT_ID))
-                    .where(transformator.getTableId().eq(id).and(Projects.PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar())))
+                    .join(Requirement.REQUIREMENT).on(Requirement.REQUIREMENT.ID.eq(COMMENT.REQUIREMENT_ID))
+                    .join(Project.PROJECT).on(Project.PROJECT.ID.eq(Requirement.REQUIREMENT.PROJECT_ID))
+                    .where(transformator.getTableId().eq(id).and(Project.PROJECT.VISIBILITY.isTrue()))
                     .fetchOne(0, int.class);
 
             return (countOfPublicProjects == 1);

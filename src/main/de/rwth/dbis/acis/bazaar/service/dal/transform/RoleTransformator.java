@@ -22,60 +22,60 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolesRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RoleRecord;
 import org.jooq.*;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Roles.ROLES;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Role.ROLE;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 2/17/2015
  */
-public class RoleTransformator implements Transformator<Role, RolesRecord> {
+public class RoleTransformator implements Transformator<Role, RoleRecord> {
 
     @Override
-    public RolesRecord createRecord(Role entity) {
-        RolesRecord record = new RolesRecord();
+    public RoleRecord createRecord(Role entity) {
+        RoleRecord record = new RoleRecord();
         record.setId(entity.getId());
         record.setName(entity.getName());
         return record;
     }
 
     @Override
-    public Role getEntityFromTableRecord(RolesRecord record) {
+    public Role getEntityFromTableRecord(RoleRecord record) {
         return Role.getBuilder(record.getName())
                 .id(record.getId())
                 .build();
     }
 
     @Override
-    public Table<RolesRecord> getTable() {
-        return ROLES;
+    public Table<RoleRecord> getTable() {
+        return ROLE;
     }
 
     @Override
-    public TableField<RolesRecord, Integer> getTableId() {
-        return ROLES.ID;
+    public TableField<RoleRecord, Integer> getTableId() {
+        return ROLE.ID;
     }
 
     @Override
-    public Class<? extends RolesRecord> getRecordClass() {
-        return RolesRecord.class;
+    public Class<? extends RoleRecord> getRecordClass() {
+        return RoleRecord.class;
     }
 
     @Override
     public Map<Field, Object> getUpdateMap(final Role entity) {
         return new HashMap<Field, Object>() {{
-            put(ROLES.NAME, entity.getName());
+            put(ROLE.NAME, entity.getName());
         }};
     }
 
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(ROLES.ID.asc());
+            return Arrays.asList(ROLE.ID.asc());
         }
         return null;
     }

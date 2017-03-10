@@ -421,7 +421,7 @@ public interface DALFacade {
     void unFollowRequirement(int userId, int requirementId) throws BazaarException;
     //endregion
 
-    //region Developer
+    //region RequirementDeveloper
 
     /**
      * This method create a develop relation between a given requirement and a given user
@@ -440,7 +440,7 @@ public interface DALFacade {
     void notWantToDevelop(int userId, int requirementId) throws BazaarException;
     //endregion
 
-    //region Tag (Component >-< Requirement)
+    //region RequirementComponent (Component >-< Requirement)
 
     /**
      * This method creates a connection, that the given requirement belongs to the given component.

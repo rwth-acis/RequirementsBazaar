@@ -25,10 +25,6 @@ import com.google.gson.reflect.TypeToken;
 import de.rwth.dbis.acis.bazaar.service.BazaarRequestParams;
 import de.rwth.dbis.acis.bazaar.service.TestBase;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
-import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
-import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
-import i5.las2peer.persistency.MalformedXMLException;
-import i5.las2peer.security.UserAgent;
 import i5.las2peer.testing.MockAgentFactory;
 import i5.las2peer.webConnector.client.ClientResponse;
 import i5.las2peer.webConnector.client.MiniClient;
@@ -36,15 +32,12 @@ import i5.las2peer.webConnector.client.MiniClient;
 import org.hamcrest.Matchers;
 import org.hamcrest.Matchers.*;
 import org.junit.*;
-import org.junit.runner.Request;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -218,7 +211,7 @@ public class AnonymUserRightsTest extends TestBase {
         assertThat(response,is(notNullValue()));
         RequirementEx requirementEx = new Gson().fromJson(response.getResponse(), RequirementEx.class);
         assertThat(requirementEx.getId(), is(1));
-        assertThat(requirementEx.getTitle(), is("PublicRequirement"));
+        assertThat(requirementEx.getName(), is("PublicRequirement"));
     }
 
     @Test

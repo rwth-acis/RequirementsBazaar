@@ -30,7 +30,6 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import i5.las2peer.testing.MockAgentFactory;
 import i5.las2peer.webConnector.client.ClientResponse;
 import i5.las2peer.webConnector.client.MiniClient;
-import jdk.nashorn.internal.parser.JSONParser;
 import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -232,7 +231,7 @@ public class SysAdminRightsTest extends TestBase {
         assertThat(response,is(notNullValue()));
         RequirementEx requirementEx = new Gson().fromJson(response.getResponse(), RequirementEx.class);
         assertThat(requirementEx.getId(), is(1));
-        assertThat(requirementEx.getTitle(), is("PublicRequirement"));
+        assertThat(requirementEx.getName(), is("PublicRequirement"));
     }
 
     @Test
@@ -247,7 +246,7 @@ public class SysAdminRightsTest extends TestBase {
         assertThat(response,is(notNullValue()));
         RequirementEx requirementEx = new Gson().fromJson(response.getResponse(), RequirementEx.class);
         assertThat(requirementEx.getId(), is(2));
-        assertThat(requirementEx.getTitle(), is("PrivateRequirement"));
+        assertThat(requirementEx.getName(), is("PrivateRequirement"));
     }
 
     @Test

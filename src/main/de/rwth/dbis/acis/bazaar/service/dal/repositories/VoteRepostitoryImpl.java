@@ -22,7 +22,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Vote;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VoteRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.VoteTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
@@ -36,13 +36,13 @@ import org.jooq.exception.DataAccessException;
 
 import java.util.Map;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Votes.VOTES;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Vote.VOTE;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
-public class VoteRepostitoryImpl extends RepositoryImpl<Vote, VotesRecord> implements VoteRepostitory {
+public class VoteRepostitoryImpl extends RepositoryImpl<Vote, VoteRecord> implements VoteRepostitory {
     /**
      * @param jooq DSLContext for JOOQ connection
      */
@@ -53,8 +53,8 @@ public class VoteRepostitoryImpl extends RepositoryImpl<Vote, VotesRecord> imple
     @Override
     public void delete(int userId, int requirementId) throws BazaarException {
         try {
-            jooq.delete(VOTES)
-                    .where(VOTES.USER_ID.equal(userId).and(VOTES.REQUIREMENT_ID.equal(requirementId)))
+            jooq.delete(VOTE)
+                    .where(VOTE.USER_ID.equal(userId).and(VOTE.REQUIREMENT_ID.equal(requirementId)))
                     .execute();
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
@@ -65,8 +65,8 @@ public class VoteRepostitoryImpl extends RepositoryImpl<Vote, VotesRecord> imple
     public boolean hasUserVotedForRequirement(int userId, int requirementId) throws BazaarException {
         int execute = 0;
         try {
-            execute = jooq.selectFrom(VOTES)
-                    .where(VOTES.USER_ID.equal(userId).and(VOTES.REQUIREMENT_ID.equal(requirementId)))
+            execute = jooq.selectFrom(VOTE)
+                    .where(VOTE.USER_ID.equal(userId).and(VOTE.REQUIREMENT_ID.equal(requirementId)))
                     .execute();
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
@@ -76,13 +76,13 @@ public class VoteRepostitoryImpl extends RepositoryImpl<Vote, VotesRecord> imple
 
     @Override
     public CreationStatus addOrUpdate(Vote vote) throws BazaarException {
-        VotesRecord record = jooq.selectFrom(VOTES)
-                .where(VOTES.USER_ID.equal(vote.getUserId()).and(VOTES.REQUIREMENT_ID.equal(vote.getRequirementId())))
+        VoteRecord record = jooq.selectFrom(VOTE)
+                .where(VOTE.USER_ID.equal(vote.getUserId()).and(VOTE.REQUIREMENT_ID.equal(vote.getRequirementId())))
                 .fetchOne();
 
         if (record != null) {
             if (record.getIsUpvote() != (byte) (vote.isUpvote() ? 1 : 0)) {
-                UpdateSetFirstStep<VotesRecord> update = jooq.update(transformator.getTable());
+                UpdateSetFirstStep<VoteRecord> update = jooq.update(transformator.getTable());
                 Map<Field, Object> map = transformator.getUpdateMap(vote);
                 UpdateSetMoreStep moreStep = null;
                 for (Map.Entry<Field, Object> item : map.entrySet()) {
@@ -94,7 +94,7 @@ public class VoteRepostitoryImpl extends RepositoryImpl<Vote, VotesRecord> imple
                         moreStep.set(key, value);
                 }
                 assert moreStep != null;
-                moreStep.where(VOTES.USER_ID.equal(vote.getUserId()).and(VOTES.REQUIREMENT_ID.equal(vote.getRequirementId())))
+                moreStep.where(VOTE.USER_ID.equal(vote.getUserId()).and(VOTE.REQUIREMENT_ID.equal(vote.getRequirementId())))
                         .execute();
                 return CreationStatus.CHANGED;
             } else {

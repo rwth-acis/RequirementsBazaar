@@ -17,7 +17,7 @@ public class Requirement extends EntityBase {
     @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
     @MaxLength(value = 50, profiles = {"*"})
-    private String title;
+    private String name;
 
     private Date creation_time;
 
@@ -86,12 +86,12 @@ public class Requirement extends EntityBase {
         this.attachments = attachments;
     }
 
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getId() {
@@ -132,7 +132,7 @@ public class Requirement extends EntityBase {
     protected Requirement(Builder builder) {
         this.id = builder.id;
         this.description = builder.description;
-        this.title = builder.title;
+        this.name = builder.name;
         this.realized = builder.realized;
         this.projectId = builder.projectId;
         this.creatorId = builder.creatorId;
@@ -147,17 +147,17 @@ public class Requirement extends EntityBase {
     /**
      * Builder to easily build Requirement objects
      *
-     * @param title Title field will be initialized using the passed value
-     * @return a builder with title returned
+     * @param name Name field will be initialized using the passed value
+     * @return a builder with name returned
      */
-    public static Builder getBuilder(String title) {
-        return new Builder(title);
+    public static Builder getBuilder(String name) {
+        return new Builder(name);
     }
 
     public static class Builder {
         private int id;
         private String description;
-        private String title;
+        private String name;
         private Date realized;
         private int projectId;
         private int creatorId;
@@ -168,8 +168,8 @@ public class Requirement extends EntityBase {
         private UserVote userVoted;
         protected List<Attachment> attachments;
 
-        public Builder(String title) {
-            this.title = title;
+        public Builder(String name) {
+            this.name = name;
         }
 
         public Builder description(String description) {
@@ -190,10 +190,10 @@ public class Requirement extends EntityBase {
         public Requirement build() {
             Requirement created = new Requirement(this);
 
-            String name = created.getTitle();
+            String name = created.getName();
 
             if (name == null || name.length() == 0) {
-                throw new IllegalStateException("title cannot be null or empty");
+                throw new IllegalStateException("name cannot be null or empty");
             }
 
             return created;

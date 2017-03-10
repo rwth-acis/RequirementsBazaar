@@ -46,8 +46,8 @@
 //    List<Comment> commentList = new ArrayList<Comment>();
 //    List<Attachment> attachmentList = new ArrayList<Attachment>();
 //    List<Vote> voteList = new ArrayList<Vote>();
-//    List<Tag> tagList = new ArrayList<Tag>();
-//    List<Developer> developerList = new ArrayList<Developer>();
+//    List<RequirementComponent> tagList = new ArrayList<RequirementComponent>();
+//    List<RequirementDeveloper> developerList = new ArrayList<RequirementDeveloper>();
 //    List<RequirementFollower> followerList = new ArrayList<RequirementFollower>();
 //
 //    //endregion
@@ -66,7 +66,7 @@
 //    private List<Component> getComponents(int requirementId) {
 //        List<Component> components = new ArrayList<Component>();
 //
-//        for (Tag tag : tagList) {
+//        for (RequirementComponent tag : tagList) {
 //            if (tag.getRequirementId() == requirementId) {
 //                for (Component component : componentList) {
 //                    if (component.getId() == tag.getComponentId())
@@ -113,7 +113,7 @@
 //    private List<User> getDevelopers(int requirementId) {
 //        List<User> users = new ArrayList<User>();
 //
-//        for (Developer developer : developerList) {
+//        for (RequirementDeveloper developer : developerList) {
 //            if (developer.getRequirementId() == requirementId) {
 //                for (User user : userList) {
 //                    if (user.getId() == developer.getUserId())
@@ -257,7 +257,7 @@
 //    @Override
 //    public List<Requirement> listRequirementsByComponent(int componentId, Pageable pageable) {
 //        List<Integer> requirementIdList = new ArrayList<Integer>();
-//        for (Tag tag : tagList) {
+//        for (RequirementComponent tag : tagList) {
 //            if (tag.getComponentId() == componentId)
 //                requirementIdList.add(tag.getRequirementId());
 //        }
@@ -296,7 +296,7 @@
 //            List<User> contributors = getContributors(attachments);
 //            List<Component> components = getComponents(requirementId);
 //
-//            return RequirementEx.getBuilder(requirement.getTitle())
+//            return RequirementEx.getBuilder(requirement.getName())
 //                    .id(requirement.getId())
 //                    .description(requirement.getDescription())
 //                    .projectId(requirement.getProjectId())
@@ -330,9 +330,9 @@
 //    @Override
 //    public void deleteRequirementById(int requirementId) {
 //        //Delete component tags
-//        Iterator<Tag> tagIterator = tagList.iterator();
+//        Iterator<RequirementComponent> tagIterator = tagList.iterator();
 //        while (tagIterator.hasNext()) {
-//            Tag tag = tagIterator.next();
+//            RequirementComponent tag = tagIterator.next();
 //
 //            if (tag.getRequirementId() == requirementId)
 //                tagIterator.remove();
@@ -348,9 +348,9 @@
 //        }
 //
 //        //Delete developers
-//        Iterator<Developer> developerIterator = developerList.iterator();
+//        Iterator<RequirementDeveloper> developerIterator = developerList.iterator();
 //        while (developerIterator.hasNext()) {
-//            Developer developer = developerIterator.next();
+//            RequirementDeveloper developer = developerIterator.next();
 //
 //            if (developer.getRequirementId() == requirementId)
 //                developerIterator.remove();
@@ -488,16 +488,16 @@
 //
 //    @Override
 //    public void wantToDevelop(int userId, int requirementId) {
-//        Developer developer = Developer.getBuilder().id(new Random().nextInt()).userId(userId).requirementId(requirementId).build();
+//        RequirementDeveloper developer = RequirementDeveloper.getBuilder().id(new Random().nextInt()).userId(userId).requirementId(requirementId).build();
 //
 //        developerList.add(developer);
 //    }
 //
 //    @Override
 //    public void notWantToDevelop(int userId, int requirementId) {
-//        Iterator<Developer> itr = developerList.iterator();
+//        Iterator<RequirementDeveloper> itr = developerList.iterator();
 //        while (itr.hasNext()) {
-//            Developer developer = itr.next();
+//            RequirementDeveloper developer = itr.next();
 //
 //            if (developer.getUserId() == userId && developer.getRequirementId() == requirementId)
 //                itr.remove();
@@ -508,16 +508,16 @@
 //
 //    @Override
 //    public void addComponentTag(int requirementId, int componentId) {
-//        Tag tag = Tag.getBuilder(componentId).requirementId(requirementId).id(new Random().nextInt()).build();
+//        RequirementComponent tag = RequirementComponent.getBuilder(componentId).requirementId(requirementId).id(new Random().nextInt()).build();
 //
 //        tagList.add(tag);
 //    }
 //
 //    @Override
 //    public void deleteComponentTag(int requirementId, int componentId) {
-//        Iterator<Tag> itr = tagList.iterator();
+//        Iterator<RequirementComponent> itr = tagList.iterator();
 //        while (itr.hasNext()) {
-//            Tag tag = itr.next();
+//            RequirementComponent tag = itr.next();
 //
 //            if (tag.getRequirementId() == requirementId && tag.getComponentId() == componentId)
 //                itr.remove();

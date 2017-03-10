@@ -63,8 +63,8 @@ public class RequirementEx extends Requirement {
         return contributors;
     }
 
-    public static BuilderEx getBuilder(String title) {
-        return new BuilderEx(title);
+    public static BuilderEx getBuilder(String name) {
+        return new BuilderEx(name);
     }
 
     public static class BuilderEx extends Builder {
@@ -75,8 +75,8 @@ public class RequirementEx extends Requirement {
         public List<User> contributors;
         private User leadDeveloper;
 
-        public BuilderEx(String title) {
-            super(title);
+        public BuilderEx(String name) {
+            super(name);
         }
 
         @Override

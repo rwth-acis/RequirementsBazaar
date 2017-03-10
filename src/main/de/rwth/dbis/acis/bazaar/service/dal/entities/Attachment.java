@@ -29,7 +29,7 @@ import java.util.Date;
 
 public class Attachment extends EntityBase {
 
-    private int Id;
+    private int id;
 
     private int creatorId;
 
@@ -39,7 +39,7 @@ public class Attachment extends EntityBase {
     @NotNull(profiles = {"create"})
     @NotBlank(profiles = {"*"})
     @MaxLength(value = 100, profiles = {"*"})
-    private String title;
+    private String name;
 
     private String description;
 
@@ -68,10 +68,10 @@ public class Attachment extends EntityBase {
     }
 
     public Attachment(Builder builder) {
-        this.Id = builder.id;
+        this.id = builder.id;
         this.creatorId = builder.creatorId;
         this.requirementId = builder.requirementId;
-        this.title = builder.title;
+        this.name = builder.name;
         this.description = builder.description;
         this.mimeType = builder.mimeType;
         this.identifier = builder.identifier;
@@ -82,7 +82,7 @@ public class Attachment extends EntityBase {
     }
 
     public int getId() {
-        return Id;
+        return id;
     }
 
     public int getCreatorId() {
@@ -101,12 +101,12 @@ public class Attachment extends EntityBase {
         this.requirementId = requirementId;
     }
 
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getDescription() {
@@ -153,7 +153,7 @@ public class Attachment extends EntityBase {
         private int id;
         private int creatorId;
         private int requirementId;
-        private String title;
+        private String name;
         private String description;
         private String mimeType;
         private String identifier;
@@ -177,8 +177,8 @@ public class Attachment extends EntityBase {
             return this;
         }
 
-        public Builder title(String title) {
-            this.title = title;
+        public Builder name(String name) {
+            this.name = name;
             return this;
         }
 

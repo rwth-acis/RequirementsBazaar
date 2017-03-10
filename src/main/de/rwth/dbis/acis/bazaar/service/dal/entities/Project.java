@@ -45,7 +45,7 @@ public class Project extends EntityBase {
     @MaxLength(value= 50, profiles = {"*"})
     private String name;
 
-    private ProjectVisibility visibility;
+    private Boolean visibility;
 
     private Date creation_time;
 
@@ -65,7 +65,7 @@ public class Project extends EntityBase {
 
     private Integer numberOfFollowers;
 
-    public ProjectVisibility getVisibility() {
+    public Boolean getVisibility() {
         return visibility;
     }
 
@@ -170,7 +170,7 @@ public class Project extends EntityBase {
         private int id;
         private String description;
         private String name;
-        private ProjectVisibility visibility;
+        private Boolean visibility;
         private List<User> followers;
         private User leader;
         private int leaderId;
@@ -192,7 +192,7 @@ public class Project extends EntityBase {
             return this;
         }
 
-        public Builder visibility(ProjectVisibility visibility) {
+        public Builder visibility(Boolean visibility) {
             this.visibility = visibility;
             return this;
         }
@@ -242,28 +242,6 @@ public class Project extends EntityBase {
             }
 
             return created;
-        }
-    }
-
-    public enum ProjectVisibility {
-        PUBLIC("+"), PRIVATE("-");
-
-        public String asChar() {
-            return asChar;
-        }
-
-        private final String asChar;
-
-        ProjectVisibility(String visibility) {
-            this.asChar = visibility;
-        }
-
-        public static ProjectVisibility getVisibility(final String visibilityChar) {
-            for (ProjectVisibility vis : ProjectVisibility.values())
-                if (vis.asChar.equals(visibilityChar))
-                    return vis;
-
-            return null;
         }
     }
 }

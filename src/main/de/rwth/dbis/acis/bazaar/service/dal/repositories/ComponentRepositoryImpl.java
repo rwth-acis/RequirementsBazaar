@@ -26,9 +26,8 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.*;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentsRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.ComponentTransformator;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -47,11 +46,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Components.COMPONENTS;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ComponentFollower.COMPONENT_FOLLOWER;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Component.COMPONENT;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ComponentFollowerMap.COMPONENT_FOLLOWER_MAP;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Project.PROJECT;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirement.REQUIREMENT;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementComponentMap.REQUIREMENT_COMPONENT_MAP;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User.USER;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Vote.VOTE;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment.COMMENT;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachment.ATTACHMENT;
 
-public class ComponentRepositoryImpl extends RepositoryImpl<Component, ComponentsRecord> implements ComponentRepository {
+public class ComponentRepositoryImpl extends RepositoryImpl<Component, ComponentRecord> implements ComponentRepository {
     /**
      * @param jooq DSLContext object to initialize JOOQ connection. For more see JOOQ documentation.
      */
@@ -63,28 +68,28 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
     public Component findById(int id) throws BazaarException {
         Component component = null;
         try {
-            Users leaderUser = Users.USERS.as("leaderUser");
-            Users followerUsers = Users.USERS.as("followerUsers");
+            de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User leaderUser = USER.as("leaderUser");
+            de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User followerUsers = USER.as("followerUsers");
 
             Field<Object> requirementCount = jooq.select(DSL.count())
-                    .from(Requirements.REQUIREMENTS)
-                    .leftJoin(Tags.TAGS).on(Requirements.REQUIREMENTS.ID.equal(Tags.TAGS.REQUIREMENTS_ID))
-                    .where(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
+                    .from(REQUIREMENT)
+                    .leftJoin(REQUIREMENT_COMPONENT_MAP).on(REQUIREMENT.ID.equal(REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID))
+                    .where(REQUIREMENT_COMPONENT_MAP.COMPONENT_ID.equal(COMPONENT.ID))
                     .asField("requirementCount");
 
             Field<Object> followerCount = DSL.select(DSL.count())
-                    .from(COMPONENT_FOLLOWER)
-                    .where(COMPONENT_FOLLOWER.COMPONENT_ID.equal(COMPONENTS.ID))
+                    .from(COMPONENT_FOLLOWER_MAP)
+                    .where(COMPONENT_FOLLOWER_MAP.COMPONENT_ID.equal(COMPONENT.ID))
                     .asField("followerCount");
 
-            Result<Record> queryResult = jooq.select(COMPONENTS.fields())
+            Result<Record> queryResult = jooq.select(COMPONENT.fields())
                     .select(requirementCount)
                     .select(followerCount)
                     .select(leaderUser.fields())
-                    .from(COMPONENTS)
-                    .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(COMPONENTS.LEADER_ID))
-                    .leftOuterJoin(COMPONENT_FOLLOWER).on(COMPONENT_FOLLOWER.COMPONENT_ID.equal(COMPONENTS.ID))
-                    .leftOuterJoin(followerUsers).on(COMPONENT_FOLLOWER.USER_ID.equal(followerUsers.ID))
+                    .from(COMPONENT)
+                    .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(COMPONENT.LEADER_ID))
+                    .leftOuterJoin(COMPONENT_FOLLOWER_MAP).on(COMPONENT_FOLLOWER_MAP.COMPONENT_ID.equal(COMPONENT.ID))
+                    .leftOuterJoin(followerUsers).on(COMPONENT_FOLLOWER_MAP.USER_ID.equal(followerUsers.ID))
                     .where(transformator.getTableId().equal(id))
                     .fetch();
 
@@ -94,13 +99,13 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                         ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
             }
 
-            Component.Builder builder = Component.getBuilder(queryResult.getValues(COMPONENTS.NAME).get(0))
-                    .description(queryResult.getValues(COMPONENTS.DESCRIPTION).get(0))
-                    .projectId(queryResult.getValues(COMPONENTS.PROJECT_ID).get(0))
-                    .id(queryResult.getValues(COMPONENTS.ID).get(0))
-                    .leaderId(queryResult.getValues(COMPONENTS.LEADER_ID).get(0))
-                    .creationTime(queryResult.getValues(COMPONENTS.CREATION_TIME).get(0))
-                    .lastupdated_time(queryResult.getValues(COMPONENTS.LASTUPDATED_TIME).get(0));
+            Component.Builder builder = Component.getBuilder(queryResult.getValues(COMPONENT.NAME).get(0))
+                    .description(queryResult.getValues(COMPONENT.DESCRIPTION).get(0))
+                    .projectId(queryResult.getValues(COMPONENT.PROJECT_ID).get(0))
+                    .id(queryResult.getValues(COMPONENT.ID).get(0))
+                    .leaderId(queryResult.getValues(COMPONENT.LEADER_ID).get(0))
+                    .creationTime(queryResult.getValues(COMPONENT.CREATION_TIME).get(0))
+                    .lastupdated_time(queryResult.getValues(COMPONENT.LASTUPDATED_TIME).get(0));
 
             UserTransformator userTransformator = new UserTransformator();
             //Filling up LeadDeveloper
@@ -137,33 +142,33 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
         List<Component> components;
         try {
             components = new ArrayList<>();
-            Users leaderUser = Users.USERS.as("leaderUser");
+            de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User leaderUser = USER.as("leaderUser");
 
             Field<Object> idCount = jooq.selectCount()
-                    .from(COMPONENTS)
-                    .where(COMPONENTS.PROJECT_ID.equal(projectId))
+                    .from(COMPONENT)
+                    .where(COMPONENT.PROJECT_ID.equal(projectId))
                     .and(transformator.getSearchCondition(pageable.getSearch()))
                     .asField("idCount");
 
             Field<Object> requirementCount = jooq.select(DSL.count())
-                    .from(Requirements.REQUIREMENTS)
-                    .leftJoin(Tags.TAGS).on(Requirements.REQUIREMENTS.ID.equal(Tags.TAGS.REQUIREMENTS_ID))
-                    .where(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
+                    .from(REQUIREMENT)
+                    .leftJoin(REQUIREMENT_COMPONENT_MAP).on(REQUIREMENT.ID.equal(REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID))
+                    .where(REQUIREMENT_COMPONENT_MAP.COMPONENT_ID.equal(COMPONENT.ID))
                     .asField("requirementCount");
 
             Field<Object> followerCount = jooq.select(DSL.count())
-                    .from(ComponentFollower.COMPONENT_FOLLOWER)
-                    .where(ComponentFollower.COMPONENT_FOLLOWER.COMPONENT_ID.equal(COMPONENTS.ID))
+                    .from(COMPONENT_FOLLOWER_MAP)
+                    .where(COMPONENT_FOLLOWER_MAP.COMPONENT_ID.equal(COMPONENT.ID))
                     .asField("followerCount");
 
-            List<Record> queryResults = jooq.select(COMPONENTS.fields())
+            List<Record> queryResults = jooq.select(COMPONENT.fields())
                     .select(idCount)
                     .select(requirementCount)
                     .select(followerCount)
                     .select(leaderUser.fields())
-                    .from(COMPONENTS)
-                    .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(COMPONENTS.LEADER_ID))
-                    .where(COMPONENTS.PROJECT_ID.equal(projectId))
+                    .from(COMPONENT)
+                    .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(COMPONENT.LEADER_ID))
+                    .where(COMPONENT.PROJECT_ID.equal(projectId))
                     .and(transformator.getSearchCondition(pageable.getSearch()))
                     .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
@@ -171,11 +176,11 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                     .fetch();
 
             for (Record queryResult : queryResults) {
-                ComponentsRecord componentsRecord = queryResult.into(COMPONENTS);
-                Component component = transformator.getEntityFromTableRecord(componentsRecord);
+                ComponentRecord componentRecord = queryResult.into(COMPONENT);
+                Component component = transformator.getEntityFromTableRecord(componentRecord);
                 UserTransformator userTransformator = new UserTransformator();
-                UsersRecord usersRecord = queryResult.into(leaderUser);
-                component.setLeader(userTransformator.getEntityFromTableRecord(usersRecord));
+                UserRecord userRecord = queryResult.into(leaderUser);
+                component.setLeader(userTransformator.getEntityFromTableRecord(userRecord));
                 component.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
                 component.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
                 components.add(component);
@@ -194,45 +199,45 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
         List<Component> components;
         try {
             components = new ArrayList<>();
-            Users leaderUser = Users.USERS.as("leaderUser");
+            de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User leaderUser = USER.as("leaderUser");
 
             Field<Object> idCount = jooq.selectCount()
-                    .from(COMPONENTS)
-                    .join(Tags.TAGS).on(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
-                    .where(Tags.TAGS.REQUIREMENTS_ID.equal(requirementId))
+                    .from(COMPONENT)
+                    .join(REQUIREMENT_COMPONENT_MAP).on(REQUIREMENT_COMPONENT_MAP.COMPONENT_ID.equal(COMPONENT.ID))
+                    .where(REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID.equal(requirementId))
                     .asField("idCount");
 
             Field<Object> requirementCount = jooq.select(DSL.count())
-                    .from(Requirements.REQUIREMENTS)
-                    .leftJoin(Tags.TAGS).on(Requirements.REQUIREMENTS.ID.equal(Tags.TAGS.REQUIREMENTS_ID))
-                    .where(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
+                    .from(REQUIREMENT)
+                    .leftJoin(REQUIREMENT_COMPONENT_MAP).on(REQUIREMENT.ID.equal(REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID))
+                    .where(REQUIREMENT_COMPONENT_MAP.COMPONENT_ID.equal(COMPONENT.ID))
                     .asField("requirementCount");
 
             Field<Object> followerCount = jooq.select(DSL.count())
-                    .from(ComponentFollower.COMPONENT_FOLLOWER)
-                    .where(ComponentFollower.COMPONENT_FOLLOWER.COMPONENT_ID.equal(COMPONENTS.ID))
+                    .from(COMPONENT_FOLLOWER_MAP)
+                    .where(COMPONENT_FOLLOWER_MAP.COMPONENT_ID.equal(COMPONENT.ID))
                     .asField("followerCount");
 
-            List<Record> queryResults = jooq.select(COMPONENTS.fields())
+            List<Record> queryResults = jooq.select(COMPONENT.fields())
                     .select(idCount)
                     .select(requirementCount)
                     .select(followerCount)
                     .select(leaderUser.fields())
-                    .from(COMPONENTS)
-                    .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(COMPONENTS.LEADER_ID))
-                    .leftOuterJoin(Tags.TAGS).on(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
-                    .where(Tags.TAGS.REQUIREMENTS_ID.equal(requirementId))
+                    .from(COMPONENT)
+                    .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(COMPONENT.LEADER_ID))
+                    .leftOuterJoin(REQUIREMENT_COMPONENT_MAP).on(REQUIREMENT_COMPONENT_MAP.COMPONENT_ID.equal(COMPONENT.ID))
+                    .where(REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID.equal(requirementId))
                     .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();
 
             for (Record queryResult : queryResults) {
-                ComponentsRecord componentsRecord = queryResult.into(COMPONENTS);
-                Component component = transformator.getEntityFromTableRecord(componentsRecord);
+                ComponentRecord componentRecord = queryResult.into(COMPONENT);
+                Component component = transformator.getEntityFromTableRecord(componentRecord);
                 UserTransformator userTransformator = new UserTransformator();
-                UsersRecord usersRecord = queryResult.into(leaderUser);
-                component.setLeader(userTransformator.getEntityFromTableRecord(usersRecord));
+                UserRecord userRecord = queryResult.into(leaderUser);
+                component.setLeader(userTransformator.getEntityFromTableRecord(userRecord));
                 component.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
                 component.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
                 components.add(component);
@@ -248,11 +253,10 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
     @Override
     public boolean belongsToPublicProject(int id) throws BazaarException {
         try {
-
             Integer countOfPublicProjects = jooq.selectCount()
                     .from(transformator.getTable())
-                    .join(Projects.PROJECTS).on(Projects.PROJECTS.ID.eq(COMPONENTS.PROJECT_ID))
-                    .where(transformator.getTableId().eq(id).and(Projects.PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar())))
+                    .join(PROJECT).on(PROJECT.ID.eq(COMPONENT.PROJECT_ID))
+                    .where(transformator.getTableId().eq(id).and(PROJECT.VISIBILITY.isTrue()))
                     .fetchOne(0, int.class);
 
             return (countOfPublicProjects == 1);
@@ -268,48 +272,48 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
         try {
             // If you want to change something here, please know what you are doing! Its SQL and even worse JOOQ :-|
             Record record1 = jooq
-                    .select(DSL.countDistinct(PROJECTS.ID).as("numberOfProjects"))
-                    .from(COMPONENTS)
-                    .leftJoin(Projects.PROJECTS).on(Projects.PROJECTS.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(Projects.PROJECTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
-                            .and(Projects.PROJECTS.ID.equal(COMPONENTS.PROJECT_ID)))
-                    .where(COMPONENTS.ID.eq(componentId))
+                    .select(DSL.countDistinct(PROJECT.ID).as("numberOfProjects"))
+                    .from(COMPONENT)
+                    .leftJoin(PROJECT).on(PROJECT.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(PROJECT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(PROJECT.ID.equal(COMPONENT.PROJECT_ID)))
+                    .where(COMPONENT.ID.eq(componentId))
                     .fetchOne();
 
             Record record2 = jooq
-                    .select(DSL.countDistinct(COMPONENTS.ID).as("numberOfComponents"))
-                    .from(COMPONENTS)
-                    .where(COMPONENTS.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(COMPONENTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
-                            .and(COMPONENTS.ID.eq(componentId)))
+                    .select(DSL.countDistinct(COMPONENT.ID).as("numberOfComponents"))
+                    .from(COMPONENT)
+                    .where(COMPONENT.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(COMPONENT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(COMPONENT.ID.eq(componentId)))
                     .fetchOne();
 
             Record record3 = jooq
-                    .select(DSL.countDistinct(Requirements.REQUIREMENTS.ID).as("numberOfRequirements"))
-                    .from(COMPONENTS)
-                    .leftJoin(Tags.TAGS).on(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
-                    .leftJoin(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(Requirements.REQUIREMENTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
-                            .and(Requirements.REQUIREMENTS.ID.equal(Tags.TAGS.REQUIREMENTS_ID)))
-                    .where(COMPONENTS.ID.eq(componentId))
+                    .select(DSL.countDistinct(REQUIREMENT.ID).as("numberOfRequirements"))
+                    .from(COMPONENT)
+                    .leftJoin(REQUIREMENT_COMPONENT_MAP).on(REQUIREMENT_COMPONENT_MAP.COMPONENT_ID.equal(COMPONENT.ID))
+                    .leftJoin(REQUIREMENT).on(REQUIREMENT.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(REQUIREMENT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(REQUIREMENT.ID.equal(REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID)))
+                    .where(COMPONENT.ID.eq(componentId))
                     .fetchOne();
 
             Record record4 = jooq
-                    .select(DSL.countDistinct(Comments.COMMENTS.ID).as("numberOfComments"))
-                    .select(DSL.countDistinct(Attachments.ATTACHMENTS.ID).as("numberOfAttachments"))
-                    .select(DSL.countDistinct(Votes.VOTES.ID).as("numberOfVotes"))
-                    .from(COMPONENTS)
-                    .leftJoin(Tags.TAGS).on(Tags.TAGS.COMPONENTS_ID.equal(COMPONENTS.ID))
-                    .leftJoin(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.ID.equal(Tags.TAGS.REQUIREMENTS_ID))
-                    .leftJoin(Comments.COMMENTS).on(Comments.COMMENTS.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(Comments.COMMENTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
-                            .and(Comments.COMMENTS.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID)))
-                    .leftJoin(Attachments.ATTACHMENTS).on(Attachments.ATTACHMENTS.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(Attachments.ATTACHMENTS.LASTUPDATED_TIME.greaterOrEqual(timestamp))
-                            .and(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID)))
-                    .leftJoin(Votes.VOTES).on(Votes.VOTES.CREATION_TIME.greaterOrEqual(timestamp)
-                            .and(Votes.VOTES.REQUIREMENT_ID.equal(Requirements.REQUIREMENTS.ID)))
-                    .where(COMPONENTS.ID.eq(componentId))
+                    .select(DSL.countDistinct(COMMENT.ID).as("numberOfComments"))
+                    .select(DSL.countDistinct(ATTACHMENT.ID).as("numberOfAttachments"))
+                    .select(DSL.countDistinct(VOTE.ID).as("numberOfVotes"))
+                    .from(COMPONENT)
+                    .leftJoin(REQUIREMENT_COMPONENT_MAP).on(REQUIREMENT_COMPONENT_MAP.COMPONENT_ID.equal(COMPONENT.ID))
+                    .leftJoin(REQUIREMENT).on(REQUIREMENT.ID.equal(REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID))
+                    .leftJoin(COMMENT).on(COMMENT.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(COMMENT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(COMMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
+                    .leftJoin(ATTACHMENT).on(ATTACHMENT.CREATION_TIME.greaterOrEqual(timestamp)
+                            .or(ATTACHMENT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                            .and(ATTACHMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
+                    .leftJoin(VOTE).on(VOTE.CREATION_TIME.greaterOrEqual(timestamp)
+                            .and(VOTE.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
+                    .where(COMPONENT.ID.eq(componentId))
                     .fetchOne();
 
             result = Statistic.getBuilder()

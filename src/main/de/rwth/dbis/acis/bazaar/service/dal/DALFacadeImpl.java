@@ -50,13 +50,13 @@ public class DALFacadeImpl implements DALFacade {
     private AttachmentRepository attachmentRepository;
     private CommentRepository commentRepository;
     private ComponentRepository componentRepository;
-    private DeveloperRepository developerRepository;
+    private RequirementDeveloperRepository developerRepository;
     private ProjectFollowerRepository projectFollowerRepository;
     private ComponentFollowerRepository componentFollowerRepository;
     private RequirementFollowerRepository requirementFollowerRepository;
     private ProjectRepository projectRepository;
     private RequirementRepository requirementRepository;
-    private TagRepository tagRepository;
+    private RequirementComponentRepository tagRepository;
     private UserRepository userRepository;
     private VoteRepostitory voteRepostitory;
     private RoleRepostitory roleRepostitory;
@@ -492,8 +492,8 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public CreationStatus wantToDevelop(int userId, int requirementId) throws BazaarException {
-        developerRepository = (developerRepository != null) ? developerRepository : new DeveloperRepositoryImpl(dslContext);
-        return developerRepository.addOrUpdate(Developer.getBuilder()
+        developerRepository = (developerRepository != null) ? developerRepository : new RequirementDeveloperRepositoryImpl(dslContext);
+        return developerRepository.addOrUpdate(RequirementDeveloper.getBuilder()
                 .requirementId(requirementId)
                 .userId(userId)
                 .build()
@@ -502,15 +502,15 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public void notWantToDevelop(int userId, int requirementId) throws BazaarException {
-        developerRepository = (developerRepository != null) ? developerRepository : new DeveloperRepositoryImpl(dslContext);
+        developerRepository = (developerRepository != null) ? developerRepository : new RequirementDeveloperRepositoryImpl(dslContext);
         developerRepository.delete(userId, requirementId);
     }
 
 
     @Override
     public void addComponentTag(int requirementId, int componentId) throws BazaarException {
-        tagRepository = (tagRepository != null) ? tagRepository : new TagRepositoryImpl(dslContext);
-        tagRepository.add(Tag.getBuilder(componentId)
+        tagRepository = (tagRepository != null) ? tagRepository : new RequirementComponentRepositoryImpl(dslContext);
+        tagRepository.add(RequirementComponent.getBuilder(componentId)
                 .requirementId(requirementId)
                 .build()
         );
@@ -518,7 +518,7 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public void deleteComponentTag(int requirementId, int componentId) throws BazaarException {
-        tagRepository = (tagRepository != null) ? tagRepository : new TagRepositoryImpl(dslContext);
+        tagRepository = (tagRepository != null) ? tagRepository : new RequirementComponentRepositoryImpl(dslContext);
         tagRepository.delete(requirementId, componentId);
     }
 

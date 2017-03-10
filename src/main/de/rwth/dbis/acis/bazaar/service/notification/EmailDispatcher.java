@@ -103,7 +103,7 @@ public class EmailDispatcher {
                         bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.requirement.realized");
                     }
                     RequirementEx requirement = dalFacade.getRequirementById(dataId, userId);
-                    objectName = requirement.getTitle();
+                    objectName = requirement.getName();
                     resourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "components" + "/" +
                             requirement.getComponents().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(dataId);
                 } else if (dataType == Activity.DataType.COMMENT) {
@@ -116,7 +116,7 @@ public class EmailDispatcher {
                     }
                     Comment comment = dalFacade.getCommentById(dataId);
                     RequirementEx requirement = dalFacade.getRequirementById(comment.getRequirementId(), userId);
-                    objectName = requirement.getTitle();
+                    objectName = requirement.getName();
                     resourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "components" + "/" +
                             requirement.getComponents().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
                 }

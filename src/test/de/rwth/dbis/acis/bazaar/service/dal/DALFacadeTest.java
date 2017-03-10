@@ -290,7 +290,7 @@
 //        assertEquals(1,requirement.getCreatorId());
 //        assertEquals(1,requirement.getLeadDeveloperId());
 //        assertEquals(1,requirement.getProjectId());
-//        assertEquals("Req1",requirement.getTitle());
+//        assertEquals("Req1",requirement.getName());
 //        assertEquals("ReqDesc1",requirement.getDescription());
 //
 //        requirements = facade.listRequirements(new PageInfo(1, 2));
@@ -319,7 +319,7 @@
 //        assertEquals(1,requirement2.getCreatorId());
 //        assertEquals(1,requirement2.getLeadDeveloperId());
 //        assertEquals(2,requirement2.getProjectId());
-//        assertEquals("Req2",requirement2.getTitle());
+//        assertEquals("Req2",requirement2.getName());
 //        assertEquals("ReqDesc2",requirement2.getDescription());
 //
 //
@@ -337,7 +337,7 @@
 //        assertEquals(1,requirement2.getCreatorId());
 //        assertEquals(1,requirement2.getLeadDeveloperId());
 //        assertEquals(2,requirement2.getProjectId());
-//        assertEquals("Req2",requirement2.getTitle());
+//        assertEquals("Req2",requirement2.getName());
 //        assertEquals("ReqDesc2",requirement2.getDescription());
 //
 //    }
@@ -354,7 +354,7 @@
 //        assertEquals(1,requirement2.getCreatorId());
 //        assertEquals(1,requirement2.getLeadDeveloperId());
 //        assertEquals(2,requirement2.getProjectId());
-//        assertEquals("Req2",requirement2.getTitle());
+//        assertEquals("Req2",requirement2.getName());
 //        assertEquals("ReqDesc2",requirement2.getDescription());
 //    }
 //
@@ -372,7 +372,7 @@
 //        assertEquals("Elek",requirement.getLeadDeveloper().getFirstName());
 //
 //        assertEquals(2,requirement.getProjectId());
-//        assertEquals("Req2",requirement.getTitle());
+//        assertEquals("Req2",requirement.getName());
 //        assertEquals("ReqDesc2",requirement.getDescription());
 //
 //        List<Attachment> attachments = requirement.getAttachments();
@@ -415,7 +415,7 @@
 //            RequirementEx requirementById = facade.getRequirementById(createdRequirementId);
 //
 //            assertEquals(requirement.getId(), requirementById.getId());
-//            assertEquals(requirement.getTitle(), requirementById.getTitle());
+//            assertEquals(requirement.getName(), requirementById.getName());
 //            assertEquals(requirement.getDescription(), requirementById.getDescription());
 //            assertEquals(requirement.getCreatorId(), requirementById.getCreatorId());
 //            assertEquals(requirement.getLeadDeveloperId(), requirementById.getLeadDeveloperId());

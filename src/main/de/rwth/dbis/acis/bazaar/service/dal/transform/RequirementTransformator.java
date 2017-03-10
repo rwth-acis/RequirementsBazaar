@@ -23,25 +23,25 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 import com.vdurmont.emoji.EmojiParser;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Votes;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementRecord;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementFollower.REQUIREMENT_FOLLOWER;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements.REQUIREMENTS;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment.COMMENT;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementFollowerMap.REQUIREMENT_FOLLOWER_MAP;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirement.REQUIREMENT;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Vote.VOTE;
 
-public class RequirementTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementsRecord> {
+public class RequirementTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementRecord> {
     @Override
-    public RequirementsRecord createRecord(Requirement entry) {
+    public RequirementRecord createRecord(Requirement entry) {
         entry = this.cleanEntity(entry);
 
-        RequirementsRecord record = new RequirementsRecord();
+        RequirementRecord record = new RequirementRecord();
         record.setDescription(entry.getDescription());
-        record.setTitle(entry.getTitle());
+        record.setName(entry.getName());
         record.setCreationTime(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         record.setLastupdatedTime(record.getCreationTime());
         record.setCreatorId(entry.getCreatorId());
@@ -50,8 +50,8 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
         return record;
     }
 
-    public Requirement.Builder mapToEntityBuilder(RequirementsRecord record) {
-        return Requirement.getBuilder(record.getTitle())
+    public Requirement.Builder mapToEntityBuilder(RequirementRecord record) {
+        return Requirement.getBuilder(record.getName())
                 .description(record.getDescription())
                 .id(record.getId())
                 .realized(record.getRealized())
@@ -62,38 +62,38 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
     }
 
     @Override
-    public Requirement getEntityFromTableRecord(RequirementsRecord record) {
+    public Requirement getEntityFromTableRecord(RequirementRecord record) {
         return mapToEntityBuilder(record)
                 .build();
     }
 
     @Override
-    public Table<RequirementsRecord> getTable() {
-        return REQUIREMENTS;
+    public Table<RequirementRecord> getTable() {
+        return REQUIREMENT;
     }
 
     @Override
-    public TableField<RequirementsRecord, Integer> getTableId() {
-        return REQUIREMENTS.ID;
+    public TableField<RequirementRecord, Integer> getTableId() {
+        return REQUIREMENT.ID;
     }
 
     @Override
-    public Class<? extends RequirementsRecord> getRecordClass() {
-        return RequirementsRecord.class;
+    public Class<? extends RequirementRecord> getRecordClass() {
+        return RequirementRecord.class;
     }
 
     @Override
     public Map<Field, Object> getUpdateMap(final Requirement entry) {
         HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
             if (entry.getDescription() != null) {
-                put(REQUIREMENTS.DESCRIPTION, entry.getDescription());
+                put(REQUIREMENT.DESCRIPTION, entry.getDescription());
             }
-            if (entry.getTitle() != null) {
-                put(REQUIREMENTS.TITLE, entry.getTitle());
+            if (entry.getName() != null) {
+                put(REQUIREMENT.NAME, entry.getName());
             }
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(REQUIREMENTS.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+            updateMap.put(REQUIREMENT.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         }
         return updateMap;
     }
@@ -101,39 +101,39 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(REQUIREMENTS.CREATION_TIME.desc());
+            return Arrays.asList(REQUIREMENT.CREATION_TIME.desc());
         }
         List<SortField<?>> sortFields = new ArrayList<>();
         for (Pageable.SortField sort : sorts) {
             if (sort.getField().equals("date")) {
                 switch (sort.getSortDirection()) {
                     case ASC:
-                        sortFields.add(REQUIREMENTS.CREATION_TIME.asc());
+                        sortFields.add(REQUIREMENT.CREATION_TIME.asc());
                         break;
                     case DESC:
-                        sortFields.add(REQUIREMENTS.CREATION_TIME.desc());
+                        sortFields.add(REQUIREMENT.CREATION_TIME.desc());
                         break;
                     default:
-                        sortFields.add(REQUIREMENTS.CREATION_TIME.desc());
+                        sortFields.add(REQUIREMENT.CREATION_TIME.desc());
                         break;
                 }
-            } else if (sort.getField().equals("title")) {
+            } else if (sort.getField().equals("name")) {
                 switch (sort.getSortDirection()) {
                     case ASC:
-                        sortFields.add(REQUIREMENTS.TITLE.asc());
+                        sortFields.add(REQUIREMENT.NAME.asc());
                         break;
                     case DESC:
-                        sortFields.add(REQUIREMENTS.TITLE.desc());
+                        sortFields.add(REQUIREMENT.NAME.desc());
                         break;
                     default:
-                        sortFields.add(REQUIREMENTS.TITLE.asc());
+                        sortFields.add(REQUIREMENT.NAME.asc());
                         break;
                 }
             } else if (sort.getField().equals("vote")) {
 
-                Field<Object> voteCount = DSL.select(DSL.count(DSL.nullif(Votes.VOTES.IS_UPVOTE, 0)))
-                        .from(Votes.VOTES)
-                        .where(Votes.VOTES.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                Field<Object> voteCount = DSL.select(DSL.count(DSL.nullif(VOTE.IS_UPVOTE, 0)))
+                        .from(VOTE)
+                        .where(VOTE.REQUIREMENT_ID.equal(REQUIREMENT.ID))
                         .asField("voteCount");
 
                 switch (sort.getSortDirection()) {
@@ -150,8 +150,8 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
             } else if (sort.getField().equals("comment")) {
 
                 Field<Object> commentCount = DSL.select(DSL.count())
-                        .from(Comments.COMMENTS)
-                        .where(Comments.COMMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                        .from(COMMENT)
+                        .where(COMMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
                         .asField("commentCount");
 
                 switch (sort.getSortDirection()) {
@@ -168,8 +168,8 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
             } else if (sort.getField().equals("follower")) {
 
                 Field<Object> followerCount = DSL.select(DSL.count())
-                        .from(REQUIREMENT_FOLLOWER)
-                        .where(REQUIREMENT_FOLLOWER.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
+                        .from(REQUIREMENT_FOLLOWER_MAP)
+                        .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
                         .asField("followerCount");
 
                 switch (sort.getSortDirection()) {
@@ -186,13 +186,13 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
             } else if (sort.getField().equals("realized")) {
                 switch (sort.getSortDirection()) {
                     case ASC:
-                        sortFields.add(REQUIREMENTS.REALIZED.asc());
+                        sortFields.add(REQUIREMENT.REALIZED.asc());
                         break;
                     case DESC:
-                        sortFields.add(REQUIREMENTS.REALIZED.desc());
+                        sortFields.add(REQUIREMENT.REALIZED.desc());
                         break;
                     default:
-                        sortFields.add(REQUIREMENTS.REALIZED.desc());
+                        sortFields.add(REQUIREMENT.REALIZED.desc());
                         break;
                 }
             }
@@ -202,8 +202,8 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
 
     @Override
     public Condition getSearchCondition(String search) throws Exception {
-        return REQUIREMENTS.TITLE.likeIgnoreCase("%" + search + "%")
-                .or(REQUIREMENTS.DESCRIPTION.likeIgnoreCase("%" + search + "%"));
+        return REQUIREMENT.NAME.likeIgnoreCase("%" + search + "%")
+                .or(REQUIREMENT.DESCRIPTION.likeIgnoreCase("%" + search + "%"));
     }
 
     @Override
@@ -212,10 +212,10 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
         for (Map.Entry<String, String> filterEntry : filters.entrySet()) {
             if (filterEntry.getKey().equals("realized")) {
                 if (filterEntry.getValue().equals("realized")) {
-                    conditions.add(REQUIREMENTS.REALIZED.isNotNull());
+                    conditions.add(REQUIREMENT.REALIZED.isNotNull());
                 }
                 if (filterEntry.getValue().equals("open")) {
-                    conditions.add(REQUIREMENTS.REALIZED.isNull());
+                    conditions.add(REQUIREMENT.REALIZED.isNull());
                 }
             }
         }
@@ -223,8 +223,8 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
     }
 
     public Requirement cleanEntity(Requirement requirement) {
-        if (requirement.getTitle() != null) {
-            requirement.setTitle(EmojiParser.parseToAliases(requirement.getTitle()));
+        if (requirement.getName() != null) {
+            requirement.setName(EmojiParser.parseToAliases(requirement.getName()));
         }
         if (requirement.getDescription() != null) {
             requirement.setDescription(EmojiParser.parseToAliases(requirement.getDescription()));

@@ -2,24 +2,24 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.ComponentFollower;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentFollowerRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentFollowerMapRecord;
 import org.jooq.*;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ComponentFollower.COMPONENT_FOLLOWER;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ComponentFollowerMap.COMPONENT_FOLLOWER_MAP;
 
-public class ComponentFollowerTransformator implements Transformator<ComponentFollower, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentFollowerRecord> {
+public class ComponentFollowerTransformator implements Transformator<ComponentFollower, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentFollowerMapRecord> {
     @Override
-    public ComponentFollowerRecord createRecord(ComponentFollower entity) {
-        ComponentFollowerRecord record = new ComponentFollowerRecord();
+    public ComponentFollowerMapRecord createRecord(ComponentFollower entity) {
+        ComponentFollowerMapRecord record = new ComponentFollowerMapRecord();
         record.setComponentId(entity.getComponentId());
         record.setUserId(entity.getUserId());
         return record;
     }
 
     @Override
-    public ComponentFollower getEntityFromTableRecord(ComponentFollowerRecord record) {
+    public ComponentFollower getEntityFromTableRecord(ComponentFollowerMapRecord record) {
         return ComponentFollower.getBuilder()
                 .id(record.getId())
                 .userId(record.getUserId())
@@ -28,32 +28,32 @@ public class ComponentFollowerTransformator implements Transformator<ComponentFo
     }
 
     @Override
-    public Table<ComponentFollowerRecord> getTable() {
-        return COMPONENT_FOLLOWER;
+    public Table<ComponentFollowerMapRecord> getTable() {
+        return COMPONENT_FOLLOWER_MAP;
     }
 
     @Override
-    public TableField<ComponentFollowerRecord, Integer> getTableId() {
-        return COMPONENT_FOLLOWER.ID;
+    public TableField<ComponentFollowerMapRecord, Integer> getTableId() {
+        return COMPONENT_FOLLOWER_MAP.ID;
     }
 
     @Override
-    public Class<? extends ComponentFollowerRecord> getRecordClass() {
-        return ComponentFollowerRecord.class;
+    public Class<? extends ComponentFollowerMapRecord> getRecordClass() {
+        return ComponentFollowerMapRecord.class;
     }
 
     @Override
     public Map<Field, Object> getUpdateMap(final ComponentFollower entity) {
         return new HashMap<Field, Object>() {{
-            put(COMPONENT_FOLLOWER.COMPONENT_ID, entity.getComponentId());
-            put(COMPONENT_FOLLOWER.USER_ID, entity.getUserId());
+            put(COMPONENT_FOLLOWER_MAP.COMPONENT_ID, entity.getComponentId());
+            put(COMPONENT_FOLLOWER_MAP.USER_ID, entity.getUserId());
         }};
     }
 
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(COMPONENT_FOLLOWER.ID.asc());
+            return Arrays.asList(COMPONENT_FOLLOWER_MAP.ID.asc());
         }
         return null;
     }

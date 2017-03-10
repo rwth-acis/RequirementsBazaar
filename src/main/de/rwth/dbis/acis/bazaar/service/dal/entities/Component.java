@@ -159,8 +159,8 @@ public class Component extends EntityBase {
         public int leaderId;
         public List<User> followers;
 
-        public Builder(String title) {
-            this.name = title;
+        public Builder(String name) {
+            this.name = name;
         }
 
         public Builder description(String description) {
