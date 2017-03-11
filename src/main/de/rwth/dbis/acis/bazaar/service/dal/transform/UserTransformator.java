@@ -27,7 +27,7 @@ import org.jooq.*;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User.USER;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.USER;
 
 public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.User, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRecord> {
     @Override

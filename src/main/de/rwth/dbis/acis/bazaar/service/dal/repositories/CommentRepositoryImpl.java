@@ -23,8 +23,6 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Project;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRecord;
@@ -42,8 +40,7 @@ import org.jooq.exception.DataAccessException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment.COMMENT;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User.USER;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
 
 public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord> implements CommentRepository {
 
@@ -145,9 +142,9 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord
         try {
             Integer countOfPublicProjects = jooq.selectCount()
                     .from(transformator.getTable())
-                    .join(Requirement.REQUIREMENT).on(Requirement.REQUIREMENT.ID.eq(COMMENT.REQUIREMENT_ID))
-                    .join(Project.PROJECT).on(Project.PROJECT.ID.eq(Requirement.REQUIREMENT.PROJECT_ID))
-                    .where(transformator.getTableId().eq(id).and(Project.PROJECT.VISIBILITY.isTrue()))
+                    .join(REQUIREMENT).on(REQUIREMENT.ID.eq(COMMENT.REQUIREMENT_ID))
+                    .join(PROJECT).on(PROJECT.ID.eq(REQUIREMENT.PROJECT_ID))
+                    .where(transformator.getTableId().eq(id).and(PROJECT.VISIBILITY.isTrue()))
                     .fetchOne(0, int.class);
 
             return (countOfPublicProjects == 1);

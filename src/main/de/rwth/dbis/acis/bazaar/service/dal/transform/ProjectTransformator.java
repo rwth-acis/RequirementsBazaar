@@ -29,9 +29,9 @@ import org.jooq.impl.DSL;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirement.REQUIREMENT;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Project.PROJECT;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ProjectFollowerMap.PROJECT_FOLLOWER_MAP;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.REQUIREMENT;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.PROJECT;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.PROJECT_FOLLOWER_MAP;
 
 public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Project, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectRecord> {
 

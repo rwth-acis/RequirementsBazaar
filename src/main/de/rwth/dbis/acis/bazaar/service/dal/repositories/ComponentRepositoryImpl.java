@@ -46,15 +46,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Component.COMPONENT;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ComponentFollowerMap.COMPONENT_FOLLOWER_MAP;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Project.PROJECT;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirement.REQUIREMENT;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementComponentMap.REQUIREMENT_COMPONENT_MAP;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User.USER;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Vote.VOTE;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment.COMMENT;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachment.ATTACHMENT;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
 
 public class ComponentRepositoryImpl extends RepositoryImpl<Component, ComponentRecord> implements ComponentRepository {
     /**

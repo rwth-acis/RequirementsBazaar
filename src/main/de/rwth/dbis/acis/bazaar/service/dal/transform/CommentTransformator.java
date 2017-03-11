@@ -29,7 +29,7 @@ import org.jooq.*;
 import java.sql.Timestamp;
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment.COMMENT;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.COMMENT;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>

@@ -38,11 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Role.ROLE;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RoleRoleMap.ROLE_ROLE_MAP;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privilege.PRIVILEGE;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.UserRoleMap.USER_ROLE_MAP;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RolePrivilegeMap.ROLE_PRIVILEGE_MAP;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -125,7 +121,7 @@ public class RoleRepostitoryImpl extends RepositoryImpl<Role, RoleRecord> implem
             ).where(ROLE_ROLE_MAP.CHILD_ID.equal(roleId)).fetch();
 
             if (queryResult != null && !queryResult.isEmpty()) {
-                roles = new ArrayList<Role>();
+                roles = new ArrayList<>();
                 convertToRoles(roles, roleTable, privilegeTable, queryResult);
             }
 
@@ -141,7 +137,7 @@ public class RoleRepostitoryImpl extends RepositoryImpl<Role, RoleRecord> implem
             if (entry.getKey() == null) continue;
             Result<Record> records = entry.getValue();
 
-            List<Privilege> rolesToAddPrivileges = new ArrayList<Privilege>();
+            List<Privilege> rolesToAddPrivileges = new ArrayList<>();
 
             for (Map.Entry<Integer, Result<Record>> priviligeEntry : records.intoGroups(privilegeTable.ID).entrySet()) {
                 if (priviligeEntry.getKey() == null) continue;
@@ -152,7 +148,6 @@ public class RoleRepostitoryImpl extends RepositoryImpl<Role, RoleRecord> implem
                         .build();
                 rolesToAddPrivileges.add(privilege);
             }
-
 
             Role roleToAdd = Role.getBuilder(records.getValues(roleTable.NAME).get(0))
                     .id(records.getValues(roleTable.ID).get(0))

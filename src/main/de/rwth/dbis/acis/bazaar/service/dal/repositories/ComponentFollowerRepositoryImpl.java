@@ -11,7 +11,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ComponentFollowerMap.COMPONENT_FOLLOWER_MAP;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.COMPONENT_FOLLOWER_MAP;
 
 public class ComponentFollowerRepositoryImpl extends RepositoryImpl<ComponentFollower, ComponentFollowerMapRecord> implements ComponentFollowerRepository {
 

@@ -32,7 +32,7 @@ import org.jooq.impl.DSL;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Component.COMPONENT;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.COMPONENT;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>

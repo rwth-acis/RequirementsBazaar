@@ -31,7 +31,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementDeveloperMap.REQUIREMENT_DEVELOPER_MAP;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.REQUIREMENT_DEVELOPER_MAP;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>

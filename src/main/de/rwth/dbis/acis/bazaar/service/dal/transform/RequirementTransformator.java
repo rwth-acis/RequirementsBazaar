@@ -29,10 +29,7 @@ import org.jooq.impl.DSL;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment.COMMENT;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementFollowerMap.REQUIREMENT_FOLLOWER_MAP;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirement.REQUIREMENT;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Vote.VOTE;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
 
 public class RequirementTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementRecord> {
     @Override

@@ -27,7 +27,7 @@ import org.jooq.*;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Vote.VOTE;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.VOTE;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>

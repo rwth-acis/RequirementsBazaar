@@ -27,7 +27,7 @@ import org.jooq.*;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementComponentMap.REQUIREMENT_COMPONENT_MAP;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.REQUIREMENT_COMPONENT_MAP;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>

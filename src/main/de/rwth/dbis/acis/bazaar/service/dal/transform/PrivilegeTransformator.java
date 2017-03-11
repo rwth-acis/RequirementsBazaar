@@ -27,8 +27,8 @@ import org.jooq.*;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privilege.PRIVILEGE;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Role.ROLE;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.PRIVILEGE;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.ROLE;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>

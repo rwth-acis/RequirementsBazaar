@@ -29,7 +29,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privilege.PRIVILEGE;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.PRIVILEGE;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>

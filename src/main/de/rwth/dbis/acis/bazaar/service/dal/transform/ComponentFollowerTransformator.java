@@ -7,7 +7,7 @@ import org.jooq.*;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ComponentFollowerMap.COMPONENT_FOLLOWER_MAP;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.COMPONENT_FOLLOWER_MAP;
 
 public class ComponentFollowerTransformator implements Transformator<ComponentFollower, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentFollowerMapRecord> {
     @Override

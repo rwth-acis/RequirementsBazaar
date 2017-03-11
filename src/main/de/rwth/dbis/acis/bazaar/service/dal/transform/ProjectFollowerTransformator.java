@@ -7,7 +7,7 @@ import org.jooq.*;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ProjectFollowerMap.PROJECT_FOLLOWER_MAP;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.PROJECT_FOLLOWER_MAP;
 
 
 public class ProjectFollowerTransformator implements Transformator<ProjectFollower, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectFollowerMapRecord> {
