@@ -366,6 +366,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .leftOuterJoin(votes).on(votes.REQUIREMENT_ID.eq(REQUIREMENTS.ID))
                     .leftOuterJoin(userVotes).on(userVotes.REQUIREMENT_ID.eq(REQUIREMENTS.ID).and(userVotes.USER_ID.eq(userId)))
                     .where(transformator.getTableId().equal(id))
+                    .groupBy(userVotes.IS_UPVOTE)
                     .fetch();
 
             builder.upVotes(voteQueryResult.get(0).getValue("upVotes", Integer.class));
