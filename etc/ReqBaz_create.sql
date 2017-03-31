@@ -2,10 +2,10 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 CREATE DATABASE IF NOT EXISTS reqbaz;
 
-DROP TABLE IF EXISTS reqbaz.attachment, reqbaz.comment, reqbaz.component,
-reqbaz.requirement_developer_map, reqbaz.requirement_follower_map, reqbaz.component_follower_map,
+DROP TABLE IF EXISTS reqbaz.attachment, reqbaz.comment, reqbaz.category,
+reqbaz.requirement_developer_map, reqbaz.requirement_follower_map, reqbaz.category_follower_map,
 reqbaz.project_follower_map, reqbaz.privilege, reqbaz.project, reqbaz.requirement,
-reqbaz.requirement_component_map, reqbaz.role_privilege_map, reqbaz.role_role_map,
+reqbaz.requirement_category_map, reqbaz.role_privilege_map, reqbaz.role_role_map,
 reqbaz.role, reqbaz.user_role_map, reqbaz.vote;
 
 -- tables
@@ -43,8 +43,8 @@ CREATE TABLE IF NOT EXISTS reqbaz.comment (
   CONSTRAINT reply_comment FOREIGN KEY reply_comment (reply_to_comment_id) REFERENCES comment (id)
 );
 
--- Table component
-CREATE TABLE IF NOT EXISTS reqbaz.component (
+-- Table category
+CREATE TABLE IF NOT EXISTS reqbaz.category (
   id                INT          NOT NULL  AUTO_INCREMENT,
   name              VARCHAR(255) NOT NULL,
   description       TEXT         NOT NULL,
@@ -52,9 +52,9 @@ CREATE TABLE IF NOT EXISTS reqbaz.component (
   last_updated_date TIMESTAMP    NULL,
   project_id        INT          NOT NULL,
   leader_id         INT          NOT NULL,
-  CONSTRAINT component_pk PRIMARY KEY (id),
-  CONSTRAINT component_project FOREIGN KEY component_project (project_id) REFERENCES project (id),
-  CONSTRAINT component_user FOREIGN KEY component_user (leader_id) REFERENCES user (id)
+  CONSTRAINT category_pk PRIMARY KEY (id),
+  CONSTRAINT category_project FOREIGN KEY category_project (project_id) REFERENCES project (id),
+  CONSTRAINT category_user FOREIGN KEY category_user (leader_id) REFERENCES user (id)
 );
 
 -- Table requirement_developer_map
@@ -81,16 +81,16 @@ CREATE TABLE IF NOT EXISTS reqbaz.requirement_follower_map (
   CONSTRAINT requirement_follower_map_user FOREIGN KEY requirement_follower_user (user_id) REFERENCES user (id)
 );
 
--- Table component_follower_map
-CREATE TABLE IF NOT EXISTS reqbaz.component_follower_map (
+-- Table category_follower_map
+CREATE TABLE IF NOT EXISTS reqbaz.category_follower_map (
   id            INT       NOT NULL  AUTO_INCREMENT,
-  component_id  INT       NOT NULL,
+  category_id   INT       NOT NULL,
   user_id       INT       NOT NULL,
   creation_date TIMESTAMP NOT NULL  DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT component_follower_map_pk PRIMARY KEY (id),
-  CONSTRAINT component_follower_map_component FOREIGN KEY component_follower_map_component (component_id) REFERENCES component (id)
+  CONSTRAINT category_follower_map_pk PRIMARY KEY (id),
+  CONSTRAINT category_follower_map_category FOREIGN KEY category_follower_map_category (category_id) REFERENCES category (id)
     ON DELETE CASCADE,
-  CONSTRAINT component_follower_map_user FOREIGN KEY component_follower_map_user (user_id) REFERENCES user (id)
+  CONSTRAINT category_follower_map_user FOREIGN KEY category_follower_map_user (user_id) REFERENCES user (id)
 );
 
 -- Table project_follower_map
@@ -114,16 +114,16 @@ CREATE TABLE IF NOT EXISTS reqbaz.privilege (
 
 -- Table project
 CREATE TABLE IF NOT EXISTS reqbaz.project (
-  id                   INT          NOT NULL  AUTO_INCREMENT,
-  name                 VARCHAR(255) NOT NULL,
-  description          TEXT         NOT NULL,
-  visibility           BOOLEAN      NOT NULL,
-  creation_date        TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP,
-  last_updated_date    TIMESTAMP    NULL,
-  leader_id            INT          NOT NULL,
-  default_component_id INT          NULL,
+  id                  INT          NOT NULL  AUTO_INCREMENT,
+  name                VARCHAR(255) NOT NULL,
+  description         TEXT         NOT NULL,
+  visibility          BOOLEAN      NOT NULL,
+  creation_date       TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+  last_updated_date   TIMESTAMP    NULL,
+  leader_id           INT          NOT NULL,
+  default_category_id INT          NULL,
   CONSTRAINT project_pk PRIMARY KEY (id),
-  CONSTRAINT project_component FOREIGN KEY project_component (default_component_id) REFERENCES component (id),
+  CONSTRAINT project_category FOREIGN KEY project_category (default_category_id) REFERENCES category (id),
   CONSTRAINT project_user FOREIGN KEY project_user (leader_id) REFERENCES user (id)
 );
 
@@ -144,14 +144,14 @@ CREATE TABLE IF NOT EXISTS reqbaz.requirement (
   CONSTRAINT requirement_project FOREIGN KEY requirement_project (project_id) REFERENCES project (id)
 );
 
--- Table requirement_component_map
-CREATE TABLE IF NOT EXISTS reqbaz.requirement_component_map (
+-- Table requirement_category_map
+CREATE TABLE IF NOT EXISTS reqbaz.requirement_category_map (
   id             INT NOT NULL  AUTO_INCREMENT,
-  component_id   INT NOT NULL,
+  category_id    INT NOT NULL,
   requirement_id INT NOT NULL,
-  CONSTRAINT requirement_component_map_pk PRIMARY KEY (id),
-  CONSTRAINT requirement_component_map_component FOREIGN KEY requirement_component_map_component (component_id) REFERENCES component (id),
-  CONSTRAINT requirement_component_map_requirement FOREIGN KEY requirement_component_map_requirement (requirement_id) REFERENCES requirement (id)
+  CONSTRAINT requirement_category_map_pk PRIMARY KEY (id),
+  CONSTRAINT requirement_category_map_category FOREIGN KEY requirement_category_map_category (category_id) REFERENCES category (id),
+  CONSTRAINT requirement_category_map_requirement FOREIGN KEY requirement_category_map_requirement (requirement_id) REFERENCES requirement (id)
     ON DELETE CASCADE
 );
 

@@ -2,11 +2,11 @@ SET FOREIGN_KEY_CHECKS = 0;
 
 TRUNCATE TABLE reqbaz.user;
 TRUNCATE TABLE reqbaz.project;
-TRUNCATE TABLE reqbaz.component;
+TRUNCATE TABLE reqbaz.category;
 TRUNCATE TABLE reqbaz.requirement;
-TRUNCATE TABLE reqbaz.requirement_component_map;
+TRUNCATE TABLE reqbaz.requirement_category_map;
 TRUNCATE TABLE reqbaz.project_follower_map;
-TRUNCATE TABLE reqbaz.component_follower_map;
+TRUNCATE TABLE reqbaz.category_follower_map;
 TRUNCATE TABLE reqbaz.requirement_follower_map;
 TRUNCATE TABLE reqbaz.requirement_developer_map;
 TRUNCATE TABLE reqbaz.comment;
@@ -33,7 +33,7 @@ VALUES
    0, 0);
 
 REPLACE INTO reqbaz.project
-(id, name, description, visibility, leader_id, default_component_id)
+(id, name, description, visibility, leader_id, default_category_id)
 VALUES
   (1, 'Project 1 - public', 'Project 1 - This project is public - Leader MaxMustermann1', true, 2,
    '1'),
@@ -42,29 +42,29 @@ VALUES
   (3, 'Project 3 - private', 'Project 3 - This project is private - Leader MaxMustermann3', false, 4,
    5);
 
-REPLACE INTO reqbaz.component
+REPLACE INTO reqbaz.category
 (id, name, description, project_id, leader_id)
 VALUES
-  (1, 'Component 1', 'Component 1 - 1. Component of Project 1', '1 ', 2),
-  (2, 'Component 2', 'Component 2 - 2. Component of Project 1', 1, 2),
-  (3, 'Component 3', 'Component 3 - 3. Component of Project 1', 1, 3),
-  (4, 'Component 4', 'Component 4 - 1. Component of Project 2', 2, 4),
-  (5, 'Component 5', 'Component 5 - 1. Component of Project 3', 3, 4);
+  (1, 'Category 1', 'Category 1 - 1. Category of Project 1', '1 ', 2),
+  (2, 'Category 2', 'Category 2 - 2. Category of Project 1', 1, 2),
+  (3, 'Category 3', 'Category 3 - 3. Category of Project 1', 1, 3),
+  (4, 'Category 4', 'Category 4 - 1. Category of Project 2', 2, 4),
+  (5, 'Category 5', 'Category 5 - 1. Category of Project 3', 3, 4);
 
 REPLACE INTO reqbaz.requirement
 (id, name, description, realized, lead_developer_id, creator_id, project_id)
 VALUES
-  (1, 'Requirement 1', 'Requirement 1 - 1. Requirement of Component 1', NULL, 1, 1, 1),
-  (2, 'Requirement 2', 'Requirement 2 - 2. Requirement of Component 1', NULL, NULL, 2, 1),
-  (3, 'Requirement 3', 'Requirement 3 - 1. Requirement of Component 2', NULL, 2, 3, 1),
-  (4, 'Requirement 4', 'Requirement 4 - 1. Requirement of Component 3', NULL, NULL, 4, 1),
-  (5, 'Requirement 5 - realized', 'Requirement 5 - 1. realized Requirement of Component 3', NOW(), 2, 4, 1),
-  (6, 'Requirement 6 - realized', 'Requirement 6 - 1. Requirement of Component 4', NOW(), NULL, 4, 2),
-  (7, 'Requirement 7', 'Requirement 7 - 1. Requirement of Component 5', NULL, NULL, 4, 5),
-  (8, 'Requirement 8', 'Requirement 8 - 3. Requirement of Component 1 and 2. of Component 2', NULL, 2, 4, 1);
+  (1, 'Requirement 1', 'Requirement 1 - 1. Requirement of Category 1', NULL, 1, 1, 1),
+  (2, 'Requirement 2', 'Requirement 2 - 2. Requirement of Category 1', NULL, NULL, 2, 1),
+  (3, 'Requirement 3', 'Requirement 3 - 1. Requirement of Category 2', NULL, 2, 3, 1),
+  (4, 'Requirement 4', 'Requirement 4 - 1. Requirement of Category 3', NULL, NULL, 4, 1),
+  (5, 'Requirement 5 - realized', 'Requirement 5 - 1. realized Requirement of Category 3', NOW(), 2, 4, 1),
+  (6, 'Requirement 6 - realized', 'Requirement 6 - 1. Requirement of Category 4', NOW(), NULL, 4, 2),
+  (7, 'Requirement 7', 'Requirement 7 - 1. Requirement of Category 5', NULL, NULL, 4, 5),
+  (8, 'Requirement 8', 'Requirement 8 - 3. Requirement of Category 1 and 2. of Category 2', NULL, 2, 4, 1);
 
-REPLACE INTO reqbaz.requirement_component_map
-(id, component_id, requirement_id)
+REPLACE INTO reqbaz.requirement_category_map
+(id, category_id, requirement_id)
 VALUES
   (1, 1, 1),
   (2, 1, 2),
@@ -83,8 +83,8 @@ VALUES
   (2, 1, 3),
   (3, 2, 4);
 
-REPLACE INTO reqbaz.component_follower_map
-(id, component_id, user_id)
+REPLACE INTO reqbaz.category_follower_map
+(id, category_id, user_id)
 VALUES
   (1, 1, 3),
   (2, 1, 4),
@@ -149,10 +149,10 @@ VALUES
   (2, 'Read_PROJECT'),
   (3, 'Read_PUBLIC_PROJECT'),
   (4, 'Modify_PROJECT'),
-  (5, 'Create_COMPONENT'),
-  (6, 'Read_COMPONENT'),
-  (7, 'Read_PUBLIC_COMPONENT'),
-  (8, 'Modify_COMPONENT'),
+  (5, 'Create_CATEGORY'),
+  (6, 'Read_CATEGORY'),
+  (7, 'Read_PUBLIC_CATEGORY'),
+  (8, 'Modify_CATEGORY'),
   (9, 'Create_REQUIREMENT'),
   (10, 'Read_REQUIREMENT'),
   (11, 'Read_PUBLIC_REQUIREMENT'),

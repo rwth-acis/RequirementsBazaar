@@ -5,20 +5,16 @@ import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Component;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Category;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementEx;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import i5.las2peer.api.Service;
-import org.apache.http.HttpResponse;
 
 import javax.ws.rs.core.Response;
 import java.io.Serializable;
-import java.net.HttpURLConnection;
 import java.util.Date;
-
-import static i5.las2peer.api.Context.getCurrent;
 
 /**
  * Created by martin on 15.02.2016.
@@ -55,24 +51,24 @@ public class ActivityDispatcher {
             if (dataType.equals(Activity.DataType.PROJECT)) {
                 resourcePath = "projects";
                 frontendResourcePath = "projects" + "/" + String.valueOf(dataId);
-            } else if (dataType.equals(Activity.DataType.COMPONENT)) {
-                resourcePath = "components";
+            } else if (dataType.equals(Activity.DataType.CATEGORY)) {
+                resourcePath = "categories";
                 parentResourcePath = "projects";
-                Component component = dalFacade.getComponentById(dataId);
-                frontendResourcePath = "projects" + "/" + component.getProjectId() + "/" + "components" + "/" + String.valueOf(dataId);
+                Category category = dalFacade.getCategoryById(dataId);
+                frontendResourcePath = "projects" + "/" + category.getProjectId() + "/" + "categories" + "/" + String.valueOf(dataId);
             } else if (dataType.equals(Activity.DataType.REQUIREMENT)) {
                 resourcePath = "requirements";
-                parentResourcePath = "components";
+                parentResourcePath = "categories";
                 RequirementEx requirement = dalFacade.getRequirementById(dataId, userId);
-                frontendResourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "components" + "/" +
-                        requirement.getComponents().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(dataId);
+                frontendResourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
+                        requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(dataId);
             } else if (dataType.equals(Activity.DataType.COMMENT)) {
                 resourcePath = "comments";
                 parentResourcePath = "requirements";
                 Comment comment = dalFacade.getCommentById(dataId);
                 RequirementEx requirement = dalFacade.getRequirementById(comment.getRequirementId(), userId);
-                frontendResourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "components" + "/" +
-                        requirement.getComponents().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
+                frontendResourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
+                        requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
             }
             resourcePath = resourcePath + "/" + String.valueOf(dataId);
             if (parentResourcePath != null) {

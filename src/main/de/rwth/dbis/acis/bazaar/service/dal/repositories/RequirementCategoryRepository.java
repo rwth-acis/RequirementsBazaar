@@ -20,13 +20,13 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementComponent;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementCategory;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/22/2014
  */
-public interface RequirementComponentRepository extends Repository<RequirementComponent> {
-    void delete(int requirementId, int componentId) throws BazaarException;
+public interface RequirementCategoryRepository extends Repository<RequirementCategory> {
+    void delete(int requirementId, int categoryId) throws BazaarException;
 }

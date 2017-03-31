@@ -1,13 +1,13 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
-public class ComponentFollower extends EntityBase {
+public class CategoryFollower extends EntityBase {
     private final int Id;
-    private final int ComponentId;
+    private final int CategoryId;
     private final int UserId;
 
-    public ComponentFollower(Builder builder) {
+    public CategoryFollower(Builder builder) {
         Id = builder.id;
-        ComponentId = builder.componentId;
+        CategoryId = builder.categoryId;
         UserId = builder.userId;
     }
 
@@ -15,8 +15,8 @@ public class ComponentFollower extends EntityBase {
         return Id;
     }
 
-    public int getComponentId() {
-        return ComponentId;
+    public int getCategoryId() {
+        return CategoryId;
     }
 
     public int getUserId() {
@@ -29,7 +29,7 @@ public class ComponentFollower extends EntityBase {
 
     public static class Builder {
         public int userId;
-        public int componentId;
+        public int categoryId;
         public int id;
 
         public Builder userId(int userId) {
@@ -37,8 +37,8 @@ public class ComponentFollower extends EntityBase {
             return this;
         }
 
-        public Builder componentId(int componentId) {
-            this.componentId = componentId;
+        public Builder categoryId(int categoryId) {
+            this.categoryId = categoryId;
             return this;
         }
 
@@ -47,8 +47,8 @@ public class ComponentFollower extends EntityBase {
             return this;
         }
 
-        public ComponentFollower build() {
-            return new ComponentFollower(this);
+        public CategoryFollower build() {
+            return new CategoryFollower(this);
         }
     }
 }

@@ -32,7 +32,7 @@ public class Requirement extends EntityBase {
 
     @NotNull(profiles = {"create"})
     @Size(min = 1, profiles = {"create"})
-    private List<Component> components;
+    private List<Category> categories;
 
     private List<Attachment> attachments;
 
@@ -70,12 +70,12 @@ public class Requirement extends EntityBase {
         this.description = description;
     }
 
-    public List<Component> getComponents() {
-        return components;
+    public List<Category> getCategories() {
+        return categories;
     }
 
-    public void setComponents(List<Component> components) {
-        this.components = components;
+    public void setCategories(List<Category> categories) {
+        this.categories = categories;
     }
 
     public List<Attachment> getAttachments() {

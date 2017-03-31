@@ -34,7 +34,7 @@ public interface UserRepository extends Repository<User> {
 
     List<User> getEmailReceiverForProject(int projectId) throws BazaarException;
 
-    List<User> getEmailReceiverForComponent(int componentId) throws BazaarException;
+    List<User> getEmailReceiverForCategory(int categoryId) throws BazaarException;
 
     List<User> getEmailReceiverForRequirement(int requirementId) throws BazaarException;
 }

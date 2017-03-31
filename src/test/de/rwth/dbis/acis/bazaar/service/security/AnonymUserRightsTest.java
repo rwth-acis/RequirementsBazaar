@@ -97,8 +97,8 @@ public class AnonymUserRightsTest extends TestBase {
     @Test
     public void test_createComponents( ){
         BazaarRequestParams params = new BazaarRequestParams();
-        Component component = Component.getBuilder("TestCreateComponent").id(901).description("hello").projectId(1).build();
-        params.setContentParam(new Gson().toJson(component));
+        Category category = Category.getBuilder("TestCreateComponent").id(901).description("hello").projectId(1).build();
+        params.setContentParam(new Gson().toJson(category));
         params.setQueryParams(new HashMap<String, String>() {{
             put("projectId", String.valueOf(1));
         }});
@@ -114,9 +114,9 @@ public class AnonymUserRightsTest extends TestBase {
         }});
         ClientResponse response = super.test_getComponents(params);
         assertThat(response, is(notNullValue()));
-        List<Component> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Component>>() {}.getType());
-        assertThat(projectList, hasItem(Matchers.<Component>hasProperty("id", equalTo(1))));
-        assertThat(projectList, not(hasItem(Matchers.<Component>hasProperty("id", equalTo(2)))));
+        List<Category> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Category>>() {}.getType());
+        assertThat(projectList, hasItem(Matchers.<Category>hasProperty("id", equalTo(1))));
+        assertThat(projectList, not(hasItem(Matchers.<Category>hasProperty("id", equalTo(2)))));
     }
 
     @Test
@@ -161,8 +161,8 @@ public class AnonymUserRightsTest extends TestBase {
         }});
         ClientResponse response = super.test_getRequirementsByProject(params);
         assertThat(response, is(notNullValue()));
-        List<Component> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Component>>() {}.getType());
-        assertThat(projectList, hasItem(Matchers.<Component>hasProperty("id", equalTo(1))));
+        List<Category> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Category>>() {}.getType());
+        assertThat(projectList, hasItem(Matchers.<Category>hasProperty("id", equalTo(1))));
     }
 
     @Test
@@ -184,8 +184,8 @@ public class AnonymUserRightsTest extends TestBase {
         }});
         ClientResponse response = super.test_getRequirementsByComponent(params);
         assertThat(response, is(notNullValue()));
-        List<Component> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Component>>() {}.getType());
-        assertThat(projectList, hasItem(Matchers.<Component>hasProperty("id", equalTo(1))));
+        List<Category> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Category>>() {}.getType());
+        assertThat(projectList, hasItem(Matchers.<Category>hasProperty("id", equalTo(1))));
     }
 
     @Test

@@ -355,7 +355,7 @@
             <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.BazaarService@0.5\",\"SampleServicePass\")'/>
             <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.UsersResource@0.5\",\"SampleServicePass\")'/>
             <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.ProjectsResource@0.5\",\"SampleServicePass\")'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.ComponentsResource@0.5\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.CategoryResource@0.5\",\"SampleServicePass\")'/>
             <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.RequirementsResource@0.5\",\"SampleServicePass\")'/>
             <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.CommentsResource@0.5\",\"SampleServicePass\")'/>
             <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.AttachmentsResource@0.5\",\"SampleServicePass\")'/>

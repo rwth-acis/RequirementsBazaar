@@ -27,8 +27,8 @@ import java.text.MessageFormat;
 import java.util.*;
 
 
-@ServicePath("/bazaar/components")
-public class ComponentsResource extends RESTService {
+@ServicePath("/bazaar/categories")
+public class CategoryResource extends RESTService {
 
     private BazaarService bazaarService;
 
@@ -37,11 +37,11 @@ public class ComponentsResource extends RESTService {
         getResourceConfig().register(Resource.class);
     }
 
-    public ComponentsResource() throws Exception {
+    public CategoryResource() throws Exception {
         bazaarService = new BazaarService();
     }
 
-    @Api(value = "components", description = "Components resource")
+    @Api(value = "categories", description = "Categories resource")
     @SwaggerDefinition(
             info = @Info(
                     title = "Requirements Bazaar",
@@ -65,25 +65,25 @@ public class ComponentsResource extends RESTService {
     @Path("/")
     public static class Resource {
 
-        private final ComponentsResource service = (ComponentsResource) Context.getCurrent().getService();
+        private final CategoryResource service = (CategoryResource) Context.getCurrent().getService();
 
         /**
-         * This method allows to retrieve a certain component.
+         * This method allows to retrieve a certain category.
          *
-         * @param componentId id of the component under a given project
-         * @return Response with a component as a JSON object.
+         * @param categoryId id of the category under a given project
+         * @return Response with a category as a JSON object.
          */
         @GET
-        @Path("/{componentId}")
+        @Path("/{categoryId}")
         @Produces(MediaType.APPLICATION_JSON)
-        @ApiOperation(value = "This method allows to retrieve a certain component.")
+        @ApiOperation(value = "This method allows to retrieve a certain category.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain component", response = Component.class),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain category", response = Category.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
-        public Response getComponent(@PathParam("componentId") int componentId) {
+        public Response getCategory(@PathParam("categoryId") int categoryId) {
             DALFacade dalFacade = null;
             try {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -93,21 +93,21 @@ public class ComponentsResource extends RESTService {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
                 }
                 dalFacade = service.bazaarService.getDBConnection();
-                Component componentToReturn = dalFacade.getComponentById(componentId);
+                Category categoryToReturn = dalFacade.getCategoryById(categoryId);
                 Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-                if (dalFacade.isComponentPublic(componentId)) {
-                    boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMPONENT, String.valueOf(componentId), dalFacade);
+                if (dalFacade.isCategoryPublic(categoryId)) {
+                    boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_CATEGORY, String.valueOf(categoryId), dalFacade);
                     if (!authorized) {
                         ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
                     }
                 } else {
-                    boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMPONENT, String.valueOf(componentId), dalFacade);
+                    boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_CATEGORY, String.valueOf(categoryId), dalFacade);
                     if (!authorized) {
-                        ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
+                        ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.read"));
                     }
                 }
                 Gson gson = new Gson();
-                return Response.ok(gson.toJson(componentToReturn)).build();
+                return Response.ok(gson.toJson(categoryToReturn)).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                     return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -125,22 +125,22 @@ public class ComponentsResource extends RESTService {
         }
 
         /**
-         * This method allows to create a new component.
+         * This method allows to create a new category.
          *
-         * @param componentToCreate component as a JSON object
+         * @param categoryToCreate category as a JSON object
          * @return Response with the created project as a JSON object.
          */
         @POST
         @Path("/")
         @Consumes(MediaType.APPLICATION_JSON)
         @Produces(MediaType.APPLICATION_JSON)
-        @ApiOperation(value = "This method allows to create a new component under a given a project.")
+        @ApiOperation(value = "This method allows to create a new category under a given a project.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created component", response = Component.class),
+                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created category", response = Category.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
-        public Response createComponent(@ApiParam(value = "Component entity", required = true) Component componentToCreate) {
+        public Response createCategory(@ApiParam(value = "Category entity", required = true) Category categoryToCreate) {
             DALFacade dalFacade = null;
             try {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -154,21 +154,21 @@ public class ComponentsResource extends RESTService {
                 Gson gson = new Gson();
                 Vtor vtor = service.bazaarService.getValidators();
                 vtor.useProfiles("create");
-                vtor.validate(componentToCreate);
+                vtor.validate(categoryToCreate);
                 if (vtor.hasViolations()) {
                     ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
                 }
                 dalFacade = service.bazaarService.getDBConnection();
                 Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_COMPONENT, String.valueOf(componentToCreate.getProjectId()), dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_CATEGORY, String.valueOf(categoryToCreate.getProjectId()), dalFacade);
                 if (!authorized) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.create"));
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.create"));
                 }
-                componentToCreate.setLeaderId(internalUserId);
-                Component createdComponent = dalFacade.createComponent(componentToCreate);
-                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, createdComponent.getCreationDate(), Activity.ActivityAction.CREATE, createdComponent.getId(),
-                        Activity.DataType.COMPONENT, createdComponent.getProjectId(), Activity.DataType.PROJECT, internalUserId);
-                return Response.status(Response.Status.CREATED).entity(gson.toJson(createdComponent)).build();
+                categoryToCreate.setLeaderId(internalUserId);
+                Category createdCategory = dalFacade.createCategory(categoryToCreate);
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, createdCategory.getCreationDate(), Activity.ActivityAction.CREATE, createdCategory.getId(),
+                        Activity.DataType.CATEGORY, createdCategory.getProjectId(), Activity.DataType.PROJECT, internalUserId);
+                return Response.status(Response.Status.CREATED).entity(gson.toJson(createdCategory)).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                     return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -184,25 +184,25 @@ public class ComponentsResource extends RESTService {
         }
 
         /**
-         * Allows to update a certain component.
+         * Allows to update a certain category.
          *
-         * @param componentId id of the component under a given project
-         * @param componentToUpdate updated component as a JSON object
-         * @return Response with the updated component as a JSON object.
+         * @param categoryId id of the category under a given project
+         * @param categoryToUpdate updated category as a JSON object
+         * @return Response with the updated category as a JSON object.
          */
         @PUT
-        @Path("/{componentId}")
+        @Path("/{categoryId}")
         @Consumes(MediaType.APPLICATION_JSON)
         @Produces(MediaType.APPLICATION_JSON)
-        @ApiOperation(value = "This method allows to update a certain component.")
+        @ApiOperation(value = "This method allows to update a certain category.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the updated component", response = Component.class),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the updated category", response = Category.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
-        public Response updateComponent(@PathParam("componentId") int componentId,
-                                        @ApiParam(value = "Component entity", required = true) Component componentToUpdate) {
+        public Response updateCategory(@PathParam("categoryId") int categoryId,
+                                        @ApiParam(value = "Category entity", required = true) Category categoryToUpdate) {
 
             DALFacade dalFacade = null;            try {
                 String registratorErrors = service.bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -213,23 +213,23 @@ public class ComponentsResource extends RESTService {
                 long userId = agent.getId();
                 Gson gson = new Gson();
                 Vtor vtor = service.bazaarService.getValidators();
-                vtor.validate(componentToUpdate);
+                vtor.validate(categoryToUpdate);
                 if (vtor.hasViolations()) {
                     ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
                 }
                 dalFacade = service.bazaarService.getDBConnection();
                 Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_COMPONENT, dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_CATEGORY, dalFacade);
                 if (!authorized) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.modify"));
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.modify"));
                 }
-                if (componentToUpdate.getId() != 0 && componentId != componentToUpdate.getId()) {
+                if (categoryToUpdate.getId() != 0 && categoryId != categoryToUpdate.getId()) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
                 }
-                Component updatedComponent = dalFacade.modifyComponent(componentToUpdate);
-                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, updatedComponent.getLastUpdatedDate(), Activity.ActivityAction.UPDATE, updatedComponent.getId(),
-                        Activity.DataType.COMPONENT, updatedComponent.getProjectId(), Activity.DataType.PROJECT, internalUserId);
-                return Response.ok(gson.toJson(updatedComponent)).build();
+                Category updatedCategory = dalFacade.modifyCategory(categoryToUpdate);
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, updatedCategory.getLastUpdatedDate(), Activity.ActivityAction.UPDATE, updatedCategory.getId(),
+                        Activity.DataType.CATEGORY, updatedCategory.getProjectId(), Activity.DataType.PROJECT, internalUserId);
+                return Response.ok(gson.toJson(updatedCategory)).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                     return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -247,22 +247,22 @@ public class ComponentsResource extends RESTService {
         }
 
         /**
-         * Allows to delete a component.
+         * Allows to delete a category.
          *
-         * @param componentId id of the component to delete
-         * @return Response with deleted component as a JSON object.
+         * @param categoryId id of the category to delete
+         * @return Response with deleted category as a JSON object.
          */
         @DELETE
-        @Path("/{componentId}")
+        @Path("/{categoryId}")
         @Produces(MediaType.APPLICATION_JSON)
-        @ApiOperation(value = "This method deletes a specific component.")
+        @ApiOperation(value = "This method deletes a specific category.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the deleted component", response = Component.class),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the deleted category", response = Category.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
-        public Response deleteComponent(@PathParam("componentId") int componentId) {
+        public Response deleteCategory(@PathParam("categoryId") int categoryId) {
             DALFacade dalFacade = null;
             try {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -273,25 +273,25 @@ public class ComponentsResource extends RESTService {
                 }
                 dalFacade = service.bazaarService.getDBConnection();
                 Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-                Component componentToDelete = dalFacade.getComponentById(componentId);
-                Project project = dalFacade.getProjectById(componentToDelete.getProjectId());
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_COMPONENT, String.valueOf(project.getId()), dalFacade);
+                Category categoryToDelete = dalFacade.getCategoryById(categoryId);
+                Project project = dalFacade.getProjectById(categoryToDelete.getProjectId());
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_CATEGORY, String.valueOf(project.getId()), dalFacade);
                 if (!authorized) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.modify"));
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.modify"));
                 }
-                if (project.getDefaultComponentId() != null && project.getDefaultComponentId() == componentId) {
+                if (project.getDefaultCategoryId() != null && project.getDefaultCategoryId() == categoryId) {
                     ExceptionHandler.getInstance().convertAndThrowException(
                             new Exception(),
                             ExceptionLocation.BAZAARSERVICE,
                             ErrorCode.CANNOTDELETE,
-                            MessageFormat.format(Localization.getInstance().getResourceBundle().getString("error.authorization.component.delete"), componentId)
+                            MessageFormat.format(Localization.getInstance().getResourceBundle().getString("error.authorization.category.delete"), categoryId)
                     );
                 }
                 Gson gson = new Gson();
-                Component deletedComponent = dalFacade.deleteComponentById(componentId, internalUserId);
-                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, deletedComponent.getLastUpdatedDate(), Activity.ActivityAction.DELETE, deletedComponent.getId(),
-                        Activity.DataType.COMPONENT, deletedComponent.getProjectId(), Activity.DataType.PROJECT, internalUserId);
-                return Response.ok(gson.toJson(deletedComponent)).build();
+                Category deletedCategory = dalFacade.deleteCategoryById(categoryId, internalUserId);
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, deletedCategory.getLastUpdatedDate(), Activity.ActivityAction.DELETE, deletedCategory.getId(),
+                        Activity.DataType.CATEGORY, deletedCategory.getProjectId(), Activity.DataType.PROJECT, internalUserId);
+                return Response.ok(gson.toJson(deletedCategory)).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                     return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -309,22 +309,22 @@ public class ComponentsResource extends RESTService {
         }
 
         /**
-         * This method add the current user to the followers list of a given component.
+         * This method add the current user to the followers list of a given category.
          *
-         * @param componentId id of the component
-         * @return Response with component as a JSON object.
+         * @param categoryId id of the category
+         * @return Response with category as a JSON object.
          */
         @POST
-        @Path("/{componentId}/followers")
+        @Path("/{categoryId}/followers")
         @Produces(MediaType.APPLICATION_JSON)
-        @ApiOperation(value = "This method add the current user to the followers list of a given component.")
+        @ApiOperation(value = "This method add the current user to the followers list of a given category.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the component", response = Component.class),
+                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the category", response = Category.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
-        public Response addUserToFollowers(@PathParam("componentId") int componentId) {
+        public Response addUserToFollowers(@PathParam("categoryId") int categoryId) {
             DALFacade dalFacade = null;
             try {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -339,12 +339,12 @@ public class ComponentsResource extends RESTService {
                 if (!authorized) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.follow.create"));
                 }
-                dalFacade.followComponent(internalUserId, componentId);
-                Component component = dalFacade.getComponentById(componentId);
+                dalFacade.followCategory(internalUserId, categoryId);
+                Category category = dalFacade.getCategoryById(categoryId);
                 Gson gson = new Gson();
-                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, new Date(), Activity.ActivityAction.FOLLOW, component.getId(),
-                        Activity.DataType.COMPONENT, component.getProjectId(), Activity.DataType.PROJECT, internalUserId);
-                return Response.status(Response.Status.CREATED).entity(gson.toJson(component)).build();
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, new Date(), Activity.ActivityAction.FOLLOW, category.getId(),
+                        Activity.DataType.CATEGORY, category.getProjectId(), Activity.DataType.PROJECT, internalUserId);
+                return Response.status(Response.Status.CREATED).entity(gson.toJson(category)).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                     return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -362,22 +362,22 @@ public class ComponentsResource extends RESTService {
         }
 
         /**
-         * This method removes the current user from a followers list of a given component.
+         * This method removes the current user from a followers list of a given category.
          *
-         * @param componentId id of the component
-         * @return Response with component as a JSON object.
+         * @param categoryId id of the category
+         * @return Response with category as a JSON object.
          */
         @DELETE
-        @Path("/{componentId}/followers")
+        @Path("/{categoryId}/followers")
         @Produces(MediaType.APPLICATION_JSON)
-        @ApiOperation(value = "This method removes the current user from a followers list of a given component.")
+        @ApiOperation(value = "This method removes the current user from a followers list of a given category.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the component", response = Component.class),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the category", response = Category.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
-        public Response removeUserFromFollowers(@PathParam("componentId") int componentId) {
+        public Response removeUserFromFollowers(@PathParam("categoryId") int categoryId) {
             DALFacade dalFacade = null;
             try {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -392,12 +392,12 @@ public class ComponentsResource extends RESTService {
                 if (!authorized) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.follow.delete"));
                 }
-                dalFacade.unFollowComponent(internalUserId, componentId);
-                Component component = dalFacade.getComponentById(componentId);
+                dalFacade.unFollowCategory(internalUserId, categoryId);
+                Category category = dalFacade.getCategoryById(categoryId);
                 Gson gson = new Gson();
-                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, new Date(), Activity.ActivityAction.UNFOLLOW, component.getId(),
-                        Activity.DataType.COMPONENT, component.getProjectId(), Activity.DataType.PROJECT, internalUserId);
-                return Response.ok(gson.toJson(component)).build();
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, new Date(), Activity.ActivityAction.UNFOLLOW, category.getId(),
+                        Activity.DataType.CATEGORY, category.getProjectId(), Activity.DataType.PROJECT, internalUserId);
+                return Response.ok(gson.toJson(category)).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                     return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -415,9 +415,9 @@ public class ComponentsResource extends RESTService {
         }
 
         /**
-         * This method returns the list of requirements for a specific component.
+         * This method returns the list of requirements for a specific category.
          *
-         * @param componentId id of the component under a given project
+         * @param categoryId id of the category under a given project
          * @param page        page number
          * @param perPage     number of projects by page
          * @param search      search string
@@ -426,16 +426,16 @@ public class ComponentsResource extends RESTService {
          * @return Response with requirements as a JSON array.
          */
         @GET
-        @Path("/{componentId}/requirements")
+        @Path("/{categoryId}/requirements")
         @Produces(MediaType.APPLICATION_JSON)
-        @ApiOperation(value = "This method returns the list of requirements for a specific component.")
+        @ApiOperation(value = "This method returns the list of requirements for a specific category.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of requirements for a given project", response = Component.class, responseContainer = "List"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of requirements for a given project", response = Category.class, responseContainer = "List"),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
-        public Response getRequirementsByComponent(@PathParam("componentId") int componentId,
+        public Response getRequirementsByCategory(@PathParam("categoryId") int categoryId,
                                                    @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
                                                    @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
                                                    @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
@@ -476,12 +476,12 @@ public class ComponentsResource extends RESTService {
                 }
                 dalFacade = service.bazaarService.getDBConnection();
                 Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-                if (dalFacade.getComponentById(componentId) == null) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.NOT_FOUND, String.format(Localization.getInstance().getResourceBundle().getString("error.resource.notfound"), "component"));
+                if (dalFacade.getCategoryById(categoryId) == null) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.NOT_FOUND, String.format(Localization.getInstance().getResourceBundle().getString("error.resource.notfound"), "category"));
                 }
-                Component component = dalFacade.getComponentById(componentId);
-                Project project = dalFacade.getProjectById(component.getProjectId());
-                if (dalFacade.isComponentPublic(componentId)) {
+                Category category = dalFacade.getCategoryById(categoryId);
+                Project project = dalFacade.getProjectById(category.getProjectId());
+                if (dalFacade.isCategoryPublic(categoryId)) {
                     boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, String.valueOf(project.getId()), dalFacade);
                     if (!authorized) {
                         ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
@@ -489,10 +489,10 @@ public class ComponentsResource extends RESTService {
                 } else {
                     boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT, String.valueOf(project.getId()), dalFacade);
                     if (!authorized) {
-                        ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
+                        ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.read"));
                     }
                 }
-                PaginationResult<RequirementEx> requirementsResult = dalFacade.listRequirementsByComponent(componentId, pageInfo, internalUserId);
+                PaginationResult<RequirementEx> requirementsResult = dalFacade.listRequirementsByCategory(categoryId, pageInfo, internalUserId);
 
                 Map<String, List<String>> parameter = new HashMap<>();
                 parameter.put("page", new ArrayList() {{
@@ -513,7 +513,7 @@ public class ComponentsResource extends RESTService {
 
                 Response.ResponseBuilder responseBuilder = Response.ok();
                 responseBuilder = responseBuilder.entity(gson.toJson(requirementsResult.getElements()));
-                responseBuilder = service.bazaarService.paginationLinks(responseBuilder, requirementsResult, "components/" + String.valueOf(componentId) + "/requirements", parameter);
+                responseBuilder = service.bazaarService.paginationLinks(responseBuilder, requirementsResult, "categories/" + String.valueOf(categoryId) + "/requirements", parameter);
                 responseBuilder = service.bazaarService.xHeaderFields(responseBuilder, requirementsResult);
                 Response response = responseBuilder.build();
 

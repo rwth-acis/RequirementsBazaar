@@ -90,37 +90,37 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
     }
 
     @Override
-    public List<User> getEmailReceiverForComponent(int componentId) throws BazaarException {
+    public List<User> getEmailReceiverForCategory(int categoryId) throws BazaarException {
         List<User> entries = null;
         try {
             entries = new ArrayList<>();
 
-            // select distinct all followers union project leader union components leader
+            // select distinct all followers union project leader union categories leader
             List<Record> queryResults = jooq.selectDistinct(USER.fields())
                     .from(USER
-                            .join(COMPONENT).on(USER.ID.eq(COMPONENT.LEADER_ID)))
-                    .where(COMPONENT.ID.eq(componentId))
+                            .join(CATEGORY).on(USER.ID.eq(CATEGORY.LEADER_ID)))
+                    .where(CATEGORY.ID.eq(categoryId))
                     .and(USER.EMAIL_LEAD_SUBSCRIPTION.eq(ONE))
 
                     .union(jooq.selectDistinct(USER.fields())
                             .from(USER
-                                    .join(COMPONENT_FOLLOWER_MAP).on(USER.ID.eq(COMPONENT_FOLLOWER_MAP.USER_ID)))
-                            .where(COMPONENT_FOLLOWER_MAP.COMPONENT_ID.eq(componentId))
+                                    .join(CATEGORY_FOLLOWER_MAP).on(USER.ID.eq(CATEGORY_FOLLOWER_MAP.USER_ID)))
+                            .where(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.eq(categoryId))
                             .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.eq(ONE)))
 
                     .union(jooq.selectDistinct(USER.fields())
                             .from(USER
                                     .join(PROJECT).on(USER.ID.eq(PROJECT.LEADER_ID))
-                                    .join(COMPONENT).on(COMPONENT.PROJECT_ID.eq(PROJECT.ID)))
-                            .where(COMPONENT.ID.eq(componentId))
+                                    .join(CATEGORY).on(CATEGORY.PROJECT_ID.eq(PROJECT.ID)))
+                            .where(CATEGORY.ID.eq(categoryId))
                             .and(USER.EMAIL_LEAD_SUBSCRIPTION.eq(ONE)))
 
                     .union(jooq.selectDistinct(USER.fields())
                             .from(USER
                                     .join(PROJECT_FOLLOWER_MAP).on(USER.ID.eq(PROJECT_FOLLOWER_MAP.USER_ID))
-                                    .join(COMPONENT).on(COMPONENT.PROJECT_ID.eq(PROJECT_FOLLOWER_MAP.PROJECT_ID)))
-                            .where(COMPONENT.ID.eq(componentId))
-                            .and(PROJECT_FOLLOWER_MAP.PROJECT_ID.eq(COMPONENT.PROJECT_ID))
+                                    .join(CATEGORY).on(CATEGORY.PROJECT_ID.eq(PROJECT_FOLLOWER_MAP.PROJECT_ID)))
+                            .where(CATEGORY.ID.eq(categoryId))
+                            .and(PROJECT_FOLLOWER_MAP.PROJECT_ID.eq(CATEGORY.PROJECT_ID))
                             .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.eq(ONE)))
 
                     .fetch();
@@ -141,7 +141,7 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
         try {
             entries = new ArrayList<>();
 
-            // select distinct all followers union project leader union components leader union req leader
+            // select distinct all followers union project leader union categories leader union req leader
             List<Record> queryResults = jooq.selectDistinct(USER.fields())
                     // req leader
                     .from(USER
@@ -156,20 +156,20 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
                             .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.eq(requirementId))
                             .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.eq(ONE)))
 
-                    // component leader
+                    // category leader
                     .union(jooq.selectDistinct(USER.fields())
                             .from(USER
-                                    .join(COMPONENT).on(USER.ID.eq(COMPONENT.LEADER_ID))
-                                    .join(REQUIREMENT_COMPONENT_MAP).on(REQUIREMENT_COMPONENT_MAP.COMPONENT_ID.eq(COMPONENT.ID)))
-                            .where(REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID.eq(requirementId))
+                                    .join(CATEGORY).on(USER.ID.eq(CATEGORY.LEADER_ID))
+                                    .join(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.eq(CATEGORY.ID)))
+                            .where(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.eq(requirementId))
                             .and(USER.EMAIL_LEAD_SUBSCRIPTION.eq(ONE)))
 
-                    // component follower
+                    // category follower
                     .union(jooq.selectDistinct(USER.fields())
                             .from(USER
-                                    .join(COMPONENT_FOLLOWER_MAP).on(USER.ID.eq(COMPONENT_FOLLOWER_MAP.USER_ID))
-                                    .join(REQUIREMENT_COMPONENT_MAP).on(REQUIREMENT_COMPONENT_MAP.COMPONENT_ID.eq(COMPONENT_FOLLOWER_MAP.COMPONENT_ID))
-                                    .join(REQUIREMENT).on(REQUIREMENT.ID.eq(REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID)))
+                                    .join(CATEGORY_FOLLOWER_MAP).on(USER.ID.eq(CATEGORY_FOLLOWER_MAP.USER_ID))
+                                    .join(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.eq(CATEGORY_FOLLOWER_MAP.CATEGORY_ID))
+                                    .join(REQUIREMENT).on(REQUIREMENT.ID.eq(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID)))
                             .where(REQUIREMENT.ID.eq(requirementId))
                             .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.eq(ONE)))
 

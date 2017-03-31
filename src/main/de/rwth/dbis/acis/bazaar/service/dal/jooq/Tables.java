@@ -5,14 +5,14 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq;
 
 
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachment;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Category;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.CategoryFollowerMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Component;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ComponentFollowerMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privilege;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ProjectFollowerMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirement;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementComponentMap;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementCategoryMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementDeveloperMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementFollowerMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Role;
@@ -44,19 +44,19 @@ public class Tables {
     public static final Attachment ATTACHMENT = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachment.ATTACHMENT;
 
     /**
+     * The table <code>reqbaz.category</code>.
+     */
+    public static final Category CATEGORY = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Category.CATEGORY;
+
+    /**
+     * The table <code>reqbaz.category_follower_map</code>.
+     */
+    public static final CategoryFollowerMap CATEGORY_FOLLOWER_MAP = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.CategoryFollowerMap.CATEGORY_FOLLOWER_MAP;
+
+    /**
      * The table <code>reqbaz.comment</code>.
      */
     public static final Comment COMMENT = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment.COMMENT;
-
-    /**
-     * The table <code>reqbaz.component</code>.
-     */
-    public static final Component COMPONENT = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Component.COMPONENT;
-
-    /**
-     * The table <code>reqbaz.component_follower_map</code>.
-     */
-    public static final ComponentFollowerMap COMPONENT_FOLLOWER_MAP = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ComponentFollowerMap.COMPONENT_FOLLOWER_MAP;
 
     /**
      * The table <code>reqbaz.privilege</code>.
@@ -79,9 +79,9 @@ public class Tables {
     public static final Requirement REQUIREMENT = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirement.REQUIREMENT;
 
     /**
-     * The table <code>reqbaz.requirement_component_map</code>.
+     * The table <code>reqbaz.requirement_category_map</code>.
      */
-    public static final RequirementComponentMap REQUIREMENT_COMPONENT_MAP = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementComponentMap.REQUIREMENT_COMPONENT_MAP;
+    public static final RequirementCategoryMap REQUIREMENT_CATEGORY_MAP = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP;
 
     /**
      * The table <code>reqbaz.requirement_developer_map</code>.

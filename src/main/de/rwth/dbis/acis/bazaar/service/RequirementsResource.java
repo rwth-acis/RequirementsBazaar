@@ -102,7 +102,7 @@ public class RequirementsResource extends RESTService {
                 } else {
                     boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT, String.valueOf(requirement.getProjectId()), dalFacade);
                     if (!authorized) {
-                        ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
+                        ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.read"));
                     }
                 }
                 Gson gson = new Gson();
@@ -161,11 +161,11 @@ public class RequirementsResource extends RESTService {
                 }
                 vtor.resetProfiles();
 
-                // check if all components are in the same project
-                for (Component component : requirementToCreate.getComponents()) {
-                    component = dalFacade.getComponentById(component.getId());
-                    if (requirementToCreate.getProjectId() != component.getProjectId()) {
-                        ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.VALIDATION, "Component does not fit with project");
+                // check if all categories are in the same project
+                for (Category category : requirementToCreate.getCategories()) {
+                    category = dalFacade.getCategoryById(category.getId());
+                    if (requirementToCreate.getProjectId() != category.getProjectId()) {
+                        ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.VALIDATION, "Category does not fit with project");
                     }
                 }
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_REQUIREMENT, String.valueOf(requirementToCreate.getProjectId()), dalFacade);
@@ -191,7 +191,7 @@ public class RequirementsResource extends RESTService {
 
                 createdRequirement = dalFacade.getRequirementById(createdRequirement.getId(), internalUserId);
                 service.bazaarService.getNotificationDispatcher().dispatchNotification(service, createdRequirement.getCreationDate(), Activity.ActivityAction.CREATE, createdRequirement.getId(),
-                        Activity.DataType.REQUIREMENT, createdRequirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
+                        Activity.DataType.REQUIREMENT, createdRequirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
                 return Response.status(Response.Status.CREATED).entity(gson.toJson(createdRequirement)).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -208,7 +208,7 @@ public class RequirementsResource extends RESTService {
         }
 
         /**
-         * This method updates a specific requirement within a project and component.
+         * This method updates a specific requirement within a project and category.
          *
          * @param requirementId       id of the requirement to update
          * @param requirementToUpdate requirement as a JSON object
@@ -253,7 +253,7 @@ public class RequirementsResource extends RESTService {
                 dalFacade.followRequirement(internalUserId, requirementToUpdate.getId());
                 RequirementEx updatedRequirement = dalFacade.modifyRequirement(requirementToUpdate, internalUserId);
                 service.bazaarService.getNotificationDispatcher().dispatchNotification(service, updatedRequirement.getLastUpdatedDate(), Activity.ActivityAction.UPDATE, updatedRequirement.getId(),
-                        Activity.DataType.REQUIREMENT, updatedRequirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
+                        Activity.DataType.REQUIREMENT, updatedRequirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
                 return Response.ok(gson.toJson(updatedRequirement)).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -307,7 +307,7 @@ public class RequirementsResource extends RESTService {
                 Gson gson = new Gson();
                 RequirementEx deletedRequirement = dalFacade.deleteRequirementById(requirementId, internalUserId);
                 service.bazaarService.getNotificationDispatcher().dispatchNotification(service, deletedRequirement.getLastUpdatedDate(), Activity.ActivityAction.DELETE, deletedRequirement.getId(),
-                        Activity.DataType.REQUIREMENT, deletedRequirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
+                        Activity.DataType.REQUIREMENT, deletedRequirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
                 return Response.ok(gson.toJson(deletedRequirement)).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -358,7 +358,7 @@ public class RequirementsResource extends RESTService {
                 }
                 RequirementEx requirement = dalFacade.setUserAsLeadDeveloper(requirementId, internalUserId);
                 service.bazaarService.getNotificationDispatcher().dispatchNotification(service, new Date(), Activity.ActivityAction.LEADDEVELOP, requirement.getId(),
-                        Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
+                        Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
                 Gson gson = new Gson();
                 return Response.status(Response.Status.CREATED).entity(gson.toJson(requirement)).build();
             } catch (BazaarException bex) {
@@ -415,7 +415,7 @@ public class RequirementsResource extends RESTService {
                 requirement = dalFacade.deleteUserAsLeadDeveloper(requirementId, internalUserId);
                 Gson gson = new Gson();
                 service.bazaarService.getNotificationDispatcher().dispatchNotification(service, new Date(), Activity.ActivityAction.UNLEADDEVELOP, requirement.getId(),
-                        Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
+                        Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
                 return Response.ok(gson.toJson(requirement)).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -468,7 +468,7 @@ public class RequirementsResource extends RESTService {
                 dalFacade.followRequirement(internalUserId, requirementId);
                 Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
                 service.bazaarService.getNotificationDispatcher().dispatchNotification(service, new Date(), Activity.ActivityAction.DEVELOP, requirement.getId(),
-                        Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
+                        Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
                 Gson gson = new Gson();
                 return Response.status(Response.Status.CREATED).entity(gson.toJson(requirement)).build();
             } catch (BazaarException bex) {
@@ -522,7 +522,7 @@ public class RequirementsResource extends RESTService {
                 Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
                 Gson gson = new Gson();
                 service.bazaarService.getNotificationDispatcher().dispatchNotification(service, new Date(), Activity.ActivityAction.UNDEVELOP, requirement.getId(),
-                        Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
+                        Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
                 return Response.ok(gson.toJson(requirement)).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -575,7 +575,7 @@ public class RequirementsResource extends RESTService {
                 Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
                 Gson gson = new Gson();
                 service.bazaarService.getNotificationDispatcher().dispatchNotification(service, new Date(), Activity.ActivityAction.FOLLOW, requirement.getId(),
-                        Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
+                        Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
                 return Response.status(Response.Status.CREATED).entity(gson.toJson(requirement)).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -628,7 +628,7 @@ public class RequirementsResource extends RESTService {
                 Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
                 Gson gson = new Gson();
                 service.bazaarService.getNotificationDispatcher().dispatchNotification(service, new Date(), Activity.ActivityAction.UNFOLLOW, requirement.getId(),
-                        Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
+                        Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
                 return Response.ok(gson.toJson(requirement)).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -690,7 +690,7 @@ public class RequirementsResource extends RESTService {
                 }
                 Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
                 service.bazaarService.getNotificationDispatcher().dispatchNotification(service, new Date(), Activity.ActivityAction.VOTE, requirement.getId(),
-                        Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
+                        Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
                 Gson gson = new Gson();
                 return Response.status(Response.Status.CREATED).entity(gson.toJson(requirement)).build();
             } catch (BazaarException bex) {
@@ -744,7 +744,7 @@ public class RequirementsResource extends RESTService {
                 Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
                 Gson gson = new Gson();
                 service.bazaarService.getNotificationDispatcher().dispatchNotification(service, new Date(), Activity.ActivityAction.UNVOTE, requirement.getId(),
-                        Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
+                        Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
                 return Response.ok(gson.toJson(requirement)).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -795,7 +795,7 @@ public class RequirementsResource extends RESTService {
                 }
                 RequirementEx requirement = dalFacade.setRequirementToRealized(requirementId, internalUserId);
                 service.bazaarService.getNotificationDispatcher().dispatchNotification(service, new Date(), Activity.ActivityAction.REALIZE, requirement.getId(),
-                        Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
+                        Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
                 Gson gson = new Gson();
                 return Response.status(Response.Status.CREATED).entity(gson.toJson(requirement)).build();
             } catch (BazaarException bex) {
@@ -848,7 +848,7 @@ public class RequirementsResource extends RESTService {
                 RequirementEx requirement = dalFacade.setRequirementToUnRealized(requirementId, internalUserId);
                 Gson gson = new Gson();
                 service.bazaarService.getNotificationDispatcher().dispatchNotification(service, new Date(), Activity.ActivityAction.UNREALIZE, requirement.getId(),
-                        Activity.DataType.REQUIREMENT, requirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
+                        Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
                 return Response.ok(gson.toJson(requirement)).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {

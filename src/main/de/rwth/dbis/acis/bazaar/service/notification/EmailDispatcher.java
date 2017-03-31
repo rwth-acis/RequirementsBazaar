@@ -39,8 +39,8 @@ public class EmailDispatcher {
             } else if (dataType.equals(Activity.DataType.COMMENT)) {
                 int requirementId = dalFacade.getCommentById(dataId).getRequirementId();
                 recipients = dalFacade.getRecipientListForRequirement(requirementId);
-            } else if (dataType.equals(Activity.DataType.COMPONENT)) {
-                recipients = dalFacade.getRecipientListForComponent(dataId);
+            } else if (dataType.equals(Activity.DataType.CATEGORY)) {
+                recipients = dalFacade.getRecipientListForCategory(dataId);
             } else if (dataType.equals(Activity.DataType.PROJECT)) {
                 recipients = dalFacade.getRecipientListForProject(dataId);
             }
@@ -80,17 +80,17 @@ public class EmailDispatcher {
                     Project project = dalFacade.getProjectById(dataId);
                     objectName = project.getName();
                     resourcePath = "projects" + "/" + String.valueOf(dataId);
-                } else if (dataType == Activity.DataType.COMPONENT) {
+                } else if (dataType == Activity.DataType.CATEGORY) {
                     if (activityAction == Activity.ActivityAction.CREATE) {
-                        subject = Localization.getInstance().getResourceBundle().getString("email.subject.component.created");
-                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.component.created");
+                        subject = Localization.getInstance().getResourceBundle().getString("email.subject.category.created");
+                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.category.created");
                     } else if (activityAction == Activity.ActivityAction.UPDATE) {
-                        subject = Localization.getInstance().getResourceBundle().getString("email.subject.component.updated");
-                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.component.updated");
+                        subject = Localization.getInstance().getResourceBundle().getString("email.subject.category.updated");
+                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.category.updated");
                     }
-                    Component component = dalFacade.getComponentById(dataId);
-                    objectName = component.getName();
-                    resourcePath = "projects" + "/" + component.getProjectId() + "/" + "components" + "/" + String.valueOf(dataId);
+                    Category category = dalFacade.getCategoryById(dataId);
+                    objectName = category.getName();
+                    resourcePath = "projects" + "/" + category.getProjectId() + "/" + "categories" + "/" + String.valueOf(dataId);
                 } else if (dataType == Activity.DataType.REQUIREMENT) {
                     if (activityAction == Activity.ActivityAction.CREATE) {
                         subject = Localization.getInstance().getResourceBundle().getString("email.subject.requirement.created");
@@ -104,8 +104,8 @@ public class EmailDispatcher {
                     }
                     RequirementEx requirement = dalFacade.getRequirementById(dataId, userId);
                     objectName = requirement.getName();
-                    resourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "components" + "/" +
-                            requirement.getComponents().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(dataId);
+                    resourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
+                            requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(dataId);
                 } else if (dataType == Activity.DataType.COMMENT) {
                     if (activityAction == Activity.ActivityAction.CREATE) {
                         subject = Localization.getInstance().getResourceBundle().getString("email.subject.comment.created");
@@ -117,8 +117,8 @@ public class EmailDispatcher {
                     Comment comment = dalFacade.getCommentById(dataId);
                     RequirementEx requirement = dalFacade.getRequirementById(comment.getRequirementId(), userId);
                     objectName = requirement.getName();
-                    resourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "components" + "/" +
-                            requirement.getComponents().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
+                    resourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
+                            requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
                 }
                 String dataUrl = frontendBaseURL.concat(resourcePath);
                 objectName = objectName.length() > 40 ? objectName.substring(0, 39) : objectName;

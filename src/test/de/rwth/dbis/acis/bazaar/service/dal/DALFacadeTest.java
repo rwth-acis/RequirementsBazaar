@@ -380,7 +380,7 @@
 //        assertEquals(1, attachments.size());
 //        assertEquals(2, attachments.get(0).getCreatorId());
 //
-//        List<Component> components = requirement.getComponents();
+//        List<Category> components = requirement.getCategories();
 //        assertNotNull(components);
 //        assertEquals(1,components.size());
 //        assertEquals(1, components.get(0).getId());
@@ -447,7 +447,7 @@
 //    }
 //
 //    public void testListComponentsByProjectId() throws Exception {
-//        List<Component> components = facade.listComponentsByProjectId(2, ALL_IN_ONE_PAGE);
+//        List<Category> components = facade.listComponentsByProjectId(2, ALL_IN_ONE_PAGE);
 //
 //        assertNotNull(components);
 //        assertEquals(1,components.size());
@@ -456,11 +456,11 @@
 //
 //    public void testCreateComponent() throws Exception {
 //        int createdComponentId = 9;
-//        Component testComp9 = Component.getBuilder("TestComp9").description("Very testing").id(createdComponentId).projectId(1).leaderId(1).build();
+//        Category testComp9 = Category.getBuilder("TestComp9").description("Very testing").id(createdComponentId).projectId(1).leaderId(1).build();
 //
 //        facade.createComponent(testComp9);
 //
-//        List<Component> components = facade.listComponentsByProjectId(1, ALL_IN_ONE_PAGE);
+//        List<Category> components = facade.listComponentsByProjectId(1, ALL_IN_ONE_PAGE);
 //
 //        assertNotNull(components);
 //        assertEquals(1,components.size());
@@ -575,14 +575,14 @@
 //    public void testAddComponentTagAndRemove() throws Exception {
 //        facade.addComponentTag(1,1);
 //
-//        List<Component> components = facade.getRequirementById(1).getComponents();
+//        List<Category> components = facade.getRequirementById(1).getCategories();
 //        assertNotNull(components);
 //        assertEquals(1,components.size());
 //        assertEquals(1, components.get(0).getId());
 //
 //        facade.deleteComponentTag(1,1);
 //
-//        components = facade.getRequirementById(1).getComponents();
+//        components = facade.getRequirementById(1).getCategories();
 //        assertEquals(0,components.size());
 //    }
 //

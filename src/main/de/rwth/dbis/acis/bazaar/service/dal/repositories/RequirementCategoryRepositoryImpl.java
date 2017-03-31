@@ -20,9 +20,9 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementComponent;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementComponentMapRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementComponentTransformator;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementCategory;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementCategoryMapRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementCategoryTransformator;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -30,25 +30,25 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.REQUIREMENT_COMPONENT_MAP;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.REQUIREMENT_CATEGORY_MAP;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
-public class RequirementComponentRepositoryImpl extends RepositoryImpl<RequirementComponent, RequirementComponentMapRecord> implements RequirementComponentRepository {
+public class RequirementCategoryRepositoryImpl extends RepositoryImpl<RequirementCategory, RequirementCategoryMapRecord> implements RequirementCategoryRepository {
     /**
      * @param jooq DSLContext for JOOQ connection
      */
-    public RequirementComponentRepositoryImpl(DSLContext jooq) {
-        super(jooq, new RequirementComponentTransformator());
+    public RequirementCategoryRepositoryImpl(DSLContext jooq) {
+        super(jooq, new RequirementCategoryTransformator());
     }
 
     @Override
-    public void delete(int requirementId, int componentId) throws BazaarException {
+    public void delete(int requirementId, int categoryId) throws BazaarException {
         try {
-            jooq.delete(REQUIREMENT_COMPONENT_MAP)
-                    .where(REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID.equal(requirementId).and(REQUIREMENT_COMPONENT_MAP.COMPONENT_ID.equal(componentId)))
+            jooq.delete(REQUIREMENT_CATEGORY_MAP)
+                    .where(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.equal(requirementId).and(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.equal(categoryId)))
                     .execute();
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);

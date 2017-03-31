@@ -66,10 +66,10 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User leaderUser = USER.as("leaderUser");
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User followerUsers = USER.as("followerUsers");
 
-            Field<Object> componentCount = jooq.select(DSL.count())
-                    .from(COMPONENT)
-                    .where(COMPONENT.PROJECT_ID.equal(PROJECT.ID))
-                    .asField("componentCount");
+            Field<Object> categoryCount = jooq.select(DSL.count())
+                    .from(CATEGORY)
+                    .where(CATEGORY.PROJECT_ID.equal(PROJECT.ID))
+                    .asField("categoryCount");
 
             Field<Object> requirementCount = jooq.select(DSL.count())
                     .from(REQUIREMENT)
@@ -82,7 +82,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .asField("followerCount");
 
             Result<Record> queryResult = jooq.select(PROJECT.fields())
-                    .select(componentCount)
+                    .select(categoryCount)
                     .select(requirementCount)
                     .select(followerCount)
                     .select(leaderUser.fields())
@@ -104,7 +104,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .description(queryResult.getValues(PROJECT.DESCRIPTION).get(0))
                     .id(queryResult.getValues(PROJECT.ID).get(0))
                     .leaderId(queryResult.getValues(PROJECT.LEADER_ID).get(0))
-                    .defaultComponentId(queryResult.getValues(PROJECT.DEFAULT_COMPONENT_ID).get(0))
+                    .defaultCategoryId(queryResult.getValues(PROJECT.DEFAULT_CATEGORY_ID).get(0))
                     .visibility(queryResult.getValues(PROJECT.VISIBILITY).get(0) == 1)
                     .creationDate(queryResult.getValues(PROJECT.CREATION_DATE).get(0))
                     .lastUpdatedDate(queryResult.getValues(PROJECT.LAST_UPDATED_DATE).get(0));
@@ -127,7 +127,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
             project = builder.build();
 
             // Filling additional information TODO: add other additional informations here (leaddev, followers)
-            project.setNumberOfComponents((Integer) queryResult.getValues(componentCount).get(0));
+            project.setNumberOfCategories((Integer) queryResult.getValues(categoryCount).get(0));
             project.setNumberOfRequirements((Integer) queryResult.getValues(requirementCount).get(0));
             project.setNumberOfFollowers((Integer) queryResult.getValues(followerCount).get(0));
 
@@ -153,10 +153,10 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .and(transformator.getSearchCondition(pageable.getSearch()))
                     .asField("idCount");
 
-            Field<Object> componentCount = jooq.select(DSL.count())
-                    .from(COMPONENT)
-                    .where(COMPONENT.PROJECT_ID.equal(PROJECT.ID))
-                    .asField("componentCount");
+            Field<Object> categoryCount = jooq.select(DSL.count())
+                    .from(CATEGORY)
+                    .where(CATEGORY.PROJECT_ID.equal(PROJECT.ID))
+                    .asField("categoryCount");
 
             Field<Object> requirementCount = jooq.select(DSL.count())
                     .from(REQUIREMENT)
@@ -170,7 +170,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
 
             Result<Record> queryResults = jooq.select(PROJECT.fields())
                     .select(idCount)
-                    .select(componentCount)
+                    .select(categoryCount)
                     .select(requirementCount)
                     .select(followerCount)
                     .select(leaderUser.fields())
@@ -189,7 +189,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                 UserTransformator userTransformator = new UserTransformator();
                 UserRecord userRecord = queryResult.into(leaderUser);
                 project.setLeader(userTransformator.getEntityFromTableRecord(userRecord));
-                project.setNumberOfComponents((Integer) queryResult.getValue(componentCount));
+                project.setNumberOfCategories((Integer) queryResult.getValue(categoryCount));
                 project.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
                 project.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
                 projects.add(project);
@@ -215,10 +215,10 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .where(transformator.getSearchCondition(pageable.getSearch()))
                     .asField("idCount");
 
-            Field<Object> componentCount = jooq.select(DSL.count())
-                    .from(COMPONENT)
-                    .where(COMPONENT.PROJECT_ID.equal(PROJECT.ID))
-                    .asField("componentCount");
+            Field<Object> categoryCount = jooq.select(DSL.count())
+                    .from(CATEGORY)
+                    .where(CATEGORY.PROJECT_ID.equal(PROJECT.ID))
+                    .asField("categoryCount");
 
             Field<Object> requirementCount = jooq.select(DSL.count())
                     .from(REQUIREMENT)
@@ -233,7 +233,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
             //TODO only authorized projects?
             List<Record> queryResults = jooq.select(PROJECT.fields())
                     .select(idCount)
-                    .select(componentCount)
+                    .select(categoryCount)
                     .select(requirementCount)
                     .select(followerCount)
                     .select(leaderUser.fields())
@@ -254,7 +254,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                 UserTransformator userTransformator = new UserTransformator();
                 UserRecord userRecord = queryResult.into(leaderUser);
                 project.setLeader(userTransformator.getEntityFromTableRecord(userRecord));
-                project.setNumberOfComponents((Integer) queryResult.getValue(componentCount));
+                project.setNumberOfCategories((Integer) queryResult.getValue(categoryCount));
                 project.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
                 project.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
                 projects.add(project);
@@ -296,12 +296,12 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .fetchOne();
 
             Record record2 = jooq
-                    .select(DSL.countDistinct(COMPONENT.ID).as("numberOfComponents"))
+                    .select(DSL.countDistinct(CATEGORY.ID).as("numberOfCategorys"))
                     .select(DSL.countDistinct(REQUIREMENT.ID).as("numberOfRequirements"))
                     .from(PROJECT)
-                    .leftJoin(COMPONENT).on(COMPONENT.CREATION_DATE.greaterOrEqual(timestamp)
-                            .or(COMPONENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
-                            .and(COMPONENT.PROJECT_ID.equal(PROJECT.ID)))
+                    .leftJoin(CATEGORY).on(CATEGORY.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(CATEGORY.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
+                            .and(CATEGORY.PROJECT_ID.equal(PROJECT.ID)))
                     .leftJoin(REQUIREMENT).on(REQUIREMENT.CREATION_DATE.greaterOrEqual(timestamp)
                             .or(REQUIREMENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(REQUIREMENT.PROJECT_ID.equal(PROJECT.ID)))
@@ -327,7 +327,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
 
             result = Statistic.getBuilder()
                     .numberOfProjects((Integer) record1.get("numberOfProjects"))
-                    .numberOfComponents((Integer) record2.get("numberOfComponents"))
+                    .numberOfCategorys((Integer) record2.get("numberOfCategorys"))
                     .numberOfRequirements((Integer) record2.get("numberOfRequirements"))
                     .numberOfComments((Integer) record3.get("numberOfComments"))
                     .numberOfAttachments((Integer) record3.get("numberOfAttachments"))
@@ -355,12 +355,12 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
 
             Record record2 = jooq
                     .select(DSL.countDistinct(PROJECT.ID).as("numberOfProjects"))
-                    .select(DSL.countDistinct(COMPONENT.ID).as("numberOfComponents"))
+                    .select(DSL.countDistinct(CATEGORY.ID).as("numberOfCategorys"))
                     .select(DSL.countDistinct(REQUIREMENT.ID).as("numberOfRequirements"))
                     .from(PROJECT)
-                    .leftJoin(COMPONENT).on(COMPONENT.CREATION_DATE.greaterOrEqual(timestamp)
-                            .or(COMPONENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
-                            .and(COMPONENT.PROJECT_ID.equal(PROJECT.ID)))
+                    .leftJoin(CATEGORY).on(CATEGORY.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(CATEGORY.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
+                            .and(CATEGORY.PROJECT_ID.equal(PROJECT.ID)))
                     .leftJoin(REQUIREMENT).on(REQUIREMENT.CREATION_DATE.greaterOrEqual(timestamp)
                             .or(REQUIREMENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(REQUIREMENT.PROJECT_ID.equal(PROJECT.ID)))
@@ -386,7 +386,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
 
             result = Statistic.getBuilder()
                     .numberOfProjects((Integer) record1.get("numberOfProjects"))
-                    .numberOfComponents((Integer) record2.get("numberOfComponents"))
+                    .numberOfCategorys((Integer) record2.get("numberOfCategorys"))
                     .numberOfRequirements((Integer) record2.get("numberOfRequirements"))
                     .numberOfComments((Integer) record3.get("numberOfComments"))
                     .numberOfAttachments((Integer) record3.get("numberOfAttachments"))

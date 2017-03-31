@@ -127,7 +127,7 @@ public class Activity extends EntityBase {
 
     public enum DataType {
         PROJECT,
-        COMPONENT,
+        CATEGORY,
         REQUIREMENT,
         COMMENT,
         ATTACHMENT

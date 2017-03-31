@@ -30,7 +30,7 @@ import org.jooq.impl.UpdatableRecordImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ProjectRecord extends UpdatableRecordImpl<ProjectRecord> implements Record8<Integer, String, String, Byte, Timestamp, Timestamp, Integer, Integer> {
 
-    private static final long serialVersionUID = -2107866483;
+    private static final long serialVersionUID = 416723320;
 
     /**
      * Setter for <code>reqbaz.project.id</code>.
@@ -131,16 +131,16 @@ public class ProjectRecord extends UpdatableRecordImpl<ProjectRecord> implements
     }
 
     /**
-     * Setter for <code>reqbaz.project.default_component_id</code>.
+     * Setter for <code>reqbaz.project.default_category_id</code>.
      */
-    public void setDefaultComponentId(Integer value) {
+    public void setDefaultCategoryId(Integer value) {
         set(7, value);
     }
 
     /**
-     * Getter for <code>reqbaz.project.default_component_id</code>.
+     * Getter for <code>reqbaz.project.default_category_id</code>.
      */
-    public Integer getDefaultComponentId() {
+    public Integer getDefaultCategoryId() {
         return (Integer) get(7);
     }
 
@@ -237,7 +237,7 @@ public class ProjectRecord extends UpdatableRecordImpl<ProjectRecord> implements
      */
     @Override
     public Field<Integer> field8() {
-        return Project.PROJECT.DEFAULT_COMPONENT_ID;
+        return Project.PROJECT.DEFAULT_CATEGORY_ID;
     }
 
     /**
@@ -301,7 +301,7 @@ public class ProjectRecord extends UpdatableRecordImpl<ProjectRecord> implements
      */
     @Override
     public Integer value8() {
-        return getDefaultComponentId();
+        return getDefaultCategoryId();
     }
 
     /**
@@ -372,7 +372,7 @@ public class ProjectRecord extends UpdatableRecordImpl<ProjectRecord> implements
      */
     @Override
     public ProjectRecord value8(Integer value) {
-        setDefaultComponentId(value);
+        setDefaultCategoryId(value);
         return this;
     }
 
@@ -406,7 +406,7 @@ public class ProjectRecord extends UpdatableRecordImpl<ProjectRecord> implements
     /**
      * Create a detached, initialised ProjectRecord
      */
-    public ProjectRecord(Integer id, String name, String description, Byte visibility, Timestamp creationDate, Timestamp lastUpdatedDate, Integer leaderId, Integer defaultComponentId) {
+    public ProjectRecord(Integer id, String name, String description, Byte visibility, Timestamp creationDate, Timestamp lastUpdatedDate, Integer leaderId, Integer defaultCategoryId) {
         super(Project.PROJECT);
 
         set(0, id);
@@ -416,6 +416,6 @@ public class ProjectRecord extends UpdatableRecordImpl<ProjectRecord> implements
         set(4, creationDate);
         set(5, lastUpdatedDate);
         set(6, leaderId);
-        set(7, defaultComponentId);
+        set(7, defaultCategoryId);
     }
 }

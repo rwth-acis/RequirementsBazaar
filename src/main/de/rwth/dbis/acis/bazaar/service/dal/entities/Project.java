@@ -56,9 +56,9 @@ public class Project extends EntityBase {
 
     private User leader;
 
-    private Integer defaultComponentId;
+    private Integer defaultCategoryId;
 
-    private Integer numberOfComponents;
+    private Integer numberOfCategories;
 
     private Integer numberOfRequirements;
 
@@ -80,8 +80,8 @@ public class Project extends EntityBase {
         this.leader = leader;
     }
 
-    public void setNumberOfComponents(Integer numberOfComponents) {
-        this.numberOfComponents = numberOfComponents;
+    public void setNumberOfCategories(Integer numberOfCategories) {
+        this.numberOfCategories = numberOfCategories;
     }
 
     public void setNumberOfRequirements(Integer numberOfRequirements) {
@@ -108,13 +108,13 @@ public class Project extends EntityBase {
         this.followers = builder.followers;
         this.leader = builder.leader;
         this.leaderId = builder.leaderId;
-        this.defaultComponentId = builder.defaultComponentId;
+        this.defaultCategoryId = builder.defaultCategoryId;
         this.creationDate = builder.creationDate;
         this.lastUpdatedDate = builder.lastUpdatedDate;
     }
 
     /**
-     * Builder to easily build Component objects
+     * Builder to easily build Category objects
      *
      * @param name Name field will be initialized using the passed value
      * @return a builder with name returned
@@ -156,12 +156,12 @@ public class Project extends EntityBase {
         return leader;
     }
 
-    public Integer getDefaultComponentId() {
-        return defaultComponentId;
+    public Integer getDefaultCategoryId() {
+        return defaultCategoryId;
     }
 
-    public void setDefaultComponentId(Integer defaultComponentId) {
-        this.defaultComponentId = defaultComponentId;
+    public void setDefaultCategoryId(Integer defaultCategoryId) {
+        this.defaultCategoryId = defaultCategoryId;
     }
 
     public static class Builder {
@@ -175,7 +175,7 @@ public class Project extends EntityBase {
         private int leaderId;
         private Date creationDate;
         private Date lastUpdatedDate;
-        private Integer defaultComponentId;
+        private Integer defaultCategoryId;
 
         public Builder(String name) {
             this.name = name;
@@ -211,8 +211,8 @@ public class Project extends EntityBase {
             return this;
         }
 
-        public Builder defaultComponentId(Integer defaultComponentId) {
-            this.defaultComponentId = defaultComponentId;
+        public Builder defaultCategoryId(Integer defaultCategoryId) {
+            this.defaultCategoryId = defaultCategoryId;
             return this;
         }
 

@@ -20,28 +20,27 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Component;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Category;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.sql.Timestamp;
-import java.util.List;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
  */
-public interface ComponentRepository extends Repository<Component> {
+public interface CategoryRepository extends Repository<Category> {
 
-    Component findById(int id) throws BazaarException;
+    Category findById(int id) throws BazaarException;
 
-    PaginationResult<Component> findByProjectId(int projectId, Pageable pageable) throws BazaarException;
+    PaginationResult<Category> findByProjectId(int projectId, Pageable pageable) throws BazaarException;
 
-    PaginationResult<Component> findByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
+    PaginationResult<Category> findByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
 
     boolean belongsToPublicProject(int id) throws BazaarException;
 
-    Statistic getStatisticsForComponent(int userId, int componentId, Timestamp timestamp) throws BazaarException;
+    Statistic getStatisticsForCategory(int userId, int categoryId, Timestamp timestamp) throws BazaarException;
 }

@@ -44,7 +44,7 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
         record.setName(entry.getName());
         record.setLeaderId(entry.getLeaderId());
         record.setVisibility((byte) (entry.getVisibility() == true ? 1 : 0 ));
-        record.setDefaultComponentId(entry.getDefaultComponentId());
+        record.setDefaultCategoryId(entry.getDefaultCategoryId());
         record.setCreationDate(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         record.setLastUpdatedDate(record.getCreationDate());
         return record;
@@ -56,7 +56,7 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
                 .description(record.getDescription())
                 .id(record.getId())
                 .leaderId(record.getLeaderId())
-                .defaultComponentId(record.getDefaultComponentId())
+                .defaultCategoryId(record.getDefaultCategoryId())
                 .visibility(record.getVisibility() == 1)
                 .creationDate(record.getCreationDate())
                 .lastUpdatedDate(record.getLastUpdatedDate())
@@ -90,8 +90,8 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
             if (entry.getLeaderId() != 0) {
                 put(PROJECT.LEADER_ID, entry.getLeaderId());
             }
-            if (entry.getDefaultComponentId() != null) {
-                put(PROJECT.DEFAULT_COMPONENT_ID, entry.getDefaultComponentId());
+            if (entry.getDefaultCategoryId() != null) {
+                put(PROJECT.DEFAULT_CATEGORY_ID, entry.getDefaultCategoryId());
             }
             if (entry.getVisibility() != null) {
                 put(PROJECT.VISIBILITY, entry.getVisibility());

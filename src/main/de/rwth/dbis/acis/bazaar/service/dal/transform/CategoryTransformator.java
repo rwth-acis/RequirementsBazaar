@@ -21,29 +21,29 @@
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import com.vdurmont.emoji.EmojiParser;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Component;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Category;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ComponentFollowerMap;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.CategoryFollowerMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirement;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementComponentMap;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementCategoryMap;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CategoryRecord;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.COMPONENT;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.CATEGORY;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
  */
-public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Component, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentRecord> {
+public class CategoryTransformator implements Transformator<Category, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CategoryRecord> {
     @Override
-    public ComponentRecord createRecord(Component entry) {
+    public CategoryRecord createRecord(Category entry) {
         entry = this.cleanEntry(entry);
 
-        ComponentRecord record = new ComponentRecord();
+        CategoryRecord record = new CategoryRecord();
         record.setDescription(entry.getDescription());
         record.setName(entry.getName());
         record.setProjectId(entry.getProjectId());
@@ -54,8 +54,8 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
     }
 
     @Override
-    public Component getEntityFromTableRecord(ComponentRecord record) {
-        return Component.getBuilder(record.getName())
+    public Category getEntityFromTableRecord(CategoryRecord record) {
+        return Category.getBuilder(record.getName())
                 .description(record.getDescription())
                 .projectId(record.getProjectId())
                 .id(record.getId())
@@ -66,32 +66,32 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
     }
 
     @Override
-    public Table<ComponentRecord> getTable() {
-        return COMPONENT;
+    public Table<CategoryRecord> getTable() {
+        return CATEGORY;
     }
 
     @Override
-    public TableField<ComponentRecord, Integer> getTableId() {
-        return COMPONENT.ID;
+    public TableField<CategoryRecord, Integer> getTableId() {
+        return CATEGORY.ID;
     }
 
     @Override
-    public Class<? extends ComponentRecord> getRecordClass() {
-        return ComponentRecord.class;
+    public Class<? extends CategoryRecord> getRecordClass() {
+        return CategoryRecord.class;
     }
 
     @Override
-    public Map<Field, Object> getUpdateMap(final Component entry) {
+    public Map<Field, Object> getUpdateMap(final Category entry) {
         HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
             if (entry.getDescription() != null) {
-                put(COMPONENT.DESCRIPTION, entry.getDescription());
+                put(CATEGORY.DESCRIPTION, entry.getDescription());
             }
             if (entry.getName() != null) {
-                put(COMPONENT.NAME, entry.getName());
+                put(CATEGORY.NAME, entry.getName());
             }
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(COMPONENT.LAST_UPDATED_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+            updateMap.put(CATEGORY.LAST_UPDATED_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         }
         return updateMap;
     }
@@ -99,40 +99,40 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(COMPONENT.NAME.asc());
+            return Arrays.asList(CATEGORY.NAME.asc());
         }
         List<SortField<?>> sortFields = new ArrayList<>();
         for (Pageable.SortField sort : sorts) {
             if (sort.getField().equals("name")) {
                 switch (sort.getSortDirection()) {
                     case ASC:
-                        sortFields.add(COMPONENT.NAME.asc());
+                        sortFields.add(CATEGORY.NAME.asc());
                         break;
                     case DESC:
-                        sortFields.add(COMPONENT.NAME.desc());
+                        sortFields.add(CATEGORY.NAME.desc());
                         break;
                     default:
-                        sortFields.add(COMPONENT.NAME.asc());
+                        sortFields.add(CATEGORY.NAME.asc());
                         break;
                 }
             } else if (sort.getField().equals("date")) {
                 switch (sort.getSortDirection()) {
                     case ASC:
-                        sortFields.add(COMPONENT.CREATION_DATE.asc());
+                        sortFields.add(CATEGORY.CREATION_DATE.asc());
                         break;
                     case DESC:
-                        sortFields.add(COMPONENT.CREATION_DATE.desc());
+                        sortFields.add(CATEGORY.CREATION_DATE.desc());
                         break;
                     default:
-                        sortFields.add(COMPONENT.CREATION_DATE.desc());
+                        sortFields.add(CATEGORY.CREATION_DATE.desc());
                         break;
                 }
             } else if (sort.getField().equals("requirement")) {
 
                 Field<Object> requirementCount = DSL.select(DSL.count())
                         .from(Requirement.REQUIREMENT)
-                        .leftJoin(RequirementComponentMap.REQUIREMENT_COMPONENT_MAP).on(Requirement.REQUIREMENT.ID.equal(RequirementComponentMap.REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID))
-                        .where(RequirementComponentMap.REQUIREMENT_COMPONENT_MAP.COMPONENT_ID.equal(COMPONENT.ID))
+                        .leftJoin(RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP).on(Requirement.REQUIREMENT.ID.equal(RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID))
+                        .where(RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.equal(CATEGORY.ID))
                         .asField("requirementCount");
 
                 switch (sort.getSortDirection()) {
@@ -149,8 +149,8 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
             } else if (sort.getField().equals("follower")) {
 
                 Field<Object> followerCount = DSL.select(DSL.count())
-                        .from(ComponentFollowerMap.COMPONENT_FOLLOWER_MAP)
-                        .where(ComponentFollowerMap.COMPONENT_FOLLOWER_MAP.COMPONENT_ID.equal(COMPONENT.ID))
+                        .from(CategoryFollowerMap.CATEGORY_FOLLOWER_MAP)
+                        .where(CategoryFollowerMap.CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID))
                         .asField("followerCount");
 
                 switch (sort.getSortDirection()) {
@@ -171,8 +171,8 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
 
     @Override
     public Condition getSearchCondition(String search) throws Exception {
-        return COMPONENT.NAME.likeIgnoreCase("%" + search + "%")
-                .or(COMPONENT.DESCRIPTION.likeIgnoreCase("%" + search + "%"));
+        return CATEGORY.NAME.likeIgnoreCase("%" + search + "%")
+                .or(CATEGORY.DESCRIPTION.likeIgnoreCase("%" + search + "%"));
     }
 
     @Override
@@ -180,13 +180,13 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
         return new ArrayList<>();
     }
 
-    public Component cleanEntry(Component component) {
-        if (component.getName() != null) {
-            component.setName(EmojiParser.parseToAliases(component.getName()));
+    public Category cleanEntry(Category category) {
+        if (category.getName() != null) {
+            category.setName(EmojiParser.parseToAliases(category.getName()));
         }
-        if (component.getDescription() != null) {
-            component.setDescription(EmojiParser.parseToAliases(component.getDescription()));
+        if (category.getDescription() != null) {
+            category.setDescription(EmojiParser.parseToAliases(category.getDescription()));
         }
-        return component;
+        return category;
     }
 }

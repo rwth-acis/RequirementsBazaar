@@ -20,63 +20,63 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementComponent;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementCategory;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementComponentMapRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementCategoryMapRecord;
 import org.jooq.*;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.REQUIREMENT_COMPONENT_MAP;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.REQUIREMENT_CATEGORY_MAP;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
-public class RequirementComponentTransformator implements Transformator<RequirementComponent, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementComponentMapRecord> {
+public class RequirementCategoryTransformator implements Transformator<RequirementCategory, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementCategoryMapRecord> {
     @Override
-    public RequirementComponentMapRecord createRecord(RequirementComponent entity) {
-        RequirementComponentMapRecord record = new RequirementComponentMapRecord();
-        record.setComponentId(entity.getComponentId());
+    public RequirementCategoryMapRecord createRecord(RequirementCategory entity) {
+        RequirementCategoryMapRecord record = new RequirementCategoryMapRecord();
+        record.setCategoryId(entity.getCategoryId());
         record.setRequirementId(entity.getRequirementId());
         return record;
     }
 
     @Override
-    public RequirementComponent getEntityFromTableRecord(RequirementComponentMapRecord record) {
-        return RequirementComponent.getBuilder(record.getComponentId())
+    public RequirementCategory getEntityFromTableRecord(RequirementCategoryMapRecord record) {
+        return RequirementCategory.getBuilder(record.getCategoryId())
                 .id(record.getId())
                 .requirementId(record.getRequirementId())
                 .build();
     }
 
     @Override
-    public Table<RequirementComponentMapRecord> getTable() {
-        return REQUIREMENT_COMPONENT_MAP;
+    public Table<RequirementCategoryMapRecord> getTable() {
+        return REQUIREMENT_CATEGORY_MAP;
     }
 
     @Override
-    public TableField<RequirementComponentMapRecord, Integer> getTableId() {
-        return REQUIREMENT_COMPONENT_MAP.ID;
+    public TableField<RequirementCategoryMapRecord, Integer> getTableId() {
+        return REQUIREMENT_CATEGORY_MAP.ID;
     }
 
     @Override
-    public Class<? extends RequirementComponentMapRecord> getRecordClass() {
-        return RequirementComponentMapRecord.class;
+    public Class<? extends RequirementCategoryMapRecord> getRecordClass() {
+        return RequirementCategoryMapRecord.class;
     }
 
     @Override
-    public Map<Field, Object> getUpdateMap(final RequirementComponent entity) {
+    public Map<Field, Object> getUpdateMap(final RequirementCategory entity) {
         return new HashMap<Field, Object>() {{
-            put(REQUIREMENT_COMPONENT_MAP.COMPONENT_ID, entity.getComponentId());
-            put(REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID, entity.getRequirementId());
+            put(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID, entity.getCategoryId());
+            put(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID, entity.getRequirementId());
         }};
     }
 
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(REQUIREMENT_COMPONENT_MAP.ID.asc());
+            return Arrays.asList(REQUIREMENT_CATEGORY_MAP.ID.asc());
         }
         return null;
     }

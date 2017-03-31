@@ -33,7 +33,7 @@ import java.util.List;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
  */
-public class Component extends EntityBase {
+public class Category extends EntityBase {
 
     private int id;
 
@@ -116,7 +116,7 @@ public class Component extends EntityBase {
         this.numberOfFollowers = numberOfFollowers;
     }
 
-    public Component() {
+    public Category() {
     }
 
     /**
@@ -124,7 +124,7 @@ public class Component extends EntityBase {
      *
      * @param builder
      */
-    private Component(Builder builder) {
+    private Category(Builder builder) {
         this.id = builder.id;
         this.description = builder.description;
         this.name = builder.name;
@@ -138,7 +138,7 @@ public class Component extends EntityBase {
 
 
     /**
-     * Builder to easily build Component objects
+     * Builder to easily build Category objects
      *
      * @param name Name field will be initialized using the passed value
      * @return a builder with name returned
@@ -204,12 +204,12 @@ public class Component extends EntityBase {
         }
 
         /**
-         * Call this to create a Component object with the values previously set in the builder.
+         * Call this to create a Category object with the values previously set in the builder.
          *
-         * @return initialized Component object
+         * @return initialized Category object
          */
-        public Component build() {
-            Component created = new Component(this);
+        public Category build() {
+            Category created = new Category(this);
 
             String name = created.getName();
 

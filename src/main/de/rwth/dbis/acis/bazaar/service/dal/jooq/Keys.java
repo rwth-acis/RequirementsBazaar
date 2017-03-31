@@ -5,14 +5,14 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq;
 
 
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachment;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Category;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.CategoryFollowerMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Component;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ComponentFollowerMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privilege;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ProjectFollowerMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirement;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementComponentMap;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementCategoryMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementDeveloperMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementFollowerMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Role;
@@ -22,13 +22,13 @@ import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.UserRoleMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Vote;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CategoryFollowerMapRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CategoryRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentFollowerMapRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ComponentRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.PrivilegeRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectFollowerMapRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementComponentMapRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementCategoryMapRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementDeveloperMapRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementFollowerMapRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementRecord;
@@ -66,14 +66,14 @@ public class Keys {
     // -------------------------------------------------------------------------
 
     public static final Identity<AttachmentRecord, Integer> IDENTITY_ATTACHMENT = Identities0.IDENTITY_ATTACHMENT;
+    public static final Identity<CategoryRecord, Integer> IDENTITY_CATEGORY = Identities0.IDENTITY_CATEGORY;
+    public static final Identity<CategoryFollowerMapRecord, Integer> IDENTITY_CATEGORY_FOLLOWER_MAP = Identities0.IDENTITY_CATEGORY_FOLLOWER_MAP;
     public static final Identity<CommentRecord, Integer> IDENTITY_COMMENT = Identities0.IDENTITY_COMMENT;
-    public static final Identity<ComponentRecord, Integer> IDENTITY_COMPONENT = Identities0.IDENTITY_COMPONENT;
-    public static final Identity<ComponentFollowerMapRecord, Integer> IDENTITY_COMPONENT_FOLLOWER_MAP = Identities0.IDENTITY_COMPONENT_FOLLOWER_MAP;
     public static final Identity<PrivilegeRecord, Integer> IDENTITY_PRIVILEGE = Identities0.IDENTITY_PRIVILEGE;
     public static final Identity<ProjectRecord, Integer> IDENTITY_PROJECT = Identities0.IDENTITY_PROJECT;
     public static final Identity<ProjectFollowerMapRecord, Integer> IDENTITY_PROJECT_FOLLOWER_MAP = Identities0.IDENTITY_PROJECT_FOLLOWER_MAP;
     public static final Identity<RequirementRecord, Integer> IDENTITY_REQUIREMENT = Identities0.IDENTITY_REQUIREMENT;
-    public static final Identity<RequirementComponentMapRecord, Integer> IDENTITY_REQUIREMENT_COMPONENT_MAP = Identities0.IDENTITY_REQUIREMENT_COMPONENT_MAP;
+    public static final Identity<RequirementCategoryMapRecord, Integer> IDENTITY_REQUIREMENT_CATEGORY_MAP = Identities0.IDENTITY_REQUIREMENT_CATEGORY_MAP;
     public static final Identity<RequirementDeveloperMapRecord, Integer> IDENTITY_REQUIREMENT_DEVELOPER_MAP = Identities0.IDENTITY_REQUIREMENT_DEVELOPER_MAP;
     public static final Identity<RequirementFollowerMapRecord, Integer> IDENTITY_REQUIREMENT_FOLLOWER_MAP = Identities0.IDENTITY_REQUIREMENT_FOLLOWER_MAP;
     public static final Identity<RoleRecord, Integer> IDENTITY_ROLE = Identities0.IDENTITY_ROLE;
@@ -88,14 +88,14 @@ public class Keys {
     // -------------------------------------------------------------------------
 
     public static final UniqueKey<AttachmentRecord> KEY_ATTACHMENT_PRIMARY = UniqueKeys0.KEY_ATTACHMENT_PRIMARY;
+    public static final UniqueKey<CategoryRecord> KEY_CATEGORY_PRIMARY = UniqueKeys0.KEY_CATEGORY_PRIMARY;
+    public static final UniqueKey<CategoryFollowerMapRecord> KEY_CATEGORY_FOLLOWER_MAP_PRIMARY = UniqueKeys0.KEY_CATEGORY_FOLLOWER_MAP_PRIMARY;
     public static final UniqueKey<CommentRecord> KEY_COMMENT_PRIMARY = UniqueKeys0.KEY_COMMENT_PRIMARY;
-    public static final UniqueKey<ComponentRecord> KEY_COMPONENT_PRIMARY = UniqueKeys0.KEY_COMPONENT_PRIMARY;
-    public static final UniqueKey<ComponentFollowerMapRecord> KEY_COMPONENT_FOLLOWER_MAP_PRIMARY = UniqueKeys0.KEY_COMPONENT_FOLLOWER_MAP_PRIMARY;
     public static final UniqueKey<PrivilegeRecord> KEY_PRIVILEGE_PRIMARY = UniqueKeys0.KEY_PRIVILEGE_PRIMARY;
     public static final UniqueKey<ProjectRecord> KEY_PROJECT_PRIMARY = UniqueKeys0.KEY_PROJECT_PRIMARY;
     public static final UniqueKey<ProjectFollowerMapRecord> KEY_PROJECT_FOLLOWER_MAP_PRIMARY = UniqueKeys0.KEY_PROJECT_FOLLOWER_MAP_PRIMARY;
     public static final UniqueKey<RequirementRecord> KEY_REQUIREMENT_PRIMARY = UniqueKeys0.KEY_REQUIREMENT_PRIMARY;
-    public static final UniqueKey<RequirementComponentMapRecord> KEY_REQUIREMENT_COMPONENT_MAP_PRIMARY = UniqueKeys0.KEY_REQUIREMENT_COMPONENT_MAP_PRIMARY;
+    public static final UniqueKey<RequirementCategoryMapRecord> KEY_REQUIREMENT_CATEGORY_MAP_PRIMARY = UniqueKeys0.KEY_REQUIREMENT_CATEGORY_MAP_PRIMARY;
     public static final UniqueKey<RequirementDeveloperMapRecord> KEY_REQUIREMENT_DEVELOPER_MAP_PRIMARY = UniqueKeys0.KEY_REQUIREMENT_DEVELOPER_MAP_PRIMARY;
     public static final UniqueKey<RequirementFollowerMapRecord> KEY_REQUIREMENT_FOLLOWER_MAP_PRIMARY = UniqueKeys0.KEY_REQUIREMENT_FOLLOWER_MAP_PRIMARY;
     public static final UniqueKey<RoleRecord> KEY_ROLE_PRIMARY = UniqueKeys0.KEY_ROLE_PRIMARY;
@@ -112,22 +112,22 @@ public class Keys {
 
     public static final ForeignKey<AttachmentRecord, RequirementRecord> ATTACHMENT_REQUIREMENT = ForeignKeys0.ATTACHMENT_REQUIREMENT;
     public static final ForeignKey<AttachmentRecord, UserRecord> ATTACHMENT_USER = ForeignKeys0.ATTACHMENT_USER;
+    public static final ForeignKey<CategoryRecord, ProjectRecord> CATEGORY_PROJECT = ForeignKeys0.CATEGORY_PROJECT;
+    public static final ForeignKey<CategoryRecord, UserRecord> CATEGORY_USER = ForeignKeys0.CATEGORY_USER;
+    public static final ForeignKey<CategoryFollowerMapRecord, CategoryRecord> CATEGORY_FOLLOWER_MAP_CATEGORY = ForeignKeys0.CATEGORY_FOLLOWER_MAP_CATEGORY;
+    public static final ForeignKey<CategoryFollowerMapRecord, UserRecord> CATEGORY_FOLLOWER_MAP_USER = ForeignKeys0.CATEGORY_FOLLOWER_MAP_USER;
     public static final ForeignKey<CommentRecord, RequirementRecord> COMMENT_REQUIREMENT = ForeignKeys0.COMMENT_REQUIREMENT;
     public static final ForeignKey<CommentRecord, UserRecord> COMMENT_USER = ForeignKeys0.COMMENT_USER;
     public static final ForeignKey<CommentRecord, CommentRecord> REPLY_COMMENT = ForeignKeys0.REPLY_COMMENT;
-    public static final ForeignKey<ComponentRecord, ProjectRecord> COMPONENT_PROJECT = ForeignKeys0.COMPONENT_PROJECT;
-    public static final ForeignKey<ComponentRecord, UserRecord> COMPONENT_USER = ForeignKeys0.COMPONENT_USER;
-    public static final ForeignKey<ComponentFollowerMapRecord, ComponentRecord> COMPONENT_FOLLOWER_MAP_COMPONENT = ForeignKeys0.COMPONENT_FOLLOWER_MAP_COMPONENT;
-    public static final ForeignKey<ComponentFollowerMapRecord, UserRecord> COMPONENT_FOLLOWER_MAP_USER = ForeignKeys0.COMPONENT_FOLLOWER_MAP_USER;
     public static final ForeignKey<ProjectRecord, UserRecord> PROJECT_USER = ForeignKeys0.PROJECT_USER;
-    public static final ForeignKey<ProjectRecord, ComponentRecord> PROJECT_COMPONENT = ForeignKeys0.PROJECT_COMPONENT;
+    public static final ForeignKey<ProjectRecord, CategoryRecord> PROJECT_CATEGORY = ForeignKeys0.PROJECT_CATEGORY;
     public static final ForeignKey<ProjectFollowerMapRecord, ProjectRecord> PROJECT_FOLLOWER_MAP_PROJECT = ForeignKeys0.PROJECT_FOLLOWER_MAP_PROJECT;
     public static final ForeignKey<ProjectFollowerMapRecord, UserRecord> PROJECT_FOLLOWER_MAP_USER = ForeignKeys0.PROJECT_FOLLOWER_MAP_USER;
     public static final ForeignKey<RequirementRecord, UserRecord> LEAD_DEVELOPER = ForeignKeys0.LEAD_DEVELOPER;
     public static final ForeignKey<RequirementRecord, UserRecord> CREATOR = ForeignKeys0.CREATOR;
     public static final ForeignKey<RequirementRecord, ProjectRecord> REQUIREMENT_PROJECT = ForeignKeys0.REQUIREMENT_PROJECT;
-    public static final ForeignKey<RequirementComponentMapRecord, ComponentRecord> REQUIREMENT_COMPONENT_MAP_COMPONENT = ForeignKeys0.REQUIREMENT_COMPONENT_MAP_COMPONENT;
-    public static final ForeignKey<RequirementComponentMapRecord, RequirementRecord> REQUIREMENT_COMPONENT_MAP_REQUIREMENT = ForeignKeys0.REQUIREMENT_COMPONENT_MAP_REQUIREMENT;
+    public static final ForeignKey<RequirementCategoryMapRecord, CategoryRecord> REQUIREMENT_CATEGORY_MAP_CATEGORY = ForeignKeys0.REQUIREMENT_CATEGORY_MAP_CATEGORY;
+    public static final ForeignKey<RequirementCategoryMapRecord, RequirementRecord> REQUIREMENT_CATEGORY_MAP_REQUIREMENT = ForeignKeys0.REQUIREMENT_CATEGORY_MAP_REQUIREMENT;
     public static final ForeignKey<RequirementDeveloperMapRecord, RequirementRecord> REQUIREMENT_DEVELOPER_MAP_REQUIREMENT = ForeignKeys0.REQUIREMENT_DEVELOPER_MAP_REQUIREMENT;
     public static final ForeignKey<RequirementDeveloperMapRecord, UserRecord> REQUIREMENT_DEVELOPER_MAP_USER = ForeignKeys0.REQUIREMENT_DEVELOPER_MAP_USER;
     public static final ForeignKey<RequirementFollowerMapRecord, RequirementRecord> REQUIREMENT_FOLLOWER_MAP_REQUIREMENT = ForeignKeys0.REQUIREMENT_FOLLOWER_MAP_REQUIREMENT;
@@ -147,14 +147,14 @@ public class Keys {
 
     private static class Identities0 extends AbstractKeys {
         public static Identity<AttachmentRecord, Integer> IDENTITY_ATTACHMENT = createIdentity(Attachment.ATTACHMENT, Attachment.ATTACHMENT.ID);
+        public static Identity<CategoryRecord, Integer> IDENTITY_CATEGORY = createIdentity(Category.CATEGORY, Category.CATEGORY.ID);
+        public static Identity<CategoryFollowerMapRecord, Integer> IDENTITY_CATEGORY_FOLLOWER_MAP = createIdentity(CategoryFollowerMap.CATEGORY_FOLLOWER_MAP, CategoryFollowerMap.CATEGORY_FOLLOWER_MAP.ID);
         public static Identity<CommentRecord, Integer> IDENTITY_COMMENT = createIdentity(Comment.COMMENT, Comment.COMMENT.ID);
-        public static Identity<ComponentRecord, Integer> IDENTITY_COMPONENT = createIdentity(Component.COMPONENT, Component.COMPONENT.ID);
-        public static Identity<ComponentFollowerMapRecord, Integer> IDENTITY_COMPONENT_FOLLOWER_MAP = createIdentity(ComponentFollowerMap.COMPONENT_FOLLOWER_MAP, ComponentFollowerMap.COMPONENT_FOLLOWER_MAP.ID);
         public static Identity<PrivilegeRecord, Integer> IDENTITY_PRIVILEGE = createIdentity(Privilege.PRIVILEGE, Privilege.PRIVILEGE.ID);
         public static Identity<ProjectRecord, Integer> IDENTITY_PROJECT = createIdentity(Project.PROJECT, Project.PROJECT.ID);
         public static Identity<ProjectFollowerMapRecord, Integer> IDENTITY_PROJECT_FOLLOWER_MAP = createIdentity(ProjectFollowerMap.PROJECT_FOLLOWER_MAP, ProjectFollowerMap.PROJECT_FOLLOWER_MAP.ID);
         public static Identity<RequirementRecord, Integer> IDENTITY_REQUIREMENT = createIdentity(Requirement.REQUIREMENT, Requirement.REQUIREMENT.ID);
-        public static Identity<RequirementComponentMapRecord, Integer> IDENTITY_REQUIREMENT_COMPONENT_MAP = createIdentity(RequirementComponentMap.REQUIREMENT_COMPONENT_MAP, RequirementComponentMap.REQUIREMENT_COMPONENT_MAP.ID);
+        public static Identity<RequirementCategoryMapRecord, Integer> IDENTITY_REQUIREMENT_CATEGORY_MAP = createIdentity(RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP, RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP.ID);
         public static Identity<RequirementDeveloperMapRecord, Integer> IDENTITY_REQUIREMENT_DEVELOPER_MAP = createIdentity(RequirementDeveloperMap.REQUIREMENT_DEVELOPER_MAP, RequirementDeveloperMap.REQUIREMENT_DEVELOPER_MAP.ID);
         public static Identity<RequirementFollowerMapRecord, Integer> IDENTITY_REQUIREMENT_FOLLOWER_MAP = createIdentity(RequirementFollowerMap.REQUIREMENT_FOLLOWER_MAP, RequirementFollowerMap.REQUIREMENT_FOLLOWER_MAP.ID);
         public static Identity<RoleRecord, Integer> IDENTITY_ROLE = createIdentity(Role.ROLE, Role.ROLE.ID);
@@ -167,14 +167,14 @@ public class Keys {
 
     private static class UniqueKeys0 extends AbstractKeys {
         public static final UniqueKey<AttachmentRecord> KEY_ATTACHMENT_PRIMARY = createUniqueKey(Attachment.ATTACHMENT, "KEY_attachment_PRIMARY", Attachment.ATTACHMENT.ID);
+        public static final UniqueKey<CategoryRecord> KEY_CATEGORY_PRIMARY = createUniqueKey(Category.CATEGORY, "KEY_category_PRIMARY", Category.CATEGORY.ID);
+        public static final UniqueKey<CategoryFollowerMapRecord> KEY_CATEGORY_FOLLOWER_MAP_PRIMARY = createUniqueKey(CategoryFollowerMap.CATEGORY_FOLLOWER_MAP, "KEY_category_follower_map_PRIMARY", CategoryFollowerMap.CATEGORY_FOLLOWER_MAP.ID);
         public static final UniqueKey<CommentRecord> KEY_COMMENT_PRIMARY = createUniqueKey(Comment.COMMENT, "KEY_comment_PRIMARY", Comment.COMMENT.ID);
-        public static final UniqueKey<ComponentRecord> KEY_COMPONENT_PRIMARY = createUniqueKey(Component.COMPONENT, "KEY_component_PRIMARY", Component.COMPONENT.ID);
-        public static final UniqueKey<ComponentFollowerMapRecord> KEY_COMPONENT_FOLLOWER_MAP_PRIMARY = createUniqueKey(ComponentFollowerMap.COMPONENT_FOLLOWER_MAP, "KEY_component_follower_map_PRIMARY", ComponentFollowerMap.COMPONENT_FOLLOWER_MAP.ID);
         public static final UniqueKey<PrivilegeRecord> KEY_PRIVILEGE_PRIMARY = createUniqueKey(Privilege.PRIVILEGE, "KEY_privilege_PRIMARY", Privilege.PRIVILEGE.ID);
         public static final UniqueKey<ProjectRecord> KEY_PROJECT_PRIMARY = createUniqueKey(Project.PROJECT, "KEY_project_PRIMARY", Project.PROJECT.ID);
         public static final UniqueKey<ProjectFollowerMapRecord> KEY_PROJECT_FOLLOWER_MAP_PRIMARY = createUniqueKey(ProjectFollowerMap.PROJECT_FOLLOWER_MAP, "KEY_project_follower_map_PRIMARY", ProjectFollowerMap.PROJECT_FOLLOWER_MAP.ID);
         public static final UniqueKey<RequirementRecord> KEY_REQUIREMENT_PRIMARY = createUniqueKey(Requirement.REQUIREMENT, "KEY_requirement_PRIMARY", Requirement.REQUIREMENT.ID);
-        public static final UniqueKey<RequirementComponentMapRecord> KEY_REQUIREMENT_COMPONENT_MAP_PRIMARY = createUniqueKey(RequirementComponentMap.REQUIREMENT_COMPONENT_MAP, "KEY_requirement_component_map_PRIMARY", RequirementComponentMap.REQUIREMENT_COMPONENT_MAP.ID);
+        public static final UniqueKey<RequirementCategoryMapRecord> KEY_REQUIREMENT_CATEGORY_MAP_PRIMARY = createUniqueKey(RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP, "KEY_requirement_category_map_PRIMARY", RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP.ID);
         public static final UniqueKey<RequirementDeveloperMapRecord> KEY_REQUIREMENT_DEVELOPER_MAP_PRIMARY = createUniqueKey(RequirementDeveloperMap.REQUIREMENT_DEVELOPER_MAP, "KEY_requirement_developer_map_PRIMARY", RequirementDeveloperMap.REQUIREMENT_DEVELOPER_MAP.ID);
         public static final UniqueKey<RequirementFollowerMapRecord> KEY_REQUIREMENT_FOLLOWER_MAP_PRIMARY = createUniqueKey(RequirementFollowerMap.REQUIREMENT_FOLLOWER_MAP, "KEY_requirement_follower_map_PRIMARY", RequirementFollowerMap.REQUIREMENT_FOLLOWER_MAP.ID);
         public static final UniqueKey<RoleRecord> KEY_ROLE_PRIMARY = createUniqueKey(Role.ROLE, "KEY_role_PRIMARY", Role.ROLE.ID);
@@ -189,22 +189,22 @@ public class Keys {
     private static class ForeignKeys0 extends AbstractKeys {
         public static final ForeignKey<AttachmentRecord, RequirementRecord> ATTACHMENT_REQUIREMENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_REQUIREMENT_PRIMARY, Attachment.ATTACHMENT, "attachment_requirement", Attachment.ATTACHMENT.REQUIREMENT_ID);
         public static final ForeignKey<AttachmentRecord, UserRecord> ATTACHMENT_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, Attachment.ATTACHMENT, "attachment_user", Attachment.ATTACHMENT.USER_ID);
+        public static final ForeignKey<CategoryRecord, ProjectRecord> CATEGORY_PROJECT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_PROJECT_PRIMARY, Category.CATEGORY, "category_project", Category.CATEGORY.PROJECT_ID);
+        public static final ForeignKey<CategoryRecord, UserRecord> CATEGORY_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, Category.CATEGORY, "category_user", Category.CATEGORY.LEADER_ID);
+        public static final ForeignKey<CategoryFollowerMapRecord, CategoryRecord> CATEGORY_FOLLOWER_MAP_CATEGORY = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_CATEGORY_PRIMARY, CategoryFollowerMap.CATEGORY_FOLLOWER_MAP, "category_follower_map_category", CategoryFollowerMap.CATEGORY_FOLLOWER_MAP.CATEGORY_ID);
+        public static final ForeignKey<CategoryFollowerMapRecord, UserRecord> CATEGORY_FOLLOWER_MAP_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, CategoryFollowerMap.CATEGORY_FOLLOWER_MAP, "category_follower_map_user", CategoryFollowerMap.CATEGORY_FOLLOWER_MAP.USER_ID);
         public static final ForeignKey<CommentRecord, RequirementRecord> COMMENT_REQUIREMENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_REQUIREMENT_PRIMARY, Comment.COMMENT, "comment_requirement", Comment.COMMENT.REQUIREMENT_ID);
         public static final ForeignKey<CommentRecord, UserRecord> COMMENT_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, Comment.COMMENT, "comment_user", Comment.COMMENT.USER_ID);
         public static final ForeignKey<CommentRecord, CommentRecord> REPLY_COMMENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_COMMENT_PRIMARY, Comment.COMMENT, "reply_comment", Comment.COMMENT.REPLY_TO_COMMENT_ID);
-        public static final ForeignKey<ComponentRecord, ProjectRecord> COMPONENT_PROJECT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_PROJECT_PRIMARY, Component.COMPONENT, "component_project", Component.COMPONENT.PROJECT_ID);
-        public static final ForeignKey<ComponentRecord, UserRecord> COMPONENT_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, Component.COMPONENT, "component_user", Component.COMPONENT.LEADER_ID);
-        public static final ForeignKey<ComponentFollowerMapRecord, ComponentRecord> COMPONENT_FOLLOWER_MAP_COMPONENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_COMPONENT_PRIMARY, ComponentFollowerMap.COMPONENT_FOLLOWER_MAP, "component_follower_map_component", ComponentFollowerMap.COMPONENT_FOLLOWER_MAP.COMPONENT_ID);
-        public static final ForeignKey<ComponentFollowerMapRecord, UserRecord> COMPONENT_FOLLOWER_MAP_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, ComponentFollowerMap.COMPONENT_FOLLOWER_MAP, "component_follower_map_user", ComponentFollowerMap.COMPONENT_FOLLOWER_MAP.USER_ID);
         public static final ForeignKey<ProjectRecord, UserRecord> PROJECT_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, Project.PROJECT, "project_user", Project.PROJECT.LEADER_ID);
-        public static final ForeignKey<ProjectRecord, ComponentRecord> PROJECT_COMPONENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_COMPONENT_PRIMARY, Project.PROJECT, "project_component", Project.PROJECT.DEFAULT_COMPONENT_ID);
+        public static final ForeignKey<ProjectRecord, CategoryRecord> PROJECT_CATEGORY = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_CATEGORY_PRIMARY, Project.PROJECT, "project_category", Project.PROJECT.DEFAULT_CATEGORY_ID);
         public static final ForeignKey<ProjectFollowerMapRecord, ProjectRecord> PROJECT_FOLLOWER_MAP_PROJECT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_PROJECT_PRIMARY, ProjectFollowerMap.PROJECT_FOLLOWER_MAP, "project_follower_map_project", ProjectFollowerMap.PROJECT_FOLLOWER_MAP.PROJECT_ID);
         public static final ForeignKey<ProjectFollowerMapRecord, UserRecord> PROJECT_FOLLOWER_MAP_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, ProjectFollowerMap.PROJECT_FOLLOWER_MAP, "project_follower_map_user", ProjectFollowerMap.PROJECT_FOLLOWER_MAP.USER_ID);
         public static final ForeignKey<RequirementRecord, UserRecord> LEAD_DEVELOPER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, Requirement.REQUIREMENT, "lead_developer", Requirement.REQUIREMENT.LEAD_DEVELOPER_ID);
         public static final ForeignKey<RequirementRecord, UserRecord> CREATOR = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, Requirement.REQUIREMENT, "creator", Requirement.REQUIREMENT.CREATOR_ID);
         public static final ForeignKey<RequirementRecord, ProjectRecord> REQUIREMENT_PROJECT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_PROJECT_PRIMARY, Requirement.REQUIREMENT, "requirement_project", Requirement.REQUIREMENT.PROJECT_ID);
-        public static final ForeignKey<RequirementComponentMapRecord, ComponentRecord> REQUIREMENT_COMPONENT_MAP_COMPONENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_COMPONENT_PRIMARY, RequirementComponentMap.REQUIREMENT_COMPONENT_MAP, "requirement_component_map_component", RequirementComponentMap.REQUIREMENT_COMPONENT_MAP.COMPONENT_ID);
-        public static final ForeignKey<RequirementComponentMapRecord, RequirementRecord> REQUIREMENT_COMPONENT_MAP_REQUIREMENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_REQUIREMENT_PRIMARY, RequirementComponentMap.REQUIREMENT_COMPONENT_MAP, "requirement_component_map_requirement", RequirementComponentMap.REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID);
+        public static final ForeignKey<RequirementCategoryMapRecord, CategoryRecord> REQUIREMENT_CATEGORY_MAP_CATEGORY = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_CATEGORY_PRIMARY, RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP, "requirement_category_map_category", RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP.CATEGORY_ID);
+        public static final ForeignKey<RequirementCategoryMapRecord, RequirementRecord> REQUIREMENT_CATEGORY_MAP_REQUIREMENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_REQUIREMENT_PRIMARY, RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP, "requirement_category_map_requirement", RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID);
         public static final ForeignKey<RequirementDeveloperMapRecord, RequirementRecord> REQUIREMENT_DEVELOPER_MAP_REQUIREMENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_REQUIREMENT_PRIMARY, RequirementDeveloperMap.REQUIREMENT_DEVELOPER_MAP, "requirement_developer_map_requirement", RequirementDeveloperMap.REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID);
         public static final ForeignKey<RequirementDeveloperMapRecord, UserRecord> REQUIREMENT_DEVELOPER_MAP_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, RequirementDeveloperMap.REQUIREMENT_DEVELOPER_MAP, "requirement_developer_map_user", RequirementDeveloperMap.REQUIREMENT_DEVELOPER_MAP.USER_ID);
         public static final ForeignKey<RequirementFollowerMapRecord, RequirementRecord> REQUIREMENT_FOLLOWER_MAP_REQUIREMENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_REQUIREMENT_PRIMARY, RequirementFollowerMap.REQUIREMENT_FOLLOWER_MAP, "requirement_follower_map_requirement", RequirementFollowerMap.REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID);

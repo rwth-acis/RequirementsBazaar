@@ -24,15 +24,15 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/11/2014
  */
-public class RequirementComponent extends EntityBase {
+public class RequirementCategory extends EntityBase {
 
     private final int id;
-    private final int componentId;
+    private final int categoryId;
     private final int requirementId;
 
-    public RequirementComponent(Builder builder) {
+    public RequirementCategory(Builder builder) {
         this.id = builder.id;
-        this.componentId = builder.componentId;
+        this.categoryId = builder.categoryId;
         this.requirementId = builder.requirementId;
     }
 
@@ -40,25 +40,25 @@ public class RequirementComponent extends EntityBase {
         return id;
     }
 
-    public int getComponentId() {
-        return componentId;
+    public int getCategoryId() {
+        return categoryId;
     }
 
     public int getRequirementId() {
         return requirementId;
     }
 
-    public static Builder getBuilder(int component_id) {
-        return new Builder(component_id);
+    public static Builder getBuilder(int category_id) {
+        return new Builder(category_id);
     }
 
     public static class Builder {
         private int id;
-        private int componentId;
+        private int categoryId;
         private int requirementId;
 
-        public Builder(int component_id) {
-            this.componentId = component_id;
+        public Builder(int category_id) {
+            this.categoryId = category_id;
         }
 
         public Builder id(int id) {
@@ -66,8 +66,8 @@ public class RequirementComponent extends EntityBase {
             return this;
         }
 
-        public Builder componentId(int componentId) {
-            this.componentId = componentId;
+        public Builder categoryId(int categoryId) {
+            this.categoryId = categoryId;
             return this;
         }
 
@@ -76,8 +76,8 @@ public class RequirementComponent extends EntityBase {
             return this;
         }
 
-        public RequirementComponent build() {
-            return new RequirementComponent(this);
+        public RequirementCategory build() {
+            return new RequirementCategory(this);
         }
     }
 }

@@ -37,7 +37,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Project extends TableImpl<ProjectRecord> {
 
-    private static final long serialVersionUID = -598797768;
+    private static final long serialVersionUID = 1235446294;
 
     /**
      * The reference instance of <code>reqbaz.project</code>
@@ -88,9 +88,9 @@ public class Project extends TableImpl<ProjectRecord> {
     public final TableField<ProjectRecord, Integer> LEADER_ID = createField("leader_id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
 
     /**
-     * The column <code>reqbaz.project.default_component_id</code>.
+     * The column <code>reqbaz.project.default_category_id</code>.
      */
-    public final TableField<ProjectRecord, Integer> DEFAULT_COMPONENT_ID = createField("default_component_id", org.jooq.impl.SQLDataType.INTEGER, this, "");
+    public final TableField<ProjectRecord, Integer> DEFAULT_CATEGORY_ID = createField("default_category_id", org.jooq.impl.SQLDataType.INTEGER, this, "");
 
     /**
      * Create a <code>reqbaz.project</code> table reference
@@ -151,7 +151,7 @@ public class Project extends TableImpl<ProjectRecord> {
      */
     @Override
     public List<ForeignKey<ProjectRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<ProjectRecord, ?>>asList(Keys.PROJECT_USER, Keys.PROJECT_COMPONENT);
+        return Arrays.<ForeignKey<ProjectRecord, ?>>asList(Keys.PROJECT_USER, Keys.PROJECT_CATEGORY);
     }
 
     /**

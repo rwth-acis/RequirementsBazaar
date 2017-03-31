@@ -132,7 +132,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     }
 
     @Override
-    public PaginationResult<RequirementEx> findAllByComponent(int componentId, Pageable pageable, int userId) throws BazaarException {
+    public PaginationResult<RequirementEx> findAllByCategory(int categoryId, Pageable pageable, int userId) throws BazaarException {
         PaginationResult<RequirementEx> result = null;
         List<RequirementEx> requirements;
         try {
@@ -140,10 +140,10 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
             Field<Object> idCount = jooq.selectCount()
                     .from(REQUIREMENT)
-                    .join(REQUIREMENT_COMPONENT_MAP).on(REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID.eq(REQUIREMENT.ID))
+                    .join(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.eq(REQUIREMENT.ID))
                     .where(transformator.getFilterConditions(pageable.getFilters()))
                     .and(transformator.getSearchCondition(pageable.getSearch()))
-                    .and(REQUIREMENT_COMPONENT_MAP.COMPONENT_ID.eq(componentId))
+                    .and(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.eq(categoryId))
                     .asField("idCount");
 
             Field<Object> voteCount = jooq.select(DSL.count(DSL.nullif(VOTE.IS_UPVOTE, 0)))
@@ -167,10 +167,10 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .select(commentCount)
                     .select(followerCount)
                     .from(REQUIREMENT)
-                    .join(REQUIREMENT_COMPONENT_MAP).on(REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID.eq(REQUIREMENT.ID))
+                    .join(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.eq(REQUIREMENT.ID))
                     .where(transformator.getFilterConditions(pageable.getFilters()))
                     .and(transformator.getSearchCondition(pageable.getSearch()))
-                    .and(REQUIREMENT_COMPONENT_MAP.COMPONENT_ID.eq(componentId))
+                    .and(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.eq(categoryId))
                     .groupBy(REQUIREMENT.ID)
                     .orderBy(transformator.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
@@ -240,7 +240,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .select(creatorUser.fields())
                     .select(leadDeveloperUser.fields())
                     .select(ATTACHMENT.fields())
-                    .select(COMPONENT.fields())
+                    .select(CATEGORY.fields())
 
                     .from(REQUIREMENT)
                     //.leftOuterJoin(Comments.COMMENTS).on(Comments.COMMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
@@ -257,8 +257,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
                     //.leftOuterJoin(contributorUsers).on(Attachments.ATTACHMENTS.USER_ID.equal(contributorUsers.ID))
 
-                    .leftOuterJoin(REQUIREMENT_COMPONENT_MAP).on(REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .leftOuterJoin(COMPONENT).on(COMPONENT.ID.equal(REQUIREMENT_COMPONENT_MAP.COMPONENT_ID))
+                    .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+                    .leftOuterJoin(CATEGORY).on(CATEGORY.ID.equal(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID))
 
                     .where(transformator.getTableId().equal(id))
                     .fetch();
@@ -371,21 +371,21 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
             requirementEx = builder.build();
 
-            //Filling up components
-            List<Component> components = new ArrayList<>();
+            //Filling up categories
+            List<Category> categories = new ArrayList<>();
 
-            for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(COMPONENT.ID).entrySet()) {
+            for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(CATEGORY.ID).entrySet()) {
                 if (entry.getKey() == null) continue;
                 Result<Record> records = entry.getValue();
-                components.add(
-                        Component.getBuilder(records.getValues(COMPONENT.NAME).get(0))
-                                .projectId(records.getValues(COMPONENT.PROJECT_ID).get(0))
-                                .id(records.getValues(COMPONENT.ID).get(0))
-                                .description(records.getValues(COMPONENT.DESCRIPTION).get(0))
+                categories.add(
+                        Category.getBuilder(records.getValues(CATEGORY.NAME).get(0))
+                                .projectId(records.getValues(CATEGORY.PROJECT_ID).get(0))
+                                .id(records.getValues(CATEGORY.ID).get(0))
+                                .description(records.getValues(CATEGORY.DESCRIPTION).get(0))
                                 .build()
                 );
             }
-            requirementEx.setComponents(components);
+            requirementEx.setCategories(categories);
 
             //Filling up additional information
             requirementEx.setNumberOfComments((Integer) queryResult.getValues(commentCount).get(0));
@@ -434,7 +434,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             // If you want to change something here, please know what you are doing! Its SQL and even worse JOOQ :-|
             Record record1 = jooq
                     .select(DSL.countDistinct(PROJECT.ID).as("numberOfProjects"))
-                    .select(DSL.countDistinct(COMPONENT.ID).as("numberOfComponents"))
+                    .select(DSL.countDistinct(CATEGORY.ID).as("numberOfCategorys"))
                     .select(DSL.countDistinct(COMMENT.ID).as("numberOfComments"))
                     .select(DSL.countDistinct(ATTACHMENT.ID).as("numberOfAttachments"))
                     .select(DSL.countDistinct(VOTE.ID).as("numberOfVotes"))
@@ -442,10 +442,10 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .leftJoin(PROJECT).on(PROJECT.CREATION_DATE.greaterOrEqual(timestamp)
                             .or(PROJECT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(PROJECT.ID.equal(REQUIREMENT.PROJECT_ID)))
-                    .leftJoin(REQUIREMENT_COMPONENT_MAP).on(REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .leftJoin(COMPONENT).on(COMPONENT.CREATION_DATE.greaterOrEqual(timestamp)
-                            .or(COMPONENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
-                            .and(COMPONENT.ID.equal(REQUIREMENT_COMPONENT_MAP.COMPONENT_ID)))
+                    .leftJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+                    .leftJoin(CATEGORY).on(CATEGORY.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(CATEGORY.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
+                            .and(CATEGORY.ID.equal(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID)))
                     .leftJoin(COMMENT).on(COMMENT.CREATION_DATE.greaterOrEqual(timestamp)
                             .or(COMMENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(COMMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
@@ -467,7 +467,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
             result = Statistic.getBuilder()
                     .numberOfProjects((Integer) record1.get("numberOfProjects"))
-                    .numberOfComponents((Integer) record1.get("numberOfComponents"))
+                    .numberOfCategorys((Integer) record1.get("numberOfCategorys"))
                     .numberOfRequirements((Integer) record2.get("numberOfRequirements"))
                     .numberOfComments((Integer) record1.get("numberOfComments"))
                     .numberOfAttachments((Integer) record1.get("numberOfAttachments"))

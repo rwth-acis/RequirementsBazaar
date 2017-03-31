@@ -5,14 +5,14 @@ package de.rwth.dbis.acis.bazaar.service.dal.jooq;
 
 
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachment;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Category;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.CategoryFollowerMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Component;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ComponentFollowerMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privilege;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ProjectFollowerMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirement;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementComponentMap;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementCategoryMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementDeveloperMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementFollowerMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Role;
@@ -46,7 +46,7 @@ import org.jooq.impl.SchemaImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Reqbaz extends SchemaImpl {
 
-    private static final long serialVersionUID = 934239819;
+    private static final long serialVersionUID = -786831443;
 
     /**
      * The reference instance of <code>reqbaz</code>
@@ -59,19 +59,19 @@ public class Reqbaz extends SchemaImpl {
     public final Attachment ATTACHMENT = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachment.ATTACHMENT;
 
     /**
+     * The table <code>reqbaz.category</code>.
+     */
+    public final Category CATEGORY = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Category.CATEGORY;
+
+    /**
+     * The table <code>reqbaz.category_follower_map</code>.
+     */
+    public final CategoryFollowerMap CATEGORY_FOLLOWER_MAP = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.CategoryFollowerMap.CATEGORY_FOLLOWER_MAP;
+
+    /**
      * The table <code>reqbaz.comment</code>.
      */
     public final Comment COMMENT = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment.COMMENT;
-
-    /**
-     * The table <code>reqbaz.component</code>.
-     */
-    public final Component COMPONENT = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Component.COMPONENT;
-
-    /**
-     * The table <code>reqbaz.component_follower_map</code>.
-     */
-    public final ComponentFollowerMap COMPONENT_FOLLOWER_MAP = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ComponentFollowerMap.COMPONENT_FOLLOWER_MAP;
 
     /**
      * The table <code>reqbaz.privilege</code>.
@@ -94,9 +94,9 @@ public class Reqbaz extends SchemaImpl {
     public final Requirement REQUIREMENT = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirement.REQUIREMENT;
 
     /**
-     * The table <code>reqbaz.requirement_component_map</code>.
+     * The table <code>reqbaz.requirement_category_map</code>.
      */
-    public final RequirementComponentMap REQUIREMENT_COMPONENT_MAP = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementComponentMap.REQUIREMENT_COMPONENT_MAP;
+    public final RequirementCategoryMap REQUIREMENT_CATEGORY_MAP = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP;
 
     /**
      * The table <code>reqbaz.requirement_developer_map</code>.
@@ -164,14 +164,14 @@ public class Reqbaz extends SchemaImpl {
     private final List<Table<?>> getTables0() {
         return Arrays.<Table<?>>asList(
             Attachment.ATTACHMENT,
+            Category.CATEGORY,
+            CategoryFollowerMap.CATEGORY_FOLLOWER_MAP,
             Comment.COMMENT,
-            Component.COMPONENT,
-            ComponentFollowerMap.COMPONENT_FOLLOWER_MAP,
             Privilege.PRIVILEGE,
             Project.PROJECT,
             ProjectFollowerMap.PROJECT_FOLLOWER_MAP,
             Requirement.REQUIREMENT,
-            RequirementComponentMap.REQUIREMENT_COMPONENT_MAP,
+            RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP,
             RequirementDeveloperMap.REQUIREMENT_DEVELOPER_MAP,
             RequirementFollowerMap.REQUIREMENT_FOLLOWER_MAP,
             Role.ROLE,
