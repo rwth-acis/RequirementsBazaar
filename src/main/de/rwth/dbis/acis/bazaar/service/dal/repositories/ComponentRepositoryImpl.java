@@ -78,6 +78,7 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                     .select(requirementCount)
                     .select(followerCount)
                     .select(leaderUser.fields())
+                    .select(followerUsers.fields())
                     .from(COMPONENT)
                     .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(COMPONENT.LEADER_ID))
                     .leftOuterJoin(COMPONENT_FOLLOWER_MAP).on(COMPONENT_FOLLOWER_MAP.COMPONENT_ID.equal(COMPONENT.ID))

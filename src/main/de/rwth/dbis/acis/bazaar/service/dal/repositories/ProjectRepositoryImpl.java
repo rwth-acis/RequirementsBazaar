@@ -86,6 +86,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .select(requirementCount)
                     .select(followerCount)
                     .select(leaderUser.fields())
+                    .select(followerUsers.fields())
                     .from(PROJECT)
                     .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(PROJECT.LEADER_ID))
                     .leftOuterJoin(PROJECT_FOLLOWER_MAP).on(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID))
