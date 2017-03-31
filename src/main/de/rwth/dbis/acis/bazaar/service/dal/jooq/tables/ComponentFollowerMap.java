@@ -37,7 +37,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ComponentFollowerMap extends TableImpl<ComponentFollowerMapRecord> {
 
-    private static final long serialVersionUID = -610643843;
+    private static final long serialVersionUID = -743496555;
 
     /**
      * The reference instance of <code>reqbaz.component_follower_map</code>
@@ -68,9 +68,9 @@ public class ComponentFollowerMap extends TableImpl<ComponentFollowerMapRecord> 
     public final TableField<ComponentFollowerMapRecord, Integer> USER_ID = createField("user_id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
 
     /**
-     * The column <code>reqbaz.component_follower_map.creation_time</code>.
+     * The column <code>reqbaz.component_follower_map.creation_date</code>.
      */
-    public final TableField<ComponentFollowerMapRecord, Timestamp> CREATION_TIME = createField("creation_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
+    public final TableField<ComponentFollowerMapRecord, Timestamp> CREATION_DATE = createField("creation_date", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
 
     /**
      * Create a <code>reqbaz.component_follower_map</code> table reference
@@ -131,7 +131,7 @@ public class ComponentFollowerMap extends TableImpl<ComponentFollowerMapRecord> 
      */
     @Override
     public List<ForeignKey<ComponentFollowerMapRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<ComponentFollowerMapRecord, ?>>asList(Keys.COMPONENT_FOLLOWER_MAP_COMPONENT);
+        return Arrays.<ForeignKey<ComponentFollowerMapRecord, ?>>asList(Keys.COMPONENT_FOLLOWER_MAP_COMPONENT, Keys.COMPONENT_FOLLOWER_MAP_USER);
     }
 
     /**

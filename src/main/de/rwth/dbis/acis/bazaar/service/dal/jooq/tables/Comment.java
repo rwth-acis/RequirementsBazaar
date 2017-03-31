@@ -37,7 +37,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Comment extends TableImpl<CommentRecord> {
 
-    private static final long serialVersionUID = 238776749;
+    private static final long serialVersionUID = -348339124;
 
     /**
      * The reference instance of <code>reqbaz.comment</code>
@@ -63,14 +63,14 @@ public class Comment extends TableImpl<CommentRecord> {
     public final TableField<CommentRecord, String> MESSAGE = createField("message", org.jooq.impl.SQLDataType.CLOB.nullable(false), this, "");
 
     /**
-     * The column <code>reqbaz.comment.creation_time</code>.
+     * The column <code>reqbaz.comment.creation_date</code>.
      */
-    public final TableField<CommentRecord, Timestamp> CREATION_TIME = createField("creation_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
+    public final TableField<CommentRecord, Timestamp> CREATION_DATE = createField("creation_date", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
 
     /**
-     * The column <code>reqbaz.comment.lastupdated_time</code>.
+     * The column <code>reqbaz.comment.last_updated_date</code>.
      */
-    public final TableField<CommentRecord, Timestamp> LASTUPDATED_TIME = createField("lastupdated_time", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
+    public final TableField<CommentRecord, Timestamp> LAST_UPDATED_DATE = createField("last_updated_date", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
 
     /**
      * The column <code>reqbaz.comment.requirement_id</code>.
@@ -146,7 +146,7 @@ public class Comment extends TableImpl<CommentRecord> {
      */
     @Override
     public List<ForeignKey<CommentRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<CommentRecord, ?>>asList(Keys.REPLY_COMMENT);
+        return Arrays.<ForeignKey<CommentRecord, ?>>asList(Keys.COMMENT_REQUIREMENT, Keys.COMMENT_USER, Keys.REPLY_COMMENT);
     }
 
     /**

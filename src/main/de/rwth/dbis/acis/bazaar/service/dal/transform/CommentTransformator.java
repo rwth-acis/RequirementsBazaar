@@ -45,8 +45,8 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
         record.setMessage(entity.getMessage());
         record.setRequirementId(entity.getRequirementId());
         record.setReplyToCommentId(entity.getReplyToComment());
-        record.setCreationTime(new Timestamp(Calendar.getInstance().getTime().getTime()));
-        record.setLastupdatedTime(record.getCreationTime());
+        record.setCreationDate(new Timestamp(Calendar.getInstance().getTime().getTime()));
+        record.setLastUpdatedDate(record.getCreationDate());
         return record;
     }
 
@@ -57,8 +57,8 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
                 .requirementId(record.getRequirementId())
                 .creatorId(record.getUserId())
                 .replyToComment(record.getReplyToCommentId())
-                .creationTime(record.getCreationTime())
-                .lastupdatedTime(record.getLastupdatedTime())
+                .creationDate(record.getCreationDate())
+                .lastUpdatedDate(record.getLastUpdatedDate())
                 .build();
     }
 
@@ -85,7 +85,7 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
             put(COMMENT.MESSAGE, entity.getMessage());
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(COMMENT.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+            updateMap.put(COMMENT.LAST_UPDATED_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         }
         return updateMap;
     }
@@ -93,7 +93,7 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(COMMENT.CREATION_TIME.asc());
+            return Arrays.asList(COMMENT.CREATION_DATE.asc());
         }
         return null;
     }

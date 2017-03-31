@@ -255,7 +255,7 @@ public class ProjectsResource extends RESTService {
                 }
                 projectToCreate.setLeaderId(internalUserId);
                 Project createdProject = dalFacade.createProject(projectToCreate);
-                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, createdProject.getCreation_time(), Activity.ActivityAction.CREATE, createdProject.getId(),
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, createdProject.getCreationDate(), Activity.ActivityAction.CREATE, createdProject.getId(),
                         Activity.DataType.PROJECT, 0, null, internalUserId);
                 return Response.status(Response.Status.CREATED).entity(gson.toJson(createdProject)).build();
             } catch (BazaarException bex) {
@@ -316,7 +316,7 @@ public class ProjectsResource extends RESTService {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
                 }
                 Project updatedProject = dalFacade.modifyProject(projectToUpdate);
-                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, updatedProject.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedProject.getId(),
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, updatedProject.getLastUpdatedDate(), Activity.ActivityAction.UPDATE, updatedProject.getId(),
                         Activity.DataType.PROJECT, 0, null, internalUserId);
                 return Response.ok(gson.toJson(updatedProject)).build();
             } catch (BazaarException bex) {

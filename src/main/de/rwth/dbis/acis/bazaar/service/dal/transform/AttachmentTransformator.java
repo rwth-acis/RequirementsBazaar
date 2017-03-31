@@ -38,7 +38,7 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
         entity = this.cleanEntry(entity);
 
         AttachmentRecord record = new AttachmentRecord();
-        record.setLastupdatedTime(record.getCreationTime());
+        record.setLastUpdatedDate(record.getCreationDate());
         record.setRequirementId(entity.getRequirementId());
         record.setUserId(entity.getCreatorId());
         record.setName(entity.getName());
@@ -46,8 +46,8 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
         record.setMimeType(entity.getMimeType());
         record.setIdentifier(entity.getIdentifier());
         record.setFileUrl(entity.getFileUrl());
-        record.setCreationTime(new Timestamp(Calendar.getInstance().getTime().getTime()));
-        record.setLastupdatedTime(record.getCreationTime());
+        record.setCreationDate(new Timestamp(Calendar.getInstance().getTime().getTime()));
+        record.setLastUpdatedDate(record.getCreationDate());
         return record;
     }
 
@@ -62,8 +62,8 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
                 .mimeType(record.getMimeType())
                 .identifier(record.getIdentifier())
                 .fileUrl(record.getFileUrl())
-                .creationTime(record.getCreationTime())
-                .lastupdatedTime(record.getLastupdatedTime())
+                .creationDate(record.getCreationDate())
+                .lastUpdatedDate(record.getLastUpdatedDate())
                 .build();
         return entity;
     }
@@ -88,7 +88,7 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
         HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(ATTACHMENT.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+            updateMap.put(ATTACHMENT.LAST_UPDATED_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         }
         return updateMap;
     }
@@ -96,7 +96,7 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(ATTACHMENT.CREATION_TIME.asc());
+            return Arrays.asList(ATTACHMENT.CREATION_DATE.asc());
         }
         return null;
     }

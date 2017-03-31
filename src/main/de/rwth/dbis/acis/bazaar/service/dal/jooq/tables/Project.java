@@ -37,7 +37,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Project extends TableImpl<ProjectRecord> {
 
-    private static final long serialVersionUID = -1310727678;
+    private static final long serialVersionUID = -598797768;
 
     /**
      * The reference instance of <code>reqbaz.project</code>
@@ -73,14 +73,14 @@ public class Project extends TableImpl<ProjectRecord> {
     public final TableField<ProjectRecord, Byte> VISIBILITY = createField("visibility", org.jooq.impl.SQLDataType.TINYINT.nullable(false), this, "");
 
     /**
-     * The column <code>reqbaz.project.creation_time</code>.
+     * The column <code>reqbaz.project.creation_date</code>.
      */
-    public final TableField<ProjectRecord, Timestamp> CREATION_TIME = createField("creation_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
+    public final TableField<ProjectRecord, Timestamp> CREATION_DATE = createField("creation_date", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
 
     /**
-     * The column <code>reqbaz.project.lastupdated_time</code>.
+     * The column <code>reqbaz.project.last_updated_date</code>.
      */
-    public final TableField<ProjectRecord, Timestamp> LASTUPDATED_TIME = createField("lastupdated_time", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
+    public final TableField<ProjectRecord, Timestamp> LAST_UPDATED_DATE = createField("last_updated_date", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
 
     /**
      * The column <code>reqbaz.project.leader_id</code>.
@@ -151,7 +151,7 @@ public class Project extends TableImpl<ProjectRecord> {
      */
     @Override
     public List<ForeignKey<ProjectRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<ProjectRecord, ?>>asList(Keys.PROJECT_COMPONENT);
+        return Arrays.<ForeignKey<ProjectRecord, ?>>asList(Keys.PROJECT_USER, Keys.PROJECT_COMPONENT);
     }
 
     /**

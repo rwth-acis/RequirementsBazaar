@@ -166,7 +166,7 @@ public class ComponentsResource extends RESTService {
                 }
                 componentToCreate.setLeaderId(internalUserId);
                 Component createdComponent = dalFacade.createComponent(componentToCreate);
-                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, createdComponent.getCreation_time(), Activity.ActivityAction.CREATE, createdComponent.getId(),
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, createdComponent.getCreationDate(), Activity.ActivityAction.CREATE, createdComponent.getId(),
                         Activity.DataType.COMPONENT, createdComponent.getProjectId(), Activity.DataType.PROJECT, internalUserId);
                 return Response.status(Response.Status.CREATED).entity(gson.toJson(createdComponent)).build();
             } catch (BazaarException bex) {
@@ -227,7 +227,7 @@ public class ComponentsResource extends RESTService {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
                 }
                 Component updatedComponent = dalFacade.modifyComponent(componentToUpdate);
-                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, updatedComponent.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedComponent.getId(),
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, updatedComponent.getLastUpdatedDate(), Activity.ActivityAction.UPDATE, updatedComponent.getId(),
                         Activity.DataType.COMPONENT, updatedComponent.getProjectId(), Activity.DataType.PROJECT, internalUserId);
                 return Response.ok(gson.toJson(updatedComponent)).build();
             } catch (BazaarException bex) {
@@ -289,7 +289,7 @@ public class ComponentsResource extends RESTService {
                 }
                 Gson gson = new Gson();
                 Component deletedComponent = dalFacade.deleteComponentById(componentId, internalUserId);
-                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, deletedComponent.getLastupdated_time(), Activity.ActivityAction.DELETE, deletedComponent.getId(),
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, deletedComponent.getLastUpdatedDate(), Activity.ActivityAction.DELETE, deletedComponent.getId(),
                         Activity.DataType.COMPONENT, deletedComponent.getProjectId(), Activity.DataType.PROJECT, internalUserId);
                 return Response.ok(gson.toJson(deletedComponent)).build();
             } catch (BazaarException bex) {

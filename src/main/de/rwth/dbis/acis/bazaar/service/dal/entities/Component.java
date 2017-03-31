@@ -47,9 +47,9 @@ public class Component extends EntityBase {
     @MaxLength(value= 50, profiles = {"*"})
     private String name;
 
-    private Date creation_time;
+    private Date creationDate;
 
-    private Date lastupdated_time;
+    private Date lastUpdatedDate;
 
     private int leaderId;
 
@@ -72,12 +72,12 @@ public class Component extends EntityBase {
         return id;
     }
 
-    public Date getCreation_time() {
-        return creation_time;
+    public Date getCreationDate() {
+        return creationDate;
     }
 
-    public Date getLastupdated_time() {
-        return lastupdated_time;
+    public Date getLastUpdatedDate() {
+        return lastUpdatedDate;
     }
 
     public String getDescription() {
@@ -132,8 +132,8 @@ public class Component extends EntityBase {
         this.leader = builder.leader;
         this.leaderId = builder.leaderId;
         this.followers = builder.followers;
-        this.creation_time = builder.creation_time;
-        this.lastupdated_time = builder.lastupdated_time;
+        this.creationDate = builder.creationDate;
+        this.lastUpdatedDate = builder.lastUpdatedDate;
     }
 
 
@@ -152,8 +152,8 @@ public class Component extends EntityBase {
         private int id;
         private String description;
         private String name;
-        private Date creation_time;
-        private Date lastupdated_time;
+        private Date creationDate;
+        private Date lastUpdatedDate;
         private int projectId;
         public User leader;
         public int leaderId;
@@ -193,13 +193,13 @@ public class Component extends EntityBase {
             return this;
         }
 
-        public Builder creationTime(Date creation_time) {
-            this.creation_time = creation_time;
+        public Builder creationDate(Date creationDate) {
+            this.creationDate = creationDate;
             return this;
         }
 
-        public Builder lastupdated_time(Date lastupdated_time) {
-            this.lastupdated_time = lastupdated_time;
+        public Builder lastUpdatedDate(Date lastUpdatedDate) {
+            this.lastUpdatedDate = lastUpdatedDate;
             return this;
         }
 

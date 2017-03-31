@@ -30,7 +30,7 @@ import org.jooq.impl.UpdatableRecordImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class AttachmentRecord extends UpdatableRecordImpl<AttachmentRecord> implements Record10<Integer, Timestamp, Timestamp, Integer, Integer, String, String, String, String, String> {
 
-    private static final long serialVersionUID = -1012885618;
+    private static final long serialVersionUID = 888863633;
 
     /**
      * Setter for <code>reqbaz.attachment.id</code>.
@@ -47,30 +47,30 @@ public class AttachmentRecord extends UpdatableRecordImpl<AttachmentRecord> impl
     }
 
     /**
-     * Setter for <code>reqbaz.attachment.creation_time</code>.
+     * Setter for <code>reqbaz.attachment.creation_date</code>.
      */
-    public void setCreationTime(Timestamp value) {
+    public void setCreationDate(Timestamp value) {
         set(1, value);
     }
 
     /**
-     * Getter for <code>reqbaz.attachment.creation_time</code>.
+     * Getter for <code>reqbaz.attachment.creation_date</code>.
      */
-    public Timestamp getCreationTime() {
+    public Timestamp getCreationDate() {
         return (Timestamp) get(1);
     }
 
     /**
-     * Setter for <code>reqbaz.attachment.lastupdated_time</code>.
+     * Setter for <code>reqbaz.attachment.last_updated_date</code>.
      */
-    public void setLastupdatedTime(Timestamp value) {
+    public void setLastUpdatedDate(Timestamp value) {
         set(2, value);
     }
 
     /**
-     * Getter for <code>reqbaz.attachment.lastupdated_time</code>.
+     * Getter for <code>reqbaz.attachment.last_updated_date</code>.
      */
-    public Timestamp getLastupdatedTime() {
+    public Timestamp getLastUpdatedDate() {
         return (Timestamp) get(2);
     }
 
@@ -217,7 +217,7 @@ public class AttachmentRecord extends UpdatableRecordImpl<AttachmentRecord> impl
      */
     @Override
     public Field<Timestamp> field2() {
-        return Attachment.ATTACHMENT.CREATION_TIME;
+        return Attachment.ATTACHMENT.CREATION_DATE;
     }
 
     /**
@@ -225,7 +225,7 @@ public class AttachmentRecord extends UpdatableRecordImpl<AttachmentRecord> impl
      */
     @Override
     public Field<Timestamp> field3() {
-        return Attachment.ATTACHMENT.LASTUPDATED_TIME;
+        return Attachment.ATTACHMENT.LAST_UPDATED_DATE;
     }
 
     /**
@@ -297,7 +297,7 @@ public class AttachmentRecord extends UpdatableRecordImpl<AttachmentRecord> impl
      */
     @Override
     public Timestamp value2() {
-        return getCreationTime();
+        return getCreationDate();
     }
 
     /**
@@ -305,7 +305,7 @@ public class AttachmentRecord extends UpdatableRecordImpl<AttachmentRecord> impl
      */
     @Override
     public Timestamp value3() {
-        return getLastupdatedTime();
+        return getLastUpdatedDate();
     }
 
     /**
@@ -378,7 +378,7 @@ public class AttachmentRecord extends UpdatableRecordImpl<AttachmentRecord> impl
      */
     @Override
     public AttachmentRecord value2(Timestamp value) {
-        setCreationTime(value);
+        setCreationDate(value);
         return this;
     }
 
@@ -387,7 +387,7 @@ public class AttachmentRecord extends UpdatableRecordImpl<AttachmentRecord> impl
      */
     @Override
     public AttachmentRecord value3(Timestamp value) {
-        setLastupdatedTime(value);
+        setLastUpdatedDate(value);
         return this;
     }
 
@@ -486,12 +486,12 @@ public class AttachmentRecord extends UpdatableRecordImpl<AttachmentRecord> impl
     /**
      * Create a detached, initialised AttachmentRecord
      */
-    public AttachmentRecord(Integer id, Timestamp creationTime, Timestamp lastupdatedTime, Integer requirementId, Integer userId, String name, String description, String mimeType, String identifier, String fileUrl) {
+    public AttachmentRecord(Integer id, Timestamp creationDate, Timestamp lastUpdatedDate, Integer requirementId, Integer userId, String name, String description, String mimeType, String identifier, String fileUrl) {
         super(Attachment.ATTACHMENT);
 
         set(0, id);
-        set(1, creationTime);
-        set(2, lastupdatedTime);
+        set(1, creationDate);
+        set(2, lastUpdatedDate);
         set(3, requirementId);
         set(4, userId);
         set(5, name);

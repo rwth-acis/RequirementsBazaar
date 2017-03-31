@@ -37,7 +37,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class RequirementFollowerMap extends TableImpl<RequirementFollowerMapRecord> {
 
-    private static final long serialVersionUID = -1091712633;
+    private static final long serialVersionUID = -1236442855;
 
     /**
      * The reference instance of <code>reqbaz.requirement_follower_map</code>
@@ -68,9 +68,9 @@ public class RequirementFollowerMap extends TableImpl<RequirementFollowerMapReco
     public final TableField<RequirementFollowerMapRecord, Integer> USER_ID = createField("user_id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
 
     /**
-     * The column <code>reqbaz.requirement_follower_map.creation_time</code>.
+     * The column <code>reqbaz.requirement_follower_map.creation_date</code>.
      */
-    public final TableField<RequirementFollowerMapRecord, Timestamp> CREATION_TIME = createField("creation_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
+    public final TableField<RequirementFollowerMapRecord, Timestamp> CREATION_DATE = createField("creation_date", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
 
     /**
      * Create a <code>reqbaz.requirement_follower_map</code> table reference
@@ -131,7 +131,7 @@ public class RequirementFollowerMap extends TableImpl<RequirementFollowerMapReco
      */
     @Override
     public List<ForeignKey<RequirementFollowerMapRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<RequirementFollowerMapRecord, ?>>asList(Keys.REQUIREMENT_FOLLOWER_MAP_REQUIREMENT);
+        return Arrays.<ForeignKey<RequirementFollowerMapRecord, ?>>asList(Keys.REQUIREMENT_FOLLOWER_MAP_REQUIREMENT, Keys.REQUIREMENT_FOLLOWER_MAP_USER);
     }
 
     /**

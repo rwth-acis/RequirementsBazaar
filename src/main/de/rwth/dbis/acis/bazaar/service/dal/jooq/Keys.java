@@ -110,16 +110,28 @@ public class Keys {
     // FOREIGN KEY definitions
     // -------------------------------------------------------------------------
 
+    public static final ForeignKey<AttachmentRecord, RequirementRecord> ATTACHMENT_REQUIREMENT = ForeignKeys0.ATTACHMENT_REQUIREMENT;
+    public static final ForeignKey<AttachmentRecord, UserRecord> ATTACHMENT_USER = ForeignKeys0.ATTACHMENT_USER;
+    public static final ForeignKey<CommentRecord, RequirementRecord> COMMENT_REQUIREMENT = ForeignKeys0.COMMENT_REQUIREMENT;
+    public static final ForeignKey<CommentRecord, UserRecord> COMMENT_USER = ForeignKeys0.COMMENT_USER;
     public static final ForeignKey<CommentRecord, CommentRecord> REPLY_COMMENT = ForeignKeys0.REPLY_COMMENT;
     public static final ForeignKey<ComponentRecord, ProjectRecord> COMPONENT_PROJECT = ForeignKeys0.COMPONENT_PROJECT;
+    public static final ForeignKey<ComponentRecord, UserRecord> COMPONENT_USER = ForeignKeys0.COMPONENT_USER;
     public static final ForeignKey<ComponentFollowerMapRecord, ComponentRecord> COMPONENT_FOLLOWER_MAP_COMPONENT = ForeignKeys0.COMPONENT_FOLLOWER_MAP_COMPONENT;
+    public static final ForeignKey<ComponentFollowerMapRecord, UserRecord> COMPONENT_FOLLOWER_MAP_USER = ForeignKeys0.COMPONENT_FOLLOWER_MAP_USER;
+    public static final ForeignKey<ProjectRecord, UserRecord> PROJECT_USER = ForeignKeys0.PROJECT_USER;
     public static final ForeignKey<ProjectRecord, ComponentRecord> PROJECT_COMPONENT = ForeignKeys0.PROJECT_COMPONENT;
     public static final ForeignKey<ProjectFollowerMapRecord, ProjectRecord> PROJECT_FOLLOWER_MAP_PROJECT = ForeignKeys0.PROJECT_FOLLOWER_MAP_PROJECT;
+    public static final ForeignKey<ProjectFollowerMapRecord, UserRecord> PROJECT_FOLLOWER_MAP_USER = ForeignKeys0.PROJECT_FOLLOWER_MAP_USER;
+    public static final ForeignKey<RequirementRecord, UserRecord> LEAD_DEVELOPER = ForeignKeys0.LEAD_DEVELOPER;
+    public static final ForeignKey<RequirementRecord, UserRecord> CREATOR = ForeignKeys0.CREATOR;
     public static final ForeignKey<RequirementRecord, ProjectRecord> REQUIREMENT_PROJECT = ForeignKeys0.REQUIREMENT_PROJECT;
     public static final ForeignKey<RequirementComponentMapRecord, ComponentRecord> REQUIREMENT_COMPONENT_MAP_COMPONENT = ForeignKeys0.REQUIREMENT_COMPONENT_MAP_COMPONENT;
     public static final ForeignKey<RequirementComponentMapRecord, RequirementRecord> REQUIREMENT_COMPONENT_MAP_REQUIREMENT = ForeignKeys0.REQUIREMENT_COMPONENT_MAP_REQUIREMENT;
     public static final ForeignKey<RequirementDeveloperMapRecord, RequirementRecord> REQUIREMENT_DEVELOPER_MAP_REQUIREMENT = ForeignKeys0.REQUIREMENT_DEVELOPER_MAP_REQUIREMENT;
+    public static final ForeignKey<RequirementDeveloperMapRecord, UserRecord> REQUIREMENT_DEVELOPER_MAP_USER = ForeignKeys0.REQUIREMENT_DEVELOPER_MAP_USER;
     public static final ForeignKey<RequirementFollowerMapRecord, RequirementRecord> REQUIREMENT_FOLLOWER_MAP_REQUIREMENT = ForeignKeys0.REQUIREMENT_FOLLOWER_MAP_REQUIREMENT;
+    public static final ForeignKey<RequirementFollowerMapRecord, UserRecord> REQUIREMENT_FOLLOWER_MAP_USER = ForeignKeys0.REQUIREMENT_FOLLOWER_MAP_USER;
     public static final ForeignKey<RolePrivilegeMapRecord, RoleRecord> ROLE_PRIVILEGE_MAP_ROLE = ForeignKeys0.ROLE_PRIVILEGE_MAP_ROLE;
     public static final ForeignKey<RolePrivilegeMapRecord, PrivilegeRecord> ROLE_PRIVILEGE_MAP_PRIVILEGE = ForeignKeys0.ROLE_PRIVILEGE_MAP_PRIVILEGE;
     public static final ForeignKey<RoleRoleMapRecord, RoleRecord> ROLE_ROLE_MAP_CHILD = ForeignKeys0.ROLE_ROLE_MAP_CHILD;
@@ -175,16 +187,28 @@ public class Keys {
     }
 
     private static class ForeignKeys0 extends AbstractKeys {
+        public static final ForeignKey<AttachmentRecord, RequirementRecord> ATTACHMENT_REQUIREMENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_REQUIREMENT_PRIMARY, Attachment.ATTACHMENT, "attachment_requirement", Attachment.ATTACHMENT.REQUIREMENT_ID);
+        public static final ForeignKey<AttachmentRecord, UserRecord> ATTACHMENT_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, Attachment.ATTACHMENT, "attachment_user", Attachment.ATTACHMENT.USER_ID);
+        public static final ForeignKey<CommentRecord, RequirementRecord> COMMENT_REQUIREMENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_REQUIREMENT_PRIMARY, Comment.COMMENT, "comment_requirement", Comment.COMMENT.REQUIREMENT_ID);
+        public static final ForeignKey<CommentRecord, UserRecord> COMMENT_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, Comment.COMMENT, "comment_user", Comment.COMMENT.USER_ID);
         public static final ForeignKey<CommentRecord, CommentRecord> REPLY_COMMENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_COMMENT_PRIMARY, Comment.COMMENT, "reply_comment", Comment.COMMENT.REPLY_TO_COMMENT_ID);
         public static final ForeignKey<ComponentRecord, ProjectRecord> COMPONENT_PROJECT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_PROJECT_PRIMARY, Component.COMPONENT, "component_project", Component.COMPONENT.PROJECT_ID);
+        public static final ForeignKey<ComponentRecord, UserRecord> COMPONENT_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, Component.COMPONENT, "component_user", Component.COMPONENT.LEADER_ID);
         public static final ForeignKey<ComponentFollowerMapRecord, ComponentRecord> COMPONENT_FOLLOWER_MAP_COMPONENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_COMPONENT_PRIMARY, ComponentFollowerMap.COMPONENT_FOLLOWER_MAP, "component_follower_map_component", ComponentFollowerMap.COMPONENT_FOLLOWER_MAP.COMPONENT_ID);
+        public static final ForeignKey<ComponentFollowerMapRecord, UserRecord> COMPONENT_FOLLOWER_MAP_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, ComponentFollowerMap.COMPONENT_FOLLOWER_MAP, "component_follower_map_user", ComponentFollowerMap.COMPONENT_FOLLOWER_MAP.USER_ID);
+        public static final ForeignKey<ProjectRecord, UserRecord> PROJECT_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, Project.PROJECT, "project_user", Project.PROJECT.LEADER_ID);
         public static final ForeignKey<ProjectRecord, ComponentRecord> PROJECT_COMPONENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_COMPONENT_PRIMARY, Project.PROJECT, "project_component", Project.PROJECT.DEFAULT_COMPONENT_ID);
         public static final ForeignKey<ProjectFollowerMapRecord, ProjectRecord> PROJECT_FOLLOWER_MAP_PROJECT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_PROJECT_PRIMARY, ProjectFollowerMap.PROJECT_FOLLOWER_MAP, "project_follower_map_project", ProjectFollowerMap.PROJECT_FOLLOWER_MAP.PROJECT_ID);
+        public static final ForeignKey<ProjectFollowerMapRecord, UserRecord> PROJECT_FOLLOWER_MAP_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, ProjectFollowerMap.PROJECT_FOLLOWER_MAP, "project_follower_map_user", ProjectFollowerMap.PROJECT_FOLLOWER_MAP.USER_ID);
+        public static final ForeignKey<RequirementRecord, UserRecord> LEAD_DEVELOPER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, Requirement.REQUIREMENT, "lead_developer", Requirement.REQUIREMENT.LEAD_DEVELOPER_ID);
+        public static final ForeignKey<RequirementRecord, UserRecord> CREATOR = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, Requirement.REQUIREMENT, "creator", Requirement.REQUIREMENT.CREATOR_ID);
         public static final ForeignKey<RequirementRecord, ProjectRecord> REQUIREMENT_PROJECT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_PROJECT_PRIMARY, Requirement.REQUIREMENT, "requirement_project", Requirement.REQUIREMENT.PROJECT_ID);
         public static final ForeignKey<RequirementComponentMapRecord, ComponentRecord> REQUIREMENT_COMPONENT_MAP_COMPONENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_COMPONENT_PRIMARY, RequirementComponentMap.REQUIREMENT_COMPONENT_MAP, "requirement_component_map_component", RequirementComponentMap.REQUIREMENT_COMPONENT_MAP.COMPONENT_ID);
         public static final ForeignKey<RequirementComponentMapRecord, RequirementRecord> REQUIREMENT_COMPONENT_MAP_REQUIREMENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_REQUIREMENT_PRIMARY, RequirementComponentMap.REQUIREMENT_COMPONENT_MAP, "requirement_component_map_requirement", RequirementComponentMap.REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID);
         public static final ForeignKey<RequirementDeveloperMapRecord, RequirementRecord> REQUIREMENT_DEVELOPER_MAP_REQUIREMENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_REQUIREMENT_PRIMARY, RequirementDeveloperMap.REQUIREMENT_DEVELOPER_MAP, "requirement_developer_map_requirement", RequirementDeveloperMap.REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID);
+        public static final ForeignKey<RequirementDeveloperMapRecord, UserRecord> REQUIREMENT_DEVELOPER_MAP_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, RequirementDeveloperMap.REQUIREMENT_DEVELOPER_MAP, "requirement_developer_map_user", RequirementDeveloperMap.REQUIREMENT_DEVELOPER_MAP.USER_ID);
         public static final ForeignKey<RequirementFollowerMapRecord, RequirementRecord> REQUIREMENT_FOLLOWER_MAP_REQUIREMENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_REQUIREMENT_PRIMARY, RequirementFollowerMap.REQUIREMENT_FOLLOWER_MAP, "requirement_follower_map_requirement", RequirementFollowerMap.REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID);
+        public static final ForeignKey<RequirementFollowerMapRecord, UserRecord> REQUIREMENT_FOLLOWER_MAP_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, RequirementFollowerMap.REQUIREMENT_FOLLOWER_MAP, "requirement_follower_map_user", RequirementFollowerMap.REQUIREMENT_FOLLOWER_MAP.USER_ID);
         public static final ForeignKey<RolePrivilegeMapRecord, RoleRecord> ROLE_PRIVILEGE_MAP_ROLE = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_ROLE_PRIMARY, RolePrivilegeMap.ROLE_PRIVILEGE_MAP, "role_privilege_map_role", RolePrivilegeMap.ROLE_PRIVILEGE_MAP.ROLE_ID);
         public static final ForeignKey<RolePrivilegeMapRecord, PrivilegeRecord> ROLE_PRIVILEGE_MAP_PRIVILEGE = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_PRIVILEGE_PRIMARY, RolePrivilegeMap.ROLE_PRIVILEGE_MAP, "role_privilege_map_privilege", RolePrivilegeMap.ROLE_PRIVILEGE_MAP.PRIVILEGE_ID);
         public static final ForeignKey<RoleRoleMapRecord, RoleRecord> ROLE_ROLE_MAP_CHILD = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_ROLE_PRIMARY, RoleRoleMap.ROLE_ROLE_MAP, "role_role_map_child", RoleRoleMap.ROLE_ROLE_MAP.CHILD_ID);

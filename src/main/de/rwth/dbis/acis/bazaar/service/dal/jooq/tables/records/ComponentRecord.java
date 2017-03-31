@@ -30,7 +30,7 @@ import org.jooq.impl.UpdatableRecordImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ComponentRecord extends UpdatableRecordImpl<ComponentRecord> implements Record7<Integer, String, String, Timestamp, Timestamp, Integer, Integer> {
 
-    private static final long serialVersionUID = 2051112504;
+    private static final long serialVersionUID = -781067579;
 
     /**
      * Setter for <code>reqbaz.component.id</code>.
@@ -75,30 +75,30 @@ public class ComponentRecord extends UpdatableRecordImpl<ComponentRecord> implem
     }
 
     /**
-     * Setter for <code>reqbaz.component.creation_time</code>.
+     * Setter for <code>reqbaz.component.creation_date</code>.
      */
-    public void setCreationTime(Timestamp value) {
+    public void setCreationDate(Timestamp value) {
         set(3, value);
     }
 
     /**
-     * Getter for <code>reqbaz.component.creation_time</code>.
+     * Getter for <code>reqbaz.component.creation_date</code>.
      */
-    public Timestamp getCreationTime() {
+    public Timestamp getCreationDate() {
         return (Timestamp) get(3);
     }
 
     /**
-     * Setter for <code>reqbaz.component.lastupdated_time</code>.
+     * Setter for <code>reqbaz.component.last_updated_date</code>.
      */
-    public void setLastupdatedTime(Timestamp value) {
+    public void setLastUpdatedDate(Timestamp value) {
         set(4, value);
     }
 
     /**
-     * Getter for <code>reqbaz.component.lastupdated_time</code>.
+     * Getter for <code>reqbaz.component.last_updated_date</code>.
      */
-    public Timestamp getLastupdatedTime() {
+    public Timestamp getLastUpdatedDate() {
         return (Timestamp) get(4);
     }
 
@@ -191,7 +191,7 @@ public class ComponentRecord extends UpdatableRecordImpl<ComponentRecord> implem
      */
     @Override
     public Field<Timestamp> field4() {
-        return Component.COMPONENT.CREATION_TIME;
+        return Component.COMPONENT.CREATION_DATE;
     }
 
     /**
@@ -199,7 +199,7 @@ public class ComponentRecord extends UpdatableRecordImpl<ComponentRecord> implem
      */
     @Override
     public Field<Timestamp> field5() {
-        return Component.COMPONENT.LASTUPDATED_TIME;
+        return Component.COMPONENT.LAST_UPDATED_DATE;
     }
 
     /**
@@ -247,7 +247,7 @@ public class ComponentRecord extends UpdatableRecordImpl<ComponentRecord> implem
      */
     @Override
     public Timestamp value4() {
-        return getCreationTime();
+        return getCreationDate();
     }
 
     /**
@@ -255,7 +255,7 @@ public class ComponentRecord extends UpdatableRecordImpl<ComponentRecord> implem
      */
     @Override
     public Timestamp value5() {
-        return getLastupdatedTime();
+        return getLastUpdatedDate();
     }
 
     /**
@@ -306,7 +306,7 @@ public class ComponentRecord extends UpdatableRecordImpl<ComponentRecord> implem
      */
     @Override
     public ComponentRecord value4(Timestamp value) {
-        setCreationTime(value);
+        setCreationDate(value);
         return this;
     }
 
@@ -315,7 +315,7 @@ public class ComponentRecord extends UpdatableRecordImpl<ComponentRecord> implem
      */
     @Override
     public ComponentRecord value5(Timestamp value) {
-        setLastupdatedTime(value);
+        setLastUpdatedDate(value);
         return this;
     }
 
@@ -366,14 +366,14 @@ public class ComponentRecord extends UpdatableRecordImpl<ComponentRecord> implem
     /**
      * Create a detached, initialised ComponentRecord
      */
-    public ComponentRecord(Integer id, String name, String description, Timestamp creationTime, Timestamp lastupdatedTime, Integer projectId, Integer leaderId) {
+    public ComponentRecord(Integer id, String name, String description, Timestamp creationDate, Timestamp lastUpdatedDate, Integer projectId, Integer leaderId) {
         super(Component.COMPONENT);
 
         set(0, id);
         set(1, name);
         set(2, description);
-        set(3, creationTime);
-        set(4, lastupdatedTime);
+        set(3, creationDate);
+        set(4, lastUpdatedDate);
         set(5, projectId);
         set(6, leaderId);
     }

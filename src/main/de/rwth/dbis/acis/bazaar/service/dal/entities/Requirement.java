@@ -19,9 +19,9 @@ public class Requirement extends EntityBase {
     @MaxLength(value = 50, profiles = {"*"})
     private String name;
 
-    private Date creation_time;
+    private Date creationDate;
 
-    private Date lastupdated_time;
+    private Date lastUpdatedDate;
 
     @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
@@ -54,12 +54,12 @@ public class Requirement extends EntityBase {
         return realized;
     }
 
-    public Date getCreation_time() {
-        return creation_time;
+    public Date getCreationDate() {
+        return creationDate;
     }
 
-    public Date getLastupdated_time() {
-        return lastupdated_time;
+    public Date getLastUpdatedDate() {
+        return lastUpdatedDate;
     }
 
     public String getDescription() {
@@ -136,8 +136,8 @@ public class Requirement extends EntityBase {
         this.realized = builder.realized;
         this.projectId = builder.projectId;
         this.creatorId = builder.creatorId;
-        this.creation_time = builder.creation_time;
-        this.lastupdated_time = builder.lastupdated_time;
+        this.creationDate = builder.creationDate;
+        this.lastUpdatedDate = builder.lastUpdatedDate;
         this.upVotes = builder.upVotes;
         this.downVotes = builder.downVotes;
         this.userVoted = builder.userVoted;
@@ -161,8 +161,8 @@ public class Requirement extends EntityBase {
         private Date realized;
         private int projectId;
         private int creatorId;
-        private Date creation_time;
-        private Date lastupdated_time;
+        private Date creationDate;
+        private Date lastUpdatedDate;
         private int upVotes;
         private int downVotes;
         private UserVote userVoted;
@@ -214,13 +214,13 @@ public class Requirement extends EntityBase {
             return this;
         }
 
-        public Builder creationTime(Date creationTime) {
-            this.creation_time = creationTime;
+        public Builder creationDate(Date creationDate) {
+            this.creationDate = creationDate;
             return this;
         }
 
-        public Builder lastupdatedTime(Date lastupdatedTime) {
-            this.lastupdated_time = lastupdatedTime;
+        public Builder lastUpdatedDate(Date lastUpdatedDate) {
+            this.lastUpdatedDate = lastUpdatedDate;
             return this;
         }
 

@@ -37,7 +37,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ProjectFollowerMap extends TableImpl<ProjectFollowerMapRecord> {
 
-    private static final long serialVersionUID = 272285377;
+    private static final long serialVersionUID = -1701261507;
 
     /**
      * The reference instance of <code>reqbaz.project_follower_map</code>
@@ -68,9 +68,9 @@ public class ProjectFollowerMap extends TableImpl<ProjectFollowerMapRecord> {
     public final TableField<ProjectFollowerMapRecord, Integer> USER_ID = createField("user_id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
 
     /**
-     * The column <code>reqbaz.project_follower_map.creation_time</code>.
+     * The column <code>reqbaz.project_follower_map.creation_date</code>.
      */
-    public final TableField<ProjectFollowerMapRecord, Timestamp> CREATION_TIME = createField("creation_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
+    public final TableField<ProjectFollowerMapRecord, Timestamp> CREATION_DATE = createField("creation_date", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
 
     /**
      * Create a <code>reqbaz.project_follower_map</code> table reference
@@ -131,7 +131,7 @@ public class ProjectFollowerMap extends TableImpl<ProjectFollowerMapRecord> {
      */
     @Override
     public List<ForeignKey<ProjectFollowerMapRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<ProjectFollowerMapRecord, ?>>asList(Keys.PROJECT_FOLLOWER_MAP_PROJECT);
+        return Arrays.<ForeignKey<ProjectFollowerMapRecord, ?>>asList(Keys.PROJECT_FOLLOWER_MAP_PROJECT, Keys.PROJECT_FOLLOWER_MAP_USER);
     }
 
     /**

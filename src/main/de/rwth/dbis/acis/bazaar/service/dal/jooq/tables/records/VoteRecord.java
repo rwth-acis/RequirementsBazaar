@@ -30,7 +30,7 @@ import org.jooq.impl.UpdatableRecordImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class VoteRecord extends UpdatableRecordImpl<VoteRecord> implements Record5<Integer, Byte, Integer, Integer, Timestamp> {
 
-    private static final long serialVersionUID = -1610365598;
+    private static final long serialVersionUID = 1481873125;
 
     /**
      * Setter for <code>reqbaz.vote.id</code>.
@@ -89,16 +89,16 @@ public class VoteRecord extends UpdatableRecordImpl<VoteRecord> implements Recor
     }
 
     /**
-     * Setter for <code>reqbaz.vote.creation_time</code>.
+     * Setter for <code>reqbaz.vote.creation_date</code>.
      */
-    public void setCreationTime(Timestamp value) {
+    public void setCreationDate(Timestamp value) {
         set(4, value);
     }
 
     /**
-     * Getter for <code>reqbaz.vote.creation_time</code>.
+     * Getter for <code>reqbaz.vote.creation_date</code>.
      */
-    public Timestamp getCreationTime() {
+    public Timestamp getCreationDate() {
         return (Timestamp) get(4);
     }
 
@@ -171,7 +171,7 @@ public class VoteRecord extends UpdatableRecordImpl<VoteRecord> implements Recor
      */
     @Override
     public Field<Timestamp> field5() {
-        return Vote.VOTE.CREATION_TIME;
+        return Vote.VOTE.CREATION_DATE;
     }
 
     /**
@@ -211,7 +211,7 @@ public class VoteRecord extends UpdatableRecordImpl<VoteRecord> implements Recor
      */
     @Override
     public Timestamp value5() {
-        return getCreationTime();
+        return getCreationDate();
     }
 
     /**
@@ -255,7 +255,7 @@ public class VoteRecord extends UpdatableRecordImpl<VoteRecord> implements Recor
      */
     @Override
     public VoteRecord value5(Timestamp value) {
-        setCreationTime(value);
+        setCreationDate(value);
         return this;
     }
 
@@ -286,13 +286,13 @@ public class VoteRecord extends UpdatableRecordImpl<VoteRecord> implements Recor
     /**
      * Create a detached, initialised VoteRecord
      */
-    public VoteRecord(Integer id, Byte isUpvote, Integer requirementId, Integer userId, Timestamp creationTime) {
+    public VoteRecord(Integer id, Byte isUpvote, Integer requirementId, Integer userId, Timestamp creationDate) {
         super(Vote.VOTE);
 
         set(0, id);
         set(1, isUpvote);
         set(2, requirementId);
         set(3, userId);
-        set(4, creationTime);
+        set(4, creationDate);
     }
 }

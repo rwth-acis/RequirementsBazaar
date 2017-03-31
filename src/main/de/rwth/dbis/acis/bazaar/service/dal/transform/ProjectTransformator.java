@@ -45,8 +45,8 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
         record.setLeaderId(entry.getLeaderId());
         record.setVisibility((byte) (entry.getVisibility() == true ? 1 : 0 ));
         record.setDefaultComponentId(entry.getDefaultComponentId());
-        record.setCreationTime(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
-        record.setLastupdatedTime(record.getCreationTime());
+        record.setCreationDate(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+        record.setLastUpdatedDate(record.getCreationDate());
         return record;
     }
 
@@ -58,8 +58,8 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
                 .leaderId(record.getLeaderId())
                 .defaultComponentId(record.getDefaultComponentId())
                 .visibility(record.getVisibility() == 1)
-                .creationTime(record.getCreationTime())
-                .lastupdatedTime(record.getLastupdatedTime())
+                .creationDate(record.getCreationDate())
+                .lastUpdatedDate(record.getLastUpdatedDate())
                 .build();
     }
 
@@ -98,7 +98,7 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
             }
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(PROJECT.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+            updateMap.put(PROJECT.LAST_UPDATED_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         }
         return updateMap;
     }
@@ -125,13 +125,13 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
             } else if (sort.getField().equals("date")) {
                 switch (sort.getSortDirection()) {
                     case ASC:
-                        sortFields.add(PROJECT.CREATION_TIME.asc());
+                        sortFields.add(PROJECT.CREATION_DATE.asc());
                         break;
                     case DESC:
-                        sortFields.add(PROJECT.CREATION_TIME.desc());
+                        sortFields.add(PROJECT.CREATION_DATE.desc());
                         break;
                     default:
-                        sortFields.add(PROJECT.CREATION_TIME.desc());
+                        sortFields.add(PROJECT.CREATION_DATE.desc());
                         break;
                 }
             } else if (sort.getField().equals("requirement")) {

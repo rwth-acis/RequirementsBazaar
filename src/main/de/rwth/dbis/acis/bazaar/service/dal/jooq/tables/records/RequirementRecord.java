@@ -30,7 +30,7 @@ import org.jooq.impl.UpdatableRecordImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class RequirementRecord extends UpdatableRecordImpl<RequirementRecord> implements Record9<Integer, String, String, Timestamp, Timestamp, Timestamp, Integer, Integer, Integer> {
 
-    private static final long serialVersionUID = 810912095;
+    private static final long serialVersionUID = 340315030;
 
     /**
      * Setter for <code>reqbaz.requirement.id</code>.
@@ -89,30 +89,30 @@ public class RequirementRecord extends UpdatableRecordImpl<RequirementRecord> im
     }
 
     /**
-     * Setter for <code>reqbaz.requirement.creation_time</code>.
+     * Setter for <code>reqbaz.requirement.creation_date</code>.
      */
-    public void setCreationTime(Timestamp value) {
+    public void setCreationDate(Timestamp value) {
         set(4, value);
     }
 
     /**
-     * Getter for <code>reqbaz.requirement.creation_time</code>.
+     * Getter for <code>reqbaz.requirement.creation_date</code>.
      */
-    public Timestamp getCreationTime() {
+    public Timestamp getCreationDate() {
         return (Timestamp) get(4);
     }
 
     /**
-     * Setter for <code>reqbaz.requirement.lastupdated_time</code>.
+     * Setter for <code>reqbaz.requirement.last_updated_date</code>.
      */
-    public void setLastupdatedTime(Timestamp value) {
+    public void setLastUpdatedDate(Timestamp value) {
         set(5, value);
     }
 
     /**
-     * Getter for <code>reqbaz.requirement.lastupdated_time</code>.
+     * Getter for <code>reqbaz.requirement.last_updated_date</code>.
      */
-    public Timestamp getLastupdatedTime() {
+    public Timestamp getLastUpdatedDate() {
         return (Timestamp) get(5);
     }
 
@@ -227,7 +227,7 @@ public class RequirementRecord extends UpdatableRecordImpl<RequirementRecord> im
      */
     @Override
     public Field<Timestamp> field5() {
-        return Requirement.REQUIREMENT.CREATION_TIME;
+        return Requirement.REQUIREMENT.CREATION_DATE;
     }
 
     /**
@@ -235,7 +235,7 @@ public class RequirementRecord extends UpdatableRecordImpl<RequirementRecord> im
      */
     @Override
     public Field<Timestamp> field6() {
-        return Requirement.REQUIREMENT.LASTUPDATED_TIME;
+        return Requirement.REQUIREMENT.LAST_UPDATED_DATE;
     }
 
     /**
@@ -299,7 +299,7 @@ public class RequirementRecord extends UpdatableRecordImpl<RequirementRecord> im
      */
     @Override
     public Timestamp value5() {
-        return getCreationTime();
+        return getCreationDate();
     }
 
     /**
@@ -307,7 +307,7 @@ public class RequirementRecord extends UpdatableRecordImpl<RequirementRecord> im
      */
     @Override
     public Timestamp value6() {
-        return getLastupdatedTime();
+        return getLastUpdatedDate();
     }
 
     /**
@@ -375,7 +375,7 @@ public class RequirementRecord extends UpdatableRecordImpl<RequirementRecord> im
      */
     @Override
     public RequirementRecord value5(Timestamp value) {
-        setCreationTime(value);
+        setCreationDate(value);
         return this;
     }
 
@@ -384,7 +384,7 @@ public class RequirementRecord extends UpdatableRecordImpl<RequirementRecord> im
      */
     @Override
     public RequirementRecord value6(Timestamp value) {
-        setLastupdatedTime(value);
+        setLastUpdatedDate(value);
         return this;
     }
 
@@ -446,15 +446,15 @@ public class RequirementRecord extends UpdatableRecordImpl<RequirementRecord> im
     /**
      * Create a detached, initialised RequirementRecord
      */
-    public RequirementRecord(Integer id, String name, String description, Timestamp realized, Timestamp creationTime, Timestamp lastupdatedTime, Integer leadDeveloperId, Integer creatorId, Integer projectId) {
+    public RequirementRecord(Integer id, String name, String description, Timestamp realized, Timestamp creationDate, Timestamp lastUpdatedDate, Integer leadDeveloperId, Integer creatorId, Integer projectId) {
         super(Requirement.REQUIREMENT);
 
         set(0, id);
         set(1, name);
         set(2, description);
         set(3, realized);
-        set(4, creationTime);
-        set(5, lastupdatedTime);
+        set(4, creationDate);
+        set(5, lastUpdatedDate);
         set(6, leadDeveloperId);
         set(7, creatorId);
         set(8, projectId);

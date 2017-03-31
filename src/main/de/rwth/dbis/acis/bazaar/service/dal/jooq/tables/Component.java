@@ -37,7 +37,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Component extends TableImpl<ComponentRecord> {
 
-    private static final long serialVersionUID = -1430057504;
+    private static final long serialVersionUID = 1961393934;
 
     /**
      * The reference instance of <code>reqbaz.component</code>
@@ -68,14 +68,14 @@ public class Component extends TableImpl<ComponentRecord> {
     public final TableField<ComponentRecord, String> DESCRIPTION = createField("description", org.jooq.impl.SQLDataType.CLOB.nullable(false), this, "");
 
     /**
-     * The column <code>reqbaz.component.creation_time</code>.
+     * The column <code>reqbaz.component.creation_date</code>.
      */
-    public final TableField<ComponentRecord, Timestamp> CREATION_TIME = createField("creation_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
+    public final TableField<ComponentRecord, Timestamp> CREATION_DATE = createField("creation_date", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
 
     /**
-     * The column <code>reqbaz.component.lastupdated_time</code>.
+     * The column <code>reqbaz.component.last_updated_date</code>.
      */
-    public final TableField<ComponentRecord, Timestamp> LASTUPDATED_TIME = createField("lastupdated_time", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
+    public final TableField<ComponentRecord, Timestamp> LAST_UPDATED_DATE = createField("last_updated_date", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
 
     /**
      * The column <code>reqbaz.component.project_id</code>.
@@ -146,7 +146,7 @@ public class Component extends TableImpl<ComponentRecord> {
      */
     @Override
     public List<ForeignKey<ComponentRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<ComponentRecord, ?>>asList(Keys.COMPONENT_PROJECT);
+        return Arrays.<ForeignKey<ComponentRecord, ?>>asList(Keys.COMPONENT_PROJECT, Keys.COMPONENT_USER);
     }
 
     /**

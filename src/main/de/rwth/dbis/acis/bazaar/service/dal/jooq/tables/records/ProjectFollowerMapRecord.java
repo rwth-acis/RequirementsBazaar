@@ -30,7 +30,7 @@ import org.jooq.impl.UpdatableRecordImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ProjectFollowerMapRecord extends UpdatableRecordImpl<ProjectFollowerMapRecord> implements Record4<Integer, Integer, Integer, Timestamp> {
 
-    private static final long serialVersionUID = 82002138;
+    private static final long serialVersionUID = 327516215;
 
     /**
      * Setter for <code>reqbaz.project_follower_map.id</code>.
@@ -75,16 +75,16 @@ public class ProjectFollowerMapRecord extends UpdatableRecordImpl<ProjectFollowe
     }
 
     /**
-     * Setter for <code>reqbaz.project_follower_map.creation_time</code>.
+     * Setter for <code>reqbaz.project_follower_map.creation_date</code>.
      */
-    public void setCreationTime(Timestamp value) {
+    public void setCreationDate(Timestamp value) {
         set(3, value);
     }
 
     /**
-     * Getter for <code>reqbaz.project_follower_map.creation_time</code>.
+     * Getter for <code>reqbaz.project_follower_map.creation_date</code>.
      */
-    public Timestamp getCreationTime() {
+    public Timestamp getCreationDate() {
         return (Timestamp) get(3);
     }
 
@@ -149,7 +149,7 @@ public class ProjectFollowerMapRecord extends UpdatableRecordImpl<ProjectFollowe
      */
     @Override
     public Field<Timestamp> field4() {
-        return ProjectFollowerMap.PROJECT_FOLLOWER_MAP.CREATION_TIME;
+        return ProjectFollowerMap.PROJECT_FOLLOWER_MAP.CREATION_DATE;
     }
 
     /**
@@ -181,7 +181,7 @@ public class ProjectFollowerMapRecord extends UpdatableRecordImpl<ProjectFollowe
      */
     @Override
     public Timestamp value4() {
-        return getCreationTime();
+        return getCreationDate();
     }
 
     /**
@@ -216,7 +216,7 @@ public class ProjectFollowerMapRecord extends UpdatableRecordImpl<ProjectFollowe
      */
     @Override
     public ProjectFollowerMapRecord value4(Timestamp value) {
-        setCreationTime(value);
+        setCreationDate(value);
         return this;
     }
 
@@ -246,12 +246,12 @@ public class ProjectFollowerMapRecord extends UpdatableRecordImpl<ProjectFollowe
     /**
      * Create a detached, initialised ProjectFollowerMapRecord
      */
-    public ProjectFollowerMapRecord(Integer id, Integer projectId, Integer userId, Timestamp creationTime) {
+    public ProjectFollowerMapRecord(Integer id, Integer projectId, Integer userId, Timestamp creationDate) {
         super(ProjectFollowerMap.PROJECT_FOLLOWER_MAP);
 
         set(0, id);
         set(1, projectId);
         set(2, userId);
-        set(3, creationTime);
+        set(3, creationDate);
     }
 }

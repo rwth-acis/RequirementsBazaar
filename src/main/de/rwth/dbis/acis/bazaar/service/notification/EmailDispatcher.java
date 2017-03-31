@@ -27,7 +27,7 @@ public class EmailDispatcher {
         this.frontendBaseURL = frontendBaseURL;
     }
 
-    public void sendEmailNotification(Date creationTime, Activity.ActivityAction activityAction,
+    public void sendEmailNotification(Date creationDate, Activity.ActivityAction activityAction,
                                       int dataId, Activity.DataType dataType, int userId) {
         DALFacade dalFacade = null;
         try {
@@ -137,7 +137,7 @@ public class EmailDispatcher {
                 text = text.concat(footer2);
                 mailMessage.setText(text);
                 mailMessage.setHeader("X-Mailer", "msgsend");
-                mailMessage.setSentDate(creationTime);
+                mailMessage.setSentDate(creationDate);
 
                 // send mail
                 Transport.send(mailMessage);

@@ -37,7 +37,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Requirement extends TableImpl<RequirementRecord> {
 
-    private static final long serialVersionUID = -558226407;
+    private static final long serialVersionUID = 507661299;
 
     /**
      * The reference instance of <code>reqbaz.requirement</code>
@@ -73,14 +73,14 @@ public class Requirement extends TableImpl<RequirementRecord> {
     public final TableField<RequirementRecord, Timestamp> REALIZED = createField("realized", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
 
     /**
-     * The column <code>reqbaz.requirement.creation_time</code>.
+     * The column <code>reqbaz.requirement.creation_date</code>.
      */
-    public final TableField<RequirementRecord, Timestamp> CREATION_TIME = createField("creation_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
+    public final TableField<RequirementRecord, Timestamp> CREATION_DATE = createField("creation_date", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
 
     /**
-     * The column <code>reqbaz.requirement.lastupdated_time</code>.
+     * The column <code>reqbaz.requirement.last_updated_date</code>.
      */
-    public final TableField<RequirementRecord, Timestamp> LASTUPDATED_TIME = createField("lastupdated_time", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
+    public final TableField<RequirementRecord, Timestamp> LAST_UPDATED_DATE = createField("last_updated_date", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
 
     /**
      * The column <code>reqbaz.requirement.lead_developer_id</code>.
@@ -156,7 +156,7 @@ public class Requirement extends TableImpl<RequirementRecord> {
      */
     @Override
     public List<ForeignKey<RequirementRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<RequirementRecord, ?>>asList(Keys.REQUIREMENT_PROJECT);
+        return Arrays.<ForeignKey<RequirementRecord, ?>>asList(Keys.LEAD_DEVELOPER, Keys.CREATOR, Keys.REQUIREMENT_PROJECT);
     }
 
     /**

@@ -106,8 +106,8 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .leaderId(queryResult.getValues(PROJECT.LEADER_ID).get(0))
                     .defaultComponentId(queryResult.getValues(PROJECT.DEFAULT_COMPONENT_ID).get(0))
                     .visibility(queryResult.getValues(PROJECT.VISIBILITY).get(0) == 1)
-                    .creationTime(queryResult.getValues(PROJECT.CREATION_TIME).get(0))
-                    .lastupdatedTime(queryResult.getValues(PROJECT.LASTUPDATED_TIME).get(0));
+                    .creationDate(queryResult.getValues(PROJECT.CREATION_DATE).get(0))
+                    .lastUpdatedDate(queryResult.getValues(PROJECT.LAST_UPDATED_DATE).get(0));
 
             UserTransformator userTransformator = new UserTransformator();
             //Filling up LeadDeveloper
@@ -291,19 +291,19 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .select(DSL.countDistinct(PROJECT.ID).as("numberOfProjects"))
                     .from(PROJECT)
                     .where(PROJECT.VISIBILITY.isTrue())
-                            .and(PROJECT.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(PROJECT.LASTUPDATED_TIME.greaterOrEqual(timestamp)))
+                            .and(PROJECT.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(PROJECT.LAST_UPDATED_DATE.greaterOrEqual(timestamp)))
                     .fetchOne();
 
             Record record2 = jooq
                     .select(DSL.countDistinct(COMPONENT.ID).as("numberOfComponents"))
                     .select(DSL.countDistinct(REQUIREMENT.ID).as("numberOfRequirements"))
                     .from(PROJECT)
-                    .leftJoin(COMPONENT).on(COMPONENT.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(COMPONENT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                    .leftJoin(COMPONENT).on(COMPONENT.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(COMPONENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(COMPONENT.PROJECT_ID.equal(PROJECT.ID)))
-                    .leftJoin(REQUIREMENT).on(REQUIREMENT.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(REQUIREMENT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                    .leftJoin(REQUIREMENT).on(REQUIREMENT.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(REQUIREMENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(REQUIREMENT.PROJECT_ID.equal(PROJECT.ID)))
                     .where(PROJECT.VISIBILITY.isTrue())
                     .fetchOne();
@@ -314,13 +314,13 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .select(DSL.countDistinct(VOTE.ID).as("numberOfVotes"))
                     .from(PROJECT)
                     .leftJoin(REQUIREMENT).on(REQUIREMENT.PROJECT_ID.equal(PROJECT.ID))
-                    .leftJoin(COMMENT).on(COMMENT.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(COMMENT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                    .leftJoin(COMMENT).on(COMMENT.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(COMMENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(COMMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
-                    .leftJoin(ATTACHMENT).on(ATTACHMENT.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(ATTACHMENT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                    .leftJoin(ATTACHMENT).on(ATTACHMENT.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(ATTACHMENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(ATTACHMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
-                    .leftJoin(VOTE).on(VOTE.CREATION_TIME.greaterOrEqual(timestamp)
+                    .leftJoin(VOTE).on(VOTE.CREATION_DATE.greaterOrEqual(timestamp)
                             .and(VOTE.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
                     .where(PROJECT.VISIBILITY.isTrue())
                     .fetchOne();
@@ -348,8 +348,8 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
             Record record1 = jooq
                     .select(DSL.countDistinct(PROJECT.ID).as("numberOfProjects"))
                     .from(PROJECT)
-                    .where(PROJECT.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(PROJECT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                    .where(PROJECT.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(PROJECT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(PROJECT.ID.eq(projectId)))
                     .fetchOne();
 
@@ -358,11 +358,11 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .select(DSL.countDistinct(COMPONENT.ID).as("numberOfComponents"))
                     .select(DSL.countDistinct(REQUIREMENT.ID).as("numberOfRequirements"))
                     .from(PROJECT)
-                    .leftJoin(COMPONENT).on(COMPONENT.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(COMPONENT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                    .leftJoin(COMPONENT).on(COMPONENT.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(COMPONENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(COMPONENT.PROJECT_ID.equal(PROJECT.ID)))
-                    .leftJoin(REQUIREMENT).on(REQUIREMENT.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(REQUIREMENT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                    .leftJoin(REQUIREMENT).on(REQUIREMENT.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(REQUIREMENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(REQUIREMENT.PROJECT_ID.equal(PROJECT.ID)))
                     .where(PROJECT.ID.eq(projectId))
                     .fetchOne();
@@ -373,13 +373,13 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .select(DSL.countDistinct(VOTE.ID).as("numberOfVotes"))
                     .from(PROJECT)
                     .leftJoin(REQUIREMENT).on(REQUIREMENT.PROJECT_ID.equal(PROJECT.ID))
-                    .leftJoin(COMMENT).on(COMMENT.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(COMMENT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                    .leftJoin(COMMENT).on(COMMENT.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(COMMENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(COMMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
-                    .leftJoin(ATTACHMENT).on(ATTACHMENT.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(ATTACHMENT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                    .leftJoin(ATTACHMENT).on(ATTACHMENT.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(ATTACHMENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(ATTACHMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
-                    .leftJoin(VOTE).on(VOTE.CREATION_TIME.greaterOrEqual(timestamp)
+                    .leftJoin(VOTE).on(VOTE.CREATION_DATE.greaterOrEqual(timestamp)
                             .and(VOTE.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
                     .where(PROJECT.ID.eq(projectId))
                     .fetchOne();

@@ -30,7 +30,7 @@ import org.jooq.impl.UpdatableRecordImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class CommentRecord extends UpdatableRecordImpl<CommentRecord> implements Record7<Integer, String, Timestamp, Timestamp, Integer, Integer, Integer> {
 
-    private static final long serialVersionUID = 1943644699;
+    private static final long serialVersionUID = 191217760;
 
     /**
      * Setter for <code>reqbaz.comment.id</code>.
@@ -61,30 +61,30 @@ public class CommentRecord extends UpdatableRecordImpl<CommentRecord> implements
     }
 
     /**
-     * Setter for <code>reqbaz.comment.creation_time</code>.
+     * Setter for <code>reqbaz.comment.creation_date</code>.
      */
-    public void setCreationTime(Timestamp value) {
+    public void setCreationDate(Timestamp value) {
         set(2, value);
     }
 
     /**
-     * Getter for <code>reqbaz.comment.creation_time</code>.
+     * Getter for <code>reqbaz.comment.creation_date</code>.
      */
-    public Timestamp getCreationTime() {
+    public Timestamp getCreationDate() {
         return (Timestamp) get(2);
     }
 
     /**
-     * Setter for <code>reqbaz.comment.lastupdated_time</code>.
+     * Setter for <code>reqbaz.comment.last_updated_date</code>.
      */
-    public void setLastupdatedTime(Timestamp value) {
+    public void setLastUpdatedDate(Timestamp value) {
         set(3, value);
     }
 
     /**
-     * Getter for <code>reqbaz.comment.lastupdated_time</code>.
+     * Getter for <code>reqbaz.comment.last_updated_date</code>.
      */
-    public Timestamp getLastupdatedTime() {
+    public Timestamp getLastUpdatedDate() {
         return (Timestamp) get(3);
     }
 
@@ -183,7 +183,7 @@ public class CommentRecord extends UpdatableRecordImpl<CommentRecord> implements
      */
     @Override
     public Field<Timestamp> field3() {
-        return Comment.COMMENT.CREATION_TIME;
+        return Comment.COMMENT.CREATION_DATE;
     }
 
     /**
@@ -191,7 +191,7 @@ public class CommentRecord extends UpdatableRecordImpl<CommentRecord> implements
      */
     @Override
     public Field<Timestamp> field4() {
-        return Comment.COMMENT.LASTUPDATED_TIME;
+        return Comment.COMMENT.LAST_UPDATED_DATE;
     }
 
     /**
@@ -239,7 +239,7 @@ public class CommentRecord extends UpdatableRecordImpl<CommentRecord> implements
      */
     @Override
     public Timestamp value3() {
-        return getCreationTime();
+        return getCreationDate();
     }
 
     /**
@@ -247,7 +247,7 @@ public class CommentRecord extends UpdatableRecordImpl<CommentRecord> implements
      */
     @Override
     public Timestamp value4() {
-        return getLastupdatedTime();
+        return getLastUpdatedDate();
     }
 
     /**
@@ -297,7 +297,7 @@ public class CommentRecord extends UpdatableRecordImpl<CommentRecord> implements
      */
     @Override
     public CommentRecord value3(Timestamp value) {
-        setCreationTime(value);
+        setCreationDate(value);
         return this;
     }
 
@@ -306,7 +306,7 @@ public class CommentRecord extends UpdatableRecordImpl<CommentRecord> implements
      */
     @Override
     public CommentRecord value4(Timestamp value) {
-        setLastupdatedTime(value);
+        setLastUpdatedDate(value);
         return this;
     }
 
@@ -366,13 +366,13 @@ public class CommentRecord extends UpdatableRecordImpl<CommentRecord> implements
     /**
      * Create a detached, initialised CommentRecord
      */
-    public CommentRecord(Integer id, String message, Timestamp creationTime, Timestamp lastupdatedTime, Integer requirementId, Integer userId, Integer replyToCommentId) {
+    public CommentRecord(Integer id, String message, Timestamp creationDate, Timestamp lastUpdatedDate, Integer requirementId, Integer userId, Integer replyToCommentId) {
         super(Comment.COMMENT);
 
         set(0, id);
         set(1, message);
-        set(2, creationTime);
-        set(3, lastupdatedTime);
+        set(2, creationDate);
+        set(3, lastUpdatedDate);
         set(4, requirementId);
         set(5, userId);
         set(6, replyToCommentId);

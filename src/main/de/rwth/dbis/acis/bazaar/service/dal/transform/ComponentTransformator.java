@@ -48,8 +48,8 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
         record.setName(entry.getName());
         record.setProjectId(entry.getProjectId());
         record.setLeaderId(entry.getLeaderId());
-        record.setCreationTime(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
-        record.setLastupdatedTime(record.getCreationTime());
+        record.setCreationDate(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+        record.setLastUpdatedDate(record.getCreationDate());
         return record;
     }
 
@@ -60,8 +60,8 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
                 .projectId(record.getProjectId())
                 .id(record.getId())
                 .leaderId(record.getLeaderId())
-                .creationTime(record.getCreationTime())
-                .lastupdated_time(record.getLastupdatedTime())
+                .creationDate(record.getCreationDate())
+                .lastUpdatedDate(record.getLastUpdatedDate())
                 .build();
     }
 
@@ -91,7 +91,7 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
             }
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(COMPONENT.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+            updateMap.put(COMPONENT.LAST_UPDATED_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         }
         return updateMap;
     }
@@ -118,13 +118,13 @@ public class ComponentTransformator implements Transformator<de.rwth.dbis.acis.b
             } else if (sort.getField().equals("date")) {
                 switch (sort.getSortDirection()) {
                     case ASC:
-                        sortFields.add(COMPONENT.CREATION_TIME.asc());
+                        sortFields.add(COMPONENT.CREATION_DATE.asc());
                         break;
                     case DESC:
-                        sortFields.add(COMPONENT.CREATION_TIME.desc());
+                        sortFields.add(COMPONENT.CREATION_DATE.desc());
                         break;
                     default:
-                        sortFields.add(COMPONENT.CREATION_TIME.desc());
+                        sortFields.add(COMPONENT.CREATION_DATE.desc());
                         break;
                 }
             } else if (sort.getField().equals("requirement")) {

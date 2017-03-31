@@ -37,7 +37,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Vote extends TableImpl<VoteRecord> {
 
-    private static final long serialVersionUID = 514441143;
+    private static final long serialVersionUID = 1104351894;
 
     /**
      * The reference instance of <code>reqbaz.vote</code>
@@ -73,9 +73,9 @@ public class Vote extends TableImpl<VoteRecord> {
     public final TableField<VoteRecord, Integer> USER_ID = createField("user_id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
 
     /**
-     * The column <code>reqbaz.vote.creation_time</code>.
+     * The column <code>reqbaz.vote.creation_date</code>.
      */
-    public final TableField<VoteRecord, Timestamp> CREATION_TIME = createField("creation_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
+    public final TableField<VoteRecord, Timestamp> CREATION_DATE = createField("creation_date", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
 
     /**
      * Create a <code>reqbaz.vote</code> table reference

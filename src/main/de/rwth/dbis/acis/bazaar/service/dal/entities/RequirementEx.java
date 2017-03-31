@@ -120,14 +120,14 @@ public class RequirementEx extends Requirement {
         }
 
         @Override
-        public BuilderEx creationTime(Date creationTime) {
-            super.creationTime(creationTime);
+        public BuilderEx creationDate(Date creationDate) {
+            super.creationDate(creationDate);
             return this;
         }
 
         @Override
-        public BuilderEx lastupdatedTime(Date lastupdatedTime) {
-            super.lastupdatedTime(lastupdatedTime);
+        public BuilderEx lastUpdatedDate(Date lastUpdatedDate) {
+            super.lastUpdatedDate(lastUpdatedDate);
             return this;
         }
 

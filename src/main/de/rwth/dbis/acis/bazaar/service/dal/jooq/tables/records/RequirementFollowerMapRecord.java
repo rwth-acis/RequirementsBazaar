@@ -30,7 +30,7 @@ import org.jooq.impl.UpdatableRecordImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class RequirementFollowerMapRecord extends UpdatableRecordImpl<RequirementFollowerMapRecord> implements Record4<Integer, Integer, Integer, Timestamp> {
 
-    private static final long serialVersionUID = 1544654536;
+    private static final long serialVersionUID = -1293871707;
 
     /**
      * Setter for <code>reqbaz.requirement_follower_map.id</code>.
@@ -75,16 +75,16 @@ public class RequirementFollowerMapRecord extends UpdatableRecordImpl<Requiremen
     }
 
     /**
-     * Setter for <code>reqbaz.requirement_follower_map.creation_time</code>.
+     * Setter for <code>reqbaz.requirement_follower_map.creation_date</code>.
      */
-    public void setCreationTime(Timestamp value) {
+    public void setCreationDate(Timestamp value) {
         set(3, value);
     }
 
     /**
-     * Getter for <code>reqbaz.requirement_follower_map.creation_time</code>.
+     * Getter for <code>reqbaz.requirement_follower_map.creation_date</code>.
      */
-    public Timestamp getCreationTime() {
+    public Timestamp getCreationDate() {
         return (Timestamp) get(3);
     }
 
@@ -149,7 +149,7 @@ public class RequirementFollowerMapRecord extends UpdatableRecordImpl<Requiremen
      */
     @Override
     public Field<Timestamp> field4() {
-        return RequirementFollowerMap.REQUIREMENT_FOLLOWER_MAP.CREATION_TIME;
+        return RequirementFollowerMap.REQUIREMENT_FOLLOWER_MAP.CREATION_DATE;
     }
 
     /**
@@ -181,7 +181,7 @@ public class RequirementFollowerMapRecord extends UpdatableRecordImpl<Requiremen
      */
     @Override
     public Timestamp value4() {
-        return getCreationTime();
+        return getCreationDate();
     }
 
     /**
@@ -216,7 +216,7 @@ public class RequirementFollowerMapRecord extends UpdatableRecordImpl<Requiremen
      */
     @Override
     public RequirementFollowerMapRecord value4(Timestamp value) {
-        setCreationTime(value);
+        setCreationDate(value);
         return this;
     }
 
@@ -246,12 +246,12 @@ public class RequirementFollowerMapRecord extends UpdatableRecordImpl<Requiremen
     /**
      * Create a detached, initialised RequirementFollowerMapRecord
      */
-    public RequirementFollowerMapRecord(Integer id, Integer requirementId, Integer userId, Timestamp creationTime) {
+    public RequirementFollowerMapRecord(Integer id, Integer requirementId, Integer userId, Timestamp creationDate) {
         super(RequirementFollowerMap.REQUIREMENT_FOLLOWER_MAP);
 
         set(0, id);
         set(1, requirementId);
         set(2, userId);
-        set(3, creationTime);
+        set(3, creationDate);
     }
 }

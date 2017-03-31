@@ -97,8 +97,8 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                     .projectId(queryResult.getValues(COMPONENT.PROJECT_ID).get(0))
                     .id(queryResult.getValues(COMPONENT.ID).get(0))
                     .leaderId(queryResult.getValues(COMPONENT.LEADER_ID).get(0))
-                    .creationTime(queryResult.getValues(COMPONENT.CREATION_TIME).get(0))
-                    .lastupdated_time(queryResult.getValues(COMPONENT.LASTUPDATED_TIME).get(0));
+                    .creationDate(queryResult.getValues(COMPONENT.CREATION_DATE).get(0))
+                    .lastUpdatedDate(queryResult.getValues(COMPONENT.LAST_UPDATED_DATE).get(0));
 
             UserTransformator userTransformator = new UserTransformator();
             //Filling up LeadDeveloper
@@ -267,8 +267,8 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
             Record record1 = jooq
                     .select(DSL.countDistinct(PROJECT.ID).as("numberOfProjects"))
                     .from(COMPONENT)
-                    .leftJoin(PROJECT).on(PROJECT.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(PROJECT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                    .leftJoin(PROJECT).on(PROJECT.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(PROJECT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(PROJECT.ID.equal(COMPONENT.PROJECT_ID)))
                     .where(COMPONENT.ID.eq(componentId))
                     .fetchOne();
@@ -276,8 +276,8 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
             Record record2 = jooq
                     .select(DSL.countDistinct(COMPONENT.ID).as("numberOfComponents"))
                     .from(COMPONENT)
-                    .where(COMPONENT.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(COMPONENT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                    .where(COMPONENT.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(COMPONENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(COMPONENT.ID.eq(componentId)))
                     .fetchOne();
 
@@ -285,8 +285,8 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                     .select(DSL.countDistinct(REQUIREMENT.ID).as("numberOfRequirements"))
                     .from(COMPONENT)
                     .leftJoin(REQUIREMENT_COMPONENT_MAP).on(REQUIREMENT_COMPONENT_MAP.COMPONENT_ID.equal(COMPONENT.ID))
-                    .leftJoin(REQUIREMENT).on(REQUIREMENT.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(REQUIREMENT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                    .leftJoin(REQUIREMENT).on(REQUIREMENT.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(REQUIREMENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(REQUIREMENT.ID.equal(REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID)))
                     .where(COMPONENT.ID.eq(componentId))
                     .fetchOne();
@@ -298,13 +298,13 @@ public class ComponentRepositoryImpl extends RepositoryImpl<Component, Component
                     .from(COMPONENT)
                     .leftJoin(REQUIREMENT_COMPONENT_MAP).on(REQUIREMENT_COMPONENT_MAP.COMPONENT_ID.equal(COMPONENT.ID))
                     .leftJoin(REQUIREMENT).on(REQUIREMENT.ID.equal(REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID))
-                    .leftJoin(COMMENT).on(COMMENT.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(COMMENT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                    .leftJoin(COMMENT).on(COMMENT.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(COMMENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(COMMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
-                    .leftJoin(ATTACHMENT).on(ATTACHMENT.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(ATTACHMENT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                    .leftJoin(ATTACHMENT).on(ATTACHMENT.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(ATTACHMENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(ATTACHMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
-                    .leftJoin(VOTE).on(VOTE.CREATION_TIME.greaterOrEqual(timestamp)
+                    .leftJoin(VOTE).on(VOTE.CREATION_DATE.greaterOrEqual(timestamp)
                             .and(VOTE.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
                     .where(COMPONENT.ID.eq(componentId))
                     .fetchOne();

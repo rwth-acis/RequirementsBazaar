@@ -21,7 +21,6 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 import jodd.vtor.constraint.MaxLength;
-import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
 import jodd.vtor.constraint.NotNull;
 
@@ -47,9 +46,9 @@ public class Project extends EntityBase {
 
     private Boolean visibility;
 
-    private Date creation_time;
+    private Date creationDate;
 
-    private Date lastupdated_time;
+    private Date lastUpdatedDate;
 
     private List<User> followers;
 
@@ -110,8 +109,8 @@ public class Project extends EntityBase {
         this.leader = builder.leader;
         this.leaderId = builder.leaderId;
         this.defaultComponentId = builder.defaultComponentId;
-        this.creation_time = builder.creation_time;
-        this.lastupdated_time = builder.lastupdated_time;
+        this.creationDate = builder.creationDate;
+        this.lastUpdatedDate = builder.lastUpdatedDate;
     }
 
     /**
@@ -129,12 +128,12 @@ public class Project extends EntityBase {
         return id;
     }
 
-    public Date getCreation_time() {
-        return creation_time;
+    public Date getCreationDate() {
+        return creationDate;
     }
 
-    public Date getLastupdated_time() {
-        return lastupdated_time;
+    public Date getLastUpdatedDate() {
+        return lastUpdatedDate;
     }
 
     public String getDescription() {
@@ -174,8 +173,8 @@ public class Project extends EntityBase {
         private List<User> followers;
         private User leader;
         private int leaderId;
-        private Date creation_time;
-        private Date lastupdated_time;
+        private Date creationDate;
+        private Date lastUpdatedDate;
         private Integer defaultComponentId;
 
         public Builder(String name) {
@@ -217,13 +216,13 @@ public class Project extends EntityBase {
             return this;
         }
 
-        public Builder creationTime(Date creation_time) {
-            this.creation_time = creation_time;
+        public Builder creationDate(Date creationDate) {
+            this.creationDate = creationDate;
             return this;
         }
 
-        public Builder lastupdatedTime(Date lastupdated_time) {
-            this.lastupdated_time = lastupdated_time;
+        public Builder lastUpdatedDate(Date lastUpdatedDate) {
+            this.lastUpdatedDate = lastUpdatedDate;
             return this;
         }
 

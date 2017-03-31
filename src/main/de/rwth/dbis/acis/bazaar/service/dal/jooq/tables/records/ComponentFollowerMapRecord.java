@@ -30,7 +30,7 @@ import org.jooq.impl.UpdatableRecordImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class ComponentFollowerMapRecord extends UpdatableRecordImpl<ComponentFollowerMapRecord> implements Record4<Integer, Integer, Integer, Timestamp> {
 
-    private static final long serialVersionUID = 1340170278;
+    private static final long serialVersionUID = -1468376253;
 
     /**
      * Setter for <code>reqbaz.component_follower_map.id</code>.
@@ -75,16 +75,16 @@ public class ComponentFollowerMapRecord extends UpdatableRecordImpl<ComponentFol
     }
 
     /**
-     * Setter for <code>reqbaz.component_follower_map.creation_time</code>.
+     * Setter for <code>reqbaz.component_follower_map.creation_date</code>.
      */
-    public void setCreationTime(Timestamp value) {
+    public void setCreationDate(Timestamp value) {
         set(3, value);
     }
 
     /**
-     * Getter for <code>reqbaz.component_follower_map.creation_time</code>.
+     * Getter for <code>reqbaz.component_follower_map.creation_date</code>.
      */
-    public Timestamp getCreationTime() {
+    public Timestamp getCreationDate() {
         return (Timestamp) get(3);
     }
 
@@ -149,7 +149,7 @@ public class ComponentFollowerMapRecord extends UpdatableRecordImpl<ComponentFol
      */
     @Override
     public Field<Timestamp> field4() {
-        return ComponentFollowerMap.COMPONENT_FOLLOWER_MAP.CREATION_TIME;
+        return ComponentFollowerMap.COMPONENT_FOLLOWER_MAP.CREATION_DATE;
     }
 
     /**
@@ -181,7 +181,7 @@ public class ComponentFollowerMapRecord extends UpdatableRecordImpl<ComponentFol
      */
     @Override
     public Timestamp value4() {
-        return getCreationTime();
+        return getCreationDate();
     }
 
     /**
@@ -216,7 +216,7 @@ public class ComponentFollowerMapRecord extends UpdatableRecordImpl<ComponentFol
      */
     @Override
     public ComponentFollowerMapRecord value4(Timestamp value) {
-        setCreationTime(value);
+        setCreationDate(value);
         return this;
     }
 
@@ -246,12 +246,12 @@ public class ComponentFollowerMapRecord extends UpdatableRecordImpl<ComponentFol
     /**
      * Create a detached, initialised ComponentFollowerMapRecord
      */
-    public ComponentFollowerMapRecord(Integer id, Integer componentId, Integer userId, Timestamp creationTime) {
+    public ComponentFollowerMapRecord(Integer id, Integer componentId, Integer userId, Timestamp creationDate) {
         super(ComponentFollowerMap.COMPONENT_FOLLOWER_MAP);
 
         set(0, id);
         set(1, componentId);
         set(2, userId);
-        set(3, creationTime);
+        set(3, creationDate);
     }
 }

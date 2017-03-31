@@ -37,7 +37,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class RequirementDeveloperMap extends TableImpl<RequirementDeveloperMapRecord> {
 
-    private static final long serialVersionUID = 162291757;
+    private static final long serialVersionUID = 559012393;
 
     /**
      * The reference instance of <code>reqbaz.requirement_developer_map</code>
@@ -68,9 +68,9 @@ public class RequirementDeveloperMap extends TableImpl<RequirementDeveloperMapRe
     public final TableField<RequirementDeveloperMapRecord, Integer> USER_ID = createField("user_id", org.jooq.impl.SQLDataType.INTEGER.nullable(false), this, "");
 
     /**
-     * The column <code>reqbaz.requirement_developer_map.creation_time</code>.
+     * The column <code>reqbaz.requirement_developer_map.creation_date</code>.
      */
-    public final TableField<RequirementDeveloperMapRecord, Timestamp> CREATION_TIME = createField("creation_time", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
+    public final TableField<RequirementDeveloperMapRecord, Timestamp> CREATION_DATE = createField("creation_date", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
 
     /**
      * Create a <code>reqbaz.requirement_developer_map</code> table reference
@@ -131,7 +131,7 @@ public class RequirementDeveloperMap extends TableImpl<RequirementDeveloperMapRe
      */
     @Override
     public List<ForeignKey<RequirementDeveloperMapRecord, ?>> getReferences() {
-        return Arrays.<ForeignKey<RequirementDeveloperMapRecord, ?>>asList(Keys.REQUIREMENT_DEVELOPER_MAP_REQUIREMENT);
+        return Arrays.<ForeignKey<RequirementDeveloperMapRecord, ?>>asList(Keys.REQUIREMENT_DEVELOPER_MAP_REQUIREMENT, Keys.REQUIREMENT_DEVELOPER_MAP_USER);
     }
 
     /**

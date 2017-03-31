@@ -37,7 +37,7 @@ public class ActivityDispatcher {
         this.frontendBaseURL = frontendBaseURL;
     }
 
-    public void sendActivityOverRMI(Service service, Date creationTime, Activity.ActivityAction activityAction,
+    public void sendActivityOverRMI(Service service, Date creationDate, Activity.ActivityAction activityAction,
                                     int dataId, Activity.DataType dataType, int parantDataId,
                                     Activity.DataType parentDataTyp, int userId) {
         DALFacade dalFacade = null;
@@ -46,7 +46,7 @@ public class ActivityDispatcher {
 
             Gson gson = new Gson();
             Activity.Builder activityBuilder = Activity.getBuilder();
-            activityBuilder = activityBuilder.creationTime(creationTime);
+            activityBuilder = activityBuilder.creationDate(creationDate);
             activityBuilder = activityBuilder.activityAction(activityAction);
 
             String resourcePath = new String();

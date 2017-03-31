@@ -39,8 +39,8 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
         RequirementRecord record = new RequirementRecord();
         record.setDescription(entry.getDescription());
         record.setName(entry.getName());
-        record.setCreationTime(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
-        record.setLastupdatedTime(record.getCreationTime());
+        record.setCreationDate(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+        record.setLastUpdatedDate(record.getCreationDate());
         record.setCreatorId(entry.getCreatorId());
         record.setProjectId(entry.getProjectId());
 
@@ -52,8 +52,8 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
                 .description(record.getDescription())
                 .id(record.getId())
                 .realized(record.getRealized())
-                .creationTime(record.getCreationTime())
-                .lastupdatedTime(record.getLastupdatedTime())
+                .creationDate(record.getCreationDate())
+                .lastUpdatedDate(record.getLastUpdatedDate())
                 .projectId(record.getProjectId())
                 .creatorId(record.getCreatorId());
     }
@@ -90,7 +90,7 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
             }
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(REQUIREMENT.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+            updateMap.put(REQUIREMENT.LAST_UPDATED_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         }
         return updateMap;
     }
@@ -98,20 +98,20 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(REQUIREMENT.CREATION_TIME.desc());
+            return Arrays.asList(REQUIREMENT.CREATION_DATE.desc());
         }
         List<SortField<?>> sortFields = new ArrayList<>();
         for (Pageable.SortField sort : sorts) {
             if (sort.getField().equals("date")) {
                 switch (sort.getSortDirection()) {
                     case ASC:
-                        sortFields.add(REQUIREMENT.CREATION_TIME.asc());
+                        sortFields.add(REQUIREMENT.CREATION_DATE.asc());
                         break;
                     case DESC:
-                        sortFields.add(REQUIREMENT.CREATION_TIME.desc());
+                        sortFields.add(REQUIREMENT.CREATION_DATE.desc());
                         break;
                     default:
-                        sortFields.add(REQUIREMENT.CREATION_TIME.desc());
+                        sortFields.add(REQUIREMENT.CREATION_DATE.desc());
                         break;
                 }
             } else if (sort.getField().equals("name")) {

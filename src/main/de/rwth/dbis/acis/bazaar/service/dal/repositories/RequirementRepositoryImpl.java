@@ -274,8 +274,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             builder.id(queryResult.getValues(REQUIREMENT.ID).get(0))
                     .description(queryResult.getValues(REQUIREMENT.DESCRIPTION).get(0))
                     .realized(queryResult.getValues(REQUIREMENT.REALIZED).get(0))
-                    .creationTime(queryResult.getValues(REQUIREMENT.CREATION_TIME).get(0))
-                    .lastupdatedTime(queryResult.getValues(REQUIREMENT.LASTUPDATED_TIME).get(0))
+                    .creationDate(queryResult.getValues(REQUIREMENT.CREATION_DATE).get(0))
+                    .lastUpdatedDate(queryResult.getValues(REQUIREMENT.LAST_UPDATED_DATE).get(0))
                     .projectId(queryResult.getValues(REQUIREMENT.PROJECT_ID).get(0))
                     .creatorId(queryResult.getValues(REQUIREMENT.CREATOR_ID).get(0));
 
@@ -339,8 +339,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 Result<Record> records = entry.getValue();
                 AttachmentRecord record = new AttachmentRecord(
                         records.getValues(ATTACHMENT.ID).get(0),
-                        records.getValues(ATTACHMENT.CREATION_TIME).get(0),
-                        records.getValues(ATTACHMENT.LASTUPDATED_TIME).get(0),
+                        records.getValues(ATTACHMENT.CREATION_DATE).get(0),
+                        records.getValues(ATTACHMENT.LAST_UPDATED_DATE).get(0),
                         records.getValues(ATTACHMENT.REQUIREMENT_ID).get(0),
                         records.getValues(ATTACHMENT.USER_ID).get(0),
                         records.getValues(ATTACHMENT.NAME).get(0),
@@ -406,7 +406,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
         try {
             jooq.update(REQUIREMENT)
                     .set(REQUIREMENT.REALIZED, realized)
-                    .set(REQUIREMENT.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()))
+                    .set(REQUIREMENT.LAST_UPDATED_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()))
                     .where(REQUIREMENT.ID.eq(id))
                     .execute();
         } catch (Exception e) {
@@ -419,7 +419,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
         try {
             jooq.update(REQUIREMENT)
                     .set(REQUIREMENT.LEAD_DEVELOPER_ID, userId)
-                    .set(REQUIREMENT.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()))
+                    .set(REQUIREMENT.LAST_UPDATED_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()))
                     .where(REQUIREMENT.ID.eq(id))
                     .execute();
         } catch (Exception e) {
@@ -439,20 +439,20 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .select(DSL.countDistinct(ATTACHMENT.ID).as("numberOfAttachments"))
                     .select(DSL.countDistinct(VOTE.ID).as("numberOfVotes"))
                     .from(REQUIREMENT)
-                    .leftJoin(PROJECT).on(PROJECT.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(PROJECT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                    .leftJoin(PROJECT).on(PROJECT.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(PROJECT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(PROJECT.ID.equal(REQUIREMENT.PROJECT_ID)))
                     .leftJoin(REQUIREMENT_COMPONENT_MAP).on(REQUIREMENT_COMPONENT_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .leftJoin(COMPONENT).on(COMPONENT.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(COMPONENT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                    .leftJoin(COMPONENT).on(COMPONENT.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(COMPONENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(COMPONENT.ID.equal(REQUIREMENT_COMPONENT_MAP.COMPONENT_ID)))
-                    .leftJoin(COMMENT).on(COMMENT.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(COMMENT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                    .leftJoin(COMMENT).on(COMMENT.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(COMMENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(COMMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
-                    .leftJoin(ATTACHMENT).on(ATTACHMENT.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(ATTACHMENT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                    .leftJoin(ATTACHMENT).on(ATTACHMENT.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(ATTACHMENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(ATTACHMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
-                    .leftJoin(VOTE).on(VOTE.CREATION_TIME.greaterOrEqual(timestamp)
+                    .leftJoin(VOTE).on(VOTE.CREATION_DATE.greaterOrEqual(timestamp)
                             .and(VOTE.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
                     .where(REQUIREMENT.ID.eq(requirementId))
                     .fetchOne();
@@ -460,8 +460,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             Record record2 = jooq
                     .select(DSL.countDistinct(REQUIREMENT.ID).as("numberOfRequirements"))
                     .from(REQUIREMENT)
-                    .where(REQUIREMENT.CREATION_TIME.greaterOrEqual(timestamp)
-                            .or(REQUIREMENT.LASTUPDATED_TIME.greaterOrEqual(timestamp))
+                    .where(REQUIREMENT.CREATION_DATE.greaterOrEqual(timestamp)
+                            .or(REQUIREMENT.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
                             .and(REQUIREMENT.ID.eq(requirementId)))
                     .fetchOne();
 

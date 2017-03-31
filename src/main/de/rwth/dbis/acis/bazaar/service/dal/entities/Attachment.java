@@ -58,9 +58,9 @@ public class Attachment extends EntityBase {
     @MaxLength(value = 1000, profiles = {"*"})
     private String fileUrl;
 
-    private Date creation_time;
+    private Date creationDate;
 
-    private Date lastupdated_time;
+    private Date lastUpdatedDate;
 
     private User creator;
 
@@ -76,8 +76,8 @@ public class Attachment extends EntityBase {
         this.mimeType = builder.mimeType;
         this.identifier = builder.identifier;
         this.fileUrl = builder.fileUrl;
-        this.creation_time = builder.creation_time;
-        this.lastupdated_time = builder.lastupdated_time;
+        this.creationDate = builder.creationDate;
+        this.lastUpdatedDate = builder.lastUpdatedDate;
         this.creator = builder.creator;
     }
 
@@ -129,12 +129,12 @@ public class Attachment extends EntityBase {
         return fileUrl;
     }
 
-    public Date getCreation_time() {
-        return creation_time;
+    public Date getCreationDate() {
+        return creationDate;
     }
 
-    public Date getLastupdated_time() {
-        return lastupdated_time;
+    public Date getLastUpdatedDate() {
+        return lastUpdatedDate;
     }
 
     public User getCreator() {
@@ -158,8 +158,8 @@ public class Attachment extends EntityBase {
         private String mimeType;
         private String identifier;
         private String fileUrl;
-        private Date creation_time;
-        private Date lastupdated_time;
+        private Date creationDate;
+        private Date lastUpdatedDate;
         public User creator;
 
         public Builder id(int id) {
@@ -202,13 +202,13 @@ public class Attachment extends EntityBase {
             return this;
         }
 
-        public Builder creationTime(Date creationTime) {
-            this.creation_time = creationTime;
+        public Builder creationDate(Date creationDate) {
+            this.creationDate = creationDate;
             return this;
         }
 
-        public Builder lastupdatedTime(Date lastupdated_time) {
-            this.lastupdated_time = lastupdated_time;
+        public Builder lastUpdatedDate(Date lastUpdatedDate) {
+            this.lastUpdatedDate = lastUpdatedDate;
             return this;
         }
 

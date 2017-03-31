@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
@@ -191,7 +190,7 @@ public class RequirementsResource extends RESTService {
                 }
 
                 createdRequirement = dalFacade.getRequirementById(createdRequirement.getId(), internalUserId);
-                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, createdRequirement.getCreation_time(), Activity.ActivityAction.CREATE, createdRequirement.getId(),
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, createdRequirement.getCreationDate(), Activity.ActivityAction.CREATE, createdRequirement.getId(),
                         Activity.DataType.REQUIREMENT, createdRequirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
                 return Response.status(Response.Status.CREATED).entity(gson.toJson(createdRequirement)).build();
             } catch (BazaarException bex) {
@@ -253,7 +252,7 @@ public class RequirementsResource extends RESTService {
                 }
                 dalFacade.followRequirement(internalUserId, requirementToUpdate.getId());
                 RequirementEx updatedRequirement = dalFacade.modifyRequirement(requirementToUpdate, internalUserId);
-                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, updatedRequirement.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedRequirement.getId(),
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, updatedRequirement.getLastUpdatedDate(), Activity.ActivityAction.UPDATE, updatedRequirement.getId(),
                         Activity.DataType.REQUIREMENT, updatedRequirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
                 return Response.ok(gson.toJson(updatedRequirement)).build();
             } catch (BazaarException bex) {
@@ -307,7 +306,7 @@ public class RequirementsResource extends RESTService {
                 }
                 Gson gson = new Gson();
                 RequirementEx deletedRequirement = dalFacade.deleteRequirementById(requirementId, internalUserId);
-                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, deletedRequirement.getLastupdated_time(), Activity.ActivityAction.DELETE, deletedRequirement.getId(),
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, deletedRequirement.getLastUpdatedDate(), Activity.ActivityAction.DELETE, deletedRequirement.getId(),
                         Activity.DataType.REQUIREMENT, deletedRequirement.getComponents().get(0).getId(), Activity.DataType.COMPONENT, internalUserId);
                 return Response.ok(gson.toJson(deletedRequirement)).build();
             } catch (BazaarException bex) {
