@@ -22,21 +22,21 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Vote;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VoteRecord;
 import org.jooq.*;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Votes.VOTES;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.VOTE;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
-public class VoteTransformator implements de.rwth.dbis.acis.bazaar.service.dal.transform.Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Vote, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VotesRecord> {
+public class VoteTransformator implements de.rwth.dbis.acis.bazaar.service.dal.transform.Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Vote, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VoteRecord> {
     @Override
-    public VotesRecord createRecord(Vote entity) {
-        VotesRecord record = new VotesRecord();
+    public VoteRecord createRecord(Vote entity) {
+        VoteRecord record = new VoteRecord();
         record.setUserId(entity.getUserId());
         record.setRequirementId(entity.getRequirementId());
         record.setIsUpvote((byte) (entity.isUpvote() ? 1 : 0));
@@ -44,7 +44,7 @@ public class VoteTransformator implements de.rwth.dbis.acis.bazaar.service.dal.t
     }
 
     @Override
-    public Vote getEntityFromTableRecord(VotesRecord record) {
+    public Vote getEntityFromTableRecord(VoteRecord record) {
         return Vote.getBuilder()
                 .id(record.getId())
                 .userId(record.getUserId())
@@ -54,33 +54,33 @@ public class VoteTransformator implements de.rwth.dbis.acis.bazaar.service.dal.t
     }
 
     @Override
-    public Table<VotesRecord> getTable() {
-        return VOTES;
+    public Table<VoteRecord> getTable() {
+        return VOTE;
     }
 
     @Override
-    public TableField<VotesRecord, Integer> getTableId() {
-        return VOTES.ID;
+    public TableField<VoteRecord, Integer> getTableId() {
+        return VOTE.ID;
     }
 
     @Override
-    public Class<? extends VotesRecord> getRecordClass() {
-        return VotesRecord.class;
+    public Class<? extends VoteRecord> getRecordClass() {
+        return VoteRecord.class;
     }
 
     @Override
     public Map<Field, Object> getUpdateMap(final Vote entity) {
         return new HashMap<Field, Object>() {{
-            put(VOTES.IS_UPVOTE, entity.isUpvote());
-            put(VOTES.REQUIREMENT_ID, entity.getRequirementId());
-            put(VOTES.USER_ID, entity.getUserId());
+            put(VOTE.IS_UPVOTE, entity.isUpvote());
+            put(VOTE.REQUIREMENT_ID, entity.getRequirementId());
+            put(VOTE.USER_ID, entity.getUserId());
         }};
     }
 
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(VOTES.ID.asc());
+            return Arrays.asList(VOTE.ID.asc());
         }
         return null;
     }

@@ -22,67 +22,67 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Privilege;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.PrivilegesRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.PrivilegeRecord;
 import org.jooq.*;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privileges.PRIVILEGES;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Roles.ROLES;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.PRIVILEGE;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.ROLE;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 2/18/2015
  */
-public class PrivilegeTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Privilege, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.PrivilegesRecord> {
+public class PrivilegeTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Privilege, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.PrivilegeRecord> {
     @Override
-    public PrivilegesRecord createRecord(Privilege entity) {
-        PrivilegesRecord record = new PrivilegesRecord();
+    public PrivilegeRecord createRecord(Privilege entity) {
+        PrivilegeRecord record = new PrivilegeRecord();
         record.setId(entity.getId());
         record.setName(new PrivilegeEnumConverter().to(entity.getName()));
         return record;
     }
 
     @Override
-    public Privilege getEntityFromTableRecord(PrivilegesRecord record) {
+    public Privilege getEntityFromTableRecord(PrivilegeRecord record) {
         return Privilege.getBuilder(new PrivilegeEnumConverter().from(record.getName()))
                 .id(record.getId())
                 .build();
     }
 
     @Override
-    public Table<PrivilegesRecord> getTable() {
-        return PRIVILEGES;
+    public Table<PrivilegeRecord> getTable() {
+        return PRIVILEGE;
     }
 
     @Override
-    public TableField<PrivilegesRecord, Integer> getTableId() {
-        return PRIVILEGES.ID;
+    public TableField<PrivilegeRecord, Integer> getTableId() {
+        return PRIVILEGE.ID;
     }
 
     @Override
-    public Class<? extends PrivilegesRecord> getRecordClass() {
-        return PrivilegesRecord.class;
+    public Class<? extends PrivilegeRecord> getRecordClass() {
+        return PrivilegeRecord.class;
     }
 
     @Override
     public Map<Field, Object> getUpdateMap(final Privilege entity) {
         return new HashMap<Field, Object>() {{
-            put(PRIVILEGES.NAME, entity.getName());
+            put(PRIVILEGE.NAME, entity.getName());
         }};
     }
 
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(ROLES.ID.asc());
+            return Arrays.asList(ROLE.ID.asc());
         }
         return null;
     }
 
     @Override
     public Condition getSearchCondition(String search) throws Exception {
-        return PRIVILEGES.NAME.likeIgnoreCase(search);
+        return PRIVILEGE.NAME.likeIgnoreCase(search);
     }
 
     @Override

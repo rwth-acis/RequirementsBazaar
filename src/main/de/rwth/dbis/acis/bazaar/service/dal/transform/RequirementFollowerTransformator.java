@@ -22,28 +22,28 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementFollower;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementFollowerRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementFollowerMapRecord;
 import org.jooq.*;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementFollower.REQUIREMENT_FOLLOWER;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.REQUIREMENT_FOLLOWER_MAP;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
-public class RequirementFollowerTransformator implements Transformator<RequirementFollower, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementFollowerRecord> {
+public class RequirementFollowerTransformator implements Transformator<RequirementFollower, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementFollowerMapRecord> {
     @Override
-    public RequirementFollowerRecord createRecord(RequirementFollower entity) {
-        RequirementFollowerRecord record = new RequirementFollowerRecord();
+    public RequirementFollowerMapRecord createRecord(RequirementFollower entity) {
+        RequirementFollowerMapRecord record = new RequirementFollowerMapRecord();
         record.setRequirementId(entity.getRequirementId());
         record.setUserId(entity.getUserId());
         return record;
     }
 
     @Override
-    public RequirementFollower getEntityFromTableRecord(RequirementFollowerRecord record) {
+    public RequirementFollower getEntityFromTableRecord(RequirementFollowerMapRecord record) {
         return RequirementFollower.getBuilder()
                 .id(record.getId())
                 .userId(record.getUserId())
@@ -52,32 +52,32 @@ public class RequirementFollowerTransformator implements Transformator<Requireme
     }
 
     @Override
-    public Table<RequirementFollowerRecord> getTable() {
-        return REQUIREMENT_FOLLOWER;
+    public Table<RequirementFollowerMapRecord> getTable() {
+        return REQUIREMENT_FOLLOWER_MAP;
     }
 
     @Override
-    public TableField<RequirementFollowerRecord, Integer> getTableId() {
-        return REQUIREMENT_FOLLOWER.ID;
+    public TableField<RequirementFollowerMapRecord, Integer> getTableId() {
+        return REQUIREMENT_FOLLOWER_MAP.ID;
     }
 
     @Override
-    public Class<? extends RequirementFollowerRecord> getRecordClass() {
-        return RequirementFollowerRecord.class;
+    public Class<? extends RequirementFollowerMapRecord> getRecordClass() {
+        return RequirementFollowerMapRecord.class;
     }
 
     @Override
     public Map<Field, Object> getUpdateMap(final RequirementFollower entity) {
         return new HashMap<Field, Object>() {{
-            put(REQUIREMENT_FOLLOWER.REQUIREMENT_ID, entity.getRequirementId());
-            put(REQUIREMENT_FOLLOWER.USER_ID, entity.getUserId());
+            put(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID, entity.getRequirementId());
+            put(REQUIREMENT_FOLLOWER_MAP.USER_ID, entity.getUserId());
         }};
     }
 
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(REQUIREMENT_FOLLOWER.ID.asc());
+            return Arrays.asList(REQUIREMENT_FOLLOWER_MAP.ID.asc());
         }
         return null;
     }

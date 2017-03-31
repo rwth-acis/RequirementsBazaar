@@ -9,7 +9,7 @@ import java.util.Date;
  * Created by martin on 15.02.2016.
  */
 public interface NotificationDispatcher {
-    void dispatchNotification(Service service, Date creationTime, Activity.ActivityAction activityAction,
+    void dispatchNotification(Service service, Date creationDate, Activity.ActivityAction activityAction,
                               int dataId, Activity.DataType dataType, int parentDataId, Activity.DataType parentDataType, int userId);
 
     void setActivityDispatcher(ActivityDispatcher activityDispatcher);

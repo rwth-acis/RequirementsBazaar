@@ -2,25 +2,25 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.ProjectFollower;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectFollowerRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectFollowerMapRecord;
 import org.jooq.*;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ProjectFollower.PROJECT_FOLLOWER;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.PROJECT_FOLLOWER_MAP;
 
 
-public class ProjectFollowerTransformator implements Transformator<ProjectFollower, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectFollowerRecord> {
+public class ProjectFollowerTransformator implements Transformator<ProjectFollower, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectFollowerMapRecord> {
     @Override
-    public ProjectFollowerRecord createRecord(ProjectFollower entity) {
-        ProjectFollowerRecord record = new ProjectFollowerRecord();
+    public ProjectFollowerMapRecord createRecord(ProjectFollower entity) {
+        ProjectFollowerMapRecord record = new ProjectFollowerMapRecord();
         record.setProjectId(entity.getProjectId());
         record.setUserId(entity.getUserId());
         return record;
     }
 
     @Override
-    public ProjectFollower getEntityFromTableRecord(ProjectFollowerRecord record) {
+    public ProjectFollower getEntityFromTableRecord(ProjectFollowerMapRecord record) {
         return ProjectFollower.getBuilder()
                 .id(record.getId())
                 .userId(record.getUserId())
@@ -29,32 +29,32 @@ public class ProjectFollowerTransformator implements Transformator<ProjectFollow
     }
 
     @Override
-    public Table<ProjectFollowerRecord> getTable() {
-        return PROJECT_FOLLOWER;
+    public Table<ProjectFollowerMapRecord> getTable() {
+        return PROJECT_FOLLOWER_MAP;
     }
 
     @Override
-    public TableField<ProjectFollowerRecord, Integer> getTableId() {
-        return PROJECT_FOLLOWER.ID;
+    public TableField<ProjectFollowerMapRecord, Integer> getTableId() {
+        return PROJECT_FOLLOWER_MAP.ID;
     }
 
     @Override
-    public Class<? extends ProjectFollowerRecord> getRecordClass() {
-        return ProjectFollowerRecord.class;
+    public Class<? extends ProjectFollowerMapRecord> getRecordClass() {
+        return ProjectFollowerMapRecord.class;
     }
 
     @Override
     public Map<Field, Object> getUpdateMap(final ProjectFollower entity) {
         return new HashMap<Field, Object>() {{
-            put(PROJECT_FOLLOWER.PROJECT_ID, entity.getProjectId());
-            put(PROJECT_FOLLOWER.USER_ID, entity.getUserId());
+            put(PROJECT_FOLLOWER_MAP.PROJECT_ID, entity.getProjectId());
+            put(PROJECT_FOLLOWER_MAP.USER_ID, entity.getUserId());
         }};
     }
 
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(PROJECT_FOLLOWER.ID.asc());
+            return Arrays.asList(PROJECT_FOLLOWER_MAP.ID.asc());
         }
         return null;
     }

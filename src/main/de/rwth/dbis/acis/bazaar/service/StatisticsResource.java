@@ -83,7 +83,7 @@ public class StatisticsResource extends RESTService {
         })
         public Response getStatistics(
                 @ApiParam(value = "Since timestamp", required = false) @QueryParam("since") String since,
-                @ApiParam(value = "scope filter field", required = false, allowableValues = "project,component,requirement") @QueryParam("scopeField") String scopeField,
+                @ApiParam(value = "scope filter field", required = false, allowableValues = "project,category,requirement") @QueryParam("scopeField") String scopeField,
                 @ApiParam(value = "scope filter id", required = false) @QueryParam("scopeId") int scopeId) {
             DALFacade dalFacade = null;
             try {
@@ -102,8 +102,8 @@ public class StatisticsResource extends RESTService {
                 } else if (scopeField.equals("project")) {
                     statisticsResult = dalFacade.getStatisticsForProject(internalUserId, scopeId, sinceCal);
 
-                } else if (scopeField.equals("component")) {
-                    statisticsResult = dalFacade.getStatisticsForComponent(internalUserId, scopeId, sinceCal);
+                } else if (scopeField.equals("category")) {
+                    statisticsResult = dalFacade.getStatisticsForCategory(internalUserId, scopeId, sinceCal);
 
                 } else if (scopeField.equals("requirement")) {
                     statisticsResult = dalFacade.getStatisticsForRequirement(internalUserId, scopeId, sinceCal);

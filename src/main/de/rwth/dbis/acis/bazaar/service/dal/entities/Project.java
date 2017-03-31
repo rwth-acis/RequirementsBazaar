@@ -21,7 +21,6 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 import jodd.vtor.constraint.MaxLength;
-import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
 import jodd.vtor.constraint.NotNull;
 
@@ -45,11 +44,11 @@ public class Project extends EntityBase {
     @MaxLength(value= 50, profiles = {"*"})
     private String name;
 
-    private ProjectVisibility visibility;
+    private Boolean visibility;
 
-    private Date creation_time;
+    private Date creationDate;
 
-    private Date lastupdated_time;
+    private Date lastUpdatedDate;
 
     private List<User> followers;
 
@@ -57,15 +56,15 @@ public class Project extends EntityBase {
 
     private User leader;
 
-    private Integer defaultComponentId;
+    private Integer defaultCategoryId;
 
-    private Integer numberOfComponents;
+    private Integer numberOfCategories;
 
     private Integer numberOfRequirements;
 
     private Integer numberOfFollowers;
 
-    public ProjectVisibility getVisibility() {
+    public Boolean getVisibility() {
         return visibility;
     }
 
@@ -81,8 +80,8 @@ public class Project extends EntityBase {
         this.leader = leader;
     }
 
-    public void setNumberOfComponents(Integer numberOfComponents) {
-        this.numberOfComponents = numberOfComponents;
+    public void setNumberOfCategories(Integer numberOfCategories) {
+        this.numberOfCategories = numberOfCategories;
     }
 
     public void setNumberOfRequirements(Integer numberOfRequirements) {
@@ -109,13 +108,13 @@ public class Project extends EntityBase {
         this.followers = builder.followers;
         this.leader = builder.leader;
         this.leaderId = builder.leaderId;
-        this.defaultComponentId = builder.defaultComponentId;
-        this.creation_time = builder.creation_time;
-        this.lastupdated_time = builder.lastupdated_time;
+        this.defaultCategoryId = builder.defaultCategoryId;
+        this.creationDate = builder.creationDate;
+        this.lastUpdatedDate = builder.lastUpdatedDate;
     }
 
     /**
-     * Builder to easily build Component objects
+     * Builder to easily build Category objects
      *
      * @param name Name field will be initialized using the passed value
      * @return a builder with name returned
@@ -129,12 +128,12 @@ public class Project extends EntityBase {
         return id;
     }
 
-    public Date getCreation_time() {
-        return creation_time;
+    public Date getCreationDate() {
+        return creationDate;
     }
 
-    public Date getLastupdated_time() {
-        return lastupdated_time;
+    public Date getLastUpdatedDate() {
+        return lastUpdatedDate;
     }
 
     public String getDescription() {
@@ -157,12 +156,12 @@ public class Project extends EntityBase {
         return leader;
     }
 
-    public Integer getDefaultComponentId() {
-        return defaultComponentId;
+    public Integer getDefaultCategoryId() {
+        return defaultCategoryId;
     }
 
-    public void setDefaultComponentId(Integer defaultComponentId) {
-        this.defaultComponentId = defaultComponentId;
+    public void setDefaultCategoryId(Integer defaultCategoryId) {
+        this.defaultCategoryId = defaultCategoryId;
     }
 
     public static class Builder {
@@ -170,13 +169,13 @@ public class Project extends EntityBase {
         private int id;
         private String description;
         private String name;
-        private ProjectVisibility visibility;
+        private Boolean visibility;
         private List<User> followers;
         private User leader;
         private int leaderId;
-        private Date creation_time;
-        private Date lastupdated_time;
-        private Integer defaultComponentId;
+        private Date creationDate;
+        private Date lastUpdatedDate;
+        private Integer defaultCategoryId;
 
         public Builder(String name) {
             this.name = name;
@@ -192,7 +191,7 @@ public class Project extends EntityBase {
             return this;
         }
 
-        public Builder visibility(ProjectVisibility visibility) {
+        public Builder visibility(Boolean visibility) {
             this.visibility = visibility;
             return this;
         }
@@ -212,18 +211,18 @@ public class Project extends EntityBase {
             return this;
         }
 
-        public Builder defaultComponentId(Integer defaultComponentId) {
-            this.defaultComponentId = defaultComponentId;
+        public Builder defaultCategoryId(Integer defaultCategoryId) {
+            this.defaultCategoryId = defaultCategoryId;
             return this;
         }
 
-        public Builder creationTime(Date creation_time) {
-            this.creation_time = creation_time;
+        public Builder creationDate(Date creationDate) {
+            this.creationDate = creationDate;
             return this;
         }
 
-        public Builder lastupdatedTime(Date lastupdated_time) {
-            this.lastupdated_time = lastupdated_time;
+        public Builder lastUpdatedDate(Date lastUpdatedDate) {
+            this.lastUpdatedDate = lastUpdatedDate;
             return this;
         }
 
@@ -242,28 +241,6 @@ public class Project extends EntityBase {
             }
 
             return created;
-        }
-    }
-
-    public enum ProjectVisibility {
-        PUBLIC("+"), PRIVATE("-");
-
-        public String asChar() {
-            return asChar;
-        }
-
-        private final String asChar;
-
-        ProjectVisibility(String visibility) {
-            this.asChar = visibility;
-        }
-
-        public static ProjectVisibility getVisibility(final String visibilityChar) {
-            for (ProjectVisibility vis : ProjectVisibility.values())
-                if (vis.asChar.equals(visibilityChar))
-                    return vis;
-
-            return null;
         }
     }
 }

@@ -17,11 +17,11 @@ public class Requirement extends EntityBase {
     @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
     @MaxLength(value = 50, profiles = {"*"})
-    private String title;
+    private String name;
 
-    private Date creation_time;
+    private Date creationDate;
 
-    private Date lastupdated_time;
+    private Date lastUpdatedDate;
 
     @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
@@ -32,7 +32,7 @@ public class Requirement extends EntityBase {
 
     @NotNull(profiles = {"create"})
     @Size(min = 1, profiles = {"create"})
-    private List<Component> components;
+    private List<Category> categories;
 
     private List<Attachment> attachments;
 
@@ -54,12 +54,12 @@ public class Requirement extends EntityBase {
         return realized;
     }
 
-    public Date getCreation_time() {
-        return creation_time;
+    public Date getCreationDate() {
+        return creationDate;
     }
 
-    public Date getLastupdated_time() {
-        return lastupdated_time;
+    public Date getLastUpdatedDate() {
+        return lastUpdatedDate;
     }
 
     public String getDescription() {
@@ -70,12 +70,12 @@ public class Requirement extends EntityBase {
         this.description = description;
     }
 
-    public List<Component> getComponents() {
-        return components;
+    public List<Category> getCategories() {
+        return categories;
     }
 
-    public void setComponents(List<Component> components) {
-        this.components = components;
+    public void setCategories(List<Category> categories) {
+        this.categories = categories;
     }
 
     public List<Attachment> getAttachments() {
@@ -86,12 +86,12 @@ public class Requirement extends EntityBase {
         this.attachments = attachments;
     }
 
-    public String getTitle() {
-        return title;
+    public String getName() {
+        return name;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getId() {
@@ -132,12 +132,12 @@ public class Requirement extends EntityBase {
     protected Requirement(Builder builder) {
         this.id = builder.id;
         this.description = builder.description;
-        this.title = builder.title;
+        this.name = builder.name;
         this.realized = builder.realized;
         this.projectId = builder.projectId;
         this.creatorId = builder.creatorId;
-        this.creation_time = builder.creation_time;
-        this.lastupdated_time = builder.lastupdated_time;
+        this.creationDate = builder.creationDate;
+        this.lastUpdatedDate = builder.lastUpdatedDate;
         this.upVotes = builder.upVotes;
         this.downVotes = builder.downVotes;
         this.userVoted = builder.userVoted;
@@ -147,29 +147,29 @@ public class Requirement extends EntityBase {
     /**
      * Builder to easily build Requirement objects
      *
-     * @param title Title field will be initialized using the passed value
-     * @return a builder with title returned
+     * @param name Name field will be initialized using the passed value
+     * @return a builder with name returned
      */
-    public static Builder getBuilder(String title) {
-        return new Builder(title);
+    public static Builder getBuilder(String name) {
+        return new Builder(name);
     }
 
     public static class Builder {
         private int id;
         private String description;
-        private String title;
+        private String name;
         private Date realized;
         private int projectId;
         private int creatorId;
-        private Date creation_time;
-        private Date lastupdated_time;
+        private Date creationDate;
+        private Date lastUpdatedDate;
         private int upVotes;
         private int downVotes;
         private UserVote userVoted;
         protected List<Attachment> attachments;
 
-        public Builder(String title) {
-            this.title = title;
+        public Builder(String name) {
+            this.name = name;
         }
 
         public Builder description(String description) {
@@ -190,10 +190,10 @@ public class Requirement extends EntityBase {
         public Requirement build() {
             Requirement created = new Requirement(this);
 
-            String name = created.getTitle();
+            String name = created.getName();
 
             if (name == null || name.length() == 0) {
-                throw new IllegalStateException("title cannot be null or empty");
+                throw new IllegalStateException("name cannot be null or empty");
             }
 
             return created;
@@ -214,13 +214,13 @@ public class Requirement extends EntityBase {
             return this;
         }
 
-        public Builder creationTime(Date creationTime) {
-            this.creation_time = creationTime;
+        public Builder creationDate(Date creationDate) {
+            this.creationDate = creationDate;
             return this;
         }
 
-        public Builder lastupdatedTime(Date lastupdatedTime) {
-            this.lastupdated_time = lastupdatedTime;
+        public Builder lastUpdatedDate(Date lastUpdatedDate) {
+            this.lastUpdatedDate = lastUpdatedDate;
             return this;
         }
 

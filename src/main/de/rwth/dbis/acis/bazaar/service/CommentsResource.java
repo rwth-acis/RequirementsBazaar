@@ -172,7 +172,7 @@ public class CommentsResource extends RESTService {
                 }
                 dalFacade.followRequirement(internalUserId, requirement.getId());
                 Comment createdComment = dalFacade.createComment(commentToCreate);
-                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, createdComment.getCreationTime(), Activity.ActivityAction.CREATE, createdComment.getId(),
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, createdComment.getCreationDate(), Activity.ActivityAction.CREATE, createdComment.getId(),
                         Activity.DataType.COMMENT, createdComment.getRequirementId(), Activity.DataType.REQUIREMENT, internalUserId);
                 return Response.status(Response.Status.CREATED).entity(gson.toJson(createdComment)).build();
             } catch (BazaarException bex) {
@@ -225,7 +225,7 @@ public class CommentsResource extends RESTService {
                 }
                 Gson gson = new Gson();
                 Comment deletedComment = dalFacade.deleteCommentById(commentId);
-                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, deletedComment.getCreationTime(), Activity.ActivityAction.DELETE, deletedComment.getId(),
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, deletedComment.getCreationDate(), Activity.ActivityAction.DELETE, deletedComment.getId(),
                         Activity.DataType.COMMENT, commentToDelete.getRequirementId(), Activity.DataType.REQUIREMENT, internalUserId);
                 return Response.ok(gson.toJson(deletedComment)).build();
             } catch (BazaarException bex) {

@@ -195,7 +195,7 @@ public class ProjectsResource extends RESTService {
                 } else {
                     boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PROJECT, String.valueOf(projectId), dalFacade);
                     if (!authorized) {
-                        ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
+                        ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.read"));
                     }
                 }
                 Project projectToReturn = dalFacade.getProjectById(projectId);
@@ -255,7 +255,7 @@ public class ProjectsResource extends RESTService {
                 }
                 projectToCreate.setLeaderId(internalUserId);
                 Project createdProject = dalFacade.createProject(projectToCreate);
-                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, createdProject.getCreation_time(), Activity.ActivityAction.CREATE, createdProject.getId(),
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, createdProject.getCreationDate(), Activity.ActivityAction.CREATE, createdProject.getId(),
                         Activity.DataType.PROJECT, 0, null, internalUserId);
                 return Response.status(Response.Status.CREATED).entity(gson.toJson(createdProject)).build();
             } catch (BazaarException bex) {
@@ -316,7 +316,7 @@ public class ProjectsResource extends RESTService {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
                 }
                 Project updatedProject = dalFacade.modifyProject(projectToUpdate);
-                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, updatedProject.getLastupdated_time(), Activity.ActivityAction.UPDATE, updatedProject.getId(),
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, updatedProject.getLastUpdatedDate(), Activity.ActivityAction.UPDATE, updatedProject.getId(),
                         Activity.DataType.PROJECT, 0, null, internalUserId);
                 return Response.ok(gson.toJson(updatedProject)).build();
             } catch (BazaarException bex) {
@@ -442,29 +442,29 @@ public class ProjectsResource extends RESTService {
         }
 
         /**
-         * This method returns the list of components under a given project.
+         * This method returns the list of categories under a given project.
          *
          * @param projectId id of the project
          * @param page      page number
          * @param perPage   number of projects by page
          * @param search    search string
          * @param sort      sort order
-         * @return Response with components as a JSON array.
+         * @return Response with categories as a JSON array.
          */
         @GET
-        @Path("/{projectId}/components")
+        @Path("/{projectId}/categories")
         @Produces(MediaType.APPLICATION_JSON)
-        @ApiOperation(value = "This method returns the list of components under a given project.")
+        @ApiOperation(value = "This method returns the list of categories under a given project.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of components for a given project", response = Component.class, responseContainer = "List"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of categories for a given project", response = Category.class, responseContainer = "List"),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
-        public Response getComponentsByProject(
+        public Response getCategorysByProject(
                 @PathParam("projectId") int projectId,
                 @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
-                @ApiParam(value = "Elements of components by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
+                @ApiParam(value = "Elements of categories by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
                 @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
                 @ApiParam(value = "Sort", required = false, allowableValues = "name,date,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort) {
 
@@ -500,20 +500,20 @@ public class ProjectsResource extends RESTService {
                 dalFacade = service.bazaarService.getDBConnection();
                 Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
                 if (dalFacade.getProjectById(projectId) == null) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.NOT_FOUND, String.format(Localization.getInstance().getResourceBundle().getString("error.resource.notfound"), "component"));
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.NOT_FOUND, String.format(Localization.getInstance().getResourceBundle().getString("error.resource.notfound"), "category"));
                 }
                 if (dalFacade.isProjectPublic(projectId)) {
-                    boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMPONENT, String.valueOf(projectId), dalFacade);
+                    boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_CATEGORY, String.valueOf(projectId), dalFacade);
                     if (!authorized) {
                         ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
                     }
                 } else {
-                    boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMPONENT, String.valueOf(projectId), dalFacade);
+                    boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_CATEGORY, String.valueOf(projectId), dalFacade);
                     if (!authorized) {
-                        ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
+                        ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.read"));
                     }
                 }
-                PaginationResult<Component> componentsResult = dalFacade.listComponentsByProjectId(projectId, pageInfo);
+                PaginationResult<Category> categoriesResult = dalFacade.listCategorysByProjectId(projectId, pageInfo);
 
                 Map<String, List<String>> parameter = new HashMap<>();
                 parameter.put("page", new ArrayList() {{
@@ -530,9 +530,9 @@ public class ProjectsResource extends RESTService {
                 parameter.put("sort", sort);
 
                 Response.ResponseBuilder responseBuilder = Response.ok();
-                responseBuilder = responseBuilder.entity(gson.toJson(componentsResult.getElements()));
-                responseBuilder = service.bazaarService.paginationLinks(responseBuilder, componentsResult, "projects/" + String.valueOf(projectId) + "/components", parameter);
-                responseBuilder = service.bazaarService.xHeaderFields(responseBuilder, componentsResult);
+                responseBuilder = responseBuilder.entity(gson.toJson(categoriesResult.getElements()));
+                responseBuilder = service.bazaarService.paginationLinks(responseBuilder, categoriesResult, "projects/" + String.valueOf(projectId) + "/categories", parameter);
+                responseBuilder = service.bazaarService.xHeaderFields(responseBuilder, categoriesResult);
                 Response response = responseBuilder.build();
 
                 return response;
@@ -578,7 +578,7 @@ public class ProjectsResource extends RESTService {
                                                  @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
                                                  @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
                                                  @ApiParam(value = "State filter", required = false, allowableValues = "all,open,realized") @DefaultValue("all") @QueryParam("state") String stateFilter,
-                                                 @ApiParam(value = "Sort", required = false, allowableValues = "date,title,vote,comment,follower,realized") @DefaultValue("date") @QueryParam("sort") List<String> sort) {
+                                                 @ApiParam(value = "Sort", required = false, allowableValues = "date,name,vote,comment,follower,realized") @DefaultValue("date") @QueryParam("sort") List<String> sort) {
             DALFacade dalFacade = null;
             try {
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -625,7 +625,7 @@ public class ProjectsResource extends RESTService {
                 } else {
                     boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT, String.valueOf(projectId), dalFacade);
                     if (!authorized) {
-                        ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.component.read"));
+                        ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.read"));
                     }
                 }
                 PaginationResult<RequirementEx> requirementsResult = dalFacade.listRequirementsByProject(projectId, pageInfo, internalUserId);

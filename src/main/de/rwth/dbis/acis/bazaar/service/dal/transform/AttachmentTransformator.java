@@ -23,64 +23,64 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 import com.vdurmont.emoji.EmojiParser;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentRecord;
 import org.jooq.*;
 
 import java.sql.Timestamp;
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachments.ATTACHMENTS;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.ATTACHMENT;
 
-public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord> {
+public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentRecord> {
 
     @Override
-    public AttachmentsRecord createRecord(Attachment entity) {
+    public AttachmentRecord createRecord(Attachment entity) {
         entity = this.cleanEntry(entity);
 
-        AttachmentsRecord record = new AttachmentsRecord();
-        record.setLastupdatedTime(record.getCreationTime());
+        AttachmentRecord record = new AttachmentRecord();
+        record.setLastUpdatedDate(record.getCreationDate());
         record.setRequirementId(entity.getRequirementId());
         record.setUserId(entity.getCreatorId());
-        record.setTitle(entity.getTitle());
+        record.setName(entity.getName());
         record.setDescription(entity.getDescription());
         record.setMimeType(entity.getMimeType());
         record.setIdentifier(entity.getIdentifier());
-        record.setFileurl(entity.getFileUrl());
-        record.setCreationTime(new Timestamp(Calendar.getInstance().getTime().getTime()));
-        record.setLastupdatedTime(record.getCreationTime());
+        record.setFileUrl(entity.getFileUrl());
+        record.setCreationDate(new Timestamp(Calendar.getInstance().getTime().getTime()));
+        record.setLastUpdatedDate(record.getCreationDate());
         return record;
     }
 
     @Override
-    public Attachment getEntityFromTableRecord(AttachmentsRecord record) {
+    public Attachment getEntityFromTableRecord(AttachmentRecord record) {
         Attachment entity = Attachment.getBuilder()
                 .id(record.getId())
                 .creator(record.getUserId())
                 .requirementId(record.getRequirementId())
-                .title(record.getTitle())
+                .name(record.getName())
                 .description(record.getDescription())
                 .mimeType(record.getMimeType())
                 .identifier(record.getIdentifier())
-                .fileUrl(record.getFileurl())
-                .creationTime(record.getCreationTime())
-                .lastupdatedTime(record.getLastupdatedTime())
+                .fileUrl(record.getFileUrl())
+                .creationDate(record.getCreationDate())
+                .lastUpdatedDate(record.getLastUpdatedDate())
                 .build();
         return entity;
     }
 
     @Override
-    public Table<AttachmentsRecord> getTable() {
-        return ATTACHMENTS;
+    public Table<AttachmentRecord> getTable() {
+        return ATTACHMENT;
     }
 
     @Override
-    public TableField<AttachmentsRecord, Integer> getTableId() {
-        return ATTACHMENTS.ID;
+    public TableField<AttachmentRecord, Integer> getTableId() {
+        return ATTACHMENT.ID;
     }
 
     @Override
-    public Class<? extends AttachmentsRecord> getRecordClass() {
-        return AttachmentsRecord.class;
+    public Class<? extends AttachmentRecord> getRecordClass() {
+        return AttachmentRecord.class;
     }
 
     @Override
@@ -88,7 +88,7 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
         HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(ATTACHMENTS.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+            updateMap.put(ATTACHMENT.LAST_UPDATED_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         }
         return updateMap;
     }
@@ -96,7 +96,7 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(ATTACHMENTS.CREATION_TIME.asc());
+            return Arrays.asList(ATTACHMENT.CREATION_DATE.asc());
         }
         return null;
     }
@@ -112,8 +112,8 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
     }
 
     public Attachment cleanEntry(Attachment attachment) {
-        if (attachment.getTitle() != null) {
-            attachment.setTitle(EmojiParser.parseToAliases(attachment.getTitle()));
+        if (attachment.getName() != null) {
+            attachment.setName(EmojiParser.parseToAliases(attachment.getName()));
         }
         if (attachment.getDescription() != null) {
             attachment.setDescription(EmojiParser.parseToAliases(attachment.getDescription()));

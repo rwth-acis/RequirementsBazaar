@@ -23,82 +23,82 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 import com.vdurmont.emoji.EmojiParser;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ProjectFollower;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectRecord;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects.PROJECTS;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.REQUIREMENT;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.PROJECT;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.PROJECT_FOLLOWER_MAP;
 
-public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Project, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectsRecord> {
+public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Project, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectRecord> {
 
     @Override
-    public ProjectsRecord createRecord(Project entry) {
+    public ProjectRecord createRecord(Project entry) {
         entry = this.cleanEntry(entry);
 
-        ProjectsRecord record = new ProjectsRecord();
+        ProjectRecord record = new ProjectRecord();
         record.setDescription(entry.getDescription());
         record.setName(entry.getName());
         record.setLeaderId(entry.getLeaderId());
-        record.setVisibility(entry.getVisibility().asChar());
-        record.setDefaultComponentsId(entry.getDefaultComponentId());
-        record.setCreationTime(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
-        record.setLastupdatedTime(record.getCreationTime());
+        record.setVisibility((byte) (entry.getVisibility() == true ? 1 : 0 ));
+        record.setDefaultCategoryId(entry.getDefaultCategoryId());
+        record.setCreationDate(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+        record.setLastUpdatedDate(record.getCreationDate());
         return record;
     }
 
     @Override
-    public Project getEntityFromTableRecord(ProjectsRecord record) {
+    public Project getEntityFromTableRecord(ProjectRecord record) {
         return Project.getBuilder(record.getName())
                 .description(record.getDescription())
                 .id(record.getId())
                 .leaderId(record.getLeaderId())
-                .defaultComponentId(record.getDefaultComponentsId())
-                .visibility(Project.ProjectVisibility.getVisibility(record.getVisibility()))
-                .creationTime(record.getCreationTime())
-                .lastupdatedTime(record.getLastupdatedTime())
+                .defaultCategoryId(record.getDefaultCategoryId())
+                .visibility(record.getVisibility() == 1)
+                .creationDate(record.getCreationDate())
+                .lastUpdatedDate(record.getLastUpdatedDate())
                 .build();
     }
 
     @Override
-    public Table<ProjectsRecord> getTable() {
-        return PROJECTS;
+    public Table<ProjectRecord> getTable() {
+        return PROJECT;
     }
 
     @Override
-    public TableField<ProjectsRecord, Integer> getTableId() {
-        return PROJECTS.ID;
+    public TableField<ProjectRecord, Integer> getTableId() {
+        return PROJECT.ID;
     }
 
     @Override
-    public Class<? extends ProjectsRecord> getRecordClass() {
-        return ProjectsRecord.class;
+    public Class<? extends ProjectRecord> getRecordClass() {
+        return ProjectRecord.class;
     }
 
     @Override
     public Map<Field, Object> getUpdateMap(final Project entry) {
         HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
             if (entry.getDescription() != null) {
-                put(PROJECTS.DESCRIPTION, entry.getDescription());
+                put(PROJECT.DESCRIPTION, entry.getDescription());
             }
             if (entry.getName() != null) {
-                put(PROJECTS.NAME, entry.getName());
+                put(PROJECT.NAME, entry.getName());
             }
             if (entry.getLeaderId() != 0) {
-                put(PROJECTS.LEADER_ID, entry.getLeaderId());
+                put(PROJECT.LEADER_ID, entry.getLeaderId());
             }
-            if (entry.getDefaultComponentId() != null) {
-                put(PROJECTS.DEFAULT_COMPONENTS_ID, entry.getDefaultComponentId());
+            if (entry.getDefaultCategoryId() != null) {
+                put(PROJECT.DEFAULT_CATEGORY_ID, entry.getDefaultCategoryId());
             }
             if (entry.getVisibility() != null) {
-                put(PROJECTS.VISIBILITY, entry.getVisibility().asChar());
+                put(PROJECT.VISIBILITY, entry.getVisibility());
             }
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(PROJECTS.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+            updateMap.put(PROJECT.LAST_UPDATED_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         }
         return updateMap;
     }
@@ -106,39 +106,39 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(PROJECTS.NAME.asc());
+            return Arrays.asList(PROJECT.NAME.asc());
         }
         List<SortField<?>> sortFields = new ArrayList<>();
         for (Pageable.SortField sort : sorts) {
             if (sort.getField().equals("name")) {
                 switch (sort.getSortDirection()) {
                     case ASC:
-                        sortFields.add(PROJECTS.NAME.asc());
+                        sortFields.add(PROJECT.NAME.asc());
                         break;
                     case DESC:
-                        sortFields.add(PROJECTS.NAME.desc());
+                        sortFields.add(PROJECT.NAME.desc());
                         break;
                     default:
-                        sortFields.add(PROJECTS.NAME.asc());
+                        sortFields.add(PROJECT.NAME.asc());
                         break;
                 }
             } else if (sort.getField().equals("date")) {
                 switch (sort.getSortDirection()) {
                     case ASC:
-                        sortFields.add(PROJECTS.CREATION_TIME.asc());
+                        sortFields.add(PROJECT.CREATION_DATE.asc());
                         break;
                     case DESC:
-                        sortFields.add(PROJECTS.CREATION_TIME.desc());
+                        sortFields.add(PROJECT.CREATION_DATE.desc());
                         break;
                     default:
-                        sortFields.add(PROJECTS.CREATION_TIME.desc());
+                        sortFields.add(PROJECT.CREATION_DATE.desc());
                         break;
                 }
             } else if (sort.getField().equals("requirement")) {
 
                 Field<Object> requirementCount = DSL.select(DSL.count())
-                        .from(Requirements.REQUIREMENTS)
-                        .where(Requirements.REQUIREMENTS.PROJECT_ID.equal(PROJECTS.ID))
+                        .from(REQUIREMENT)
+                        .where(REQUIREMENT.PROJECT_ID.equal(PROJECT.ID))
                         .asField("requirementCount");
 
                 switch (sort.getSortDirection()) {
@@ -155,8 +155,8 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
             } else if (sort.getField().equals("follower")) {
 
                 Field<Object> followerCount = DSL.select(DSL.count())
-                        .from(ProjectFollower.PROJECT_FOLLOWER)
-                        .where(ProjectFollower.PROJECT_FOLLOWER.PROJECT_ID.equal(PROJECTS.ID))
+                        .from(PROJECT_FOLLOWER_MAP)
+                        .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID))
                         .asField("followerCount");
 
                 switch (sort.getSortDirection()) {
@@ -177,8 +177,8 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
 
     @Override
     public Condition getSearchCondition(String search) throws Exception {
-        return PROJECTS.NAME.likeIgnoreCase("%" + search + "%")
-                .or(PROJECTS.DESCRIPTION.likeIgnoreCase("%" + search + "%"));
+        return PROJECT.NAME.likeIgnoreCase("%" + search + "%")
+                .or(PROJECT.DESCRIPTION.likeIgnoreCase("%" + search + "%"));
     }
 
     @Override

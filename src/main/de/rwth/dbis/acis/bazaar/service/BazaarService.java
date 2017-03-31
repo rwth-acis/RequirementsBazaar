@@ -215,7 +215,7 @@ public class BazaarService extends RESTService {
                 if (familyName != null)
                     userBuilder = userBuilder.lastName(familyName);
                 User user = userBuilder.admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).profileImage(profileImage)
-                        .emailLeadItems(true).emailFollowItems(true).build();
+                        .emailLeadSubscription(true).emailFollowSubscription(true).build();
                 int userId = dalFacade.createUser(user).getId();
                 dalFacade.addUserToRole(userId, "SystemAdmin", null);
             }

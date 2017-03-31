@@ -42,7 +42,7 @@ The backend is built on Java technologies. As a service framework we use our in-
 Dependencies
 -------------------
 
-In order to be able to run this service project the following components should be installed on your system:
+In order to be able to run this service project the following categories should be installed on your system:
 
  - JDK (min v1.7) + Java Cryptography Extension (JCE) 
  - MySQL 5 

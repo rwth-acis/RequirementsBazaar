@@ -1,25 +1,25 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
-TRUNCATE TABLE `reqbaz`.`users`;
-TRUNCATE TABLE `reqbaz`.`projects`;
-TRUNCATE TABLE `reqbaz`.`components`;
-TRUNCATE TABLE `reqbaz`.`requirements`;
-TRUNCATE TABLE `reqbaz`.`tags`;
-TRUNCATE TABLE `reqbaz`.`project_follower`;
-TRUNCATE TABLE `reqbaz`.`component_follower`;
-TRUNCATE TABLE `reqbaz`.`requirement_follower`;
-TRUNCATE TABLE `reqbaz`.`developers`;
-TRUNCATE TABLE `reqbaz`.`comments`;
-TRUNCATE TABLE `reqbaz`.`attachments`;
-TRUNCATE TABLE `reqbaz`.`votes`;
-TRUNCATE TABLE `reqbaz`.`roles`;
-TRUNCATE TABLE `reqbaz`.`privileges`;
-TRUNCATE TABLE `reqbaz`.`role_privilege`;
-TRUNCATE TABLE `reqbaz`.`role_role`;
-TRUNCATE TABLE `reqbaz`.`user_role`;
+TRUNCATE TABLE reqbaz.user;
+TRUNCATE TABLE reqbaz.project;
+TRUNCATE TABLE reqbaz.category;
+TRUNCATE TABLE reqbaz.requirement;
+TRUNCATE TABLE reqbaz.requirement_category_map;
+TRUNCATE TABLE reqbaz.project_follower_map;
+TRUNCATE TABLE reqbaz.category_follower_map;
+TRUNCATE TABLE reqbaz.requirement_follower_map;
+TRUNCATE TABLE reqbaz.requirement_developer_map;
+TRUNCATE TABLE reqbaz.comment;
+TRUNCATE TABLE reqbaz.attachment;
+TRUNCATE TABLE reqbaz.vote;
+TRUNCATE TABLE reqbaz.role;
+TRUNCATE TABLE reqbaz.privilege;
+TRUNCATE TABLE reqbaz.role_privilege_map;
+TRUNCATE TABLE reqbaz.role_role_map;
+TRUNCATE TABLE reqbaz.user_role_map;
 
-REPLACE INTO `reqbaz`.`users`
-(`Id`, `first_name`, `last_name`, `email`, `admin`, `Las2peer_Id`, `user_name`, `profile_image`, `email_lead_items`, `email_follow_items`)
+REPLACE INTO reqbaz.user
+(id, first_name, last_name, email, admin, las2peer_id, user_name, profile_image, email_lead_subscription, email_follow_subscription)
 VALUES
   (1, NULL, NULL, 'anonymous@requirements-bazaar.org', 0, '-1722613621014065292', 'anonymous',
    'https://api.learning-layers.eu/profile.png', 0, 0),
@@ -64,245 +64,246 @@ VALUES
   (40, 'Max39', 'Mustermann39', 'Max@Mustermann39.de', 0, 39, 'MaxMustermann39', 'https://api.learning-layers.eu/profile.png', 0, 0),
   (41, 'Max40', 'Mustermann40', 'Max@Mustermann40.de', 0, 40, 'MaxMustermann40', 'https://api.learning-layers.eu/profile.png', 0, 0);
 
-REPLACE INTO `reqbaz`.`projects`
-(`Id`, `name`, `description`, `visibility`, `Leader_Id`, `Default_Components_Id`)
+REPLACE INTO reqbaz.project
+(id, name, description, visibility, leader_id, default_category_id)
 VALUES
-  (1, 'Project 1', 'Project 1 - 26 components - This project is public - Leader MaxMustermann1', '+', 2, 1),
-  (2, 'Project 2', 'Project 2 - 41 components - This project is public - Leader MaxMustermann1', '+', 2, 2),
-  (3, 'Project 3', 'Project 3 - This project is public - Leader MaxMustermann1', '+', 2, 3),
-  (4, 'Project 4', 'Project 4 - This project is public - Leader MaxMustermann2', '+', 3, 4),
-  (5, 'Project 5', 'Project 5 - This project is public - Leader MaxMustermann3', '+', 3, 5),
-  (6, 'Project 6', 'Project 6 - This project is public - Leader MaxMustermann4', '+', 5, 6),
-  (7, 'Project 7', 'Project 7 - This project is public - Leader MaxMustermann5', '+', 6, 7),
-  (8, 'Project 8', 'Project 8 - This project is public - Leader MaxMustermann6', '+', 7, 8),
-  (9, 'Project 9', 'Project 9 - This project is public - Leader MaxMustermann7', '+', 8, 9),
-  (10, 'Project 10', 'Project 10 - This project is public - Leader MaxMustermann8', '+', 9, 10),
-  (11, 'Project 11', 'Project 11 - This project is public - Leader MaxMustermann8', '+', 9, 11),
-  (12, 'Project 12', 'Project 12 - This project is public - Leader MaxMustermann8', '+', 9, 12),
-  (13, 'Project 13', 'Project 13 - This project is public - Leader MaxMustermann8', '+', 9, 13),
-  (14, 'Project 14', 'Project 14 - This project is public - Leader MaxMustermann8', '+', 9, 14),
-  (15, 'Project 15', 'Project 15 - This project is public - Leader MaxMustermann8', '+', 9, 15),
-  (16, 'Project 16', 'Project 16 - This project is public - Leader MaxMustermann8', '+', 9, 16),
-  (17, 'Project 17', 'Project 17 - This project is public - Leader MaxMustermann8', '+', 9, 17),
-  (18, 'Project 18', 'Project 18 - This project is public - Leader MaxMustermann8', '+', 9, 18),
-  (19, 'Project 19', 'Project 19 - This project is public - Leader MaxMustermann8', '+', 9, 19),
-  (20, 'Project 20', 'Project 20 - This project is public - Leader MaxMustermann8', '+', 9, 20),
-  (21, 'Project 21', 'Project 21 - This project is private - Leader MaxMustermann8', '-', 9, 21),
-  (22, 'Project 22', 'Project 22 - This project is private - Leader MaxMustermann8', '-', 9, 22),
-  (23, 'Project 23', 'Project 23 - This project is private - Leader MaxMustermann8', '-', 9, 23),
-  (24, 'Project 24', 'Project 24 - This project is private - Leader MaxMustermann8', '-', 9, 24),
-  (25, 'Project 25', 'Project 25 - This project is private - Leader MaxMustermann8', '-', 9, 25);
+  (1, 'Project 1', 'Project 1 - 26 categories - This project is public - Leader MaxMustermann1', TRUE, 2, 1),
+  (2, 'Project 2', 'Project 2 - 41 categories - This project is public - Leader MaxMustermann1', TRUE, 2, 2),
+  (3, 'Project 3', 'Project 3 - This project is public - Leader MaxMustermann1', TRUE, 2, 3),
+  (4, 'Project 4', 'Project 4 - This project is public - Leader MaxMustermann2', TRUE, 3, 4),
+  (5, 'Project 5', 'Project 5 - This project is public - Leader MaxMustermann3', TRUE, 3, 5),
+  (6, 'Project 6', 'Project 6 - This project is public - Leader MaxMustermann4', TRUE, 5, 6),
+  (7, 'Project 7', 'Project 7 - This project is public - Leader MaxMustermann5', TRUE, 6, 7),
+  (8, 'Project 8', 'Project 8 - This project is public - Leader MaxMustermann6', TRUE, 7, 8),
+  (9, 'Project 9', 'Project 9 - This project is public - Leader MaxMustermann7', TRUE, 8, 9),
+  (10, 'Project 10', 'Project 10 - This project is public - Leader MaxMustermann8', TRUE, 9, 10),
+  (11, 'Project 11', 'Project 11 - This project is public - Leader MaxMustermann8', TRUE, 9, 11),
+  (12, 'Project 12', 'Project 12 - This project is public - Leader MaxMustermann8', TRUE, 9, 12),
+  (13, 'Project 13', 'Project 13 - This project is public - Leader MaxMustermann8', TRUE, 9, 13),
+  (14, 'Project 14', 'Project 14 - This project is public - Leader MaxMustermann8', TRUE, 9, 14),
+  (15, 'Project 15', 'Project 15 - This project is public - Leader MaxMustermann8', TRUE, 9, 15),
+  (16, 'Project 16', 'Project 16 - This project is public - Leader MaxMustermann8', TRUE, 9, 16),
+  (17, 'Project 17', 'Project 17 - This project is public - Leader MaxMustermann8', TRUE, 9, 17),
+  (18, 'Project 18', 'Project 18 - This project is public - Leader MaxMustermann8', TRUE, 9, 18),
+  (19, 'Project 19', 'Project 19 - This project is public - Leader MaxMustermann8', TRUE, 9, 19),
+  (20, 'Project 20', 'Project 20 - This project is public - Leader MaxMustermann8', TRUE, 9, 20),
+  (21, 'Project 21', 'Project 21 - This project is private - Leader MaxMustermann8', FALSE, 9, 21),
+  (22, 'Project 22', 'Project 22 - This project is private - Leader MaxMustermann8', FALSE, 9, 22),
+  (23, 'Project 23', 'Project 23 - This project is private - Leader MaxMustermann8', FALSE, 9, 23),
+  (24, 'Project 24', 'Project 24 - This project is private - Leader MaxMustermann8', FALSE, 9, 24),
+  (25, 'Project 25', 'Project 25 - This project is private - Leader MaxMustermann8', FALSE, 9, 25);
 
-REPLACE INTO `reqbaz`.`components`
-(`Id`, `name`, `description`, `Project_Id`, `Leader_Id`)
+REPLACE INTO reqbaz.category
+(id, name, description, project_id, leader_id)
 VALUES
   (1, 'Default-P1',
-   'Default component for Project 1 - 1. Component of Project 1 - 30 unrealized Requirements - Leader MaxMustermann1',
+   'Default category for Project 1 - 1. Category of Project 1 - 30 unrealized Requirements - Leader MaxMustermann1',
    1, 2),
-  (2, 'Default-P2', 'Default component for Project 2 - 1. Component of Project 2 - 10 unrealized Requirements and 10 realized Requirements - Leader MaxMustermann1', 2, 2),
-  (3, 'Default-P3', 'Default component for Project 3 - 1. Component of Project 3 - Leader MaxMustermann1', 3, 2),
-  (4, 'Default-P4', 'Default component for Project 4 - 1. Component of Project 4 - Leader MaxMustermann1', 4, 2),
-  (5, 'Default-P5', 'Default component for Project 5 - 1. Component of Project 5 - Leader MaxMustermann2', 5, 3),
-  (6, 'Default-P6', 'Default component for Project 6 - 1. Component of Project 6 - Leader MaxMustermann3', 6, 4),
-  (7, 'Default-P7', 'Default component for Project 7 - 1. Component of Project 7 - Leader MaxMustermann4', 7, 5),
-  (8, 'Default-P8', 'Default component for Project 8 - 1. Component of Project 8 - Leader MaxMustermann5', 8, 6),
-  (9, 'Default-P9', 'Default component for Project 9 - 1. Component of Project 9 - Leader MaxMustermann6', 9, 7),
-  (10, 'Default-P10', 'Default component for Project 10 - 1. Component of Project 10 - Leader MaxMustermann7', 10, 8),
-  (11, 'Default-P11', 'Default component for Project 11 - 1. Component of Project 11 - Leader MaxMustermann7', 11, 8),
-  (12, 'Default-P12', 'Default component for Project 12 - 1. Component of Project 12 - Leader MaxMustermann7', 12, 8),
-  (13, 'Default-P13', 'Default component for Project 13 - 1. Component of Project 13 - Leader MaxMustermann7', 13, 8),
-  (14, 'Default-P14', 'Default component for Project 14 - 1. Component of Project 14 - Leader MaxMustermann7', 14, 8),
-  (15, 'Default-P15', 'Default component for Project 15 - 1. Component of Project 15 - Leader MaxMustermann7', 15, 8),
-  (16, 'Default-P16', 'Default component for Project 16 - 1. Component of Project 16 - Leader MaxMustermann7', 16, 8),
-  (17, 'Default-P17', 'Default component for Project 17 - 1. Component of Project 17 - Leader MaxMustermann7', 17, 8),
-  (18, 'Default-P18', 'Default component for Project 18 - 1. Component of Project 18 - Leader MaxMustermann7', 18, 8),
-  (19, 'Default-P19', 'Default component for Project 19 - 1. Component of Project 19 - Leader MaxMustermann7', 19, 8),
-  (20, 'Default-P20', 'Default component for Project 20 - 1. Component of Project 20 - Leader MaxMustermann7', 20, 8),
-  (21, 'Default-P21', 'Default component for Project 21 - 1. Component of Project 21 - Leader MaxMustermann7', 21, 8),
-  (22, 'Default-P22', 'Default component for Project 22 - 1. Component of Project 22 - Leader MaxMustermann7', 22, 8),
-  (23, 'Default-P23', 'Default component for Project 23 - 1. Component of Project 23 - Leader MaxMustermann7', 23, 8),
-  (24, 'Default-P24', 'Default component for Project 24 - 1. Component of Project 24 - Leader MaxMustermann7', 24, 8),
-  (25, 'Default-P25', 'Default component for Project 25 - 1. Component of Project 25 - Leader MaxMustermann7', 25, 8),
+  (2, 'Default-P2', 'Default category for Project 2 - 1. Category of Project 2 - 10 unrealized Requirements and 10 realized Requirements - Leader MaxMustermann1', 2, 2),
+  (3, 'Default-P3', 'Default category for Project 3 - 1. Category of Project 3 - Leader MaxMustermann1', 3, 2),
+  (4, 'Default-P4', 'Default category for Project 4 - 1. Category of Project 4 - Leader MaxMustermann1', 4, 2),
+  (5, 'Default-P5', 'Default category for Project 5 - 1. Category of Project 5 - Leader MaxMustermann2', 5, 3),
+  (6, 'Default-P6', 'Default category for Project 6 - 1. Category of Project 6 - Leader MaxMustermann3', 6, 4),
+  (7, 'Default-P7', 'Default category for Project 7 - 1. Category of Project 7 - Leader MaxMustermann4', 7, 5),
+  (8, 'Default-P8', 'Default category for Project 8 - 1. Category of Project 8 - Leader MaxMustermann5', 8, 6),
+  (9, 'Default-P9', 'Default category for Project 9 - 1. Category of Project 9 - Leader MaxMustermann6', 9, 7),
+  (10, 'Default-P10', 'Default category for Project 10 - 1. Category of Project 10 - Leader MaxMustermann7', 10, 8),
+  (11, 'Default-P11', 'Default category for Project 11 - 1. Category of Project 11 - Leader MaxMustermann7', 11, 8),
+  (12, 'Default-P12', 'Default category for Project 12 - 1. Category of Project 12 - Leader MaxMustermann7', 12, 8),
+  (13, 'Default-P13', 'Default category for Project 13 - 1. Category of Project 13 - Leader MaxMustermann7', 13, 8),
+  (14, 'Default-P14', 'Default category for Project 14 - 1. Category of Project 14 - Leader MaxMustermann7', 14, 8),
+  (15, 'Default-P15', 'Default category for Project 15 - 1. Category of Project 15 - Leader MaxMustermann7', 15, 8),
+  (16, 'Default-P16', 'Default category for Project 16 - 1. Category of Project 16 - Leader MaxMustermann7', 16, 8),
+  (17, 'Default-P17', 'Default category for Project 17 - 1. Category of Project 17 - Leader MaxMustermann7', 17, 8),
+  (18, 'Default-P18', 'Default category for Project 18 - 1. Category of Project 18 - Leader MaxMustermann7', 18, 8),
+  (19, 'Default-P19', 'Default category for Project 19 - 1. Category of Project 19 - Leader MaxMustermann7', 19, 8),
+  (20, 'Default-P20', 'Default category for Project 20 - 1. Category of Project 20 - Leader MaxMustermann7', 20, 8),
+  (21, 'Default-P21', 'Default category for Project 21 - 1. Category of Project 21 - Leader MaxMustermann7', 21, 8),
+  (22, 'Default-P22', 'Default category for Project 22 - 1. Category of Project 22 - Leader MaxMustermann7', 22, 8),
+  (23, 'Default-P23', 'Default category for Project 23 - 1. Category of Project 23 - Leader MaxMustermann7', 23, 8),
+  (24, 'Default-P24', 'Default category for Project 24 - 1. Category of Project 24 - Leader MaxMustermann7', 24, 8),
+  (25, 'Default-P25', 'Default category for Project 25 - 1. Category of Project 25 - Leader MaxMustermann7', 25, 8),
 
-  (26, 'Component 26', 'Component 26 - 2. Component of Project 1 - 20 unrealized Requirements - Leader MaxMustermann1', 1, 2),
-  (27, 'Component 27', 'Component 27 - 3. Component of Project 1 - Leader MaxMustermann1', 1, 2),
-  (28, 'Component 28', 'Component 28 - 4. Component of Project 1 - Leader MaxMustermann1', 1, 2),
-  (29, 'Component 29', 'Component 29 - 5. Component of Project 1 - Leader MaxMustermann1', 1, 2),
-  (30, 'Component 30', 'Component 30 - 6. Component of Project 1 - Leader MaxMustermann1', 1, 2),
-  (31, 'Component 31', 'Component 31 - 7. Component of Project 1 - Leader MaxMustermann2', 1, 3),
-  (32, 'Component 32', 'Component 32 - 8. Component of Project 1 - Leader MaxMustermann3', 1, 4),
-  (33, 'Component 33', 'Component 33 - 9. Component of Project 1 - Leader MaxMustermann4', 1, 5),
-  (34, 'Component 34', 'Component 34 - 10. Component of Project 1 - Leader MaxMustermann5', 1, 6),
-  (35, 'Component 35', 'Component 35 - 11. Component of Project 1 - Leader MaxMustermann6', 1, 7),
-  (36, 'Component 36', 'Component 36 - 12. Component of Project 1 - Leader MaxMustermann7', 1, 8),
-  (37, 'Component 37', 'Component 37 - 13. Component of Project 1 - Leader MaxMustermann8', 1, 9),
-  (38, 'Component 38', 'Component 38 - 14. Component of Project 1 - Leader MaxMustermann9', 1, 10),
-  (39, 'Component 39', 'Component 39 - 15. Component of Project 1 - Leader MaxMustermann10', 1, 11),
-  (40, 'Component 40', 'Component 40 - 16. Component of Project 1 - Leader MaxMustermann11', 1, 12),
-  (41, 'Component 41', 'Component 41 - 17. Component of Project 1 - Leader MaxMustermann12', 1, 13),
-  (42, 'Component 42', 'Component 42 - 18. Component of Project 1 - Leader MaxMustermann13', 1, 14),
-  (43, 'Component 43', 'Component 43 - 19. Component of Project 1 - Leader MaxMustermann14', 1, 15),
-  (44, 'Component 44', 'Component 44 - 20. Component of Project 1 - Leader MaxMustermann15', 1, 16),
-  (45, 'Component 45', 'Component 45 - 21. Component of Project 1 - Leader MaxMustermann16', 1, 17),
-  (46, 'Component 46', 'Component 46 - 22. Component of Project 1 - Leader MaxMustermann17', 1, 18),
-  (47, 'Component 47', 'Component 47 - 23. Component of Project 1 - Leader MaxMustermann18', 1, 19),
-  (48, 'Component 48', 'Component 48 - 24. Component of Project 1 - Leader MaxMustermann18', 1, 19),
-  (49, 'Component 49', 'Component 49 - 25. Component of Project 1 - Leader MaxMustermann18', 1, 19),
-  (50, 'Component 50', 'Component 50 - 26. Component of Project 1 - Leader MaxMustermann18', 1, 19),
+  (26, 'Category 26', 'Category 26 - 2. Category of Project 1 - 20 unrealized Requirements - Leader MaxMustermann1', 1, 2),
+  (27, 'Category 27', 'Category 27 - 3. Category of Project 1 - Leader MaxMustermann1', 1, 2),
+  (28, 'Category 28', 'Category 28 - 4. Category of Project 1 - Leader MaxMustermann1', 1, 2),
+  (29, 'Category 29', 'Category 29 - 5. Category of Project 1 - Leader MaxMustermann1', 1, 2),
+  (30, 'Category 30', 'Category 30 - 6. Category of Project 1 - Leader MaxMustermann1', 1, 2),
+  (31, 'Category 31', 'Category 31 - 7. Category of Project 1 - Leader MaxMustermann2', 1, 3),
+  (32, 'Category 32', 'Category 32 - 8. Category of Project 1 - Leader MaxMustermann3', 1, 4),
+  (33, 'Category 33', 'Category 33 - 9. Category of Project 1 - Leader MaxMustermann4', 1, 5),
+  (34, 'Category 34', 'Category 34 - 10. Category of Project 1 - Leader MaxMustermann5', 1, 6),
+  (35, 'Category 35', 'Category 35 - 11. Category of Project 1 - Leader MaxMustermann6', 1, 7),
+  (36, 'Category 36', 'Category 36 - 12. Category of Project 1 - Leader MaxMustermann7', 1, 8),
+  (37, 'Category 37', 'Category 37 - 13. Category of Project 1 - Leader MaxMustermann8', 1, 9),
+  (38, 'Category 38', 'Category 38 - 14. Category of Project 1 - Leader MaxMustermann9', 1, 10),
+  (39, 'Category 39', 'Category 39 - 15. Category of Project 1 - Leader MaxMustermann10', 1, 11),
+  (40, 'Category 40', 'Category 40 - 16. Category of Project 1 - Leader MaxMustermann11', 1, 12),
+  (41, 'Category 41', 'Category 41 - 17. Category of Project 1 - Leader MaxMustermann12', 1, 13),
+  (42, 'Category 42', 'Category 42 - 18. Category of Project 1 - Leader MaxMustermann13', 1, 14),
+  (43, 'Category 43', 'Category 43 - 19. Category of Project 1 - Leader MaxMustermann14', 1, 15),
+  (44, 'Category 44', 'Category 44 - 20. Category of Project 1 - Leader MaxMustermann15', 1, 16),
+  (45, 'Category 45', 'Category 45 - 21. Category of Project 1 - Leader MaxMustermann16', 1, 17),
+  (46, 'Category 46', 'Category 46 - 22. Category of Project 1 - Leader MaxMustermann17', 1, 18),
+  (47, 'Category 47', 'Category 47 - 23. Category of Project 1 - Leader MaxMustermann18', 1, 19),
+  (48, 'Category 48', 'Category 48 - 24. Category of Project 1 - Leader MaxMustermann18', 1, 19),
+  (49, 'Category 49', 'Category 49 - 25. Category of Project 1 - Leader MaxMustermann18', 1, 19),
+  (50, 'Category 50', 'Category 50 - 26. Category of Project 1 - Leader MaxMustermann18', 1, 19),
 
-  (51, 'Component 51', 'Component 51 - 2. Component of Project 2 - 30 unrealized Requirements - Leader MaxMustermann18', 2, 19),
-  (52, 'Component 52', 'Component 52 - 3. Component of Project 2 - 2 Requirements which are in multiple components - Leader MaxMustermann18', 2, 19),
-  (53, 'Component 53', 'Component 53 - 4. Component of Project 2 - 2 Requirements which are in multiple components - Leader MaxMustermann18', 2, 19),
-  (54, 'Component 54', 'Component 54 - 5. Component of Project 2 - 2 Requirements which are in multiple components - Leader MaxMustermann18', 2, 19),
-  (55, 'Component 55', 'Component 55 - 6. Component of Project 2 - 2 Requirements which are in multiple components - Leader MaxMustermann18', 2, 19),
-  (56, 'Component 56', 'Component 56 - 7. Component of Project 2 - 2 Requirements which are in multiple components - Leader MaxMustermann18', 2, 19),
-  (57, 'Component 57', 'Component 57 - 8. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (58, 'Component 58', 'Component 58 - 9. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (59, 'Component 59', 'Component 59 - 10. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (60, 'Component 60', 'Component 60 - 11. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (61, 'Component 61', 'Component 61 - 12. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (62, 'Component 62', 'Component 62 - 13. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (63, 'Component 63', 'Component 63 - 14. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (64, 'Component 64', 'Component 64 - 15. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (65, 'Component 65', 'Component 65 - 16. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (66, 'Component 66', 'Component 66 - 17. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (67, 'Component 67', 'Component 67 - 18. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (68, 'Component 68', 'Component 68 - 19. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (69, 'Component 69', 'Component 69 - 20. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (70, 'Component 70', 'Component 70 - 21. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (71, 'Component 71', 'Component 71 - 22. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (72, 'Component 72', 'Component 72 - 23. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (73, 'Component 73', 'Component 73 - 24. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (74, 'Component 74', 'Component 74 - 25. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (75, 'Component 75', 'Component 75 - 26. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (76, 'Component 76', 'Component 76 - 27. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (77, 'Component 77', 'Component 77 - 28. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (78, 'Component 78', 'Component 78 - 29. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (79, 'Component 79', 'Component 79 - 30. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (80, 'Component 80', 'Component 80 - 31. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (81, 'Component 81', 'Component 81 - 32. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (82, 'Component 82', 'Component 82 - 33. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (83, 'Component 83', 'Component 83 - 34. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (84, 'Component 84', 'Component 84 - 35. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (85, 'Component 85', 'Component 85 - 36. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (86, 'Component 86', 'Component 86 - 37. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (87, 'Component 87', 'Component 87 - 38. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (88, 'Component 88', 'Component 88 - 39. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (89, 'Component 89', 'Component 89 - 40. Component of Project 2 - Leader MaxMustermann18', 2, 19),
-  (90, 'Component 90', 'Component 90 - 41. Component of Project 2 - Leader MaxMustermann18', 2, 19);
+  (51, 'Category 51', 'Category 51 - 2. Category of Project 2 - 30 unrealized Requirements - Leader MaxMustermann18', 2, 19),
+  (52, 'Category 52', 'Category 52 - 3. Category of Project 2 - 2 Requirements which are in multiple categories - Leader MaxMustermann18', 2, 19),
+  (53, 'Category 53', 'Category 53 - 4. Category of Project 2 - 2 Requirements which are in multiple categories - Leader MaxMustermann18', 2, 19),
+  (54, 'Category 54', 'Category 54 - 5. Category of Project 2 - 2 Requirements which are in multiple categories - Leader MaxMustermann18', 2, 19),
+  (55, 'Category 55', 'Category 55 - 6. Category of Project 2 - 2 Requirements which are in multiple categories - Leader MaxMustermann18', 2, 19),
+  (56, 'Category 56', 'Category 56 - 7. Category of Project 2 - 2 Requirements which are in multiple categories - Leader MaxMustermann18', 2, 19),
+  (57, 'Category 57', 'Category 57 - 8. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (58, 'Category 58', 'Category 58 - 9. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (59, 'Category 59', 'Category 59 - 10. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (60, 'Category 60', 'Category 60 - 11. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (61, 'Category 61', 'Category 61 - 12. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (62, 'Category 62', 'Category 62 - 13. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (63, 'Category 63', 'Category 63 - 14. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (64, 'Category 64', 'Category 64 - 15. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (65, 'Category 65', 'Category 65 - 16. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (66, 'Category 66', 'Category 66 - 17. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (67, 'Category 67', 'Category 67 - 18. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (68, 'Category 68', 'Category 68 - 19. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (69, 'Category 69', 'Category 69 - 20. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (70, 'Category 70', 'Category 70 - 21. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (71, 'Category 71', 'Category 71 - 22. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (72, 'Category 72', 'Category 72 - 23. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (73, 'Category 73', 'Category 73 - 24. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (74, 'Category 74', 'Category 74 - 25. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (75, 'Category 75', 'Category 75 - 26. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (76, 'Category 76', 'Category 76 - 27. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (77, 'Category 77', 'Category 77 - 28. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (78, 'Category 78', 'Category 78 - 29. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (79, 'Category 79', 'Category 79 - 30. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (80, 'Category 80', 'Category 80 - 31. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (81, 'Category 81', 'Category 81 - 32. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (82, 'Category 82', 'Category 82 - 33. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (83, 'Category 83', 'Category 83 - 34. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (84, 'Category 84', 'Category 84 - 35. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (85, 'Category 85', 'Category 85 - 36. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (86, 'Category 86', 'Category 86 - 37. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (87, 'Category 87', 'Category 87 - 38. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (88, 'Category 88', 'Category 88 - 39. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (89, 'Category 89', 'Category 89 - 40. Category of Project 2 - Leader MaxMustermann18', 2, 19),
+  (90, 'Category 90', 'Category 90 - 41. Category of Project 2 - Leader MaxMustermann18', 2, 19);
 
-REPLACE INTO `reqbaz`.`requirements`
-(`Id`, `title`, `description`, `realized`, `Lead_developer_Id`, `Creator_Id`, `Project_Id`)
+REPLACE INTO reqbaz.requirement
+(id, name, description, realized, lead_developer_id, creator_id, project_id)
 VALUES
-  (1, 'Requirement 1', 'Requirement 1 - 1. Requirement of Component 1 - 20 normal comments - 20 attachments', NULL, 2, 2, 1),
-  (2, 'Requirement 2', 'Requirement 2 - 2. Requirement of Component 1 - 30 comments with belongsTo comments - 10 attachments', NULL, 2, 2, 1),
-  (3, 'Requirement 3', 'Requirement 3 - 3. Requirement of Component 1', NULL, 2, 2, 1),
-  (4, 'Requirement 4', 'Requirement 4 - 4. Requirement of Component 1', NULL, 2, 2, 1),
-  (5, 'Requirement 5', 'Requirement 5 - 5. Requirement of Component 1', NULL, 2, 2, 1),
-  (6, 'Requirement 6', 'Requirement 6 - 6. Requirement of Component 1', NULL, 2, 2, 1),
-  (7, 'Requirement 7', 'Requirement 7 - 7. Requirement of Component 1', NULL, 2, 2, 1),
-  (8, 'Requirement 8', 'Requirement 8 - 8. Requirement of Component 1', NULL, 2, 2, 1),
-  (9, 'Requirement 9', 'Requirement 9 - 9. Requirement of Component 1', NULL, 2, 2, 1),
-  (10, 'Requirement 10', 'Requirement 10 - 10. Requirement of Component 1 - No lead developer', NULL, NULL, 2, 1),
-  (11, 'Requirement 11', 'Requirement 11 - 11. Requirement of Component 1 - No lead developer', NULL, NULL, 2, 1),
-  (12, 'Requirement 12', 'Requirement 12 - 12. Requirement of Component 1 - No lead developer', NULL, NULL, 3, 1),
-  (13, 'Requirement 13', 'Requirement 13 - 13. Requirement of Component 1 - No lead developer', NULL, NULL, 4, 1),
-  (14, 'Requirement 14', 'Requirement 14 - 14. Requirement of Component 1 - No lead developer', NULL, NULL, 5, 1),
-  (15, 'Requirement 15', 'Requirement 15 - 15. Requirement of Component 1 - No lead developer', NULL, NULL, 6, 1),
-  (16, 'Requirement 16', 'Requirement 16 - 16. Requirement of Component 1 - No lead developer', NULL, NULL, 7, 1),
-  (17, 'Requirement 17', 'Requirement 17 - 17. Requirement of Component 1 - No lead developer', NULL, NULL, 8, 1),
-  (18, 'Requirement 18', 'Requirement 18 - 18. Requirement of Component 1', NULL, 5, 9, 1),
-  (19, 'Requirement 19', 'Requirement 19 - 19. Requirement of Component 1', NULL, 6, 10, 1),
-  (20, 'Requirement 20', 'Requirement 20 - 20. Requirement of Component 1', NULL, 19, 11, 1),
-  (21, 'Requirement 21', 'Requirement 21 - 21. Requirement of Component 1', NULL, 19, 12, 1),
-  (22, 'Requirement 22', 'Requirement 22 - 22. Requirement of Component 1', NULL, 19, 13, 1),
-  (23, 'Requirement 23', 'Requirement 23 - 23. Requirement of Component 1', NULL, 19, 14, 1),
-  (24, 'Requirement 24', 'Requirement 24 - 24. Requirement of Component 1', NULL, 7, 15, 1),
-  (25, 'Requirement 25', 'Requirement 25 - 25. Requirement of Component 1', NULL, 1, 16, 1),
-  (26, 'Requirement 26', 'Requirement 26 - 26. Requirement of Component 1', NULL, 8, 17, 1),
-  (27, 'Requirement 27', 'Requirement 27 - 27. Requirement of Component 1', NULL, 8, 18, 1),
-  (28, 'Requirement 28', 'Requirement 28 - 28. Requirement of Component 1', NULL, 8, 19, 1),
-  (29, 'Requirement 29', 'Requirement 29 - 29. Requirement of Component 1', NULL, 8, 19, 1),
-  (30, 'Requirement 30', 'Requirement 30- 30. Requirement of Component 1', NULL, 8, 19, 1),
+  (1, 'Requirement 1', 'Requirement 1 - 1. Requirement of Category 1 - 20 normal comments - 20 attachments', NULL, 2, 2,
+   1),
+  (2, 'Requirement 2', 'Requirement 2 - 2. Requirement of Category 1 - 30 comments with belongsTo comments - 10 attachments', NULL, 2, 2, 1),
+  (3, 'Requirement 3', 'Requirement 3 - 3. Requirement of Category 1', NULL, 2, 2, 1),
+  (4, 'Requirement 4', 'Requirement 4 - 4. Requirement of Category 1', NULL, 2, 2, 1),
+  (5, 'Requirement 5', 'Requirement 5 - 5. Requirement of Category 1', NULL, 2, 2, 1),
+  (6, 'Requirement 6', 'Requirement 6 - 6. Requirement of Category 1', NULL, 2, 2, 1),
+  (7, 'Requirement 7', 'Requirement 7 - 7. Requirement of Category 1', NULL, 2, 2, 1),
+  (8, 'Requirement 8', 'Requirement 8 - 8. Requirement of Category 1', NULL, 2, 2, 1),
+  (9, 'Requirement 9', 'Requirement 9 - 9. Requirement of Category 1', NULL, 2, 2, 1),
+  (10, 'Requirement 10', 'Requirement 10 - 10. Requirement of Category 1 - No lead developer', NULL, NULL, 2, 1),
+  (11, 'Requirement 11', 'Requirement 11 - 11. Requirement of Category 1 - No lead developer', NULL, NULL, 2, 1),
+  (12, 'Requirement 12', 'Requirement 12 - 12. Requirement of Category 1 - No lead developer', NULL, NULL, 3, 1),
+  (13, 'Requirement 13', 'Requirement 13 - 13. Requirement of Category 1 - No lead developer', NULL, NULL, 4, 1),
+  (14, 'Requirement 14', 'Requirement 14 - 14. Requirement of Category 1 - No lead developer', NULL, NULL, 5, 1),
+  (15, 'Requirement 15', 'Requirement 15 - 15. Requirement of Category 1 - No lead developer', NULL, NULL, 6, 1),
+  (16, 'Requirement 16', 'Requirement 16 - 16. Requirement of Category 1 - No lead developer', NULL, NULL, 7, 1),
+  (17, 'Requirement 17', 'Requirement 17 - 17. Requirement of Category 1 - No lead developer', NULL, NULL, 8, 1),
+  (18, 'Requirement 18', 'Requirement 18 - 18. Requirement of Category 1', NULL, 5, 9, 1),
+  (19, 'Requirement 19', 'Requirement 19 - 19. Requirement of Category 1', NULL, 6, 10, 1),
+  (20, 'Requirement 20', 'Requirement 20 - 20. Requirement of Category 1', NULL, 19, 11, 1),
+  (21, 'Requirement 21', 'Requirement 21 - 21. Requirement of Category 1', NULL, 19, 12, 1),
+  (22, 'Requirement 22', 'Requirement 22 - 22. Requirement of Category 1', NULL, 19, 13, 1),
+  (23, 'Requirement 23', 'Requirement 23 - 23. Requirement of Category 1', NULL, 19, 14, 1),
+  (24, 'Requirement 24', 'Requirement 24 - 24. Requirement of Category 1', NULL, 7, 15, 1),
+  (25, 'Requirement 25', 'Requirement 25 - 25. Requirement of Category 1', NULL, 1, 16, 1),
+  (26, 'Requirement 26', 'Requirement 26 - 26. Requirement of Category 1', NULL, 8, 17, 1),
+  (27, 'Requirement 27', 'Requirement 27 - 27. Requirement of Category 1', NULL, 8, 18, 1),
+  (28, 'Requirement 28', 'Requirement 28 - 28. Requirement of Category 1', NULL, 8, 19, 1),
+  (29, 'Requirement 29', 'Requirement 29 - 29. Requirement of Category 1', NULL, 8, 19, 1),
+  (30, 'Requirement 30', 'Requirement 30- 30. Requirement of Category 1', NULL, 8, 19, 1),
 
-  (31, 'Requirement 31', 'Requirement 31 - 1. Requirement of Component 26', NULL, 8, 19, 1),
-  (32, 'Requirement 32', 'Requirement 32 - 2. Requirement of Component 26', NULL, 8, 19, 1),
-  (33, 'Requirement 33', 'Requirement 33 - 3. Requirement of Component 26', NULL, 8, 19, 1),
-  (34, 'Requirement 34', 'Requirement 34 - 4. Requirement of Component 26', NULL, 9, 20, 1),
-  (35, 'Requirement 35', 'Requirement 35 - 5. Requirement of Component 26', NULL, 10, 2, 1),
-  (36, 'Requirement 36', 'Requirement 36 - 6. Requirement of Component 26', NULL, 11, 3, 1),
-  (37, 'Requirement 37', 'Requirement 37 - 7. Requirement of Component 26', NULL, 12, 3, 1),
-  (38, 'Requirement 38', 'Requirement 38 - 8. Requirement of Component 26', NULL, 14, 3, 1),
-  (39, 'Requirement 39', 'Requirement 39 - 9. Requirement of Component 26', NULL, 15, 3, 1),
-  (40, 'Requirement 40', 'Requirement 40 - 10. Requirement of Component 26', NULL, 19, 2, 1),
-  (41, 'Requirement 41', 'Requirement 41 - 11. Requirement of Component 26', NULL, 19, 2, 1),
-  (42, 'Requirement 42', 'Requirement 42 - 12. Requirement of Component 26', NULL, 19, 3, 1),
-  (43, 'Requirement 43', 'Requirement 43 - 13. Requirement of Component 26', NULL, 19, 3, 1),
-  (44, 'Requirement 44', 'Requirement 44 - 14. Requirement of Component 26', NULL, 19, 3, 1),
-  (45, 'Requirement 45', 'Requirement 45 - 15. Requirement of Component 26', NULL, 19, 3, 1),
-  (46, 'Requirement 46', 'Requirement 46 - 16. Requirement of Component 26', NULL, 19, 3, 1),
-  (47, 'Requirement 47', 'Requirement 47 - 17. Requirement of Component 26', NULL, 19, 3, 1),
-  (48, 'Requirement 48', 'Requirement 48 - 18. Requirement of Component 26', NULL, 19, 3, 1),
-  (49, 'Requirement 49', 'Requirement 49 - 19. Requirement of Component 26', NULL, 19, 3, 1),
-  (50, 'Requirement 50', 'Requirement 50 - 20. Requirement of Component 26', NULL, 19, 3, 1),
+  (31, 'Requirement 31', 'Requirement 31 - 1. Requirement of Category 26', NULL, 8, 19, 1),
+  (32, 'Requirement 32', 'Requirement 32 - 2. Requirement of Category 26', NULL, 8, 19, 1),
+  (33, 'Requirement 33', 'Requirement 33 - 3. Requirement of Category 26', NULL, 8, 19, 1),
+  (34, 'Requirement 34', 'Requirement 34 - 4. Requirement of Category 26', NULL, 9, 20, 1),
+  (35, 'Requirement 35', 'Requirement 35 - 5. Requirement of Category 26', NULL, 10, 2, 1),
+  (36, 'Requirement 36', 'Requirement 36 - 6. Requirement of Category 26', NULL, 11, 3, 1),
+  (37, 'Requirement 37', 'Requirement 37 - 7. Requirement of Category 26', NULL, 12, 3, 1),
+  (38, 'Requirement 38', 'Requirement 38 - 8. Requirement of Category 26', NULL, 14, 3, 1),
+  (39, 'Requirement 39', 'Requirement 39 - 9. Requirement of Category 26', NULL, 15, 3, 1),
+  (40, 'Requirement 40', 'Requirement 40 - 10. Requirement of Category 26', NULL, 19, 2, 1),
+  (41, 'Requirement 41', 'Requirement 41 - 11. Requirement of Category 26', NULL, 19, 2, 1),
+  (42, 'Requirement 42', 'Requirement 42 - 12. Requirement of Category 26', NULL, 19, 3, 1),
+  (43, 'Requirement 43', 'Requirement 43 - 13. Requirement of Category 26', NULL, 19, 3, 1),
+  (44, 'Requirement 44', 'Requirement 44 - 14. Requirement of Category 26', NULL, 19, 3, 1),
+  (45, 'Requirement 45', 'Requirement 45 - 15. Requirement of Category 26', NULL, 19, 3, 1),
+  (46, 'Requirement 46', 'Requirement 46 - 16. Requirement of Category 26', NULL, 19, 3, 1),
+  (47, 'Requirement 47', 'Requirement 47 - 17. Requirement of Category 26', NULL, 19, 3, 1),
+  (48, 'Requirement 48', 'Requirement 48 - 18. Requirement of Category 26', NULL, 19, 3, 1),
+  (49, 'Requirement 49', 'Requirement 49 - 19. Requirement of Category 26', NULL, 19, 3, 1),
+  (50, 'Requirement 50', 'Requirement 50 - 20. Requirement of Category 26', NULL, 19, 3, 1),
 
-  (51, 'Requirement 51', 'Requirement 51 - 1. realized Requirement of Component 2', NOW(), 19, 2, 2),
-  (52, 'Requirement 52', 'Requirement 52 - 2. realized Requirement of Component 2', NOW(), 19, 3, 2),
-  (53, 'Requirement 53', 'Requirement 53 - 3. realized Requirement of Component 2', NOW(), 19, 3, 2),
-  (54, 'Requirement 54', 'Requirement 54 - 4. realized Requirement of Component 2', NOW(), 19, 3, 2),
-  (55, 'Requirement 55', 'Requirement 55 - 5. realized Requirement of Component 2', NOW(), 19, 3, 2),
-  (56, 'Requirement 56', 'Requirement 56 - 6. realized Requirement of Component 2', NOW(), 19, 3, 2),
-  (57, 'Requirement 57', 'Requirement 57 - 7. realized Requirement of Component 2', NOW(), 19, 3, 2),
-  (58, 'Requirement 58', 'Requirement 58 - 8. realized Requirement of Component 2', NOW(), 19, 3, 2),
-  (59, 'Requirement 59', 'Requirement 59 - 9. realized Requirement of Component 2', NOW(), 19, 3, 2),
-  (60, 'Requirement 60', 'Requirement 60 - 10. realized Requirement of Component 2', NOW(), 19, 3, 2),
-  (61, 'Requirement 61', 'Requirement 61 - 1. unrealized Requirement of Component 2', NULL, 19, 2, 2),
-  (62, 'Requirement 62', 'Requirement 62 - 2. unrealized Requirement of Component 2', NULL, 19, 3, 2),
-  (63, 'Requirement 63', 'Requirement 63 - 3. unrealized Requirement of Component 2', NULL, 19, 3, 2),
-  (64, 'Requirement 64', 'Requirement 64 - 4. unrealized Requirement of Component 2', NULL, 19, 3, 2),
-  (65, 'Requirement 65', 'Requirement 65 - 5. unrealized Requirement of Component 2', NULL, 19, 3, 2),
-  (66, 'Requirement 66', 'Requirement 66 - 6. unrealized Requirement of Component 2', NULL, 19, 3, 2),
-  (67, 'Requirement 67', 'Requirement 67 - 7. unrealized Requirement of Component 2', NULL, 19, 3, 2),
-  (68, 'Requirement 68', 'Requirement 68 - 8. unrealized Requirement of Component 2', NULL, 19, 3, 2),
-  (69, 'Requirement 69', 'Requirement 69 - 9. unrealized Requirement of Component 2', NULL, 19, 3, 2),
-  (70, 'Requirement 70', 'Requirement 70 - 10. unrealized Requirement of Component 2', NULL, 19, 3, 2),
+  (51, 'Requirement 51', 'Requirement 51 - 1. realized Requirement of Category 2', NOW(), 19, 2, 2),
+  (52, 'Requirement 52', 'Requirement 52 - 2. realized Requirement of Category 2', NOW(), 19, 3, 2),
+  (53, 'Requirement 53', 'Requirement 53 - 3. realized Requirement of Category 2', NOW(), 19, 3, 2),
+  (54, 'Requirement 54', 'Requirement 54 - 4. realized Requirement of Category 2', NOW(), 19, 3, 2),
+  (55, 'Requirement 55', 'Requirement 55 - 5. realized Requirement of Category 2', NOW(), 19, 3, 2),
+  (56, 'Requirement 56', 'Requirement 56 - 6. realized Requirement of Category 2', NOW(), 19, 3, 2),
+  (57, 'Requirement 57', 'Requirement 57 - 7. realized Requirement of Category 2', NOW(), 19, 3, 2),
+  (58, 'Requirement 58', 'Requirement 58 - 8. realized Requirement of Category 2', NOW(), 19, 3, 2),
+  (59, 'Requirement 59', 'Requirement 59 - 9. realized Requirement of Category 2', NOW(), 19, 3, 2),
+  (60, 'Requirement 60', 'Requirement 60 - 10. realized Requirement of Category 2', NOW(), 19, 3, 2),
+  (61, 'Requirement 61', 'Requirement 61 - 1. unrealized Requirement of Category 2', NULL, 19, 2, 2),
+  (62, 'Requirement 62', 'Requirement 62 - 2. unrealized Requirement of Category 2', NULL, 19, 3, 2),
+  (63, 'Requirement 63', 'Requirement 63 - 3. unrealized Requirement of Category 2', NULL, 19, 3, 2),
+  (64, 'Requirement 64', 'Requirement 64 - 4. unrealized Requirement of Category 2', NULL, 19, 3, 2),
+  (65, 'Requirement 65', 'Requirement 65 - 5. unrealized Requirement of Category 2', NULL, 19, 3, 2),
+  (66, 'Requirement 66', 'Requirement 66 - 6. unrealized Requirement of Category 2', NULL, 19, 3, 2),
+  (67, 'Requirement 67', 'Requirement 67 - 7. unrealized Requirement of Category 2', NULL, 19, 3, 2),
+  (68, 'Requirement 68', 'Requirement 68 - 8. unrealized Requirement of Category 2', NULL, 19, 3, 2),
+  (69, 'Requirement 69', 'Requirement 69 - 9. unrealized Requirement of Category 2', NULL, 19, 3, 2),
+  (70, 'Requirement 70', 'Requirement 70 - 10. unrealized Requirement of Category 2', NULL, 19, 3, 2),
 
-  (71, 'Requirement 71', 'Requirement 71 - 1. Requirement of Component 51', NULL, 8, 19, 2),
-  (72, 'Requirement 72', 'Requirement 72 - 2. Requirement of Component 51', NULL, 8, 19, 2),
-  (73, 'Requirement 73', 'Requirement 73 - 3. Requirement of Component 51', NULL, 8, 19, 2),
-  (74, 'Requirement 74', 'Requirement 74 - 4. Requirement of Component 51', NULL, 9, 20, 2),
-  (75, 'Requirement 75', 'Requirement 75 - 5. Requirement of Component 51', NULL, 10, 2, 2),
-  (76, 'Requirement 76', 'Requirement 76 - 6. Requirement of Component 51', NULL, 11, 3, 2),
-  (77, 'Requirement 77', 'Requirement 77 - 7. Requirement of Component 51', NULL, 12, 3, 2),
-  (78, 'Requirement 78', 'Requirement 78 - 8. Requirement of Component 51', NULL, 14, 3, 2),
-  (79, 'Requirement 79', 'Requirement 79 - 9. Requirement of Component 51', NULL, 15, 3, 2),
-  (80, 'Requirement 70', 'Requirement 80 - 10. Requirement of Component 51', NULL, 19, 2, 2),
-  (81, 'Requirement 81', 'Requirement 81 - 11. Requirement of Component 51', NULL, 19, 2, 2),
-  (82, 'Requirement 82', 'Requirement 82 - 12. Requirement of Component 51', NULL, 19, 3, 2),
-  (83, 'Requirement 83', 'Requirement 83 - 13. Requirement of Component 51', NULL, 19, 3, 2),
-  (84, 'Requirement 84', 'Requirement 84 - 14. Requirement of Component 51', NULL, 19, 3, 2),
-  (85, 'Requirement 85', 'Requirement 85 - 15. Requirement of Component 51', NULL, 19, 3, 2),
-  (86, 'Requirement 86', 'Requirement 86 - 16. Requirement of Component 51', NULL, 19, 3, 2),
-  (87, 'Requirement 87', 'Requirement 87 - 17. Requirement of Component 51', NULL, 19, 3, 2),
-  (88, 'Requirement 88', 'Requirement 88 - 18. Requirement of Component 51', NULL, 19, 3, 2),
-  (89, 'Requirement 89', 'Requirement 89 - 19. Requirement of Component 51', NULL, 19, 3, 2),
-  (90, 'Requirement 90', 'Requirement 90 - 20. Requirement of Component 51', NULL, 19, 3, 2),
-  (91, 'Requirement 91', 'Requirement 91 - 31. Requirement of Component 51', NULL, 8, 19, 2),
-  (92, 'Requirement 92', 'Requirement 92 - 32. Requirement of Component 51', NULL, 8, 19, 2),
-  (93, 'Requirement 93', 'Requirement 93 - 33. Requirement of Component 51', NULL, 8, 19, 2),
-  (94, 'Requirement 94', 'Requirement 94 - 34. Requirement of Component 51', NULL, 9, 20, 2),
-  (95, 'Requirement 95', 'Requirement 95 - 35. Requirement of Component 51', NULL, 10, 2, 2),
-  (96, 'Requirement 96', 'Requirement 96 - 36. Requirement of Component 51', NULL, 11, 3, 2),
-  (97, 'Requirement 97', 'Requirement 97 - 37. Requirement of Component 51', NULL, 12, 3, 2),
-  (98, 'Requirement 98', 'Requirement 98 - 38. Requirement of Component 51', NULL, 14, 3, 2),
-  (99, 'Requirement 99', 'Requirement 99 - 39. Requirement of Component 51', NULL, 15, 3, 2),
-  (100, 'Requirement 40', 'Requirement 100 - 40. Requirement of Component 51', NULL, 19, 2, 2),
+  (71, 'Requirement 71', 'Requirement 71 - 1. Requirement of Category 51', NULL, 8, 19, 2),
+  (72, 'Requirement 72', 'Requirement 72 - 2. Requirement of Category 51', NULL, 8, 19, 2),
+  (73, 'Requirement 73', 'Requirement 73 - 3. Requirement of Category 51', NULL, 8, 19, 2),
+  (74, 'Requirement 74', 'Requirement 74 - 4. Requirement of Category 51', NULL, 9, 20, 2),
+  (75, 'Requirement 75', 'Requirement 75 - 5. Requirement of Category 51', NULL, 10, 2, 2),
+  (76, 'Requirement 76', 'Requirement 76 - 6. Requirement of Category 51', NULL, 11, 3, 2),
+  (77, 'Requirement 77', 'Requirement 77 - 7. Requirement of Category 51', NULL, 12, 3, 2),
+  (78, 'Requirement 78', 'Requirement 78 - 8. Requirement of Category 51', NULL, 14, 3, 2),
+  (79, 'Requirement 79', 'Requirement 79 - 9. Requirement of Category 51', NULL, 15, 3, 2),
+  (80, 'Requirement 70', 'Requirement 80 - 10. Requirement of Category 51', NULL, 19, 2, 2),
+  (81, 'Requirement 81', 'Requirement 81 - 11. Requirement of Category 51', NULL, 19, 2, 2),
+  (82, 'Requirement 82', 'Requirement 82 - 12. Requirement of Category 51', NULL, 19, 3, 2),
+  (83, 'Requirement 83', 'Requirement 83 - 13. Requirement of Category 51', NULL, 19, 3, 2),
+  (84, 'Requirement 84', 'Requirement 84 - 14. Requirement of Category 51', NULL, 19, 3, 2),
+  (85, 'Requirement 85', 'Requirement 85 - 15. Requirement of Category 51', NULL, 19, 3, 2),
+  (86, 'Requirement 86', 'Requirement 86 - 16. Requirement of Category 51', NULL, 19, 3, 2),
+  (87, 'Requirement 87', 'Requirement 87 - 17. Requirement of Category 51', NULL, 19, 3, 2),
+  (88, 'Requirement 88', 'Requirement 88 - 18. Requirement of Category 51', NULL, 19, 3, 2),
+  (89, 'Requirement 89', 'Requirement 89 - 19. Requirement of Category 51', NULL, 19, 3, 2),
+  (90, 'Requirement 90', 'Requirement 90 - 20. Requirement of Category 51', NULL, 19, 3, 2),
+  (91, 'Requirement 91', 'Requirement 91 - 31. Requirement of Category 51', NULL, 8, 19, 2),
+  (92, 'Requirement 92', 'Requirement 92 - 32. Requirement of Category 51', NULL, 8, 19, 2),
+  (93, 'Requirement 93', 'Requirement 93 - 33. Requirement of Category 51', NULL, 8, 19, 2),
+  (94, 'Requirement 94', 'Requirement 94 - 34. Requirement of Category 51', NULL, 9, 20, 2),
+  (95, 'Requirement 95', 'Requirement 95 - 35. Requirement of Category 51', NULL, 10, 2, 2),
+  (96, 'Requirement 96', 'Requirement 96 - 36. Requirement of Category 51', NULL, 11, 3, 2),
+  (97, 'Requirement 97', 'Requirement 97 - 37. Requirement of Category 51', NULL, 12, 3, 2),
+  (98, 'Requirement 98', 'Requirement 98 - 38. Requirement of Category 51', NULL, 14, 3, 2),
+  (99, 'Requirement 99', 'Requirement 99 - 39. Requirement of Category 51', NULL, 15, 3, 2),
+  (100, 'Requirement 40', 'Requirement 100 - 40. Requirement of Category 51', NULL, 19, 2, 2),
 
-  (101, 'Requirement 101', 'Requirement 101 - 1. Requirement of Component 52, 53, 54, 55, 56', NULL, 19, 2, 1),
-  (102, 'Requirement 102', 'Requirement 102 - 2. Requirement of Component 52, 53, 54, 55, 56', NULL, 19, 3, 1);
+  (101, 'Requirement 101', 'Requirement 101 - 1. Requirement of Category 52, 53, 54, 55, 56', NULL, 19, 2, 1),
+  (102, 'Requirement 102', 'Requirement 102 - 2. Requirement of Category 52, 53, 54, 55, 56', NULL, 19, 3, 1);
 
-REPLACE INTO `reqbaz`.`tags`
-(`Id`, `Components_Id`, `Requirements_Id`)
+REPLACE INTO reqbaz.requirement_category_map
+(id, category_id, requirement_id)
 VALUES
   (1, 1, 1),
   (2, 1, 2),
@@ -420,8 +421,8 @@ VALUES
   (109, 55, 102),
   (110, 56, 102);
 
-REPLACE INTO `reqbaz`.`requirement_follower`
-(`Id`, `Requirement_Id`, `User_Id`)
+REPLACE INTO reqbaz.project_follower_map
+(id, project_id, user_id)
 VALUES
   (1, 1, 2),
   (2, 1, 3),
@@ -444,8 +445,8 @@ VALUES
   (19, 8, 29),
   (20, 8, 29);
 
-REPLACE INTO `reqbaz`.`component_follower`
-(`Id`, `Component_Id`, `User_Id`)
+REPLACE INTO reqbaz.category_follower_map
+(id, category_id, user_id)
 VALUES
   (1, 1, 2),
   (2, 1, 3),
@@ -457,8 +458,8 @@ VALUES
   (8, 2, 5),
   (9, 2, 6);
 
-REPLACE INTO `reqbaz`.`project_follower`
-(`Id`, `Project_Id`, `User_Id`)
+REPLACE INTO reqbaz.requirement_follower_map
+(id, requirement_id, user_id)
 VALUES
   (1, 1, 2),
   (2, 1, 3),
@@ -470,8 +471,8 @@ VALUES
   (8, 2, 5),
   (9, 2, 6);
 
-REPLACE INTO `reqbaz`.`developers`
-(`Id`, `Requirement_Id`, `User_Id`)
+REPLACE INTO reqbaz.requirement_developer_map
+(id, requirement_id, user_id)
 VALUES
   (1, 1, 2),
   (2, 1, 3),
@@ -494,8 +495,8 @@ VALUES
   (19, 5, 11),
   (20, 6, 12);
 
-REPLACE INTO `reqbaz`.`comments`
-(`Id`, `message`, `Requirement_Id`, `BelongsToComment_Id`, `User_Id`)
+REPLACE INTO reqbaz.comment
+(id, message, requirement_id, reply_to_comment_id, user_id)
 VALUES
   (1, 'Comment 1 - 1. Comment of Requirement 1', 1, NULL, 2),
   (2, 'Comment 2 - 2. Comment of Requirement 1', 1, NULL, 2),
@@ -549,10 +550,11 @@ VALUES
   (49, 'Comment 49 - 14. Reply of Comment 5', 2, NULL, 2),
   (50, 'Comment 50 - 15. Reply of Comment 5', 2, NULL, 2);
 
-REPLACE INTO `reqbaz`.`attachments`
-(`Id`, `Requirement_Id`, `User_Id`, `Title`, `description`, `Mime_Type`, `identifier`, `fileUrl`)
+REPLACE INTO reqbaz.attachment
+(id, requirement_id, user_id, name, description, mime_type, identifier, file_url)
 VALUES
-  (1, 1, 2, 'Image 1', 'Image Attachment 1 - 1. Attachment of Requirement 1', 'image/jpeg', 'affe1', 'https://localhost:8080/fileservice/affe1'),
+  (1, 1, 2, 'Image 1', 'Image Attachment 1 - 1. Attachment of Requirement 1', 'image/jpeg', 'affe1',
+   'https://localhost:8080/fileservice/affe1'),
   (2, 1, 2, 'Image 2', 'Image Attachment 2 - 2. Attachment of Requirement 1', 'image/jpeg', 'affe2', 'https://localhost:8080/fileservice/affe2'),
   (3, 1, 2, 'Image 3', 'Image Attachment 3 - 3. Attachment of Requirement 1', 'image/jpeg', 'affe3', 'https://localhost:8080/fileservice/affe3'),
   (4, 1, 3, 'Image 4', 'Image Attachment 4 - 4. Attachment of Requirement 1', 'image/jpeg', 'affe4', 'https://localhost:8080/fileservice/affe4'),
@@ -574,18 +576,27 @@ VALUES
   (20, 1, 9, 'Image 20', 'Image Attachment 20 - 20. Attachment of Requirement 1', 'image/jpeg', 'affe20', 'https://localhost:8080/fileservice/affe20'),
 
   (21, 2, 9, 'Image 21', 'Image Attachment 21 - 1. Attachment of Requirement 2', 'image/jpeg', 'affe21', 'https://localhost:8080/fileservice/affe21'),
-  (22, 2, 9, 'Image 22', 'Image Attachment 22 - 2. Attachment of Requirement 2', 'image/jpeg', 'affe22', 'https://localhost:8080/fileservice/affe22'),
-  (23, 2, 9, 'Image 23', 'Image Attachment 23 - 3. Attachment of Requirement 2', 'image/jpeg', 'affe23', 'https://localhost:8080/fileservice/affe23'),
-  (24, 2, 9, 'Image 24', 'Image Attachment 24 - 4. Attachment of Requirement 2', 'image/jpeg', 'affe24', 'https://localhost:8080/fileservice/affe24'),
-  (25, 2, 9, 'Image 25', 'Image Attachment 25 - 5. Attachment of Requirement 2', 'image/jpeg', 'affe25', 'https://localhost:8080/fileservice/affe25'),
-  (26, 2, 9, 'Image 26', 'Image Attachment 26 - 6. Attachment of Requirement 2', 'image/jpeg', 'affe26', 'https://localhost:8080/fileservice/affe26'),
-  (27, 2, 9, 'Image 27', 'Image Attachment 27 - 7. Attachment of Requirement 2', 'image/jpeg', 'affe27', 'https://localhost:8080/fileservice/affe27'),
-  (28, 2, 9, 'Image 28', 'Image Attachment 28 - 8. Attachment of Requirement 2', 'image/jpeg', 'affe28', 'https://localhost:8080/fileservice/affe28'),
-  (29, 2, 9, 'Image 29', 'Image Attachment 29 - 9. Attachment of Requirement 2', 'image/jpeg', 'affe29', 'https://localhost:8080/fileservice/affe29'),
-  (30, 2, 9, 'Image 20', 'Image Attachment 30 - 10. Attachment of Requirement 2', 'image/jpeg', 'affe30', 'https://localhost:8080/fileservice/affe30');
+  (22, 2, 9, 'Image 22', 'Image Attachment 22 - 2. Attachment of Requirement 2', 'image/jpeg', 'affe22',
+   'https://localhost:8080/fileservice/affe22'),
+  (23, 2, 9, 'Image 23', 'Image Attachment 23 - 3. Attachment of Requirement 2', 'image/jpeg', 'affe23',
+   'https://localhost:8080/fileservice/affe23'),
+  (24, 2, 9, 'Image 24', 'Image Attachment 24 - 4. Attachment of Requirement 2', 'image/jpeg', 'affe24',
+   'https://localhost:8080/fileservice/affe24'),
+  (25, 2, 9, 'Image 25', 'Image Attachment 25 - 5. Attachment of Requirement 2', 'image/jpeg', 'affe25',
+   'https://localhost:8080/fileservice/affe25'),
+  (26, 2, 9, 'Image 26', 'Image Attachment 26 - 6. Attachment of Requirement 2', 'image/jpeg', 'affe26',
+   'https://localhost:8080/fileservice/affe26'),
+  (27, 2, 9, 'Image 27', 'Image Attachment 27 - 7. Attachment of Requirement 2', 'image/jpeg', 'affe27',
+   'https://localhost:8080/fileservice/affe27'),
+  (28, 2, 9, 'Image 28', 'Image Attachment 28 - 8. Attachment of Requirement 2', 'image/jpeg', 'affe28',
+   'https://localhost:8080/fileservice/affe28'),
+  (29, 2, 9, 'Image 29', 'Image Attachment 29 - 9. Attachment of Requirement 2', 'image/jpeg', 'affe29',
+   'https://localhost:8080/fileservice/affe29'),
+  (30, 2, 9, 'Image 20', 'Image Attachment 30 - 10. Attachment of Requirement 2', 'image/jpeg', 'affe30',
+   'https://localhost:8080/fileservice/affe30');
 
-REPLACE INTO `reqbaz`.`votes`
-(`Id`, `is_upvote`, `Requirement_Id`, `User_Id`)
+REPLACE INTO reqbaz.vote
+(id, is_upvote, requirement_id, user_id)
 VALUES
   (1, 1, 1, 2),
   (2, 1, 1, 3),
@@ -609,21 +620,25 @@ VALUES
   (20, 1, 15, 6),
   (21, 1, 16, 7);
 
-REPLACE INTO `reqbaz`.`roles` (`Id`, `name`) VALUES
+REPLACE INTO reqbaz.role
+(id, name)
+VALUES
   (1, 'Anonymous'),
   (2, 'LoggedInUser'),
   (3, 'ProjectAdmin'),
   (4, 'SystemAdmin');
 
-REPLACE INTO `reqbaz`.`privileges` (`Id`, `name`) VALUES
+REPLACE INTO reqbaz.privilege
+(id, name)
+VALUES
   (1, 'Create_PROJECT'),
   (2, 'Read_PROJECT'),
   (3, 'Read_PUBLIC_PROJECT'),
   (4, 'Modify_PROJECT'),
-  (5, 'Create_COMPONENT'),
-  (6, 'Read_COMPONENT'),
-  (7, 'Read_PUBLIC_COMPONENT'),
-  (8, 'Modify_COMPONENT'),
+  (5, 'Create_CATEGORY'),
+  (6, 'Read_CATEGORY'),
+  (7, 'Read_PUBLIC_CATEGORY'),
+  (8, 'Modify_CATEGORY'),
   (9, 'Create_REQUIREMENT'),
   (10, 'Read_REQUIREMENT'),
   (11, 'Read_PUBLIC_REQUIREMENT'),
@@ -643,7 +658,9 @@ REPLACE INTO `reqbaz`.`privileges` (`Id`, `name`) VALUES
   (25, 'Create_DEVELOP'),
   (26, 'Delete_DEVELOP');
 
-REPLACE INTO `reqbaz`.`role_privilege` (`Id`, `Roles_Id`, `Privileges_Id`) VALUES
+REPLACE INTO reqbaz.role_privilege_map
+(id, role_id, privilege_id)
+VALUES
   (1, 1, 3),
   (2, 1, 7),
   (3, 1, 11),
@@ -675,12 +692,16 @@ REPLACE INTO `reqbaz`.`role_privilege` (`Id`, `Roles_Id`, `Privileges_Id`) VALUE
   (29, 4, 25),
   (30, 4, 26);
 
-REPLACE INTO `reqbaz`.`role_role` (`Id`, `Child_Id`, `Parent_Id`) VALUES
+REPLACE INTO reqbaz.role_role_map
+(id, child_id, parent_id)
+VALUES
   (1, 2, 1),
   (2, 3, 2),
   (3, 4, 3);
 
-REPLACE INTO `reqbaz`.`user_role` (`Id`, `Roles_Id`, `Users_Id`) VALUES
+REPLACE INTO reqbaz.user_role_map
+(id, role_id, user_id)
+VALUES
   (1, 1, 1);
 
 SET FOREIGN_KEY_CHECKS = 1;

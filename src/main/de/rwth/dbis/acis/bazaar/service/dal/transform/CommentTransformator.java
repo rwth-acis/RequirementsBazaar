@@ -23,69 +23,69 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 import com.vdurmont.emoji.EmojiParser;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentRecord;
 import org.jooq.*;
 
 import java.sql.Timestamp;
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comments.COMMENTS;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.COMMENT;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
-public class CommentTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Comment, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentsRecord> {
+public class CommentTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Comment, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentRecord> {
     @Override
-    public CommentsRecord createRecord(Comment entity) {
+    public CommentRecord createRecord(Comment entity) {
         entity = this.cleanEntity(entity);
 
-        CommentsRecord record = new CommentsRecord();
+        CommentRecord record = new CommentRecord();
         record.setUserId(entity.getCreatorId());
         record.setMessage(entity.getMessage());
         record.setRequirementId(entity.getRequirementId());
-        record.setBelongstocommentId(entity.getBelongsToComment());
-        record.setCreationTime(new Timestamp(Calendar.getInstance().getTime().getTime()));
-        record.setLastupdatedTime(record.getCreationTime());
+        record.setReplyToCommentId(entity.getReplyToComment());
+        record.setCreationDate(new Timestamp(Calendar.getInstance().getTime().getTime()));
+        record.setLastUpdatedDate(record.getCreationDate());
         return record;
     }
 
     @Override
-    public Comment getEntityFromTableRecord(CommentsRecord record) {
+    public Comment getEntityFromTableRecord(CommentRecord record) {
         return Comment.getBuilder(record.getMessage())
                 .id(record.getId())
                 .requirementId(record.getRequirementId())
                 .creatorId(record.getUserId())
-                .belongsToComment(record.getBelongstocommentId())
-                .creationTime(record.getCreationTime())
-                .lastupdatedTime(record.getLastupdatedTime())
+                .replyToComment(record.getReplyToCommentId())
+                .creationDate(record.getCreationDate())
+                .lastUpdatedDate(record.getLastUpdatedDate())
                 .build();
     }
 
     @Override
-    public Table<CommentsRecord> getTable() {
-        return COMMENTS;
+    public Table<CommentRecord> getTable() {
+        return COMMENT;
     }
 
     @Override
-    public TableField<CommentsRecord, Integer> getTableId() {
-        return COMMENTS.ID;
+    public TableField<CommentRecord, Integer> getTableId() {
+        return COMMENT.ID;
     }
 
     @Override
-    public Class<? extends CommentsRecord> getRecordClass() {
-        return CommentsRecord.class;
+    public Class<? extends CommentRecord> getRecordClass() {
+        return CommentRecord.class;
     }
 
     @Override
     public Map<Field, Object> getUpdateMap(final Comment entity) {
         HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
-            put(COMMENTS.REQUIREMENT_ID, entity.getRequirementId());
-            put(COMMENTS.USER_ID, entity.getCreatorId());
-            put(COMMENTS.MESSAGE, entity.getMessage());
+            put(COMMENT.REQUIREMENT_ID, entity.getRequirementId());
+            put(COMMENT.USER_ID, entity.getCreatorId());
+            put(COMMENT.MESSAGE, entity.getMessage());
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(COMMENTS.LASTUPDATED_TIME, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+            updateMap.put(COMMENT.LAST_UPDATED_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         }
         return updateMap;
     }
@@ -93,7 +93,7 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(COMMENTS.CREATION_TIME.asc());
+            return Arrays.asList(COMMENT.CREATION_DATE.asc());
         }
         return null;
     }
