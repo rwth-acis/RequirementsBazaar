@@ -20,6 +20,9 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
+
+import jodd.vtor.constraint.MaxLength;
+import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
 import jodd.vtor.constraint.NotNull;
 
@@ -27,23 +30,32 @@ public class User extends EntityBase {
 
     private int id;
 
+    @MaxLength(value = 1000, profiles = {"*"})
     private String firstName;
 
+    @MaxLength(value = 1000, profiles = {"*"})
     private String lastName;
 
+    @NotBlank(profiles = {"*"})
+    @NotNull(profiles = {"*"})
+    @MaxLength(value = 1000, profiles = {"*"})
     private transient String eMail;
 
     private Boolean admin;
 
+    @Min(value = 0, profiles = {"*"})
     private long Las2peerId;
 
     @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"*"})
+    @MaxLength(value = 1000, profiles = {"*"})
     private String userName;
 
     private String profileImage;
 
+
     private Boolean emailLeadSubscription;
+
 
     private Boolean emailFollowSubscription;
 
@@ -59,6 +71,7 @@ public class User extends EntityBase {
         Las2peerId = builder.las2peerId;
         this.userName = builder.userName;
         this.profileImage = builder.profileImage;
+       
         this.emailLeadSubscription = builder.emailLeadSubscription;
         this.emailFollowSubscription = builder.emailFollowSubscription;
     }
@@ -95,10 +108,12 @@ public class User extends EntityBase {
         return profileImage;
     }
 
+    
     public Boolean isEmailLeadSubscription() {
         return emailLeadSubscription;
     }
 
+    
     public Boolean isEmailFollowSubscription() {
         return emailFollowSubscription;
     }
@@ -120,6 +135,7 @@ public class User extends EntityBase {
         private long las2peerId;
         private String userName;
         private String profileImage;
+      
         private Boolean emailLeadSubscription;
         private Boolean emailFollowSubscription;
 
@@ -167,11 +183,13 @@ public class User extends EntityBase {
             return this;
         }
 
+       
         public Builder emailLeadSubscription(Boolean emailLeadSubscription) {
             this.emailLeadSubscription = emailLeadSubscription;
             return this;
         }
 
+        
         public Builder emailFollowSubscription(Boolean emailFollowSubscription) {
             this.emailFollowSubscription = emailFollowSubscription;
             return this;

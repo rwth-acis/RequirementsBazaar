@@ -28,7 +28,6 @@ import jodd.vtor.constraint.NotNull;
 import java.util.Date;
 
 public class Attachment extends EntityBase {
-
     private int id;
 
     private int creatorId;
@@ -38,19 +37,22 @@ public class Attachment extends EntityBase {
 
     @NotNull(profiles = {"create"})
     @NotBlank(profiles = {"*"})
-    @MaxLength(value = 100, profiles = {"*"})
+    @MaxLength(value = 50, profiles = {"*"})
+    
     private String name;
 
     private String description;
 
     @NotNull(profiles = {"create"})
     @NotBlank(profiles = {"*"})
-    @MaxLength(value = 255, profiles = {"*"})
+    
+    @MaxLength(value = 1000, profiles = {"*"})
     private String mimeType;
 
     @NotNull(profiles = {"create"})
     @NotBlank(profiles = {"*"})
-    @MaxLength(value = 255, profiles = {"*"})
+    
+    @MaxLength(value = 1000, profiles = {"*"})
     private String identifier;
 
     @NotNull(profiles = {"create"})
@@ -58,8 +60,10 @@ public class Attachment extends EntityBase {
     @MaxLength(value = 1000, profiles = {"*"})
     private String fileUrl;
 
+    
     private Date creationDate;
 
+    
     private Date lastUpdatedDate;
 
     private User creator;
@@ -68,20 +72,24 @@ public class Attachment extends EntityBase {
     }
 
     public Attachment(Builder builder) {
+       
         this.id = builder.id;
         this.creatorId = builder.creatorId;
         this.requirementId = builder.requirementId;
+        
         this.name = builder.name;
         this.description = builder.description;
         this.mimeType = builder.mimeType;
         this.identifier = builder.identifier;
         this.fileUrl = builder.fileUrl;
+       
         this.creationDate = builder.creationDate;
         this.lastUpdatedDate = builder.lastUpdatedDate;
         this.creator = builder.creator;
     }
 
     public int getId() {
+        
         return id;
     }
 
@@ -100,6 +108,7 @@ public class Attachment extends EntityBase {
     public void setRequirementId(int requirementId) {
         this.requirementId = requirementId;
     }
+
 
     public String getName() {
         return name;
@@ -129,9 +138,11 @@ public class Attachment extends EntityBase {
         return fileUrl;
     }
 
+
     public Date getCreationDate() {
         return creationDate;
     }
+
 
     public Date getLastUpdatedDate() {
         return lastUpdatedDate;
@@ -153,11 +164,13 @@ public class Attachment extends EntityBase {
         private int id;
         private int creatorId;
         private int requirementId;
+
         private String name;
         private String description;
         private String mimeType;
         private String identifier;
         private String fileUrl;
+
         private Date creationDate;
         private Date lastUpdatedDate;
         public User creator;
@@ -177,6 +190,7 @@ public class Attachment extends EntityBase {
             return this;
         }
 
+       
         public Builder name(String name) {
             this.name = name;
             return this;
@@ -202,11 +216,13 @@ public class Attachment extends EntityBase {
             return this;
         }
 
+       
         public Builder creationDate(Date creationDate) {
             this.creationDate = creationDate;
             return this;
         }
 
+      
         public Builder lastUpdatedDate(Date lastUpdatedDate) {
             this.lastUpdatedDate = lastUpdatedDate;
             return this;

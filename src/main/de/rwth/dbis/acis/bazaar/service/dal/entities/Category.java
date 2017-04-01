@@ -39,7 +39,6 @@ public class Category extends EntityBase {
 
     @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
-    @MaxLength(value= 255, profiles = {"*"})
     private String description;
 
     @NotBlank(profiles = {"*"})
