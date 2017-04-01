@@ -49,6 +49,7 @@ import org.jooq.SQLDialect;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
+import javax.ws.rs.Path;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.Response;
 import java.net.URISyntaxException;
@@ -62,8 +63,7 @@ import java.util.*;
  *
  * @author István Koren
  */
-//TODO Service from BasaarService, here is no Endpoint
-@ServicePath("/bazaar/main")
+@ServicePath("/bazaar")
 public class BazaarService extends RESTService {
 
     //CONFIG PROPERTIES
@@ -86,6 +86,13 @@ public class BazaarService extends RESTService {
     @Override
     protected void initResources() {
         getResourceConfig().register(Resource.class);
+        getResourceConfig().register(ProjectsResource.class);
+        getResourceConfig().register(CategoryResource.class);
+        getResourceConfig().register(RequirementsResource.class);
+        getResourceConfig().register(CommentsResource.class);
+        getResourceConfig().register(AttachmentsResource.class);
+        getResourceConfig().register(UsersResource.class);
+        getResourceConfig().register(StatisticsResource.class);
     }
 
     public BazaarService() throws Exception {
@@ -143,6 +150,32 @@ public class BazaarService extends RESTService {
             props.put("mail.smtp.host", smtpServer);
             notificationDispatcher.setEmailDispatcher(new EmailDispatcher(this, smtpServer, emailFromAddress, frontendBaseURL));
         }
+    }
+
+    @Api(value = "/", description = "Bazaar service")
+    @SwaggerDefinition(
+            info = @Info(
+                    title = "Requirements Bazaar",
+                    version = "0.5",
+                    description = "Requirements Bazaar project",
+                    termsOfService = "http://requirements-bazaar.org",
+                    contact = @Contact(
+                            name = "Requirements Bazaar Dev Team",
+                            url = "http://requirements-bazaar.org",
+                            email = "info@requirements-bazaar.org"
+                    ),
+                    license = @License(
+                            name = "Apache2",
+                            url = "http://requirements-bazaar.org/license"
+                    )
+            ),
+            host = "requirements-bazaar.org",
+            basePath = "",
+            schemes = SwaggerDefinition.Scheme.HTTPS
+    )
+    @Path("/")
+    public static class Resource {
+
     }
 
     public String notifyRegistrators(EnumSet<BazaarFunction> functions) {
