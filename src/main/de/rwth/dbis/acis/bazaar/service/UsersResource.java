@@ -94,6 +94,51 @@ public class UsersResource {
     }
 
     /**
+     * This method allows to retrieve the active user.
+     *
+     * @return Response with active user as a JSON object.
+     */
+    @GET
+    @Path("/me")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "This method allows to retrieve the active user.")
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the active user", response = User.class),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+    })
+    public Response getActiveUser() {
+        DALFacade dalFacade = null;
+        try {
+            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
+            long userId = agent.getId();
+            String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registratorErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
+            }
+            dalFacade = bazaarService.getDBConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            User user = dalFacade.getUserById(internalUserId);
+            Gson gson = new Gson();
+            return Response.ok(gson.toJson(user)).build();
+        } catch (BazaarException bex) {
+            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } else {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            }
+        } catch (Exception ex) {
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+        } finally {
+            bazaarService.closeDBConnection(dalFacade);
+        }
+    }
+
+    /**
      * Allows to update a certain user.
      *
      * @param userId       id of the user to update
@@ -134,51 +179,6 @@ public class UsersResource {
             }
             User updatedUser = dalFacade.modifyUser(userToUpdate);
             return Response.ok(gson.toJson(updatedUser)).build();
-        } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
-        } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-        } finally {
-            bazaarService.closeDBConnection(dalFacade);
-        }
-    }
-
-    /**
-     * This method allows to retrieve the active user.
-     *
-     * @return Response with active user as a JSON object.
-     */
-    @GET
-    @Path("/me")
-    @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "This method allows to retrieve the active user.")
-    @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the active user", response = User.class),
-            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
-            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
-            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
-    })
-    public Response getActiveUser() {
-        DALFacade dalFacade = null;
-        try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
-            String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registratorErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
-            }
-            dalFacade = bazaarService.getDBConnection();
-            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            User user = dalFacade.getUserById(internalUserId);
-            Gson gson = new Gson();
-            return Response.ok(gson.toJson(user)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
