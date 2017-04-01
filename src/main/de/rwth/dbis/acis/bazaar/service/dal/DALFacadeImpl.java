@@ -401,10 +401,10 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public Attachment createAttachment(Attachment attachment) throws BazaarException {
+    public Attachment createAttachment(Attachment attachment) throws Exception {
         attachmentRepository = (attachmentRepository != null) ? attachmentRepository : new AttachmentRepositoryImpl(dslContext);
         Attachment newAttachment = attachmentRepository.add(attachment);
-        return newAttachment;
+        return attachmentRepository.findById(newAttachment.getId());
     }
 
     @Override

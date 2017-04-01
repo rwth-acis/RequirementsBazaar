@@ -367,7 +367,7 @@ public interface DALFacade {
     /**
      * @param attachment object, which holds the data should be persisted
      */
-    Attachment createAttachment(Attachment attachment) throws BazaarException;
+    Attachment createAttachment(Attachment attachment) throws Exception;
 
     /**
      * @param attachmentId id of the attachment should be deleted
