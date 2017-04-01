@@ -20,12 +20,14 @@
 
 package de.rwth.dbis.acis.bazaar.service;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -38,6 +40,7 @@ import de.rwth.dbis.acis.bazaar.service.notification.EmailDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcherImp;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
+import i5.las2peer.api.Context;
 import i5.las2peer.restMapper.RESTService;
 import i5.las2peer.restMapper.annotations.ServicePath;
 import i5.las2peer.security.UserAgent;
@@ -49,9 +52,15 @@ import org.jooq.SQLDialect;
 
 import javax.annotation.Resource;
 import javax.sql.DataSource;
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Link;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.DatatypeConverter;
+import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.util.*;
 
@@ -92,7 +101,6 @@ public class BazaarService extends RESTService {
         getResourceConfig().register(CommentsResource.class);
         getResourceConfig().register(AttachmentsResource.class);
         getResourceConfig().register(UsersResource.class);
-        getResourceConfig().register(StatisticsResource.class);
     }
 
     public BazaarService() throws Exception {
@@ -176,6 +184,51 @@ public class BazaarService extends RESTService {
     @Path("/")
     public static class Resource {
 
+        private final BazaarService bazaarService = (BazaarService) Context.getCurrent().getService();
+
+        /**
+         * This method allows to retrieve statistics over all projects.
+         *
+         * @param since      timestamp since filter
+         * @return Response with statistics as a JSON object.
+         */
+        @GET
+        @Path("/statistics")
+        @Produces(MediaType.APPLICATION_JSON)
+        @ApiOperation(value = "This method allows to retrieve statistics over all projects.")
+        @ApiResponses(value = {
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns statistics", response = Statistic.class),
+                @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+                @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+                @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+        })
+        public Response getStatistics(
+                @ApiParam(value = "Since timestamp", required = false) @QueryParam("since") String since) {
+            DALFacade dalFacade = null;
+            try {
+                UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
+                long userId = agent.getId();
+                dalFacade = bazaarService.getDBConnection();
+                Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+                Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
+                Statistic statisticsResult = dalFacade.getStatisticsForAllProjects(internalUserId, sinceCal);
+                Gson gson = new Gson();
+                return Response.ok(gson.toJson(statisticsResult)).build();
+            } catch (BazaarException bex) {
+                if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                    return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                    return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else {
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                }
+            } catch (Exception ex) {
+                BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } finally {
+                bazaarService.closeDBConnection(dalFacade);
+            }
+        }
     }
 
     public String notifyRegistrators(EnumSet<BazaarFunction> functions) {
