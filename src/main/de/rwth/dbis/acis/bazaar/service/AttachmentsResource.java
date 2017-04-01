@@ -2,6 +2,7 @@ package de.rwth.dbis.acis.bazaar.service;
 
 import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.PrivilegeEnum;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
@@ -165,6 +166,8 @@ public class AttachmentsResource extends RESTService {
                 }
                 attachmentToCreate.setCreatorId(internalUserId);
                 Attachment createdAttachment = dalFacade.createAttachment(attachmentToCreate);
+                service.bazaarService.getNotificationDispatcher().dispatchNotification(service, attachmentToCreate.getCreationDate(), Activity.ActivityAction.CREATE, attachmentToCreate.getId(),
+                        Activity.DataType.ATTACHMENT, attachmentToCreate.getRequirementId(), Activity.DataType.REQUIREMENT, internalUserId);
                 return Response.status(Response.Status.CREATED).entity(gson.toJson(createdAttachment)).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
