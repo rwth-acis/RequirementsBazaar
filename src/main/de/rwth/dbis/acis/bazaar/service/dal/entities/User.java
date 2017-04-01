@@ -44,7 +44,7 @@ public class User extends EntityBase {
     private Boolean admin;
 
     @Min(value = 0, profiles = {"*"})
-    private long Las2peerId;
+    private long las2peerId;
 
     @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"*"})
@@ -53,9 +53,7 @@ public class User extends EntityBase {
 
     private String profileImage;
 
-
     private Boolean emailLeadSubscription;
-
 
     private Boolean emailFollowSubscription;
 
@@ -63,15 +61,14 @@ public class User extends EntityBase {
     }
 
     public User(Builder builder) {
-        id = builder.id;
+        this.id = builder.id;
         this.firstName = builder.firstName;
         this.lastName = builder.lastName;
         this.eMail = builder.eMail;
         this.admin = builder.admin;
-        Las2peerId = builder.las2peerId;
+        this.las2peerId = builder.las2peerId;
         this.userName = builder.userName;
         this.profileImage = builder.profileImage;
-       
         this.emailLeadSubscription = builder.emailLeadSubscription;
         this.emailFollowSubscription = builder.emailFollowSubscription;
     }
@@ -97,7 +94,7 @@ public class User extends EntityBase {
     }
 
     public long getLas2peerId() {
-        return Las2peerId;
+        return las2peerId;
     }
 
     public String getUserName() {
@@ -107,12 +104,10 @@ public class User extends EntityBase {
     public String getProfileImage() {
         return profileImage;
     }
-
     
     public Boolean isEmailLeadSubscription() {
         return emailLeadSubscription;
     }
-
     
     public Boolean isEmailFollowSubscription() {
         return emailFollowSubscription;
@@ -135,7 +130,6 @@ public class User extends EntityBase {
         private long las2peerId;
         private String userName;
         private String profileImage;
-      
         private Boolean emailLeadSubscription;
         private Boolean emailFollowSubscription;
 
@@ -182,14 +176,12 @@ public class User extends EntityBase {
             this.profileImage = profileImage;
             return this;
         }
-
        
         public Builder emailLeadSubscription(Boolean emailLeadSubscription) {
             this.emailLeadSubscription = emailLeadSubscription;
             return this;
         }
 
-        
         public Builder emailFollowSubscription(Boolean emailFollowSubscription) {
             this.emailFollowSubscription = emailFollowSubscription;
             return this;
