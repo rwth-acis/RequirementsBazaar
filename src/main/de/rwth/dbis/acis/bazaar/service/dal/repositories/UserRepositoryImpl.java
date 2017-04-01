@@ -29,8 +29,10 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
 import org.jooq.Record;
+import org.jooq.SQL;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
@@ -57,6 +59,15 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return id;
+    }
+
+    @Override
+    public void updateLastLoginDate(int userId) throws Exception {
+        try {
+            jooq.update(USER).set(USER.LAST_LOGIN_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime())).execute();
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
     }
 
     @Override

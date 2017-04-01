@@ -42,12 +42,13 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
         record.setProfileImage(entity.getProfileImage());
         record.setEmailLeadSubscription((byte) (entity.isEmailLeadSubscription() ? 1 : 0));
         record.setEmailFollowSubscription((byte) (entity.isEmailFollowSubscription() ? 1 : 0));
+        record.setCreationDate(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         return record;
     }
 
     @Override
     public User getEntityFromTableRecord(UserRecord record) {
-        return User.geBuilder(record.getEmail())
+        User user = User.geBuilder(record.getEmail())
                 .id(record.getId())
                 .admin(record.getAdmin() != 0)
                 .firstName(record.getFirstName())
@@ -57,7 +58,11 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
                 .userName(record.getUserName())
                 .emailLeadSubscription(record.getEmailLeadSubscription() != 0)
                 .emailFollowSubscription(record.getEmailFollowSubscription() != 0)
+                .creationDate(record.getCreationDate())
+                .lastUpdatedDate(record.getLastUpdatedDate())
+                .lastLoginDate(record.getLastLoginDate())
                 .build();
+        return user;
     }
 
     public User getEntityFromQueryResult(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User user, Result<Record> queryResult) {
@@ -91,7 +96,7 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
 
     @Override
     public Map<Field, Object> getUpdateMap(final User entity) {
-        return new HashMap<Field, Object>() {{
+        HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
             if (entity.geteMail() != null) {
                 put(USER.EMAIL, entity.geteMail());
             }
@@ -114,6 +119,10 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
                 put(USER.EMAIL_FOLLOW_SUBSCRIPTION, entity.isEmailFollowSubscription());
             }
         }};
+        if (!updateMap.isEmpty()) {
+            updateMap.put(USER.LAST_UPDATED_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+        }
+        return updateMap;
     }
 
     @Override

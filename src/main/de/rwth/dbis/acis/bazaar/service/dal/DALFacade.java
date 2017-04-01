@@ -50,6 +50,13 @@ public interface DALFacade {
      */
     User modifyUser(User modifiedUser) throws Exception;
 
+    /**
+     * Update lastLoginDate for user.
+     *
+     * @param userId to update lastLoginDate
+     */
+    void updateLastLoginDate(int userId) throws Exception;
+
      /* TODO delete? Should it delete its projects? What should happen after deletion? */
 
     /**

@@ -100,6 +100,12 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public void updateLastLoginDate(int userId) throws Exception {
+        userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
+        userRepository.updateLastLoginDate(userId);
+    }
+
+    @Override
     public User getUserById(int userId) throws Exception {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
         return userRepository.findById(userId);

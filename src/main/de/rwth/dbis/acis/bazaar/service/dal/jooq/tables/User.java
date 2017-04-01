@@ -8,6 +8,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.Reqbaz;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRecord;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 
@@ -35,7 +36,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class User extends TableImpl<UserRecord> {
 
-    private static final long serialVersionUID = 1872350321;
+    private static final long serialVersionUID = 1533641223;
 
     /**
      * The reference instance of <code>reqbaz.user</code>
@@ -99,6 +100,21 @@ public class User extends TableImpl<UserRecord> {
      * The column <code>reqbaz.user.email_follow_subscription</code>.
      */
     public final TableField<UserRecord, Byte> EMAIL_FOLLOW_SUBSCRIPTION = createField("email_follow_subscription", org.jooq.impl.SQLDataType.TINYINT.nullable(false).defaultValue(org.jooq.impl.DSL.inline("1", org.jooq.impl.SQLDataType.TINYINT)), this, "");
+
+    /**
+     * The column <code>reqbaz.user.creation_date</code>.
+     */
+    public final TableField<UserRecord, Timestamp> CREATION_DATE = createField("creation_date", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false).defaultValue(org.jooq.impl.DSL.inline("CURRENT_TIMESTAMP", org.jooq.impl.SQLDataType.TIMESTAMP)), this, "");
+
+    /**
+     * The column <code>reqbaz.user.last_updated_date</code>.
+     */
+    public final TableField<UserRecord, Timestamp> LAST_UPDATED_DATE = createField("last_updated_date", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
+
+    /**
+     * The column <code>reqbaz.user.last_login_date</code>.
+     */
+    public final TableField<UserRecord, Timestamp> LAST_LOGIN_DATE = createField("last_login_date", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
 
     /**
      * Create a <code>reqbaz.user</code> table reference

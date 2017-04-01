@@ -26,6 +26,8 @@ import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
 import jodd.vtor.constraint.NotNull;
 
+import java.util.Date;
+
 public class User extends EntityBase {
 
     private int id;
@@ -57,6 +59,12 @@ public class User extends EntityBase {
 
     private Boolean emailFollowSubscription;
 
+    private Date creationDate;
+
+    private Date lastUpdatedDate;
+
+    private Date lastLoginDate;
+
     public User() {
     }
 
@@ -71,6 +79,9 @@ public class User extends EntityBase {
         this.profileImage = builder.profileImage;
         this.emailLeadSubscription = builder.emailLeadSubscription;
         this.emailFollowSubscription = builder.emailFollowSubscription;
+        this.creationDate = builder.creationDate;
+        this.lastUpdatedDate = builder.lastUpdatedDate;
+        this.lastLoginDate = builder.lastLoginDate;
     }
 
     public int getId() {
@@ -104,13 +115,25 @@ public class User extends EntityBase {
     public String getProfileImage() {
         return profileImage;
     }
-    
+
     public Boolean isEmailLeadSubscription() {
         return emailLeadSubscription;
     }
-    
+
     public Boolean isEmailFollowSubscription() {
         return emailFollowSubscription;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public Date getLastUpdatedDate() {
+        return lastUpdatedDate;
+    }
+
+    public Date getLastLoginDate() {
+        return lastLoginDate;
     }
 
     public static Builder geBuilder(String eMail) {
@@ -132,6 +155,9 @@ public class User extends EntityBase {
         private String profileImage;
         private Boolean emailLeadSubscription;
         private Boolean emailFollowSubscription;
+        private Date creationDate;
+        private Date lastUpdatedDate;
+        private Date lastLoginDate;
 
         public Builder(String eMail) {
             this.eMail = eMail;
@@ -176,7 +202,7 @@ public class User extends EntityBase {
             this.profileImage = profileImage;
             return this;
         }
-       
+
         public Builder emailLeadSubscription(Boolean emailLeadSubscription) {
             this.emailLeadSubscription = emailLeadSubscription;
             return this;
@@ -184,6 +210,21 @@ public class User extends EntityBase {
 
         public Builder emailFollowSubscription(Boolean emailFollowSubscription) {
             this.emailFollowSubscription = emailFollowSubscription;
+            return this;
+        }
+
+        public Builder creationDate(Date creationDate) {
+            this.creationDate = creationDate;
+            return this;
+        }
+
+        public Builder lastUpdatedDate(Date lastUpdatedDate) {
+            this.lastUpdatedDate = lastUpdatedDate;
+            return this;
+        }
+
+        public Builder lastLoginDate(Date lastLoginDate) {
+            this.lastLoginDate = lastLoginDate;
             return this;
         }
 

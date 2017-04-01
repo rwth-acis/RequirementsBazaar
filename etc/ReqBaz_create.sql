@@ -212,6 +212,9 @@ CREATE TABLE IF NOT EXISTS reqbaz.user (
   profile_image             TEXT         NULL,
   email_lead_subscription   BOOLEAN      NOT NULL  DEFAULT TRUE,
   email_follow_subscription BOOLEAN      NOT NULL  DEFAULT TRUE,
+  creation_date             TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+  last_updated_date         TIMESTAMP    NULL,
+  last_login_date           TIMESTAMP    NULL,
   CONSTRAINT user_pk PRIMARY KEY (id)
 );
 

@@ -295,6 +295,7 @@ public class BazaarService extends RESTService {
             dalFacade = getDBConnection();
             Integer userIdByLAS2PeerId = dalFacade.getUserIdByLAS2PeerId(agent.getId());
             if (userIdByLAS2PeerId == null) {
+                // create user
                 User.Builder userBuilder = User.geBuilder(agent.getEmail());
                 if (givenName != null)
                     userBuilder = userBuilder.firstName(givenName);
@@ -304,6 +305,9 @@ public class BazaarService extends RESTService {
                         .emailLeadSubscription(true).emailFollowSubscription(true).build();
                 int userId = dalFacade.createUser(user).getId();
                 dalFacade.addUserToRole(userId, "SystemAdmin", null);
+            } else {
+                // update lastLoginDate
+                dalFacade.updateLastLoginDate(userIdByLAS2PeerId);
             }
         } catch (Exception ex) {
             ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.first_login"));
