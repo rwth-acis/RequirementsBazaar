@@ -173,7 +173,6 @@ public class RequirementsResource extends RESTService {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.create"));
                 }
                 Requirement createdRequirement = dalFacade.createRequirement(requirementToCreate, internalUserId);
-                dalFacade.followRequirement(internalUserId, createdRequirement.getId());
 
                 // check if attachments are given
                 if (requirementToCreate.getAttachments() != null && !requirementToCreate.getAttachments().isEmpty()) {
