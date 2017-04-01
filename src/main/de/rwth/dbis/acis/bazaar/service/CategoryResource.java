@@ -56,6 +56,101 @@ public class CategoryResource {
     }
 
     /**
+     * This method returns the list of categories under a given project.
+     *
+     * @param projectId id of the project
+     * @param page      page number
+     * @param perPage   number of projects by page
+     * @param search    search string
+     * @param sort      sort order
+     * @return Response with categories as a JSON array.
+     */
+    public Response getCategoriesForProject(int projectId, int page, int perPage, String search, List<String> sort) {
+        DALFacade dalFacade = null;
+        try {
+            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
+            long userId = agent.getId();
+            String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registratorErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
+            }
+            Gson gson = new Gson();
+            List<Pageable.SortField> sortList = new ArrayList<>();
+            for (String sortOption : sort) {
+                Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
+                if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { // " " is needed because jersey does not pass "+"
+                    direction = Pageable.SortDirection.ASC;
+                    sortOption = sortOption.substring(1);
+
+                } else if (sortOption.startsWith("-")) {
+                    direction = Pageable.SortDirection.DESC;
+                    sortOption = sortOption.substring(1);
+                }
+                Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
+                sortList.add(sortField);
+            }
+            PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>(), sortList, search);
+            Vtor vtor = bazaarService.getValidators();
+            vtor.validate(pageInfo);
+            if (vtor.hasViolations()) {
+                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+            }
+            dalFacade = bazaarService.getDBConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            if (dalFacade.getProjectById(projectId) == null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.NOT_FOUND, String.format(Localization.getInstance().getResourceBundle().getString("error.resource.notfound"), "category"));
+            }
+            if (dalFacade.isProjectPublic(projectId)) {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_CATEGORY, String.valueOf(projectId), dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
+                }
+            } else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_CATEGORY, String.valueOf(projectId), dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.read"));
+                }
+            }
+            PaginationResult<Category> categoriesResult = dalFacade.listCategorysByProjectId(projectId, pageInfo);
+
+            Map<String, List<String>> parameter = new HashMap<>();
+            parameter.put("page", new ArrayList() {{
+                add(String.valueOf(page));
+            }});
+            parameter.put("per_page", new ArrayList() {{
+                add(String.valueOf(perPage));
+            }});
+            if (search != null) {
+                parameter.put("search", new ArrayList() {{
+                    add(String.valueOf(search));
+                }});
+            }
+            parameter.put("sort", sort);
+
+            Response.ResponseBuilder responseBuilder = Response.ok();
+            responseBuilder = responseBuilder.entity(gson.toJson(categoriesResult.getElements()));
+            responseBuilder = bazaarService.paginationLinks(responseBuilder, categoriesResult, "projects/" + String.valueOf(projectId) + "/categories", parameter);
+            responseBuilder = bazaarService.xHeaderFields(responseBuilder, categoriesResult);
+            Response response = responseBuilder.build();
+
+            return response;
+        } catch (BazaarException bex) {
+            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } else {
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            }
+        } catch (Exception ex) {
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+        } finally {
+            bazaarService.closeDBConnection(dalFacade);
+        }
+    }
+
+    /**
      * This method allows to retrieve a certain category.
      *
      * @param categoryId id of the category under a given project
@@ -424,103 +519,13 @@ public class CategoryResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response getRequirementsByCategory(@PathParam("categoryId") int categoryId,
-                                              @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
-                                              @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
-                                              @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
-                                              @ApiParam(value = "State filter", required = false, allowableValues = "all,open,realized") @DefaultValue("all") @QueryParam("state") String stateFilter,
-                                              @ApiParam(value = "Sort", required = false, allowableValues = "date,name,vote,comment,follower,realized") @DefaultValue("date") @QueryParam("sort") List<String> sort) {
-        DALFacade dalFacade = null;
-        try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
-            String registratorErrors = bazaarService.notifyRegistrators(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registratorErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registratorErrors);
-            }
-            Gson gson = new Gson();
-            HashMap<String, String> filters = new HashMap<>();
-            if (stateFilter != "all") {
-                filters.put("realized", stateFilter);
-            }
-            List<Pageable.SortField> sortList = new ArrayList<>();
-            for (String sortOption : sort) {
-                Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
-                if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { // " " is needed because jersey does not pass "+"
-                    direction = Pageable.SortDirection.ASC;
-                    sortOption = sortOption.substring(1);
-
-                } else if (sortOption.startsWith("-")) {
-                    direction = Pageable.SortDirection.DESC;
-                    sortOption = sortOption.substring(1);
-                }
-                Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
-                sortList.add(sortField);
-            }
-            PageInfo pageInfo = new PageInfo(page, perPage, filters, sortList, search);
-            Vtor vtor = bazaarService.getValidators();
-            vtor.validate(pageInfo);
-            if (vtor.hasViolations()) {
-                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            }
-            dalFacade = bazaarService.getDBConnection();
-            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            if (dalFacade.getCategoryById(categoryId) == null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.NOT_FOUND, String.format(Localization.getInstance().getResourceBundle().getString("error.resource.notfound"), "category"));
-            }
-            Category category = dalFacade.getCategoryById(categoryId);
-            Project project = dalFacade.getProjectById(category.getProjectId());
-            if (dalFacade.isCategoryPublic(categoryId)) {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, String.valueOf(project.getId()), dalFacade);
-                if (!authorized) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
-                }
-            } else {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_REQUIREMENT, String.valueOf(project.getId()), dalFacade);
-                if (!authorized) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.read"));
-                }
-            }
-            PaginationResult<RequirementEx> requirementsResult = dalFacade.listRequirementsByCategory(categoryId, pageInfo, internalUserId);
-
-            Map<String, List<String>> parameter = new HashMap<>();
-            parameter.put("page", new ArrayList() {{
-                add(String.valueOf(page));
-            }});
-            parameter.put("per_page", new ArrayList() {{
-                add(String.valueOf(perPage));
-            }});
-            if (search != null) {
-                parameter.put("search", new ArrayList() {{
-                    add(String.valueOf(search));
-                }});
-            }
-            parameter.put("state", new ArrayList() {{
-                add(String.valueOf(stateFilter));
-            }});
-            parameter.put("sort", sort);
-
-            Response.ResponseBuilder responseBuilder = Response.ok();
-            responseBuilder = responseBuilder.entity(gson.toJson(requirementsResult.getElements()));
-            responseBuilder = bazaarService.paginationLinks(responseBuilder, requirementsResult, "categories/" + String.valueOf(categoryId) + "/requirements", parameter);
-            responseBuilder = bazaarService.xHeaderFields(responseBuilder, requirementsResult);
-            Response response = responseBuilder.build();
-
-            return response;
-        } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
-        } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-        } finally {
-            bazaarService.closeDBConnection(dalFacade);
-        }
+    public Response getRequirementsForCategory(@PathParam("categoryId") int categoryId,
+                                               @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
+                                               @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
+                                               @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
+                                               @ApiParam(value = "State filter", required = false, allowableValues = "all,open,realized") @DefaultValue("all") @QueryParam("state") String stateFilter,
+                                               @ApiParam(value = "Sort", required = false, allowableValues = "date,name,vote,comment,follower,realized") @DefaultValue("date") @QueryParam("sort") List<String> sort) throws Exception {
+        RequirementsResource requirementsResource = new RequirementsResource();
+        return requirementsResource.getRequirementsForCategory(categoryId, page, perPage, search, stateFilter, sort);
     }
-
 }
