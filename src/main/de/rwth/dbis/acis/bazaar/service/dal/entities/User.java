@@ -37,17 +37,17 @@ public class User extends EntityBase {
     private String lastName;
 
     @NotBlank(profiles = {"*"})
-    @NotNull(profiles = {"*"})
+    @NotNull(profiles = {"create"})
     @MaxLength(value = 1000, profiles = {"*"})
     private transient String eMail;
 
     private Boolean admin;
 
-    @Min(value = 0, profiles = {"*"})
+    @Min(value = 1, profiles = {"create"})
     private long las2peerId;
 
     @NotBlank(profiles = {"*"})
-    @NotNull(profiles = {"*"})
+    @NotNull(profiles = {"create"})
     @MaxLength(value = 1000, profiles = {"*"})
     private String userName;
 
