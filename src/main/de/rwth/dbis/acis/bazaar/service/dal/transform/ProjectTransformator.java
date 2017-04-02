@@ -46,7 +46,6 @@ public class ProjectTransformator implements Transformator<de.rwth.dbis.acis.baz
         record.setVisibility((byte) (entry.getVisibility() == true ? 1 : 0 ));
         record.setDefaultCategoryId(entry.getDefaultCategoryId());
         record.setCreationDate(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
-        record.setLastUpdatedDate(record.getCreationDate());
         return record;
     }
 

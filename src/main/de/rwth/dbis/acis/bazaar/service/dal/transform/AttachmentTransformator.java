@@ -47,7 +47,6 @@ public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.
         record.setIdentifier(entity.getIdentifier());
         record.setFileUrl(entity.getFileUrl());
         record.setCreationDate(new Timestamp(Calendar.getInstance().getTime().getTime()));
-        record.setLastUpdatedDate(record.getCreationDate());
         return record;
     }
 

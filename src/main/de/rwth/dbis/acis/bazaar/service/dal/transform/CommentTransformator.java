@@ -46,7 +46,6 @@ public class CommentTransformator implements Transformator<de.rwth.dbis.acis.baz
         record.setRequirementId(entity.getRequirementId());
         record.setReplyToCommentId(entity.getReplyToComment());
         record.setCreationDate(new Timestamp(Calendar.getInstance().getTime().getTime()));
-        record.setLastUpdatedDate(record.getCreationDate());
         return record;
     }
 

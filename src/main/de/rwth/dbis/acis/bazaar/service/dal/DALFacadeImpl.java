@@ -171,7 +171,7 @@ public class DALFacadeImpl implements DALFacade {
                 .build();
         Category defaultCategory = createCategory(uncategorizedCategory);
         newProject.setDefaultCategoryId(defaultCategory.getId());
-        //TODO concurrency transaction
+        //TODO concurrency transaction -> https://www.jooq.org/doc/3.9/manual/sql-execution/transaction-management/
         return projectRepository.update(newProject);
     }
 

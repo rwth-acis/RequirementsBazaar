@@ -40,10 +40,8 @@ public class RequirementTransformator implements Transformator<de.rwth.dbis.acis
         record.setDescription(entry.getDescription());
         record.setName(entry.getName());
         record.setCreationDate(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
-        record.setLastUpdatedDate(record.getCreationDate());
         record.setCreatorId(entry.getCreatorId());
         record.setProjectId(entry.getProjectId());
-
         return record;
     }
 

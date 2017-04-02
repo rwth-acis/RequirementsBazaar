@@ -49,7 +49,6 @@ public class CategoryTransformator implements Transformator<Category, de.rwth.db
         record.setProjectId(entry.getProjectId());
         record.setLeaderId(entry.getLeaderId());
         record.setCreationDate(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
-        record.setLastUpdatedDate(record.getCreationDate());
         return record;
     }
 
