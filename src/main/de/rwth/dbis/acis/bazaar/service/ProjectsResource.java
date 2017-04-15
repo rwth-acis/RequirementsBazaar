@@ -54,14 +54,6 @@ public class ProjectsResource {
         bazaarService = new BazaarService();
     }
 
-    @GET
-    @Path("/test")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response test() throws Exception {
-        CategoryResource cat = new CategoryResource();
-        return cat.getCategory(1);
-    }
-
     /**
      * This method returns the list of projects on the server.
      *
