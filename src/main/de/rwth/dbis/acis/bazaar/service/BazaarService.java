@@ -41,6 +41,7 @@ import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcherImp;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Context;
+import i5.las2peer.logging.L2pLogger;
 import i5.las2peer.restMapper.RESTService;
 import i5.las2peer.restMapper.annotations.ServicePath;
 import i5.las2peer.security.UserAgent;
@@ -91,6 +92,8 @@ public class BazaarService extends RESTService {
     private List<BazaarFunctionRegistrator> functionRegistrators;
     private NotificationDispatcher notificationDispatcher;
     private DataSource dataSource;
+
+    private final L2pLogger logger = L2pLogger.getInstance(BazaarService.class.getName());
 
     @Override
     protected void initResources() {
@@ -220,10 +223,12 @@ public class BazaarService extends RESTService {
                 } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
                     return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
                 } else {
+                    bazaarService.logger.warning(bex.getMessage());
                     return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
                 }
             } catch (Exception ex) {
-                BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+                BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+                bazaarService.logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } finally {
                 bazaarService.closeDBConnection(dalFacade);
@@ -311,6 +316,7 @@ public class BazaarService extends RESTService {
             }
         } catch (Exception ex) {
             ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.first_login"));
+            logger.warning(ex.getMessage());
         } finally {
             closeDBConnection(dalFacade);
         }

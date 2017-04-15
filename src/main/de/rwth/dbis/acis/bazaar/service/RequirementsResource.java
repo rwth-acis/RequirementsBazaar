@@ -13,6 +13,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Context;
+import i5.las2peer.logging.L2pLogger;
 import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
 import jodd.vtor.Violation;
@@ -51,6 +52,8 @@ import java.util.*;
 public class RequirementsResource {
 
     private BazaarService bazaarService;
+
+    private final L2pLogger logger = L2pLogger.getInstance(RequirementsResource.class.getName());
 
     public RequirementsResource() throws Exception {
         bazaarService = new BazaarService();
@@ -149,10 +152,12 @@ public class RequirementsResource {
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
+                logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -254,10 +259,12 @@ public class RequirementsResource {
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
+                logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -311,10 +318,12 @@ public class RequirementsResource {
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
+                logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -394,10 +403,12 @@ public class RequirementsResource {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
+                logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -458,10 +469,12 @@ public class RequirementsResource {
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
+                logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -515,7 +528,8 @@ public class RequirementsResource {
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -564,10 +578,12 @@ public class RequirementsResource {
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
+                logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -620,10 +636,12 @@ public class RequirementsResource {
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
+                logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -674,10 +692,12 @@ public class RequirementsResource {
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
+                logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -727,10 +747,12 @@ public class RequirementsResource {
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
+                logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -780,10 +802,12 @@ public class RequirementsResource {
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
+                logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -833,10 +857,12 @@ public class RequirementsResource {
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
+                logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -896,10 +922,12 @@ public class RequirementsResource {
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
+                logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -949,10 +977,12 @@ public class RequirementsResource {
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
+                logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -1001,10 +1031,12 @@ public class RequirementsResource {
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
+                logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -1053,10 +1085,12 @@ public class RequirementsResource {
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
+                logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -1099,10 +1133,12 @@ public class RequirementsResource {
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
+                logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "");
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
