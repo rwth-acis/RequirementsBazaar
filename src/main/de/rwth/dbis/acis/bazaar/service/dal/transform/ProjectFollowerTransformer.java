@@ -10,7 +10,7 @@ import java.util.*;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.PROJECT_FOLLOWER_MAP;
 
 
-public class ProjectFollowerTransformator implements Transformator<ProjectFollower, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectFollowerMapRecord> {
+public class ProjectFollowerTransformer implements Transformer<ProjectFollower, ProjectFollowerMapRecord> {
     @Override
     public ProjectFollowerMapRecord createRecord(ProjectFollower entity) {
         ProjectFollowerMapRecord record = new ProjectFollowerMapRecord();

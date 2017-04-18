@@ -34,7 +34,7 @@ public class ActivityDispatcher {
     }
 
     public void sendActivityOverRMI(Service service, Date creationDate, Activity.ActivityAction activityAction,
-                                    int dataId, Activity.DataType dataType, int parantDataId,
+                                    int dataId, Activity.DataType dataType, int parentDataId,
                                     Activity.DataType parentDataTyp, int userId) {
         DALFacade dalFacade = null;
         try {
@@ -72,7 +72,7 @@ public class ActivityDispatcher {
             }
             resourcePath = resourcePath + "/" + String.valueOf(dataId);
             if (parentResourcePath != null) {
-                parentResourcePath = parentResourcePath + "/" + String.valueOf(parantDataId);
+                parentResourcePath = parentResourcePath + "/" + String.valueOf(parentDataId);
             }
 
             if (activityAction != Activity.ActivityAction.DELETE) {

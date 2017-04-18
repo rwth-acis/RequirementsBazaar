@@ -26,9 +26,9 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.UserVote;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.AttachmentTransformator;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementTransformator;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformator;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.AttachmentTransformer;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementTransformer;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -50,7 +50,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
      * @param jooq DSLContext object to initialize JOOQ connection. For more see JOOQ documentation.
      */
     public RequirementRepositoryImpl(DSLContext jooq) {
-        super(jooq, new RequirementTransformator());
+        super(jooq, new RequirementTransformer());
     }
 
     @Override
@@ -62,8 +62,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
             Field<Object> idCount = jooq.selectCount()
                     .from(REQUIREMENT)
-                    .where(transformator.getFilterConditions(pageable.getFilters()))
-                    .and(transformator.getSearchCondition(pageable.getSearch()))
+                    .where(transformer.getFilterConditions(pageable.getFilters()))
+                    .and(transformer.getSearchCondition(pageable.getSearch()))
                     .and(REQUIREMENT.PROJECT_ID.eq(projectId))
                     .asField("idCount");
 
@@ -90,18 +90,18 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .select(commentCount)
                     .select(followerCount)
                     .from(REQUIREMENT)
-                    .where(transformator.getFilterConditions(pageable.getFilters()))
-                    .and(transformator.getSearchCondition(pageable.getSearch()))
+                    .where(transformer.getFilterConditions(pageable.getFilters()))
+                    .and(transformer.getSearchCondition(pageable.getSearch()))
                     .and(REQUIREMENT.PROJECT_ID.eq(projectId))
                     .groupBy(REQUIREMENT.ID)
-                    .orderBy(transformator.getSortFields(pageable.getSorts()))
+                    .orderBy(transformer.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();
 
             for (Record queryResult : queryResults) {
                 RequirementRecord requirementRecord = queryResult.into(REQUIREMENT);
-                Requirement requirement = transformator.getEntityFromTableRecord(requirementRecord);
+                Requirement requirement = transformer.getEntityFromTableRecord(requirementRecord);
                 requirements.add(findById(requirement.getId(), userId));
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
@@ -141,8 +141,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             Field<Object> idCount = jooq.selectCount()
                     .from(REQUIREMENT)
                     .join(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.eq(REQUIREMENT.ID))
-                    .where(transformator.getFilterConditions(pageable.getFilters()))
-                    .and(transformator.getSearchCondition(pageable.getSearch()))
+                    .where(transformer.getFilterConditions(pageable.getFilters()))
+                    .and(transformer.getSearchCondition(pageable.getSearch()))
                     .and(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.eq(categoryId))
                     .asField("idCount");
 
@@ -168,11 +168,11 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .select(followerCount)
                     .from(REQUIREMENT)
                     .join(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.eq(REQUIREMENT.ID))
-                    .where(transformator.getFilterConditions(pageable.getFilters()))
-                    .and(transformator.getSearchCondition(pageable.getSearch()))
+                    .where(transformer.getFilterConditions(pageable.getFilters()))
+                    .and(transformer.getSearchCondition(pageable.getSearch()))
                     .and(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.eq(categoryId))
                     .groupBy(REQUIREMENT.ID)
-                    .orderBy(transformator.getSortFields(pageable.getSorts()))
+                    .orderBy(transformer.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();
@@ -193,9 +193,9 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     public boolean belongsToPublicProject(int id) throws BazaarException {
         try {
             Integer countOfPublicProjects = jooq.selectCount()
-                    .from(transformator.getTable())
+                    .from(transformer.getTable())
                     .join(PROJECT).on(PROJECT.ID.eq(REQUIREMENT.PROJECT_ID))
-                    .where(transformator.getTableId().eq(id).and(PROJECT.VISIBILITY.isTrue()))
+                    .where(transformer.getTableId().eq(id).and(PROJECT.VISIBILITY.isTrue()))
                     .fetchOne(0, int.class);
             return (countOfPublicProjects == 1);
         } catch (DataAccessException e) {
@@ -260,12 +260,12 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
                     .leftOuterJoin(CATEGORY).on(CATEGORY.ID.equal(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID))
 
-                    .where(transformator.getTableId().equal(id))
+                    .where(transformer.getTableId().equal(id))
                     .fetch();
 
             if (queryResult == null || queryResult.size() == 0) {
                 ExceptionHandler.getInstance().convertAndThrowException(
-                        new Exception("No " + transformator.getRecordClass() + " found with id: " + id),
+                        new Exception("No " + transformer.getRecordClass() + " found with id: " + id),
                         ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
             }
 
@@ -279,16 +279,16 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .projectId(queryResult.getValues(REQUIREMENT.PROJECT_ID).get(0))
                     .creatorId(queryResult.getValues(REQUIREMENT.CREATOR_ID).get(0));
 
-            UserTransformator userTransformator = new UserTransformator();
+            UserTransformer userTransformer = new UserTransformer();
             //Filling up Creator
             builder.creator(
-                    userTransformator.getEntityFromQueryResult(creatorUser, queryResult)
+                    userTransformer.getEntityFromQueryResult(creatorUser, queryResult)
             );
 
             //Filling up LeadDeveloper
             if (queryResult.getValues(leadDeveloperUser.ID).get(0) != null) {
                 builder.leadDeveloper(
-                        userTransformator.getEntityFromQueryResult(leadDeveloperUser, queryResult)
+                        userTransformer.getEntityFromQueryResult(leadDeveloperUser, queryResult)
                 );
             }
 
@@ -299,7 +299,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 if (entry.getKey() == null) continue;
                 Result<Record> records = entry.getValue();
                 devList.add(
-                        userTransformator.getEntityFromQueryResult(developerUser, records)
+                        userTransformer.getEntityFromQueryResult(developerUser, records)
                 );
             }
             builder.developers(devList);
@@ -310,7 +310,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 if (entry.getKey() == null) continue;
                 Result<Record> records = entry.getValue();
                 followers.add(
-                        userTransformator.getEntityFromQueryResult(followerUser, records)
+                        userTransformer.getEntityFromQueryResult(followerUser, records)
                 );
             }
             builder.followers(followers);
@@ -323,7 +323,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 if (entry.getKey() == null) continue;
                 Result<Record> records = entry.getValue();
                 contributorList.add(
-                        userTransformator.getEntityFromQueryResult(contributorUsers, records)
+                        userTransformer.getEntityFromQueryResult(contributorUsers, records)
                 );
             }
             builder.contributors(contributorList);
@@ -332,7 +332,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             //Filling up attachments
             List<Attachment> attachments = new ArrayList<>();
 
-            AttachmentTransformator attachmentTransform = new AttachmentTransformator();
+            AttachmentTransformer attachmentTransform = new AttachmentTransformer();
 
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(ATTACHMENT.ID).entrySet()) {
                 if (entry.getKey() == null) continue;
@@ -362,7 +362,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .from(REQUIREMENT)
                     .leftOuterJoin(vote).on(vote.REQUIREMENT_ID.eq(REQUIREMENT.ID))
                     .leftOuterJoin(userVote).on(userVote.REQUIREMENT_ID.eq(REQUIREMENT.ID).and(userVote.USER_ID.eq(userId)))
-                    .where(transformator.getTableId().equal(id))
+                    .where(transformer.getTableId().equal(id))
                     .groupBy(userVote.IS_UPVOTE)
                     .fetch();
 
@@ -435,7 +435,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             // If you want to change something here, please know what you are doing! Its SQL and even worse JOOQ :-|
             Record record1 = jooq
                     .select(DSL.countDistinct(PROJECT.ID).as("numberOfProjects"))
-                    .select(DSL.countDistinct(CATEGORY.ID).as("numberOfCategorys"))
+                    .select(DSL.countDistinct(CATEGORY.ID).as("numberOfCategories"))
                     .select(DSL.countDistinct(COMMENT.ID).as("numberOfComments"))
                     .select(DSL.countDistinct(ATTACHMENT.ID).as("numberOfAttachments"))
                     .select(DSL.countDistinct(VOTE.ID).as("numberOfVotes"))
@@ -468,7 +468,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
             result = Statistic.getBuilder()
                     .numberOfProjects((Integer) record1.get("numberOfProjects"))
-                    .numberOfCategorys((Integer) record1.get("numberOfCategorys"))
+                    .numberOfCategories((Integer) record1.get("numberOfCategories"))
                     .numberOfRequirements((Integer) record2.get("numberOfRequirements"))
                     .numberOfComments((Integer) record1.get("numberOfComments"))
                     .numberOfAttachments((Integer) record1.get("numberOfAttachments"))

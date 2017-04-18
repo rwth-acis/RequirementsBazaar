@@ -20,67 +20,64 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Vote;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementDeveloper;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VoteRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementDeveloperMapRecord;
 import org.jooq.*;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.VOTE;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.REQUIREMENT_DEVELOPER_MAP;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
-public class VoteTransformator implements de.rwth.dbis.acis.bazaar.service.dal.transform.Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Vote, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VoteRecord> {
+public class RequirementDeveloperTransformer implements Transformer<RequirementDeveloper, RequirementDeveloperMapRecord> {
     @Override
-    public VoteRecord createRecord(Vote entity) {
-        VoteRecord record = new VoteRecord();
+    public RequirementDeveloperMapRecord createRecord(RequirementDeveloper entity) {
+        RequirementDeveloperMapRecord record = new RequirementDeveloperMapRecord();
         record.setUserId(entity.getUserId());
         record.setRequirementId(entity.getRequirementId());
-        record.setIsUpvote((byte) (entity.isUpvote() ? 1 : 0));
         return record;
     }
 
     @Override
-    public Vote getEntityFromTableRecord(VoteRecord record) {
-        return Vote.getBuilder()
+    public RequirementDeveloper getEntityFromTableRecord(RequirementDeveloperMapRecord record) {
+        return RequirementDeveloper.getBuilder()
                 .id(record.getId())
                 .userId(record.getUserId())
                 .requirementId(record.getRequirementId())
-                .isUpvote(record.getIsUpvote() != 0)
                 .build();
     }
 
     @Override
-    public Table<VoteRecord> getTable() {
-        return VOTE;
+    public Table<RequirementDeveloperMapRecord> getTable() {
+        return REQUIREMENT_DEVELOPER_MAP;
     }
 
     @Override
-    public TableField<VoteRecord, Integer> getTableId() {
-        return VOTE.ID;
+    public TableField<RequirementDeveloperMapRecord, Integer> getTableId() {
+        return REQUIREMENT_DEVELOPER_MAP.ID;
     }
 
     @Override
-    public Class<? extends VoteRecord> getRecordClass() {
-        return VoteRecord.class;
+    public Class<? extends RequirementDeveloperMapRecord> getRecordClass() {
+        return RequirementDeveloperMapRecord.class;
     }
 
     @Override
-    public Map<Field, Object> getUpdateMap(final Vote entity) {
+    public Map<Field, Object> getUpdateMap(final RequirementDeveloper entity) {
         return new HashMap<Field, Object>() {{
-            put(VOTE.IS_UPVOTE, entity.isUpvote());
-            put(VOTE.REQUIREMENT_ID, entity.getRequirementId());
-            put(VOTE.USER_ID, entity.getUserId());
+            put(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID, entity.getRequirementId());
+            put(REQUIREMENT_DEVELOPER_MAP.USER_ID, entity.getUserId());
         }};
     }
 
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(VOTE.ID.asc());
+            return Arrays.asList(REQUIREMENT_DEVELOPER_MAP.ID.asc());
         }
         return null;
     }

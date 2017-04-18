@@ -20,64 +20,67 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementFollower;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Vote;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementFollowerMapRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VoteRecord;
 import org.jooq.*;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.REQUIREMENT_FOLLOWER_MAP;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.VOTE;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
-public class RequirementFollowerTransformator implements Transformator<RequirementFollower, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementFollowerMapRecord> {
+public class VoteTransformer implements Transformer<Vote, VoteRecord> {
     @Override
-    public RequirementFollowerMapRecord createRecord(RequirementFollower entity) {
-        RequirementFollowerMapRecord record = new RequirementFollowerMapRecord();
-        record.setRequirementId(entity.getRequirementId());
+    public VoteRecord createRecord(Vote entity) {
+        VoteRecord record = new VoteRecord();
         record.setUserId(entity.getUserId());
+        record.setRequirementId(entity.getRequirementId());
+        record.setIsUpvote((byte) (entity.isUpvote() ? 1 : 0));
         return record;
     }
 
     @Override
-    public RequirementFollower getEntityFromTableRecord(RequirementFollowerMapRecord record) {
-        return RequirementFollower.getBuilder()
+    public Vote getEntityFromTableRecord(VoteRecord record) {
+        return Vote.getBuilder()
                 .id(record.getId())
                 .userId(record.getUserId())
                 .requirementId(record.getRequirementId())
+                .isUpvote(record.getIsUpvote() != 0)
                 .build();
     }
 
     @Override
-    public Table<RequirementFollowerMapRecord> getTable() {
-        return REQUIREMENT_FOLLOWER_MAP;
+    public Table<VoteRecord> getTable() {
+        return VOTE;
     }
 
     @Override
-    public TableField<RequirementFollowerMapRecord, Integer> getTableId() {
-        return REQUIREMENT_FOLLOWER_MAP.ID;
+    public TableField<VoteRecord, Integer> getTableId() {
+        return VOTE.ID;
     }
 
     @Override
-    public Class<? extends RequirementFollowerMapRecord> getRecordClass() {
-        return RequirementFollowerMapRecord.class;
+    public Class<? extends VoteRecord> getRecordClass() {
+        return VoteRecord.class;
     }
 
     @Override
-    public Map<Field, Object> getUpdateMap(final RequirementFollower entity) {
+    public Map<Field, Object> getUpdateMap(final Vote entity) {
         return new HashMap<Field, Object>() {{
-            put(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID, entity.getRequirementId());
-            put(REQUIREMENT_FOLLOWER_MAP.USER_ID, entity.getUserId());
+            put(VOTE.IS_UPVOTE, entity.isUpvote());
+            put(VOTE.REQUIREMENT_ID, entity.getRequirementId());
+            put(VOTE.USER_ID, entity.getUserId());
         }};
     }
 
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(REQUIREMENT_FOLLOWER_MAP.ID.asc());
+            return Arrays.asList(VOTE.ID.asc());
         }
         return null;
     }

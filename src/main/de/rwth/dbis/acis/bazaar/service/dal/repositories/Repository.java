@@ -28,7 +28,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import java.util.List;
 
 /**
- * @param <E> Type of the Entity, which should be added, deleted, updated, getted using the repo.
+ * @param <E> Type of the Entity, which should be added, deleted, updated, got using the repo.
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
  */

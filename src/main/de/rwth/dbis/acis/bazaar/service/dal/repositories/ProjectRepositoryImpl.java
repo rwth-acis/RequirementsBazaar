@@ -28,8 +28,8 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.ProjectTransformator;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformator;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.ProjectTransformer;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -56,7 +56,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
      * @param jooq DSLContext object to initialize JOOQ connection. For more see JOOQ documentation.
      */
     public ProjectRepositoryImpl(DSLContext jooq) {
-        super(jooq, new ProjectTransformator());
+        super(jooq, new ProjectTransformer());
     }
 
     @Override
@@ -91,12 +91,12 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(PROJECT.LEADER_ID))
                     .leftOuterJoin(PROJECT_FOLLOWER_MAP).on(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID))
                     .leftOuterJoin(followerUsers).on(followerUsers.ID.equal(PROJECT_FOLLOWER_MAP.USER_ID))
-                    .where(transformator.getTableId().equal(id))
+                    .where(transformer.getTableId().equal(id))
                     .fetch();
 
             if (queryResult == null || queryResult.size() == 0) {
                 ExceptionHandler.getInstance().convertAndThrowException(
-                        new Exception("No " + transformator.getRecordClass() + " found with id: " + id),
+                        new Exception("No " + transformer.getRecordClass() + " found with id: " + id),
                         ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
             }
 
@@ -109,9 +109,9 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .creationDate(queryResult.getValues(PROJECT.CREATION_DATE).get(0))
                     .lastUpdatedDate(queryResult.getValues(PROJECT.LAST_UPDATED_DATE).get(0));
 
-            UserTransformator userTransformator = new UserTransformator();
+            UserTransformer userTransformer = new UserTransformer();
             //Filling up LeadDeveloper
-            builder.leader(userTransformator.getEntityFromQueryResult(leaderUser, queryResult));
+            builder.leader(userTransformer.getEntityFromQueryResult(leaderUser, queryResult));
 
             //Filling up follower list
             List<User> followers = new ArrayList<>();
@@ -119,14 +119,14 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                 if (entry.getKey() == null) continue;
                 Result<Record> records = entry.getValue();
                 followers.add(
-                        userTransformator.getEntityFromQueryResult(followerUsers, records)
+                        userTransformer.getEntityFromQueryResult(followerUsers, records)
                 );
             }
             builder.followers(followers);
 
             project = builder.build();
 
-            // Filling additional information TODO: add other additional informations here (leaddev, followers)
+            // Filling additional information TODO: add other additional information here (leaddev, followers)
             project.setNumberOfCategories((Integer) queryResult.getValues(categoryCount).get(0));
             project.setNumberOfRequirements((Integer) queryResult.getValues(requirementCount).get(0));
             project.setNumberOfFollowers((Integer) queryResult.getValues(followerCount).get(0));
@@ -150,7 +150,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
             Field<Object> idCount = jooq.selectCount()
                     .from(PROJECT)
                     .where(PROJECT.VISIBILITY.isTrue())
-                    .and(transformator.getSearchCondition(pageable.getSearch()))
+                    .and(transformer.getSearchCondition(pageable.getSearch()))
                     .asField("idCount");
 
             Field<Object> categoryCount = jooq.select(DSL.count())
@@ -177,18 +177,18 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .from(PROJECT)
                     .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(PROJECT.LEADER_ID))
                     .where(PROJECT.VISIBILITY.isTrue())
-                    .and(transformator.getSearchCondition(pageable.getSearch()))
-                    .orderBy(transformator.getSortFields(pageable.getSorts()))
+                    .and(transformer.getSearchCondition(pageable.getSearch()))
+                    .orderBy(transformer.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();
 
             for (Record queryResult : queryResults) {
                 ProjectRecord projectRecord = queryResult.into(PROJECT);
-                Project project = transformator.getEntityFromTableRecord(projectRecord);
-                UserTransformator userTransformator = new UserTransformator();
+                Project project = transformer.getEntityFromTableRecord(projectRecord);
+                UserTransformer userTransformer = new UserTransformer();
                 UserRecord userRecord = queryResult.into(leaderUser);
-                project.setLeader(userTransformator.getEntityFromTableRecord(userRecord));
+                project.setLeader(userTransformer.getEntityFromTableRecord(userRecord));
                 project.setNumberOfCategories((Integer) queryResult.getValue(categoryCount));
                 project.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
                 project.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
@@ -212,7 +212,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
 
             Field<Object> idCount = jooq.selectCount()
                     .from(PROJECT)
-                    .where(transformator.getSearchCondition(pageable.getSearch()))
+                    .where(transformer.getSearchCondition(pageable.getSearch()))
                     .asField("idCount");
 
             Field<Object> categoryCount = jooq.select(DSL.count())
@@ -242,18 +242,18 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
 //                    .leftOuterJoin(AUTHORIZATIONS).on(AUTHORIZATIONS.PROJECT_ID.equal(PROJECTS.ID))
 //                    .join(USERS).on(AUTHORIZATIONS.USER_ID.equal(USERS.ID))
 //                    .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar())
-                    .where(transformator.getSearchCondition(pageable.getSearch()))
-                    .orderBy(transformator.getSortFields(pageable.getSorts()))
+                    .where(transformer.getSearchCondition(pageable.getSearch()))
+                    .orderBy(transformer.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();
 
             for (Record queryResult : queryResults) {
                 ProjectRecord projectRecord = queryResult.into(PROJECT);
-                Project project = transformator.getEntityFromTableRecord(projectRecord);
-                UserTransformator userTransformator = new UserTransformator();
+                Project project = transformer.getEntityFromTableRecord(projectRecord);
+                UserTransformer userTransformer = new UserTransformer();
                 UserRecord userRecord = queryResult.into(leaderUser);
-                project.setLeader(userTransformator.getEntityFromTableRecord(userRecord));
+                project.setLeader(userTransformer.getEntityFromTableRecord(userRecord));
                 project.setNumberOfCategories((Integer) queryResult.getValue(categoryCount));
                 project.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
                 project.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
@@ -271,8 +271,8 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
     public boolean belongsToPublicProject(int id) throws BazaarException {
         try {
             Integer countOfPublicProjects = jooq.selectCount()
-                    .from(transformator.getTable())
-                    .where(transformator.getTableId().eq(id).and(PROJECT.VISIBILITY.isTrue()))
+                    .from(transformer.getTable())
+                    .where(transformer.getTableId().eq(id).and(PROJECT.VISIBILITY.isTrue()))
                     .fetchOne(0, int.class);
 
             return (countOfPublicProjects == 1);
@@ -296,7 +296,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .fetchOne();
 
             Record record2 = jooq
-                    .select(DSL.countDistinct(CATEGORY.ID).as("numberOfCategorys"))
+                    .select(DSL.countDistinct(CATEGORY.ID).as("numberOfCategories"))
                     .select(DSL.countDistinct(REQUIREMENT.ID).as("numberOfRequirements"))
                     .from(PROJECT)
                     .leftJoin(CATEGORY).on(CATEGORY.CREATION_DATE.greaterOrEqual(timestamp)
@@ -327,7 +327,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
 
             result = Statistic.getBuilder()
                     .numberOfProjects((Integer) record1.get("numberOfProjects"))
-                    .numberOfCategorys((Integer) record2.get("numberOfCategorys"))
+                    .numberOfCategories((Integer) record2.get("numberOfCategories"))
                     .numberOfRequirements((Integer) record2.get("numberOfRequirements"))
                     .numberOfComments((Integer) record3.get("numberOfComments"))
                     .numberOfAttachments((Integer) record3.get("numberOfAttachments"))
@@ -355,7 +355,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
 
             Record record2 = jooq
                     .select(DSL.countDistinct(PROJECT.ID).as("numberOfProjects"))
-                    .select(DSL.countDistinct(CATEGORY.ID).as("numberOfCategorys"))
+                    .select(DSL.countDistinct(CATEGORY.ID).as("numberOfCategories"))
                     .select(DSL.countDistinct(REQUIREMENT.ID).as("numberOfRequirements"))
                     .from(PROJECT)
                     .leftJoin(CATEGORY).on(CATEGORY.CREATION_DATE.greaterOrEqual(timestamp)
@@ -386,7 +386,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
 
             result = Statistic.getBuilder()
                     .numberOfProjects((Integer) record1.get("numberOfProjects"))
-                    .numberOfCategorys((Integer) record2.get("numberOfCategorys"))
+                    .numberOfCategories((Integer) record2.get("numberOfCategories"))
                     .numberOfRequirements((Integer) record2.get("numberOfRequirements"))
                     .numberOfComments((Integer) record3.get("numberOfComments"))
                     .numberOfAttachments((Integer) record3.get("numberOfAttachments"))

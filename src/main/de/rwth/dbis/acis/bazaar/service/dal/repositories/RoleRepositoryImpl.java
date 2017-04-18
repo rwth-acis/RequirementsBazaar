@@ -25,7 +25,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RoleRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRoleMapRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.PrivilegeEnumConverter;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.RoleTransformator;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.RoleTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -44,9 +44,9 @@ import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 2/17/2015
  */
-public class RoleRepostitoryImpl extends RepositoryImpl<Role, RoleRecord> implements RoleRepostitory {
-    public RoleRepostitoryImpl(DSLContext jooq) {
-        super(jooq, new RoleTransformator());
+public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> implements RoleRepository {
+    public RoleRepositoryImpl(DSLContext jooq) {
+        super(jooq, new RoleTransformer());
     }
 
     @Override
@@ -96,9 +96,9 @@ public class RoleRepostitoryImpl extends RepositoryImpl<Role, RoleRecord> implem
         try {
             RoleRecord rolesRecord = jooq.selectFrom(ROLE).where(ROLE.NAME.eq(roleName)).fetchOne();
             if (rolesRecord == null) {
-                throw new Exception("No " + transformator.getRecordClass() + " found with name: " + roleName);
+                throw new Exception("No " + transformer.getRecordClass() + " found with name: " + roleName);
             }
-            role = transformator.getEntityFromTableRecord(rolesRecord);
+            role = transformer.getEntityFromTableRecord(rolesRecord);
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
@@ -139,9 +139,9 @@ public class RoleRepostitoryImpl extends RepositoryImpl<Role, RoleRecord> implem
 
             List<Privilege> rolesToAddPrivileges = new ArrayList<>();
 
-            for (Map.Entry<Integer, Result<Record>> priviligeEntry : records.intoGroups(privilegeTable.ID).entrySet()) {
-                if (priviligeEntry.getKey() == null) continue;
-                Result<Record> privileges = priviligeEntry.getValue();
+            for (Map.Entry<Integer, Result<Record>> privilegeEntry : records.intoGroups(privilegeTable.ID).entrySet()) {
+                if (privilegeEntry.getKey() == null) continue;
+                Result<Record> privileges = privilegeEntry.getValue();
 
                 Privilege privilege = Privilege.getBuilder(new PrivilegeEnumConverter().from(privileges.getValues(privilegeTable.NAME).get(0)))
                         .id(privileges.getValues(privilegeTable.ID).get(0))

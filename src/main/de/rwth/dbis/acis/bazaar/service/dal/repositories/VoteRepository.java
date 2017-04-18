@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2015, RWTH Aachen University.
+ *  Copyright (c) 2014, RWTH Aachen University.
  *  For a list of contributors see the AUTHORS file at the top-level directory
  *  of this distribution.
  *
@@ -20,21 +20,18 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Vote;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
-
-import java.util.List;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 2/17/2015
+ * @since 6/22/2014
  */
-public interface RoleRepostitory extends Repository<Role> {
-    List<Role> listParentsForRole(int roleId) throws BazaarException;
+public interface VoteRepository extends Repository<Vote> {
+    void delete(int userId, int requirementId) throws BazaarException;
 
-    List<Role> listRolesOfUser(int userId, String context) throws BazaarException;
+    boolean hasUserVotedForRequirement(int userId, int requirementId) throws BazaarException;
 
-    void addUserToRole(int userId, String roleName, String context) throws BazaarException;
-
-    Role findByRoleName(String roleName) throws BazaarException;
+    CreationStatus addOrUpdate(Vote vote) throws BazaarException;
 }

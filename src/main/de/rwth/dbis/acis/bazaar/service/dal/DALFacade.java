@@ -60,7 +60,7 @@ public interface DALFacade {
      /* TODO delete? Should it delete its projects? What should happen after deletion? */
 
     /**
-     * @param userId the identifier of the user, which should be retreived
+     * @param userId the identifier of the user, which should be retrieved
      * @return the user with its data from the database
      */
     User getUserById(int userId) throws Exception;
@@ -290,14 +290,14 @@ public interface DALFacade {
      * @param pageable  pagination information
      * @return the categories under the given project in a paginated way
      */
-    PaginationResult<Category> listCategorysByProjectId(int projectId, Pageable pageable) throws BazaarException;
+    PaginationResult<Category> listCategoriesByProjectId(int projectId, Pageable pageable) throws BazaarException;
 
     /**
      * @param requirementId the id of the requirement we are looking in
      * @param pageable  pagination information
      * @return the categories under the given project in a paginated way
      */
-    PaginationResult<Category> listCategorysByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
+    PaginationResult<Category> listCategoriesByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
 
     /**
      * @param category to be added to the database.

@@ -29,13 +29,13 @@ import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.USER;
 
-public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.User, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRecord> {
+public class UserTransformer implements Transformer<User, UserRecord> {
     @Override
     public UserRecord createRecord(User entity) {
         UserRecord record = new UserRecord();
         record.setLas2peerId(entity.getLas2peerId());
         record.setAdmin((byte) (entity.getAdmin() ? 1 : 0));
-        record.setEmail(entity.geteMail());
+        record.setEmail(entity.getEMail());
         record.setFirstName(entity.getFirstName());
         record.setLastName(entity.getLastName());
         record.setUserName(entity.getUserName());
@@ -97,8 +97,8 @@ public class UserTransformator implements Transformator<de.rwth.dbis.acis.bazaar
     @Override
     public Map<Field, Object> getUpdateMap(final User entity) {
         HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
-            if (entity.geteMail() != null) {
-                put(USER.EMAIL, entity.geteMail());
+            if (entity.getEMail() != null) {
+                put(USER.EMAIL, entity.getEMail());
             }
             if (entity.getFirstName() != null) {
                 put(USER.FIRST_NAME, entity.getFirstName());

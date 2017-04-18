@@ -31,7 +31,7 @@ import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
 
-public class RequirementTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementRecord> {
+public class RequirementTransformer implements Transformer<Requirement, RequirementRecord> {
     @Override
     public RequirementRecord createRecord(Requirement entry) {
         entry = this.cleanEntity(entry);

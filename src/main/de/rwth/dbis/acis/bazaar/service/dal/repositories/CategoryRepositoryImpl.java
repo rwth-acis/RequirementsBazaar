@@ -27,8 +27,8 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CategoryRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.CategoryTransformator;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformator;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.CategoryTransformer;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -52,7 +52,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
      * @param jooq DSLContext object to initialize JOOQ connection. For more see JOOQ documentation.
      */
     public CategoryRepositoryImpl(DSLContext jooq) {
-        super(jooq, new CategoryTransformator());
+        super(jooq, new CategoryTransformer());
     }
 
     @Override
@@ -82,12 +82,12 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                     .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(CATEGORY.LEADER_ID))
                     .leftOuterJoin(CATEGORY_FOLLOWER_MAP).on(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID))
                     .leftOuterJoin(followerUsers).on(CATEGORY_FOLLOWER_MAP.USER_ID.equal(followerUsers.ID))
-                    .where(transformator.getTableId().equal(id))
+                    .where(transformer.getTableId().equal(id))
                     .fetch();
 
             if (queryResult == null || queryResult.size() == 0) {
                 ExceptionHandler.getInstance().convertAndThrowException(
-                        new Exception("No " + transformator.getRecordClass() + " found with id: " + id),
+                        new Exception("No " + transformer.getRecordClass() + " found with id: " + id),
                         ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
             }
 
@@ -99,9 +99,9 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                     .creationDate(queryResult.getValues(CATEGORY.CREATION_DATE).get(0))
                     .lastUpdatedDate(queryResult.getValues(CATEGORY.LAST_UPDATED_DATE).get(0));
 
-            UserTransformator userTransformator = new UserTransformator();
+            UserTransformer userTransformer = new UserTransformer();
             //Filling up LeadDeveloper
-            builder.leader(userTransformator.getEntityFromQueryResult(leaderUser, queryResult));
+            builder.leader(userTransformer.getEntityFromQueryResult(leaderUser, queryResult));
 
             //Filling up follower list
             List<User> followers = new ArrayList<>();
@@ -109,7 +109,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                 if (entry.getKey() == null) continue;
                 Result<Record> records = entry.getValue();
                 followers.add(
-                        userTransformator.getEntityFromQueryResult(followerUsers, records)
+                        userTransformer.getEntityFromQueryResult(followerUsers, records)
                 );
             }
             builder.followers(followers);
@@ -139,7 +139,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
             Field<Object> idCount = jooq.selectCount()
                     .from(CATEGORY)
                     .where(CATEGORY.PROJECT_ID.equal(projectId))
-                    .and(transformator.getSearchCondition(pageable.getSearch()))
+                    .and(transformer.getSearchCondition(pageable.getSearch()))
                     .asField("idCount");
 
             Field<Object> requirementCount = jooq.select(DSL.count())
@@ -161,18 +161,18 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                     .from(CATEGORY)
                     .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(CATEGORY.LEADER_ID))
                     .where(CATEGORY.PROJECT_ID.equal(projectId))
-                    .and(transformator.getSearchCondition(pageable.getSearch()))
-                    .orderBy(transformator.getSortFields(pageable.getSorts()))
+                    .and(transformer.getSearchCondition(pageable.getSearch()))
+                    .orderBy(transformer.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();
 
             for (Record queryResult : queryResults) {
                 CategoryRecord categoryRecord = queryResult.into(CATEGORY);
-                Category category = transformator.getEntityFromTableRecord(categoryRecord);
-                UserTransformator userTransformator = new UserTransformator();
+                Category category = transformer.getEntityFromTableRecord(categoryRecord);
+                UserTransformer userTransformer = new UserTransformer();
                 UserRecord userRecord = queryResult.into(leaderUser);
-                category.setLeader(userTransformator.getEntityFromTableRecord(userRecord));
+                category.setLeader(userTransformer.getEntityFromTableRecord(userRecord));
                 category.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
                 category.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
                 categories.add(category);
@@ -219,17 +219,17 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                     .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(CATEGORY.LEADER_ID))
                     .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.equal(CATEGORY.ID))
                     .where(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.equal(requirementId))
-                    .orderBy(transformator.getSortFields(pageable.getSorts()))
+                    .orderBy(transformer.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();
 
             for (Record queryResult : queryResults) {
                 CategoryRecord categoryRecord = queryResult.into(CATEGORY);
-                Category category = transformator.getEntityFromTableRecord(categoryRecord);
-                UserTransformator userTransformator = new UserTransformator();
+                Category category = transformer.getEntityFromTableRecord(categoryRecord);
+                UserTransformer userTransformer = new UserTransformer();
                 UserRecord userRecord = queryResult.into(leaderUser);
-                category.setLeader(userTransformator.getEntityFromTableRecord(userRecord));
+                category.setLeader(userTransformer.getEntityFromTableRecord(userRecord));
                 category.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
                 category.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
                 categories.add(category);
@@ -246,9 +246,9 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
     public boolean belongsToPublicProject(int id) throws BazaarException {
         try {
             Integer countOfPublicProjects = jooq.selectCount()
-                    .from(transformator.getTable())
+                    .from(transformer.getTable())
                     .join(PROJECT).on(PROJECT.ID.eq(CATEGORY.PROJECT_ID))
-                    .where(transformator.getTableId().eq(id).and(PROJECT.VISIBILITY.isTrue()))
+                    .where(transformer.getTableId().eq(id).and(PROJECT.VISIBILITY.isTrue()))
                     .fetchOne(0, int.class);
 
             return (countOfPublicProjects == 1);
@@ -273,7 +273,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                     .fetchOne();
 
             Record record2 = jooq
-                    .select(DSL.countDistinct(CATEGORY.ID).as("numberOfCategorys"))
+                    .select(DSL.countDistinct(CATEGORY.ID).as("numberOfCategories"))
                     .from(CATEGORY)
                     .where(CATEGORY.CREATION_DATE.greaterOrEqual(timestamp)
                             .or(CATEGORY.LAST_UPDATED_DATE.greaterOrEqual(timestamp))
@@ -310,7 +310,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
 
             result = Statistic.getBuilder()
                     .numberOfProjects((Integer) record1.get("numberOfProjects"))
-                    .numberOfCategorys((Integer) record2.get("numberOfCategorys"))
+                    .numberOfCategories((Integer) record2.get("numberOfCategories"))
                     .numberOfRequirements((Integer) record3.get("numberOfRequirements"))
                     .numberOfComments((Integer) record4.get("numberOfComments"))
                     .numberOfAttachments((Integer) record4.get("numberOfAttachments"))

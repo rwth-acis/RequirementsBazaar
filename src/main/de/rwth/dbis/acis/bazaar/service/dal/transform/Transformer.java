@@ -33,7 +33,7 @@ import java.util.Map;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
  */
-public interface Transformator<E, R extends Record> {
+public interface Transformer<E, R extends Record> {
     /**
      * @param entity object, which holds the prototype values for the newly created record.
      * @return a record object, which has the same value of the entity

@@ -20,55 +20,55 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Privilege;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RoleRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.PrivilegeRecord;
 import org.jooq.*;
 
 import java.util.*;
 
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.PRIVILEGE;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.ROLE;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 2/17/2015
+ * @since 2/18/2015
  */
-public class RoleTransformator implements Transformator<Role, RoleRecord> {
-
+public class PrivilegeTransformer implements Transformer<Privilege, PrivilegeRecord> {
     @Override
-    public RoleRecord createRecord(Role entity) {
-        RoleRecord record = new RoleRecord();
+    public PrivilegeRecord createRecord(Privilege entity) {
+        PrivilegeRecord record = new PrivilegeRecord();
         record.setId(entity.getId());
-        record.setName(entity.getName());
+        record.setName(new PrivilegeEnumConverter().to(entity.getName()));
         return record;
     }
 
     @Override
-    public Role getEntityFromTableRecord(RoleRecord record) {
-        return Role.getBuilder(record.getName())
+    public Privilege getEntityFromTableRecord(PrivilegeRecord record) {
+        return Privilege.getBuilder(new PrivilegeEnumConverter().from(record.getName()))
                 .id(record.getId())
                 .build();
     }
 
     @Override
-    public Table<RoleRecord> getTable() {
-        return ROLE;
+    public Table<PrivilegeRecord> getTable() {
+        return PRIVILEGE;
     }
 
     @Override
-    public TableField<RoleRecord, Integer> getTableId() {
-        return ROLE.ID;
+    public TableField<PrivilegeRecord, Integer> getTableId() {
+        return PRIVILEGE.ID;
     }
 
     @Override
-    public Class<? extends RoleRecord> getRecordClass() {
-        return RoleRecord.class;
+    public Class<? extends PrivilegeRecord> getRecordClass() {
+        return PrivilegeRecord.class;
     }
 
     @Override
-    public Map<Field, Object> getUpdateMap(final Role entity) {
+    public Map<Field, Object> getUpdateMap(final Privilege entity) {
         return new HashMap<Field, Object>() {{
-            put(ROLE.NAME, entity.getName());
+            put(PRIVILEGE.NAME, entity.getName());
         }};
     }
 
@@ -82,7 +82,7 @@ public class RoleTransformator implements Transformator<Role, RoleRecord> {
 
     @Override
     public Condition getSearchCondition(String search) throws Exception {
-        return null;
+        return PRIVILEGE.NAME.likeIgnoreCase(search);
     }
 
     @Override
@@ -90,3 +90,4 @@ public class RoleTransformator implements Transformator<Role, RoleRecord> {
         return new ArrayList<>();
     }
 }
+

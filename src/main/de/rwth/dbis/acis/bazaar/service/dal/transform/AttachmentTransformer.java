@@ -31,7 +31,7 @@ import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.ATTACHMENT;
 
-public class AttachmentTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentRecord> {
+public class AttachmentTransformer implements Transformer<Attachment, AttachmentRecord> {
 
     @Override
     public AttachmentRecord createRecord(Attachment entity) {

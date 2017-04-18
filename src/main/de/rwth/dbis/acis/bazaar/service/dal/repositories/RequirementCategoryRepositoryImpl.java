@@ -22,7 +22,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementCategory;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementCategoryMapRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementCategoryTransformator;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementCategoryTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -41,7 +41,7 @@ public class RequirementCategoryRepositoryImpl extends RepositoryImpl<Requiremen
      * @param jooq DSLContext for JOOQ connection
      */
     public RequirementCategoryRepositoryImpl(DSLContext jooq) {
-        super(jooq, new RequirementCategoryTransformator());
+        super(jooq, new RequirementCategoryTransformer());
     }
 
     @Override

@@ -96,7 +96,7 @@ public class User extends EntityBase {
         return lastName;
     }
 
-    public String geteMail() {
+    public String getEMail() {
         return eMail;
     }
 

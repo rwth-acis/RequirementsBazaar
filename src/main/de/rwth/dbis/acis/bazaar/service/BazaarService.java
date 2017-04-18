@@ -51,7 +51,6 @@ import org.apache.commons.dbcp2.*;
 import org.apache.http.client.utils.URIBuilder;
 import org.jooq.SQLDialect;
 
-import javax.annotation.Resource;
 import javax.sql.DataSource;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -89,7 +88,7 @@ public class BazaarService extends RESTService {
     protected String emailFromAddress;
 
     private Vtor vtor;
-    private List<BazaarFunctionRegistrator> functionRegistrators;
+    private List<BazaarFunctionRegistrar> functionRegistrar;
     private NotificationDispatcher notificationDispatcher;
     private DataSource dataSource;
 
@@ -116,8 +115,8 @@ public class BazaarService extends RESTService {
 
         dataSource = setupDataSource(dbUrl, dbUserName, dbPassword);
 
-        functionRegistrators = new ArrayList<>();
-        functionRegistrators.add(new BazaarFunctionRegistrator() {
+        functionRegistrar = new ArrayList<>();
+        functionRegistrar.add(new BazaarFunctionRegistrar() {
             @Override
             public void registerFunction(EnumSet<BazaarFunction> functions) throws BazaarException {
                 DALFacade dalFacade = null;
@@ -127,14 +126,14 @@ public class BazaarService extends RESTService {
                 } catch (CommunicationsException commEx) {
                     ExceptionHandler.getInstance().convertAndThrowException(commEx, ExceptionLocation.BAZAARSERVICE, ErrorCode.DB_COMM, Localization.getInstance().getResourceBundle().getString("error.db_comm"));
                 } catch (Exception ex) {
-                    ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.privilige_sync"));
+                    ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.privilege_sync"));
                 } finally {
                     closeDBConnection(dalFacade);
                 }
             }
         });
 
-        functionRegistrators.add(new BazaarFunctionRegistrator() {
+        functionRegistrar.add(new BazaarFunctionRegistrar() {
             @Override
             public void registerFunction(EnumSet<BazaarFunction> functions) {
                 if (functions.contains(BazaarFunction.VALIDATION)) {
@@ -143,7 +142,7 @@ public class BazaarService extends RESTService {
             }
         });
 
-        functionRegistrators.add(new BazaarFunctionRegistrator() {
+        functionRegistrar.add(new BazaarFunctionRegistrar() {
             @Override
             public void registerFunction(EnumSet<BazaarFunction> functions) throws Exception {
                 if (functions.contains(BazaarFunction.USER_FIRST_LOGIN_HANDLING)) {
@@ -236,16 +235,16 @@ public class BazaarService extends RESTService {
         }
     }
 
-    public String notifyRegistrators(EnumSet<BazaarFunction> functions) {
+    public String notifyRegistrars(EnumSet<BazaarFunction> functions) {
         String resultJSON = null;
         try {
-            for (BazaarFunctionRegistrator functionRegistrator : functionRegistrators) {
-                functionRegistrator.registerFunction(functions);
+            for (BazaarFunctionRegistrar functionRegistrar : functionRegistrar) {
+                functionRegistrar.registerFunction(functions);
             }
         } catch (BazaarException bazaarEx) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarEx);
         } catch (Exception ex) {
-            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.registrators"));
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.registrars"));
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
         }
         return resultJSON;

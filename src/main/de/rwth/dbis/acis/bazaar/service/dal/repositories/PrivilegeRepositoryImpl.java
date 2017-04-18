@@ -22,7 +22,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Privilege;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.PrivilegeRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.PrivilegeTransformator;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.PrivilegeTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -35,9 +35,9 @@ import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.PRIVILEGE;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 2/18/2015
  */
-public class PrivilegeRepostitoryImpl extends RepositoryImpl<Privilege, PrivilegeRecord> implements PrivilegeRepostitory {
-    public PrivilegeRepostitoryImpl(DSLContext jooq) {
-        super(jooq, new PrivilegeTransformator());
+public class PrivilegeRepositoryImpl extends RepositoryImpl<Privilege, PrivilegeRecord> implements PrivilegeRepository {
+    public PrivilegeRepositoryImpl(DSLContext jooq) {
+        super(jooq, new PrivilegeTransformer());
     }
 
     @Override
@@ -49,6 +49,6 @@ public class PrivilegeRepostitoryImpl extends RepositoryImpl<Privilege, Privileg
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
 
-        return privilege == null ? null : new PrivilegeTransformator().getEntityFromTableRecord(privilege);
+        return privilege == null ? null : new PrivilegeTransformer().getEntityFromTableRecord(privilege);
     }
 }

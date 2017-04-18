@@ -23,7 +23,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementFollower;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementFollowerMapRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementFollowerTransformator;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementFollowerTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -42,7 +42,7 @@ public class RequirementFollowerRepositoryImpl extends RepositoryImpl<Requiremen
      * @param jooq DSLContext for JOOQ connection
      */
     public RequirementFollowerRepositoryImpl(DSLContext jooq) {
-        super(jooq, new RequirementFollowerTransformator());
+        super(jooq, new RequirementFollowerTransformer());
     }
 
     @Override

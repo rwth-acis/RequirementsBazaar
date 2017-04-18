@@ -9,7 +9,7 @@ import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.CATEGORY_FOLLOWER_MAP;
 
-public class CategoryFollowerTransformator implements Transformator<CategoryFollower, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CategoryFollowerMapRecord> {
+public class CategoryFollowerTransformer implements Transformer<CategoryFollower, CategoryFollowerMapRecord> {
     @Override
     public CategoryFollowerMapRecord createRecord(CategoryFollower entity) {
         CategoryFollowerMapRecord record = new CategoryFollowerMapRecord();

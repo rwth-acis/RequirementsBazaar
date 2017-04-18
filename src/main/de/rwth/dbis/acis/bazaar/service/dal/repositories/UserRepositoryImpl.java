@@ -22,14 +22,13 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformator;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
 import org.jooq.Record;
-import org.jooq.SQL;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -45,7 +44,7 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
      * @param jooq DSLContext for JOOQ connection
      */
     public UserRepositoryImpl(DSLContext jooq) {
-        super(jooq, new UserTransformator());
+        super(jooq, new UserTransformer());
     }
 
     final byte ONE = 1;
@@ -92,7 +91,7 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
 
             for (Record queryResult : queryResults) {
                 UserRecord userRecord = queryResult.into(UserRecord.class);
-                entries.add(transformator.getEntityFromTableRecord(userRecord));
+                entries.add(transformer.getEntityFromTableRecord(userRecord));
             }
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
@@ -138,7 +137,7 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
 
             for (Record queryResult : queryResults) {
                 UserRecord userRecord = queryResult.into(UserRecord.class);
-                entries.add(transformator.getEntityFromTableRecord(userRecord));
+                entries.add(transformer.getEntityFromTableRecord(userRecord));
             }
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
@@ -205,7 +204,7 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
 
             for (Record queryResult : queryResults) {
                 UserRecord userRecord = queryResult.into(UserRecord.class);
-                entries.add(transformator.getEntityFromTableRecord(userRecord));
+                entries.add(transformer.getEntityFromTableRecord(userRecord));
             }
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);

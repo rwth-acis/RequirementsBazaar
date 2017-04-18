@@ -18,14 +18,23 @@
  * /
  */
 
-package de.rwth.dbis.acis.bazaar.service;
+package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
-import java.util.EnumSet;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+
+import java.util.List;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 1/9/2015
+ * @since 2/17/2015
  */
-public interface BazaarFunctionRegistrator {
-    void registerFunction(EnumSet<BazaarFunction> functions) throws Exception;
+public interface RoleRepository extends Repository<Role> {
+    List<Role> listParentsForRole(int roleId) throws BazaarException;
+
+    List<Role> listRolesOfUser(int userId, String context) throws BazaarException;
+
+    void addUserToRole(int userId, String roleName, String context) throws BazaarException;
+
+    Role findByRoleName(String roleName) throws BazaarException;
 }

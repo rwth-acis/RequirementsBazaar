@@ -35,7 +35,7 @@ import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.COMMENT;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
-public class CommentTransformator implements Transformator<de.rwth.dbis.acis.bazaar.service.dal.entities.Comment, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentRecord> {
+public class CommentTransformer implements Transformer<Comment, CommentRecord> {
     @Override
     public CommentRecord createRecord(Comment entity) {
         entity = this.cleanEntity(entity);

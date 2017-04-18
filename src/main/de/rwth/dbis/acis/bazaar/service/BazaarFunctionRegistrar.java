@@ -18,15 +18,14 @@
  * /
  */
 
-package de.rwth.dbis.acis.bazaar.service.dal.repositories;
+package de.rwth.dbis.acis.bazaar.service;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Privilege;
-import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+import java.util.EnumSet;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 2/18/2015
+ * @since 1/9/2015
  */
-public interface PrivilegeRepostitory extends Repository<Privilege> {
-    Privilege findByName(String privilege) throws BazaarException;
+public interface BazaarFunctionRegistrar {
+    void registerFunction(EnumSet<BazaarFunction> functions) throws Exception;
 }

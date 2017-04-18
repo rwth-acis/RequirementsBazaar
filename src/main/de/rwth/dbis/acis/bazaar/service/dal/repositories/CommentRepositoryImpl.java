@@ -26,8 +26,8 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.CommentTransformator;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformator;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.CommentTransformer;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -48,7 +48,7 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord
      * @param jooq DSLContext for JOOQ connection
      */
     public CommentRepositoryImpl(DSLContext jooq) {
-        super(jooq, new CommentTransformator());
+        super(jooq, new CommentTransformer());
     }
 
     @Override
@@ -73,19 +73,19 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord
                     .leftJoin(childCommentCreatorUser).on(childCommentCreatorUser.ID.equal(childComment.USER_ID))
                     .join(creatorUser).on(creatorUser.ID.equal(COMMENT.USER_ID))
                     .where(COMMENT.REQUIREMENT_ID.equal(requirementId).and(COMMENT.REPLY_TO_COMMENT_ID.isNull()))
-                    .orderBy(transformator.getSortFields(pageable.getSorts()))
+                    .orderBy(transformer.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();
 
             Comment entry = null;
             for (Record record : queryResults) {
-                if (entry == null || transformator.getEntityFromTableRecord(record.into(CommentRecord.class)).getId() != entry.getId()) {
+                if (entry == null || transformer.getEntityFromTableRecord(record.into(CommentRecord.class)).getId() != entry.getId()) {
                     entry = convertToCommentWithUser(record, creatorUser);
                     comments.add(entry);
                 }
-                CommentRecord childRecor = record.into(childComment);
-                if (childRecor.getId() != null) {
+                CommentRecord childRecord = record.into(childComment);
+                if (childRecord.getId() != null) {
                     Comment childEntry = convertToCommentWithUser(record, childComment, childCommentCreatorUser);
                     comments.add(childEntry);
                 }
@@ -101,19 +101,19 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord
 
     private Comment convertToCommentWithUser(Record record, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User creatorUser) {
         CommentRecord commentRecord = record.into(CommentRecord.class);
-        Comment entry = transformator.getEntityFromTableRecord(commentRecord);
-        UserTransformator userTransformator = new UserTransformator();
+        Comment entry = transformer.getEntityFromTableRecord(commentRecord);
+        UserTransformer userTransformer = new UserTransformer();
         UserRecord userRecord = record.into(creatorUser);
-        entry.setCreator(userTransformator.getEntityFromTableRecord(userRecord));
+        entry.setCreator(userTransformer.getEntityFromTableRecord(userRecord));
         return entry;
     }
 
     private Comment convertToCommentWithUser(Record record, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment comment, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User creatorUser) {
         CommentRecord commentRecord = record.into(comment);
-        Comment entry = transformator.getEntityFromTableRecord(commentRecord);
-        UserTransformator userTransformator = new UserTransformator();
+        Comment entry = transformer.getEntityFromTableRecord(commentRecord);
+        UserTransformer userTransformer = new UserTransformer();
         UserRecord userRecord = record.into(creatorUser);
-        entry.setCreator(userTransformator.getEntityFromTableRecord(userRecord));
+        entry.setCreator(userTransformer.getEntityFromTableRecord(userRecord));
         return entry;
     }
 
@@ -124,14 +124,14 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord
             User creatorUser = USER.as("creatorUser");
             Record record = jooq.selectFrom(COMMENT
                     .join(creatorUser).on(creatorUser.ID.equal(COMMENT.USER_ID)))
-                    .where(transformator.getTableId().equal(id))
+                    .where(transformer.getTableId().equal(id))
                     .fetchOne();
             returnComment = convertToCommentWithUser(record, creatorUser);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         } catch (NullPointerException e) {
             ExceptionHandler.getInstance().convertAndThrowException(
-                    new Exception("No " + transformator.getRecordClass() + " found with id: " + id),
+                    new Exception("No " + transformer.getRecordClass() + " found with id: " + id),
                     ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
         }
         return returnComment;
@@ -141,10 +141,10 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord
     public boolean belongsToPublicProject(int id) throws BazaarException {
         try {
             Integer countOfPublicProjects = jooq.selectCount()
-                    .from(transformator.getTable())
+                    .from(transformer.getTable())
                     .join(REQUIREMENT).on(REQUIREMENT.ID.eq(COMMENT.REQUIREMENT_ID))
                     .join(PROJECT).on(PROJECT.ID.eq(REQUIREMENT.PROJECT_ID))
-                    .where(transformator.getTableId().eq(id).and(PROJECT.VISIBILITY.isTrue()))
+                    .where(transformer.getTableId().eq(id).and(PROJECT.VISIBILITY.isTrue()))
                     .fetchOne(0, int.class);
 
             return (countOfPublicProjects == 1);

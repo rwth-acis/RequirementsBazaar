@@ -6,7 +6,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 public class Statistic {
 
     private int numberOfProjects;
-    private int numberOfCategorys;
+    private int numberOfCategories;
     private int numberOfRequirements;
     private int numberOfComments;
     private int numberOfAttachments;
@@ -15,7 +15,7 @@ public class Statistic {
 
     protected Statistic(Builder builder) {
         this.numberOfProjects = builder.numberOfProjects;
-        this.numberOfCategorys = builder.numberOfCategorys;
+        this.numberOfCategories = builder.numberOfCategories;
         this.numberOfRequirements = builder.numberOfRequirements;
         this.numberOfComments = builder.numberOfComments;
         this.numberOfAttachments = builder.numberOfAttachments;
@@ -29,7 +29,7 @@ public class Statistic {
     public static class Builder {
 
         protected int numberOfProjects;
-        protected int numberOfCategorys;
+        protected int numberOfCategories;
         protected int numberOfRequirements;
         protected int numberOfComments;
         protected int numberOfAttachments;
@@ -40,8 +40,8 @@ public class Statistic {
             return this;
         }
 
-        public Builder numberOfCategorys(int numberOfCategorys) {
-            this.numberOfCategorys = numberOfCategorys;
+        public Builder numberOfCategories(int numberOfCategories) {
+            this.numberOfCategories = numberOfCategories;
             return this;
         }
 

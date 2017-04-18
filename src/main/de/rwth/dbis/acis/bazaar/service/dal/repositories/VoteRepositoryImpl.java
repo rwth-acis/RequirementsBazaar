@@ -23,7 +23,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Vote;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VoteRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.VoteTransformator;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.VoteTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -42,12 +42,12 @@ import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.VOTE;
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
-public class VoteRepostitoryImpl extends RepositoryImpl<Vote, VoteRecord> implements VoteRepostitory {
+public class VoteRepositoryImpl extends RepositoryImpl<Vote, VoteRecord> implements VoteRepository {
     /**
      * @param jooq DSLContext for JOOQ connection
      */
-    public VoteRepostitoryImpl(DSLContext jooq) {
-        super(jooq, new VoteTransformator());
+    public VoteRepositoryImpl(DSLContext jooq) {
+        super(jooq, new VoteTransformer());
     }
 
     @Override
@@ -82,8 +82,8 @@ public class VoteRepostitoryImpl extends RepositoryImpl<Vote, VoteRecord> implem
 
         if (record != null) {
             if (record.getIsUpvote() != (byte) (vote.isUpvote() ? 1 : 0)) {
-                UpdateSetFirstStep<VoteRecord> update = jooq.update(transformator.getTable());
-                Map<Field, Object> map = transformator.getUpdateMap(vote);
+                UpdateSetFirstStep<VoteRecord> update = jooq.update(transformer.getTable());
+                Map<Field, Object> map = transformer.getUpdateMap(vote);
                 UpdateSetMoreStep moreStep = null;
                 for (Map.Entry<Field, Object> item : map.entrySet()) {
                     Field key = item.getKey();

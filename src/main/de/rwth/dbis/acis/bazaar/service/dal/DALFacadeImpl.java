@@ -58,9 +58,9 @@ public class DALFacadeImpl implements DALFacade {
     private RequirementRepository requirementRepository;
     private RequirementCategoryRepository tagRepository;
     private UserRepository userRepository;
-    private VoteRepostitory voteRepostitory;
-    private RoleRepostitory roleRepostitory;
-    private PrivilegeRepostitory privilegeRepostitory;
+    private VoteRepository voteRepository;
+    private RoleRepository roleRepository;
+    private PrivilegeRepository privilegeRepository;
 
     public DALFacadeImpl(DataSource dataSource, SQLDialect dialect) {
         dslContext = DSL.using(dataSource, dialect);
@@ -247,8 +247,8 @@ public class DALFacadeImpl implements DALFacade {
         requirementRepository.update(modifiedRequirement);
 
         if (modifiedRequirement.getCategories() != null) {
-            PaginationResult<Category> oldCategorys = listCategorysByRequirementId(modifiedRequirement.getId(), new PageInfo(0, 1000, new HashMap<>()));
-            for (Category oldCategory : oldCategorys.getElements()) {
+            PaginationResult<Category> oldCategories = listCategoriesByRequirementId(modifiedRequirement.getId(), new PageInfo(0, 1000, new HashMap<>()));
+            for (Category oldCategory : oldCategories.getElements()) {
                 boolean containCategory = false;
                 for (Category newCategory : modifiedRequirement.getCategories()) {
                     if (oldCategory.getId() == newCategory.getId()) {
@@ -262,7 +262,7 @@ public class DALFacadeImpl implements DALFacade {
             }
             for (Category newCategory : modifiedRequirement.getCategories()) {
                 boolean containCategory = false;
-                for (Category oldCategory : oldCategorys.getElements()) {
+                for (Category oldCategory : oldCategories.getElements()) {
                     if (oldCategory.getId() == newCategory.getId()) {
                         containCategory = true;
                         break;
@@ -327,13 +327,13 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public PaginationResult<Category> listCategorysByProjectId(int projectId, Pageable pageable) throws BazaarException {
+    public PaginationResult<Category> listCategoriesByProjectId(int projectId, Pageable pageable) throws BazaarException {
         categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
         return categoryRepository.findByProjectId(projectId, pageable);
     }
 
     @Override
-    public PaginationResult<Category> listCategorysByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
+    public PaginationResult<Category> listCategoriesByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
         categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
         return categoryRepository.findByRequirementId(requirementId, pageable);
     }
@@ -530,8 +530,8 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public CreationStatus vote(int userId, int requirementId, boolean isUpVote) throws BazaarException {
-        voteRepostitory = (voteRepostitory != null) ? voteRepostitory : new VoteRepostitoryImpl(dslContext);
-        return voteRepostitory.addOrUpdate(Vote.getBuilder()
+        voteRepository = (voteRepository != null) ? voteRepository : new VoteRepositoryImpl(dslContext);
+        return voteRepository.addOrUpdate(Vote.getBuilder()
                 .requirementId(requirementId)
                 .userId(userId)
                 .isUpvote(isUpVote)
@@ -541,42 +541,42 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public void unVote(int userId, int requirementId) throws BazaarException {
-        voteRepostitory = (voteRepostitory != null) ? voteRepostitory : new VoteRepostitoryImpl(dslContext);
-        voteRepostitory.delete(userId, requirementId);
+        voteRepository = (voteRepository != null) ? voteRepository : new VoteRepositoryImpl(dslContext);
+        voteRepository.delete(userId, requirementId);
     }
 
     @Override
     public boolean hasUserVotedForRequirement(int userId, int requirementId) throws BazaarException {
-        voteRepostitory = (voteRepostitory != null) ? voteRepostitory : new VoteRepostitoryImpl(dslContext);
-        return voteRepostitory.hasUserVotedForRequirement(userId, requirementId);
+        voteRepository = (voteRepository != null) ? voteRepository : new VoteRepositoryImpl(dslContext);
+        return voteRepository.hasUserVotedForRequirement(userId, requirementId);
     }
 
     @Override
     public List<Role> getRolesByUserId(int userId, String context) throws BazaarException {
-        roleRepostitory = (roleRepostitory != null) ? roleRepostitory : new RoleRepostitoryImpl(dslContext);
-        return roleRepostitory.listRolesOfUser(userId, context);
+        roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
+        return roleRepository.listRolesOfUser(userId, context);
     }
 
     @Override
     public List<Role> getParentsForRole(int roleId) throws BazaarException {
-        roleRepostitory = (roleRepostitory != null) ? roleRepostitory : new RoleRepostitoryImpl(dslContext);
-        return roleRepostitory.listParentsForRole(roleId);
+        roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
+        return roleRepository.listParentsForRole(roleId);
     }
 
     @Override
     public void createPrivilegeIfNotExists(PrivilegeEnum privilege) throws BazaarException {
-        privilegeRepostitory = (privilegeRepostitory != null) ? privilegeRepostitory : new PrivilegeRepostitoryImpl(dslContext);
+        privilegeRepository = (privilegeRepository != null) ? privilegeRepository : new PrivilegeRepositoryImpl(dslContext);
 
-        Privilege privilegeDb = privilegeRepostitory.findByName(new PrivilegeEnumConverter().to(privilege));
+        Privilege privilegeDb = privilegeRepository.findByName(new PrivilegeEnumConverter().to(privilege));
         if (privilegeDb == null) {
-            privilegeRepostitory.add(Privilege.getBuilder(privilege).build());
+            privilegeRepository.add(Privilege.getBuilder(privilege).build());
         }
 
     }
 
     @Override
     public void addUserToRole(int userId, String roleName, String context) throws BazaarException {
-        roleRepostitory = (roleRepostitory != null) ? roleRepostitory : new RoleRepostitoryImpl(dslContext);
-        roleRepostitory.addUserToRole(userId, roleName, context);
+        roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
+        roleRepository.addUserToRole(userId, roleName, context);
     }
 }

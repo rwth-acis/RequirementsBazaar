@@ -1,6 +1,6 @@
 /*
  *
- *  Copyright (c) 2014, RWTH Aachen University.
+ *  Copyright (c) 2015, RWTH Aachen University.
  *  For a list of contributors see the AUTHORS file at the top-level directory
  *  of this distribution.
  *
@@ -20,18 +20,13 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Vote;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Privilege;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
- * @since 6/22/2014
+ * @since 2/18/2015
  */
-public interface VoteRepostitory extends Repository<Vote> {
-    void delete(int userId, int requirementId) throws BazaarException;
-
-    boolean hasUserVotedForRequirement(int userId, int requirementId) throws BazaarException;
-
-    CreationStatus addOrUpdate(Vote vote) throws BazaarException;
+public interface PrivilegeRepository extends Repository<Privilege> {
+    Privilege findByName(String privilege) throws BazaarException;
 }

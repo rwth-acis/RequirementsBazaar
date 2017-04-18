@@ -152,7 +152,7 @@ public class Project extends EntityBase {
         this.name = name;
     }
 
-    public User getleader() {
+    public User getLeader() {
         return leader;
     }
 

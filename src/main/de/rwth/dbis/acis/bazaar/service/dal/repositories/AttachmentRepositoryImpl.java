@@ -25,8 +25,8 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.AttachmentTransformator;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformator;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.AttachmentTransformer;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -51,7 +51,7 @@ public class AttachmentRepositoryImpl extends RepositoryImpl<Attachment, Attachm
      * @param jooq DSLContext for JOOQ connection
      */
     public AttachmentRepositoryImpl(DSLContext jooq) {
-        super(jooq, new AttachmentTransformator());
+        super(jooq, new AttachmentTransformer());
     }
 
     @Override
@@ -61,18 +61,18 @@ public class AttachmentRepositoryImpl extends RepositoryImpl<Attachment, Attachm
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User creatorUser = USER.as("creatorUser");
             Record record = jooq.selectFrom(ATTACHMENT
                     .join(creatorUser).on(creatorUser.ID.equal(ATTACHMENT.USER_ID)))
-                    .where(transformator.getTableId().equal(id))
+                    .where(transformer.getTableId().equal(id))
                     .fetchOne();
             AttachmentRecord attachmentRecord = record.into(AttachmentRecord.class);
-            attachment = transformator.getEntityFromTableRecord(attachmentRecord);
-            UserTransformator userTransformator = new UserTransformator();
+            attachment = transformer.getEntityFromTableRecord(attachmentRecord);
+            UserTransformer userTransformer = new UserTransformer();
             UserRecord userRecord = record.into(creatorUser);
-            attachment.setCreator(userTransformator.getEntityFromTableRecord(userRecord));
+            attachment.setCreator(userTransformer.getEntityFromTableRecord(userRecord));
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         } catch (NullPointerException e) {
             ExceptionHandler.getInstance().convertAndThrowException(
-                    new Exception("No " + transformator.getRecordClass() + " found with id: " + id),
+                    new Exception("No " + transformer.getRecordClass() + " found with id: " + id),
                     ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
         }
         return attachment;
@@ -95,17 +95,17 @@ public class AttachmentRepositoryImpl extends RepositoryImpl<Attachment, Attachm
                     .from(ATTACHMENT)
                     .join(creatorUser).on(creatorUser.ID.equal(ATTACHMENT.USER_ID))
                     .where(ATTACHMENT.REQUIREMENT_ID.equal(requirementId))
-                    .orderBy(transformator.getSortFields(pageable.getSorts()))
+                    .orderBy(transformer.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();
 
             for (Record record : queryResults) {
                 AttachmentRecord attachmentRecord = record.into(AttachmentRecord.class);
-                Attachment entry = transformator.getEntityFromTableRecord(attachmentRecord);
-                UserTransformator userTransformator = new UserTransformator();
+                Attachment entry = transformer.getEntityFromTableRecord(attachmentRecord);
+                UserTransformer userTransformer = new UserTransformer();
                 UserRecord userRecord = record.into(creatorUser);
-                entry.setCreator(userTransformator.getEntityFromTableRecord(userRecord));
+                entry.setCreator(userTransformer.getEntityFromTableRecord(userRecord));
                 attachments.add(entry);
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
@@ -120,10 +120,10 @@ public class AttachmentRepositoryImpl extends RepositoryImpl<Attachment, Attachm
     public boolean belongsToPublicProject(int id) throws BazaarException {
         try {
             Integer countOfPublicProjects = jooq.selectCount()
-                    .from(transformator.getTable())
+                    .from(transformer.getTable())
                     .join(REQUIREMENT).on(REQUIREMENT.ID.eq(ATTACHMENT.REQUIREMENT_ID))
                     .join(PROJECT).on(PROJECT.ID.eq(REQUIREMENT.PROJECT_ID))
-                    .where(transformator.getTableId().eq(id).and(PROJECT.VISIBILITY.isTrue()))
+                    .where(transformer.getTableId().eq(id).and(PROJECT.VISIBILITY.isTrue()))
                     .fetchOne(0, int.class);
 
             return (countOfPublicProjects == 1);
