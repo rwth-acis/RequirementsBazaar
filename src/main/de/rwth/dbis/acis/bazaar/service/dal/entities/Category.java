@@ -50,8 +50,6 @@ public class Category extends EntityBase {
 
     private Date lastUpdatedDate;
 
-    private int leaderId;
-
     private User leader;
 
     private List<User> followers;
@@ -95,12 +93,8 @@ public class Category extends EntityBase {
         this.name = name;
     }
 
-    public int getLeaderId() {
-        return leaderId;
-    }
-
-    public void setLeaderId(int leaderId) {
-        this.leaderId = leaderId;
+    public User getLeader() {
+        return leader;
     }
 
     public void setLeader(User leader) {
@@ -129,7 +123,6 @@ public class Category extends EntityBase {
         this.name = builder.name;
         this.projectId = builder.projectId;
         this.leader = builder.leader;
-        this.leaderId = builder.leaderId;
         this.followers = builder.followers;
         this.creationDate = builder.creationDate;
         this.lastUpdatedDate = builder.lastUpdatedDate;
@@ -155,7 +148,6 @@ public class Category extends EntityBase {
         private Date lastUpdatedDate;
         private int projectId;
         public User leader;
-        public int leaderId;
         public List<User> followers;
 
         public Builder(String name) {
@@ -174,11 +166,6 @@ public class Category extends EntityBase {
 
         public Builder leader(User leader) {
             this.leader = leader;
-            return this;
-        }
-
-        public Builder leaderId(int leaderId) {
-            this.leaderId = leaderId;
             return this;
         }
 

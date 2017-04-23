@@ -255,7 +255,7 @@ public class CategoryResource {
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.create"));
             }
-            categoryToCreate.setLeaderId(internalUserId);
+            categoryToCreate.setLeader(dalFacade.getUserById(internalUserId));
             Category createdCategory = dalFacade.createCategory(categoryToCreate);
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, createdCategory.getCreationDate(), Activity.ActivityAction.CREATE, createdCategory.getId(),
                     Activity.DataType.CATEGORY, createdCategory.getProjectId(), Activity.DataType.PROJECT, internalUserId);

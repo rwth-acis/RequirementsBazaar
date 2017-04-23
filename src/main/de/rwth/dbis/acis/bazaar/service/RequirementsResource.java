@@ -359,7 +359,7 @@ public class RequirementsResource {
             dalFacade = bazaarService.getDBConnection();
             Gson gson = new Gson();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            requirementToCreate.setCreatorId(internalUserId);
+            requirementToCreate.setCreator(dalFacade.getUserById(internalUserId));
             Vtor vtor = bazaarService.getValidators();
             vtor.useProfiles("create");
             vtor.validate(requirementToCreate);
@@ -384,7 +384,7 @@ public class RequirementsResource {
             // check if attachments are given
             if (requirementToCreate.getAttachments() != null && !requirementToCreate.getAttachments().isEmpty()) {
                 for (Attachment attachment : requirementToCreate.getAttachments()) {
-                    attachment.setCreatorId(internalUserId);
+                    attachment.setCreator(dalFacade.getUserById(internalUserId));
                     attachment.setRequirementId(createdRequirement.getId());
                     vtor.validate(attachment);
                     if (vtor.hasViolations()) {

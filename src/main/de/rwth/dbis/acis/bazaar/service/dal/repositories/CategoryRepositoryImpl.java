@@ -95,7 +95,6 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                     .description(queryResult.getValues(CATEGORY.DESCRIPTION).get(0))
                     .projectId(queryResult.getValues(CATEGORY.PROJECT_ID).get(0))
                     .id(queryResult.getValues(CATEGORY.ID).get(0))
-                    .leaderId(queryResult.getValues(CATEGORY.LEADER_ID).get(0))
                     .creationDate(queryResult.getValues(CATEGORY.CREATION_DATE).get(0))
                     .lastUpdatedDate(queryResult.getValues(CATEGORY.LAST_UPDATED_DATE).get(0));
 

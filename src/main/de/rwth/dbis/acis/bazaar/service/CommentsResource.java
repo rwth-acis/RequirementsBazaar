@@ -225,7 +225,7 @@ public class CommentsResource {
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.create"));
             }
-            commentToCreate.setCreatorId(internalUserId);
+            commentToCreate.setCreator(dalFacade.getUserById(internalUserId));
             Vtor vtor = bazaarService.getValidators();
             vtor.useProfiles("create");
             vtor.validate(commentToCreate);

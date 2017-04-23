@@ -42,9 +42,6 @@ public class Requirement extends EntityBase {
     private int downVotes;
     private UserVote userVoted;
 
-    @Min(-1)
-    private int creatorId;
-
     private User creator;
     private User leadDeveloper;
     private List<User> developers;
@@ -111,16 +108,12 @@ public class Requirement extends EntityBase {
         this.projectId = projectId;
     }
 
-    public int getCreatorId() {
-        return creatorId;
-    }
-
-    public void setCreatorId(int creatorId) {
-        this.creatorId = creatorId;
-    }
-
     public User getCreator() {
         return creator;
+    }
+
+    public void setCreator(User creator) {
+        this.creator = creator;
     }
 
     public User getLeadDeveloper() {
@@ -160,7 +153,6 @@ public class Requirement extends EntityBase {
         this.name = builder.name;
         this.realized = builder.realized;
         this.projectId = builder.projectId;
-        this.creatorId = builder.creatorId;
         this.creationDate = builder.creationDate;
         this.lastUpdatedDate = builder.lastUpdatedDate;
         this.upVotes = builder.upVotes;
@@ -190,7 +182,6 @@ public class Requirement extends EntityBase {
         private String name;
         private Date realized;
         private int projectId;
-        private int creatorId;
         private Date creationDate;
         private Date lastUpdatedDate;
         private int upVotes;
@@ -236,11 +227,6 @@ public class Requirement extends EntityBase {
 
         public Builder projectId(int projectId) {
             this.projectId = projectId;
-            return this;
-        }
-
-        public Builder creatorId(int userId) {
-            this.creatorId = userId;
             return this;
         }
 

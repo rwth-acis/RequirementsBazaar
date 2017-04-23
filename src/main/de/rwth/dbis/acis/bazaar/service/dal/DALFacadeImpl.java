@@ -166,9 +166,9 @@ public class DALFacadeImpl implements DALFacade {
         Project newProject = projectRepository.add(project);
         Category uncategorizedCategory = Category.getBuilder(Localization.getInstance().getResourceBundle().getString("category.uncategorized.Name"))
                 .description(Localization.getInstance().getResourceBundle().getString("category.uncategorized.Description"))
-                .leaderId(newProject.getLeaderId())
                 .projectId(newProject.getId())
                 .build();
+        uncategorizedCategory.setLeader(project.getLeader());
         Category defaultCategory = createCategory(uncategorizedCategory);
         newProject.setDefaultCategoryId(defaultCategory.getId());
         //TODO concurrency transaction -> https://www.jooq.org/doc/3.9/manual/sql-execution/transaction-management/

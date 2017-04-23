@@ -276,8 +276,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .realized(queryResult.getValues(REQUIREMENT.REALIZED).get(0))
                     .creationDate(queryResult.getValues(REQUIREMENT.CREATION_DATE).get(0))
                     .lastUpdatedDate(queryResult.getValues(REQUIREMENT.LAST_UPDATED_DATE).get(0))
-                    .projectId(queryResult.getValues(REQUIREMENT.PROJECT_ID).get(0))
-                    .creatorId(queryResult.getValues(REQUIREMENT.CREATOR_ID).get(0));
+                    .projectId(queryResult.getValues(REQUIREMENT.PROJECT_ID).get(0));
 
             UserTransformer userTransformer = new UserTransformer();
             //Filling up Creator

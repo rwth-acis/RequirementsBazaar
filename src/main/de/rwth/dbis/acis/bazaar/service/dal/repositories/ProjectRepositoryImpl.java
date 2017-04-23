@@ -103,7 +103,6 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
             Project.Builder builder = Project.getBuilder(queryResult.getValues(PROJECT.NAME).get(0))
                     .description(queryResult.getValues(PROJECT.DESCRIPTION).get(0))
                     .id(queryResult.getValues(PROJECT.ID).get(0))
-                    .leaderId(queryResult.getValues(PROJECT.LEADER_ID).get(0))
                     .defaultCategoryId(queryResult.getValues(PROJECT.DEFAULT_CATEGORY_ID).get(0))
                     .visibility(queryResult.getValues(PROJECT.VISIBILITY).get(0) == 1)
                     .creationDate(queryResult.getValues(PROJECT.CREATION_DATE).get(0))

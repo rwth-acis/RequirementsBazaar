@@ -228,7 +228,7 @@ public class AttachmentsResource {
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.attachment.create"));
             }
-            attachmentToCreate.setCreatorId(internalUserId);
+            attachmentToCreate.setCreator(dalFacade.getUserById(internalUserId));
             Attachment createdAttachment = dalFacade.createAttachment(attachmentToCreate);
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, attachmentToCreate.getCreationDate(), Activity.ActivityAction.CREATE, attachmentToCreate.getId(),
                     Activity.DataType.ATTACHMENT, attachmentToCreate.getRequirementId(), Activity.DataType.REQUIREMENT, internalUserId);

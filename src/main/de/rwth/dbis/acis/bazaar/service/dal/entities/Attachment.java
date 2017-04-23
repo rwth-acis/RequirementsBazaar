@@ -30,8 +30,6 @@ import java.util.Date;
 public class Attachment extends EntityBase {
     private int id;
 
-    private int creatorId;
-
     @Min(value = 0, profiles = {"create"})
     private int requirementId;
 
@@ -68,7 +66,6 @@ public class Attachment extends EntityBase {
 
     public Attachment(Builder builder) {
         this.id = builder.id;
-        this.creatorId = builder.creatorId;
         this.requirementId = builder.requirementId;
         this.name = builder.name;
         this.description = builder.description;
@@ -82,14 +79,6 @@ public class Attachment extends EntityBase {
 
     public int getId() {
         return id;
-    }
-
-    public int getCreatorId() {
-        return creatorId;
-    }
-
-    public void setCreatorId(int creatorId) {
-        this.creatorId = creatorId;
     }
 
     public int getRequirementId() {
@@ -150,7 +139,6 @@ public class Attachment extends EntityBase {
 
     public static class Builder {
         private int id;
-        private int creatorId;
         private int requirementId;
         private String name;
         private String description;
@@ -163,11 +151,6 @@ public class Attachment extends EntityBase {
 
         public Builder id(int id) {
             this.id = id;
-            return this;
-        }
-
-        public Builder creator(int creatorId) {
-            this.creatorId = creatorId;
             return this;
         }
 

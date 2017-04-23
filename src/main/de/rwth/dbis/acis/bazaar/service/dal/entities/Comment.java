@@ -43,8 +43,6 @@ public class Comment extends EntityBase {
     @NotNull(profiles = {"create"})
     private String message;
 
-    private int creatorId;
-
     @Min(value = 0, profiles = {"create"})
     private Integer replyToComment;
 
@@ -60,7 +58,6 @@ public class Comment extends EntityBase {
     public Comment(Builder builder) {
         this.Id = builder.id;
         this.message = builder.message;
-        this.creatorId = builder.userId;
         this.requirementId = builder.requirementId;
         this.replyToComment = builder.replyToComment;
         this.creationDate = builder.creationDate;
@@ -82,14 +79,6 @@ public class Comment extends EntityBase {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public int getCreatorId() {
-        return creatorId;
-    }
-
-    public void setCreatorId(int creatorId) {
-        this.creatorId = creatorId;
     }
 
     public Integer getReplyToComment() {
@@ -119,7 +108,6 @@ public class Comment extends EntityBase {
     public static class Builder {
         private int id;
         private String message;
-        private int userId;
         private int requirementId;
         private Integer replyToComment;
         public Date creationDate;
@@ -138,11 +126,6 @@ public class Comment extends EntityBase {
 
         public Builder message(String message) {
             this.message = message;
-            return this;
-        }
-
-        public Builder creatorId(int creatorId) {
-            this.userId = creatorId;
             return this;
         }
 

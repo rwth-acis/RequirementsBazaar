@@ -52,8 +52,6 @@ public class Project extends EntityBase {
 
     private List<User> followers;
 
-    private int leaderId;
-
     private User leader;
 
     private Integer defaultCategoryId;
@@ -66,14 +64,6 @@ public class Project extends EntityBase {
 
     public Boolean getVisibility() {
         return visibility;
-    }
-
-    public int getLeaderId() {
-        return leaderId;
-    }
-
-    public void setLeaderId(int leaderId) {
-        this.leaderId = leaderId;
     }
 
     public void setLeader(User leader) {
@@ -107,7 +97,6 @@ public class Project extends EntityBase {
         this.visibility = builder.visibility;
         this.followers = builder.followers;
         this.leader = builder.leader;
-        this.leaderId = builder.leaderId;
         this.defaultCategoryId = builder.defaultCategoryId;
         this.creationDate = builder.creationDate;
         this.lastUpdatedDate = builder.lastUpdatedDate;
@@ -172,7 +161,6 @@ public class Project extends EntityBase {
         private Boolean visibility;
         private List<User> followers;
         private User leader;
-        private int leaderId;
         private Date creationDate;
         private Date lastUpdatedDate;
         private Integer defaultCategoryId;
@@ -203,11 +191,6 @@ public class Project extends EntityBase {
 
         public Builder leader(User leader) {
             this.leader = leader;
-            return this;
-        }
-
-        public Builder leaderId(int userId) {
-            this.leaderId = userId;
             return this;
         }
 

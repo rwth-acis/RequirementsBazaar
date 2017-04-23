@@ -248,7 +248,7 @@ public class ProjectsResource {
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.create"));
             }
-            projectToCreate.setLeaderId(internalUserId);
+            projectToCreate.setLeader(dalFacade.getUserById(internalUserId));
             Project createdProject = dalFacade.createProject(projectToCreate);
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, createdProject.getCreationDate(), Activity.ActivityAction.CREATE, createdProject.getId(),
                     Activity.DataType.PROJECT, 0, null, internalUserId);
