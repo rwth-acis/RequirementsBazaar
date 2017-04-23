@@ -21,25 +21,22 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementEx;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.sql.Timestamp;
-import java.util.Date;
-import java.util.List;
 
 public interface RequirementRepository extends Repository<Requirement> {
 
-    PaginationResult<RequirementEx> findAllByProject(int projectId, Pageable pageable, int userId) throws BazaarException;
+    PaginationResult<Requirement> findAllByProject(int projectId, Pageable pageable, int userId) throws BazaarException;
 
-    PaginationResult<RequirementEx> findAllByCategory(int categoryId, Pageable pageable, int userId) throws BazaarException;
+    PaginationResult<Requirement> findAllByCategory(int categoryId, Pageable pageable, int userId) throws BazaarException;
 
     boolean belongsToPublicProject(int id) throws BazaarException;
 
-    RequirementEx findById(int id, int userId) throws Exception;
+    Requirement findById(int id, int userId) throws Exception;
 
     void setRealized(int id, Timestamp realized) throws BazaarException;
 

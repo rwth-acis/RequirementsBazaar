@@ -6,7 +6,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Category;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementEx;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
@@ -59,14 +59,14 @@ public class ActivityDispatcher {
             } else if (dataType.equals(Activity.DataType.REQUIREMENT)) {
                 resourcePath = "requirements";
                 parentResourcePath = "categories";
-                RequirementEx requirement = dalFacade.getRequirementById(dataId, userId);
+                Requirement requirement = dalFacade.getRequirementById(dataId, userId);
                 frontendResourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
                         requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(dataId);
             } else if (dataType.equals(Activity.DataType.COMMENT)) {
                 resourcePath = "comments";
                 parentResourcePath = "requirements";
                 Comment comment = dalFacade.getCommentById(dataId);
-                RequirementEx requirement = dalFacade.getRequirementById(comment.getRequirementId(), userId);
+                Requirement requirement = dalFacade.getRequirementById(comment.getRequirementId(), userId);
                 frontendResourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
                         requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
             }

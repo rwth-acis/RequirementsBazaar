@@ -45,6 +45,12 @@ public class Requirement extends EntityBase {
     @Min(-1)
     private int creatorId;
 
+    private User creator;
+    private User leadDeveloper;
+    private List<User> developers;
+    private List<User> followers;
+    private List<User> contributors;
+
     private Integer numberOfComments;
     private Integer numberOfAttachments;
     private Integer numberOfFollowers;
@@ -113,6 +119,26 @@ public class Requirement extends EntityBase {
         this.creatorId = creatorId;
     }
 
+    public User getCreator() {
+        return creator;
+    }
+
+    public User getLeadDeveloper() {
+        return leadDeveloper;
+    }
+
+    public List<User> getDevelopers() {
+        return developers;
+    }
+
+    public List<User> getFollowers() {
+        return followers;
+    }
+
+    public List<User> getContributors() {
+        return contributors;
+    }
+
     public void setNumberOfComments(Integer numberOfComments) {
         this.numberOfComments = numberOfComments;
     }
@@ -141,6 +167,11 @@ public class Requirement extends EntityBase {
         this.downVotes = builder.downVotes;
         this.userVoted = builder.userVoted;
         this.attachments = builder.attachments;
+        this.creator = builder.creator;
+        this.leadDeveloper = builder.leadDeveloper;
+        this.developers = builder.developers;
+        this.followers = builder.followers;
+        this.contributors = builder.contributors;
     }
 
     /**
@@ -165,7 +196,12 @@ public class Requirement extends EntityBase {
         private int upVotes;
         private int downVotes;
         private UserVote userVoted;
-        protected List<Attachment> attachments;
+        private List<Attachment> attachments;
+        private User creator;
+        private List<User> developers;
+        private List<User> followers;
+        private List<User> contributors;
+        private User leadDeveloper;
 
         public Builder(String name) {
             this.name = name;
@@ -235,6 +271,36 @@ public class Requirement extends EntityBase {
 
         public Builder userVoted(UserVote userVoted) {
             this.userVoted = userVoted;
+            return this;
+        }
+
+        public Requirement.Builder creator(User creator) {
+            this.creator = creator;
+            return this;
+        }
+
+        public Requirement.Builder leadDeveloper(User leadDeveloper) {
+            this.leadDeveloper = leadDeveloper;
+            return this;
+        }
+
+        public Requirement.Builder developers(List<User> developers) {
+            this.developers = developers;
+            return this;
+        }
+
+        public Requirement.Builder followers(List<User> followers) {
+            this.followers = followers;
+            return this;
+        }
+
+        public Requirement.Builder contributors(List<User> contributors) {
+            this.contributors = contributors;
+            return this;
+        }
+
+        public Requirement.Builder attachments(List<Attachment> attachments) {
+            this.attachments = attachments;
             return this;
         }
     }

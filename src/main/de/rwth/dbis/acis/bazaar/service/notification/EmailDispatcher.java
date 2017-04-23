@@ -102,7 +102,7 @@ public class EmailDispatcher {
                         subject = Localization.getInstance().getResourceBundle().getString("email.subject.requirement.realized");
                         bodyText = Localization.getInstance().getResourceBundle().getString("email.bodyText.requirement.realized");
                     }
-                    RequirementEx requirement = dalFacade.getRequirementById(dataId, userId);
+                    Requirement requirement = dalFacade.getRequirementById(dataId, userId);
                     objectName = requirement.getName();
                     resourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
                             requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(dataId);
@@ -115,7 +115,7 @@ public class EmailDispatcher {
                         bodyText = Localization.getInstance().getResourceBundle().getString("email.bodyText.comment.updated");
                     }
                     Comment comment = dalFacade.getCommentById(dataId);
-                    RequirementEx requirement = dalFacade.getRequirementById(comment.getRequirementId(), userId);
+                    Requirement requirement = dalFacade.getRequirementById(comment.getRequirementId(), userId);
                     objectName = requirement.getName();
                     resourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
                             requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());

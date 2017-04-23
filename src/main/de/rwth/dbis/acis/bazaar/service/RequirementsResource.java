@@ -120,7 +120,7 @@ public class RequirementsResource {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.read"));
                 }
             }
-            PaginationResult<RequirementEx> requirementsResult = dalFacade.listRequirementsByProject(projectId, pageInfo, internalUserId);
+            PaginationResult<Requirement> requirementsResult = dalFacade.listRequirementsByProject(projectId, pageInfo, internalUserId);
 
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{
@@ -227,7 +227,7 @@ public class RequirementsResource {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.read"));
                 }
             }
-            PaginationResult<RequirementEx> requirementsResult = dalFacade.listRequirementsByCategory(categoryId, pageInfo, internalUserId);
+            PaginationResult<Requirement> requirementsResult = dalFacade.listRequirementsByCategory(categoryId, pageInfo, internalUserId);
 
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{
@@ -282,7 +282,7 @@ public class RequirementsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method returns a specific requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain requirement", response = RequirementEx.class),
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain requirement", response = Requirement.class),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -298,7 +298,7 @@ public class RequirementsResource {
             }
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            RequirementEx requirement = dalFacade.getRequirementById(requirementId, internalUserId);
+            Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             if (dalFacade.isRequirementPublic(requirementId)) {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, String.valueOf(requirement.getProjectId()), dalFacade);
                 if (!authorized) {
@@ -341,7 +341,7 @@ public class RequirementsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to create a new requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created requirement", response = RequirementEx.class),
+            @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the created requirement", response = Requirement.class),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -428,7 +428,7 @@ public class RequirementsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method updates a specific requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the updated requirement", response = RequirementEx.class),
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the updated requirement", response = Requirement.class),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -459,7 +459,7 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
             }
             dalFacade.followRequirement(internalUserId, requirementToUpdate.getId());
-            RequirementEx updatedRequirement = dalFacade.modifyRequirement(requirementToUpdate, internalUserId);
+            Requirement updatedRequirement = dalFacade.modifyRequirement(requirementToUpdate, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, updatedRequirement.getLastUpdatedDate(), Activity.ActivityAction.UPDATE, updatedRequirement.getId(),
                     Activity.DataType.REQUIREMENT, updatedRequirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.ok(gson.toJson(updatedRequirement)).build();
@@ -492,7 +492,7 @@ public class RequirementsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method deletes a specific requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the deleted requirement", response = RequirementEx.class),
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the deleted requirement", response = Requirement.class),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -508,14 +508,14 @@ public class RequirementsResource {
             }
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            RequirementEx requirementToDelete = dalFacade.getRequirementById(requirementId, internalUserId);
+            Requirement requirementToDelete = dalFacade.getRequirementById(requirementId, internalUserId);
             Project project = dalFacade.getProjectById(requirementToDelete.getProjectId());
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, Arrays.asList(String.valueOf(project.getId()), String.valueOf(requirementId)), dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.delete"));
             }
             Gson gson = new Gson();
-            RequirementEx deletedRequirement = dalFacade.deleteRequirementById(requirementId, internalUserId);
+            Requirement deletedRequirement = dalFacade.deleteRequirementById(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, deletedRequirement.getLastUpdatedDate(), Activity.ActivityAction.DELETE, deletedRequirement.getId(),
                     Activity.DataType.REQUIREMENT, deletedRequirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.ok(gson.toJson(deletedRequirement)).build();
@@ -547,7 +547,7 @@ public class RequirementsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method set the current user as lead developer for a given requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = RequirementEx.class),
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = Requirement.class),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -567,7 +567,7 @@ public class RequirementsResource {
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.create"));
             }
-            RequirementEx requirement = dalFacade.setUserAsLeadDeveloper(requirementId, internalUserId);
+            Requirement requirement = dalFacade.setUserAsLeadDeveloper(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.LEADDEVELOP, requirement.getId(),
                     Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
             Gson gson = new Gson();
@@ -601,7 +601,7 @@ public class RequirementsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method removes the current user as lead developer for a given requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = RequirementEx.class),
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = Requirement.class),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -621,7 +621,7 @@ public class RequirementsResource {
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.delete"));
             }
-            RequirementEx requirement = dalFacade.getRequirementById(requirementId, internalUserId);
+            Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             if (requirement.getLeadDeveloper().getId() != internalUserId) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "You are not lead developer.");
             }
@@ -659,7 +659,7 @@ public class RequirementsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method add the current user to the developers list of a given requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = RequirementEx.class),
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = Requirement.class),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -715,7 +715,7 @@ public class RequirementsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method remove the current user from a developers list of a given requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = RequirementEx.class),
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = Requirement.class),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -770,7 +770,7 @@ public class RequirementsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method add the current user to the followers list of a given requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the requirement", response = RequirementEx.class),
+            @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns the requirement", response = Requirement.class),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -825,7 +825,7 @@ public class RequirementsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method removes the current user from a followers list of a given requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = RequirementEx.class),
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = Requirement.class),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -881,7 +881,7 @@ public class RequirementsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method creates a vote for the given requirement in the name of the current user.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = RequirementEx.class),
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = Requirement.class),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -945,7 +945,7 @@ public class RequirementsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method removes the vote of the given requirement made by the current user.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = RequirementEx.class),
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = Requirement.class),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -1000,7 +1000,7 @@ public class RequirementsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method set the realized field to now for a given requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = RequirementEx.class),
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = Requirement.class),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -1020,7 +1020,7 @@ public class RequirementsResource {
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.create"));
             }
-            RequirementEx requirement = dalFacade.setRequirementToRealized(requirementId, internalUserId);
+            Requirement requirement = dalFacade.setRequirementToRealized(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.REALIZE, requirement.getId(),
                     Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
             Gson gson = new Gson();
@@ -1054,7 +1054,7 @@ public class RequirementsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method removes the realized information for the given requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = RequirementEx.class),
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = Requirement.class),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -1074,7 +1074,7 @@ public class RequirementsResource {
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.delete"));
             }
-            RequirementEx requirement = dalFacade.setRequirementToUnRealized(requirementId, internalUserId);
+            Requirement requirement = dalFacade.setRequirementToUnRealized(requirementId, internalUserId);
             Gson gson = new Gson();
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.UNREALIZE, requirement.getId(),
                     Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);

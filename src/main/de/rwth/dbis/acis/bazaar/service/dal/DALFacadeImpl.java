@@ -208,13 +208,13 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public PaginationResult<RequirementEx> listRequirementsByProject(int projectId, Pageable pageable, int userId) throws BazaarException {
+    public PaginationResult<Requirement> listRequirementsByProject(int projectId, Pageable pageable, int userId) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         return requirementRepository.findAllByProject(projectId, pageable, userId);
     }
 
     @Override
-    public PaginationResult<RequirementEx> listRequirementsByCategory(int categoryId, Pageable pageable, int userId) throws BazaarException {
+    public PaginationResult<Requirement> listRequirementsByCategory(int categoryId, Pageable pageable, int userId) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         return requirementRepository.findAllByCategory(categoryId, pageable, userId);
     }
@@ -226,13 +226,13 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public RequirementEx getRequirementById(int requirementId, int userId) throws Exception {
+    public Requirement getRequirementById(int requirementId, int userId) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         return requirementRepository.findById(requirementId, userId);
     }
 
     @Override
-    public RequirementEx createRequirement(Requirement requirement, int userId) throws Exception {
+    public Requirement createRequirement(Requirement requirement, int userId) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         Requirement newRequirement = requirementRepository.add(requirement);
         for (Category category : requirement.getCategories()) {
@@ -242,7 +242,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public RequirementEx modifyRequirement(Requirement modifiedRequirement, int userId) throws Exception {
+    public Requirement modifyRequirement(Requirement modifiedRequirement, int userId) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         requirementRepository.update(modifiedRequirement);
 
@@ -278,36 +278,36 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public RequirementEx deleteRequirementById(int requirementId, int userId) throws Exception {
+    public Requirement deleteRequirementById(int requirementId, int userId) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
-        RequirementEx requirement = requirementRepository.findById(requirementId, userId);
+        Requirement requirement = requirementRepository.findById(requirementId, userId);
         requirementRepository.delete(requirementId);
         return requirement;
     }
 
     @Override
-    public RequirementEx setRequirementToRealized(int requirementId, int userId) throws Exception {
+    public Requirement setRequirementToRealized(int requirementId, int userId) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         requirementRepository.setRealized(requirementId, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         return getRequirementById(requirementId, userId);
     }
 
     @Override
-    public RequirementEx setRequirementToUnRealized(int requirementId, int userId) throws Exception {
+    public Requirement setRequirementToUnRealized(int requirementId, int userId) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         requirementRepository.setRealized(requirementId, null);
         return getRequirementById(requirementId, userId);
     }
 
     @Override
-    public RequirementEx setUserAsLeadDeveloper(int requirementId, int userId) throws Exception {
+    public Requirement setUserAsLeadDeveloper(int requirementId, int userId) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         requirementRepository.setLeadDeveloper(requirementId, userId);
         return getRequirementById(requirementId, userId);
     }
 
     @Override
-    public RequirementEx deleteUserAsLeadDeveloper(int requirementId, int userId) throws Exception {
+    public Requirement deleteUserAsLeadDeveloper(int requirementId, int userId) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         requirementRepository.setLeadDeveloper(requirementId, null);
         return getRequirementById(requirementId, userId);
@@ -362,14 +362,14 @@ public class DALFacadeImpl implements DALFacade {
         categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
 
         //Get requirements for the category in question
-        PaginationResult<RequirementEx> requirements = listRequirementsByCategory(categoryId, new PageInfo(0, Integer.MAX_VALUE, new HashMap<>()), 0);
+        PaginationResult<Requirement> requirements = listRequirementsByCategory(categoryId, new PageInfo(0, Integer.MAX_VALUE, new HashMap<>()), 0);
 
         // Get default category
         Category categoryById = getCategoryById(categoryId);
         Project projectById = getProjectById(categoryById.getProjectId());
 
         // Move requirements from this category to the default if requirement has no more categories
-        for (RequirementEx requirement : requirements.getElements()) {
+        for (Requirement requirement : requirements.getElements()) {
             deleteCategoryTag(requirement.getId(), categoryId);
             requirement = getRequirementById(requirement.getId(), userId);
             if (requirement.getCategories().isEmpty()) {

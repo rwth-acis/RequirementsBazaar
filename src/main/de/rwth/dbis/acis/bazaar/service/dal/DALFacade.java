@@ -188,7 +188,7 @@ public interface DALFacade {
      * @param userId
      * @return the requirements under the given project in a paginated way
      */
-    PaginationResult<RequirementEx> listRequirementsByProject(int projectId, Pageable pageable, int userId) throws BazaarException;
+    PaginationResult<Requirement> listRequirementsByProject(int projectId, Pageable pageable, int userId) throws BazaarException;
 
     /**
      * @param categoryId the id of the category we are looking in
@@ -196,7 +196,7 @@ public interface DALFacade {
      * @param userId
      * @return the requirements under the given category in a paginated way
      */
-    PaginationResult<RequirementEx> listRequirementsByCategory(int categoryId, Pageable pageable, int userId) throws BazaarException;
+    PaginationResult<Requirement> listRequirementsByCategory(int categoryId, Pageable pageable, int userId) throws BazaarException;
 
     /**
      * @param searchTerm the text, which is used to search. Search is case insensitive.
@@ -209,13 +209,13 @@ public interface DALFacade {
      * @param requirementId the identifier of the requirement should be returned
      * @return the requirement identified by the given id and all of its assets: comments,attachments,followers,developers,creator
      */
-    RequirementEx getRequirementById(int requirementId, int userId) throws Exception;
+    Requirement getRequirementById(int requirementId, int userId) throws Exception;
 
 
     /**
      * @param requirement to be added to the database.
      */
-    RequirementEx createRequirement(Requirement requirement, int userId) throws Exception;
+    Requirement createRequirement(Requirement requirement, int userId) throws Exception;
 
     /**
      * Modifies the requirement in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
@@ -223,34 +223,34 @@ public interface DALFacade {
      *
      * @param modifiedRequirement hold the modified data
      */
-    RequirementEx modifyRequirement(Requirement modifiedRequirement, int userId) throws Exception;
+    Requirement modifyRequirement(Requirement modifiedRequirement, int userId) throws Exception;
 
     /**
      * This method deletes a requirement with its assets: All of its comments and attachments and connections to users, projects or categories.
      *
      * @param requirementId which identifies the requirement to delete.
      */
-    RequirementEx deleteRequirementById(int requirementId, int userId) throws Exception;
+    Requirement deleteRequirementById(int requirementId, int userId) throws Exception;
 
     /**
      * This method set a requirements realized flag to now
      *
      * @param requirementId
      * @param userId
-     * @return updated RequirementEx
+     * @return updated Requirement
      * @throws Exception
      */
-    RequirementEx setRequirementToRealized(int requirementId, int userId) throws Exception;
+    Requirement setRequirementToRealized(int requirementId, int userId) throws Exception;
 
     /**
      * This method set a requirements realized flag to NULL
      *
      * @param requirementId
      * @param userId
-     * @return updated RequirementEx
+     * @return updated Requirement
      * @throws Exception
      */
-    RequirementEx setRequirementToUnRealized(int requirementId, int userId) throws Exception;
+    Requirement setRequirementToUnRealized(int requirementId, int userId) throws Exception;
 
     /**
      *  This method set userId as lead developer for requirement
@@ -260,7 +260,7 @@ public interface DALFacade {
      * @return
      * @throws Exception
      */
-    RequirementEx setUserAsLeadDeveloper(int requirementId, int userId) throws Exception;
+    Requirement setUserAsLeadDeveloper(int requirementId, int userId) throws Exception;
 
     /**
      * This method set lead developer for requirement to NULL
@@ -270,7 +270,7 @@ public interface DALFacade {
      * @return
      * @throws Exception
      */
-    RequirementEx deleteUserAsLeadDeveloper(int requirementId, int userId) throws Exception;
+    Requirement deleteUserAsLeadDeveloper(int requirementId, int userId) throws Exception;
 
     /**
      * Returns true if requirement belongs to a public project

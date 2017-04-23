@@ -54,9 +54,9 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     }
 
     @Override
-    public PaginationResult<RequirementEx> findAllByProject(int projectId, Pageable pageable, int userId) throws BazaarException {
-        PaginationResult<RequirementEx> result = null;
-        List<RequirementEx> requirements;
+    public PaginationResult<Requirement> findAllByProject(int projectId, Pageable pageable, int userId) throws BazaarException {
+        PaginationResult<Requirement> result = null;
+        List<Requirement> requirements;
         try {
             requirements = new ArrayList<>();
 
@@ -132,9 +132,9 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     }
 
     @Override
-    public PaginationResult<RequirementEx> findAllByCategory(int categoryId, Pageable pageable, int userId) throws BazaarException {
-        PaginationResult<RequirementEx> result = null;
-        List<RequirementEx> requirements;
+    public PaginationResult<Requirement> findAllByCategory(int categoryId, Pageable pageable, int userId) throws BazaarException {
+        PaginationResult<Requirement> result = null;
+        List<Requirement> requirements;
         try {
             requirements = new ArrayList<>();
 
@@ -205,8 +205,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     }
 
     @Override
-    public RequirementEx findById(int id, int userId) throws Exception {
-        RequirementEx requirementEx = null;
+    public Requirement findById(int id, int userId) throws Exception {
+        Requirement requirement = null;
         try {
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User followerUser = USER.as("followerUser");
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User developerUser = USER.as("developerUser");
@@ -270,7 +270,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             }
 
             //Filling up Requirement fields
-            RequirementEx.BuilderEx builder = RequirementEx.getBuilder(queryResult.getValues(REQUIREMENT.NAME).get(0));
+            Requirement.Builder builder = Requirement.getBuilder(queryResult.getValues(REQUIREMENT.NAME).get(0));
             builder.id(queryResult.getValues(REQUIREMENT.ID).get(0))
                     .description(queryResult.getValues(REQUIREMENT.DESCRIPTION).get(0))
                     .realized(queryResult.getValues(REQUIREMENT.REALIZED).get(0))
@@ -370,7 +370,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             builder.downVotes(voteQueryResult.get(0).getValue("downVotes", Integer.class));
             builder.userVoted(transformToUserVoted(voteQueryResult.get(0).getValue("userVoted", Integer.class)));
 
-            requirementEx = builder.build();
+            requirement = builder.build();
 
             //Filling up categories
             List<Category> categories = new ArrayList<>();
@@ -386,12 +386,12 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                                 .build()
                 );
             }
-            requirementEx.setCategories(categories);
+            requirement.setCategories(categories);
 
             //Filling up additional information
-            requirementEx.setNumberOfComments((Integer) queryResult.getValues(commentCount).get(0));
-            requirementEx.setNumberOfAttachments((Integer) queryResult.getValues(attachmentCount).get(0));
-            requirementEx.setNumberOfFollowers((Integer) queryResult.getValues(followerCount).get(0));
+            requirement.setNumberOfComments((Integer) queryResult.getValues(commentCount).get(0));
+            requirement.setNumberOfAttachments((Integer) queryResult.getValues(attachmentCount).get(0));
+            requirement.setNumberOfFollowers((Integer) queryResult.getValues(followerCount).get(0));
 
 
         } catch (BazaarException be) {
@@ -399,7 +399,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
-        return requirementEx;
+        return requirement;
     }
 
     @Override
