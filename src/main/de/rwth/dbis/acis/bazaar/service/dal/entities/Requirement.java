@@ -33,6 +33,8 @@ public class Requirement extends EntityBase {
     @Size(min = 1, profiles = {"create"})
     private List<Category> categories;
 
+    // This field is not filled because attachments should be not included in requirements response.
+    // But the API still allows to create a requirement with attachments at the same time.
     private List<Attachment> attachments;
 
     @Min(value = 0, profiles = {"create"})
@@ -44,7 +46,6 @@ public class Requirement extends EntityBase {
 
     private User creator;
     private User leadDeveloper;
-    private List<User> contributors;
 
     private Integer numberOfComments;
     private Integer numberOfAttachments;
@@ -86,10 +87,6 @@ public class Requirement extends EntityBase {
         return attachments;
     }
 
-    public void setAttachments(List<Attachment> attachments) {
-        this.attachments = attachments;
-    }
-
     public String getName() {
         return name;
     }
@@ -120,10 +117,6 @@ public class Requirement extends EntityBase {
 
     public User getLeadDeveloper() {
         return leadDeveloper;
-    }
-
-    public List<User> getContributors() {
-        return contributors;
     }
 
     public void setNumberOfComments(Integer numberOfComments) {
@@ -164,7 +157,6 @@ public class Requirement extends EntityBase {
         this.upVotes = builder.upVotes;
         this.downVotes = builder.downVotes;
         this.userVoted = builder.userVoted;
-        this.attachments = builder.attachments;
         this.creator = builder.creator;
         this.leadDeveloper = builder.leadDeveloper;
         this.isFollower = builder.isFollower;
@@ -193,7 +185,6 @@ public class Requirement extends EntityBase {
         private int upVotes;
         private int downVotes;
         private UserVote userVoted;
-        private List<Attachment> attachments;
         private User creator;
         private User leadDeveloper;
         private Boolean isFollower;
@@ -288,11 +279,6 @@ public class Requirement extends EntityBase {
 
         public Requirement.Builder isContributor(Boolean isContributor) {
             this.isContributor = isContributor;
-            return this;
-        }
-
-        public Requirement.Builder attachments(List<Attachment> attachments) {
-            this.attachments = attachments;
             return this;
         }
     }

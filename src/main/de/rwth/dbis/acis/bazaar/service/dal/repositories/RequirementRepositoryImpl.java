@@ -266,19 +266,12 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .select(isContributor)
                     .select(creatorUser.fields())
                     .select(leadDeveloperUser.fields())
-                    .select(ATTACHMENT.fields())
                     .select(CATEGORY.fields())
-
                     .from(REQUIREMENT)
-                    //.leftOuterJoin(Comments.COMMENTS).on(Comments.COMMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
-                    .leftOuterJoin(ATTACHMENT).on(ATTACHMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-
                     .join(creatorUser).on(creatorUser.ID.equal(REQUIREMENT.CREATOR_ID))
                     .leftOuterJoin(leadDeveloperUser).on(leadDeveloperUser.ID.equal(REQUIREMENT.LEAD_DEVELOPER_ID))
-
                     .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
                     .leftOuterJoin(CATEGORY).on(CATEGORY.ID.equal(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID))
-
                     .where(transformer.getTableId().equal(id))
                     .fetch();
 
@@ -309,32 +302,6 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                         userTransformer.getEntityFromQueryResult(leadDeveloperUser, queryResult)
                 );
             }
-
-            //Filling up attachments
-            List<Attachment> attachments = new ArrayList<>();
-
-            AttachmentTransformer attachmentTransform = new AttachmentTransformer();
-
-            for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(ATTACHMENT.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
-                Result<Record> records = entry.getValue();
-                AttachmentRecord record = new AttachmentRecord(
-                        records.getValues(ATTACHMENT.ID).get(0),
-                        records.getValues(ATTACHMENT.CREATION_DATE).get(0),
-                        records.getValues(ATTACHMENT.LAST_UPDATED_DATE).get(0),
-                        records.getValues(ATTACHMENT.REQUIREMENT_ID).get(0),
-                        records.getValues(ATTACHMENT.USER_ID).get(0),
-                        records.getValues(ATTACHMENT.NAME).get(0),
-                        records.getValues(ATTACHMENT.DESCRIPTION).get(0),
-                        records.getValues(ATTACHMENT.MIME_TYPE).get(0),
-                        records.getValues(ATTACHMENT.IDENTIFIER).get(0),
-                        records.getValues(ATTACHMENT.FILE_URL).get(0)
-                );
-                attachments.add(
-                        attachmentTransform.getEntityFromTableRecord(record)
-                );
-            }
-            builder.attachments(attachments);
 
             //Filling up votes
             Result<Record> voteQueryResult = jooq.select(DSL.count(DSL.nullif(vote.IS_UPVOTE, 0)).as("upVotes"))
