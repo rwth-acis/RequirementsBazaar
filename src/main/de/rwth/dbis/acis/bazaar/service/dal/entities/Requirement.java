@@ -44,7 +44,6 @@ public class Requirement extends EntityBase {
 
     private User creator;
     private User leadDeveloper;
-    private List<User> developers;
     private List<User> contributors;
 
     private Integer numberOfComments;
@@ -52,6 +51,7 @@ public class Requirement extends EntityBase {
     private Integer numberOfFollowers;
 
     private Boolean isFollower;
+    private Boolean isDeveloper;
 
     public Date getRealized() {
         return realized;
@@ -121,10 +121,6 @@ public class Requirement extends EntityBase {
         return leadDeveloper;
     }
 
-    public List<User> getDevelopers() {
-        return developers;
-    }
-
     public List<User> getContributors() {
         return contributors;
     }
@@ -145,6 +141,10 @@ public class Requirement extends EntityBase {
         isFollower = follower;
     }
 
+    public void setDeveloper(Boolean developer) {
+        isDeveloper = developer;
+    }
+
     public Requirement() {
     }
 
@@ -162,9 +162,9 @@ public class Requirement extends EntityBase {
         this.attachments = builder.attachments;
         this.creator = builder.creator;
         this.leadDeveloper = builder.leadDeveloper;
-        this.developers = builder.developers;
         this.contributors = builder.contributors;
         this.isFollower = builder.isFollower;
+        this.isDeveloper = builder.isDeveloper;
     }
 
     /**
@@ -190,10 +190,10 @@ public class Requirement extends EntityBase {
         private UserVote userVoted;
         private List<Attachment> attachments;
         private User creator;
-        private List<User> developers;
         private List<User> contributors;
         private User leadDeveloper;
         private Boolean isFollower;
+        private Boolean isDeveloper;
 
         public Builder(String name) {
             this.name = name;
@@ -271,13 +271,13 @@ public class Requirement extends EntityBase {
             return this;
         }
 
-        public Requirement.Builder developers(List<User> developers) {
-            this.developers = developers;
+        public Requirement.Builder isFollower(Boolean isFollower) {
+            this.isFollower = isFollower;
             return this;
         }
 
-        public Requirement.Builder isFollower(Boolean isFollower) {
-            this.isFollower = isFollower;
+        public Requirement.Builder isDeveloper(Boolean isDeveloper) {
+            this.isDeveloper = isDeveloper;
             return this;
         }
 
