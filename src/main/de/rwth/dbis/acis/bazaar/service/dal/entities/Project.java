@@ -50,11 +50,11 @@ public class Project extends EntityBase {
 
     private Date lastUpdatedDate;
 
-    private List<User> followers;
-
     private User leader;
 
     private Integer defaultCategoryId;
+
+    private Boolean isFollower;
 
     private Integer numberOfCategories;
 
@@ -68,6 +68,10 @@ public class Project extends EntityBase {
 
     public void setLeader(User leader) {
         this.leader = leader;
+    }
+
+    public void setFollower(Boolean follower) {
+        isFollower = follower;
     }
 
     public void setNumberOfCategories(Integer numberOfCategories) {
@@ -95,9 +99,9 @@ public class Project extends EntityBase {
         this.description = builder.description;
         this.name = builder.name;
         this.visibility = builder.visibility;
-        this.followers = builder.followers;
         this.leader = builder.leader;
         this.defaultCategoryId = builder.defaultCategoryId;
+        this.isFollower = builder.isFollower;
         this.creationDate = builder.creationDate;
         this.lastUpdatedDate = builder.lastUpdatedDate;
     }
@@ -159,11 +163,11 @@ public class Project extends EntityBase {
         private String description;
         private String name;
         private Boolean visibility;
-        private List<User> followers;
         private User leader;
         private Date creationDate;
         private Date lastUpdatedDate;
         private Integer defaultCategoryId;
+        private Boolean isFollower;
 
         public Builder(String name) {
             this.name = name;
@@ -184,11 +188,6 @@ public class Project extends EntityBase {
             return this;
         }
 
-        public Builder followers(List<User> followers) {
-            this.followers = followers;
-            return this;
-        }
-
         public Builder leader(User leader) {
             this.leader = leader;
             return this;
@@ -196,6 +195,11 @@ public class Project extends EntityBase {
 
         public Builder defaultCategoryId(Integer defaultCategoryId) {
             this.defaultCategoryId = defaultCategoryId;
+            return this;
+        }
+
+        public Builder isFollower(Boolean isFollower) {
+            this.isFollower = isFollower;
             return this;
         }
 

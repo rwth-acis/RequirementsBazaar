@@ -82,6 +82,11 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
                     .asField("followerCount");
 
+            Field<Object> isFollower = DSL.select(DSL.count())
+                    .from(REQUIREMENT_FOLLOWER_MAP)
+                    .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID).and(REQUIREMENT_FOLLOWER_MAP.USER_ID.equal(userId)))
+                    .asField("isFollower");
+
             // last activity (if possible)
 
             List<Record> queryResults = jooq.select(REQUIREMENT.fields())
@@ -89,6 +94,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .select(voteCount)
                     .select(commentCount)
                     .select(followerCount)
+                    .select(isFollower)
                     .from(REQUIREMENT)
                     .where(transformer.getFilterConditions(pageable.getFilters()))
                     .and(transformer.getSearchCondition(pageable.getSearch()))
@@ -102,7 +108,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             for (Record queryResult : queryResults) {
                 RequirementRecord requirementRecord = queryResult.into(REQUIREMENT);
                 Requirement requirement = transformer.getEntityFromTableRecord(requirementRecord);
-                requirements.add(findById(requirement.getId(), userId));
+                requirements.add(findById(requirement.getId(), userId)); // TODO: Remove the getId call and create the objects themself here
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
             result = new PaginationResult<>(total, pageable, requirements);
@@ -161,11 +167,17 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
                     .asField("followerCount");
 
+            Field<Object> isFollower = DSL.select(DSL.count())
+                    .from(REQUIREMENT_FOLLOWER_MAP)
+                    .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID).and(REQUIREMENT_FOLLOWER_MAP.USER_ID.equal(userId)))
+                    .asField("isFollower");
+
             List<Record> queryResults = jooq.select(REQUIREMENT.fields())
                     .select(idCount)
                     .select(voteCount)
                     .select(commentCount)
                     .select(followerCount)
+                    .select(isFollower)
                     .from(REQUIREMENT)
                     .join(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.eq(REQUIREMENT.ID))
                     .where(transformer.getFilterConditions(pageable.getFilters()))
@@ -179,7 +191,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
             for (Record queryResult : queryResults) {
                 RequirementRecord requirementRecord = queryResult.into(RequirementRecord.class);
-                requirements.add(findById(requirementRecord.getId(), userId));
+                requirements.add(findById(requirementRecord.getId(), userId)); // TODO: Remove the getId call and create the objects themself here
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
             result = new PaginationResult<>(total, pageable, requirements);
@@ -208,7 +220,6 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     public Requirement findById(int id, int userId) throws Exception {
         Requirement requirement = null;
         try {
-            de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User followerUser = USER.as("followerUser");
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User developerUser = USER.as("developerUser");
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User creatorUser = USER.as("creatorUser");
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User leadDeveloperUser = USER.as("leadDeveloperUser");
@@ -231,11 +242,16 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
                     .asField("followerCount");
 
+            Field<Object> isFollower = DSL.select(DSL.count())
+                    .from(REQUIREMENT_FOLLOWER_MAP)
+                    .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID).and(REQUIREMENT_FOLLOWER_MAP.USER_ID.equal(userId)))
+                    .asField("isFollower");
+
             Result<Record> queryResult = jooq.select(REQUIREMENT.fields())
                     .select(commentCount)
                     .select(attachmentCount)
                     .select(followerCount)
-                    .select(followerUser.fields())
+                    .select(isFollower)
                     .select(developerUser.fields())
                     .select(creatorUser.fields())
                     .select(leadDeveloperUser.fields())
@@ -245,9 +261,6 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .from(REQUIREMENT)
                     //.leftOuterJoin(Comments.COMMENTS).on(Comments.COMMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
                     .leftOuterJoin(ATTACHMENT).on(ATTACHMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-
-                    .leftOuterJoin(REQUIREMENT_FOLLOWER_MAP).on(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .leftOuterJoin(followerUser).on(REQUIREMENT_FOLLOWER_MAP.USER_ID.equal(followerUser.ID))
 
                     .leftOuterJoin(REQUIREMENT_DEVELOPER_MAP).on(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
                     .leftOuterJoin(developerUser).on(REQUIREMENT_DEVELOPER_MAP.USER_ID.equal(developerUser.ID))
@@ -302,17 +315,6 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 );
             }
             builder.developers(devList);
-
-            //Filling up follower list
-            List<User> followers = new ArrayList<>();
-            for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(followerUser.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
-                Result<Record> records = entry.getValue();
-                followers.add(
-                        userTransformer.getEntityFromQueryResult(followerUser, records)
-                );
-            }
-            builder.followers(followers);
 
             //Filling up contributors
             /*
@@ -391,7 +393,9 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             requirement.setNumberOfComments((Integer) queryResult.getValues(commentCount).get(0));
             requirement.setNumberOfAttachments((Integer) queryResult.getValues(attachmentCount).get(0));
             requirement.setNumberOfFollowers((Integer) queryResult.getValues(followerCount).get(0));
-
+            if (userId != 1) {
+                requirement.setFollower((Integer) queryResult.getValues(isFollower).get(0) == 0 ? false : true);
+            }
 
         } catch (BazaarException be) {
             ExceptionHandler.getInstance().convertAndThrowException(be);

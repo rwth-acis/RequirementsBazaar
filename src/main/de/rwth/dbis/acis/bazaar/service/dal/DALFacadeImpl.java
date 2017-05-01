@@ -136,31 +136,25 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public PaginationResult<Project> listPublicProjects(Pageable pageable) throws BazaarException {
+    public PaginationResult<Project> listPublicProjects(Pageable pageable, int userId) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
-        return projectRepository.findAllPublic(pageable);
+        return projectRepository.findAllPublic(pageable, userId);
     }
 
     @Override
-    public PaginationResult<Project> listPublicAndAuthorizedProjects(PageInfo pageable, long userId) throws BazaarException {
+    public PaginationResult<Project> listPublicAndAuthorizedProjects(PageInfo pageable, int userId) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         return projectRepository.findAllPublicAndAuthorized(pageable, userId);
     }
 
     @Override
-    public List<Project> searchProjects(String searchTerm, Pageable pageable) throws Exception {
+    public Project getProjectById(int projectId, int userId) throws Exception {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
-        return projectRepository.searchAll(searchTerm, pageable);
+        return projectRepository.findById(projectId, userId);
     }
 
     @Override
-    public Project getProjectById(int projectId) throws Exception {
-        projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
-        return projectRepository.findById(projectId);
-    }
-
-    @Override
-    public Project createProject(Project project) throws Exception {
+    public Project createProject(Project project,  int userId) throws Exception {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         project.setDefaultCategoryId(null);
         Project newProject = projectRepository.add(project);
@@ -169,7 +163,7 @@ public class DALFacadeImpl implements DALFacade {
                 .projectId(newProject.getId())
                 .build();
         uncategorizedCategory.setLeader(project.getLeader());
-        Category defaultCategory = createCategory(uncategorizedCategory);
+        Category defaultCategory = createCategory(uncategorizedCategory, userId);
         newProject.setDefaultCategoryId(defaultCategory.getId());
         //TODO concurrency transaction -> https://www.jooq.org/doc/3.9/manual/sql-execution/transaction-management/
         return projectRepository.update(newProject);
@@ -220,12 +214,6 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public List<Requirement> searchRequirements(String searchTerm, Pageable pageable) throws Exception {
-        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
-        return requirementRepository.searchAll(searchTerm, pageable);
-    }
-
-    @Override
     public Requirement getRequirementById(int requirementId, int userId) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         return requirementRepository.findById(requirementId, userId);
@@ -247,7 +235,7 @@ public class DALFacadeImpl implements DALFacade {
         requirementRepository.update(modifiedRequirement);
 
         if (modifiedRequirement.getCategories() != null) {
-            PaginationResult<Category> oldCategories = listCategoriesByRequirementId(modifiedRequirement.getId(), new PageInfo(0, 1000, new HashMap<>()));
+            PaginationResult<Category> oldCategories = listCategoriesByRequirementId(modifiedRequirement.getId(), new PageInfo(0, 1000, new HashMap<>()), userId);
             for (Category oldCategory : oldCategories.getElements()) {
                 boolean containCategory = false;
                 for (Category newCategory : modifiedRequirement.getCategories()) {
@@ -273,7 +261,6 @@ public class DALFacadeImpl implements DALFacade {
                 }
             }
         }
-
         return getRequirementById(modifiedRequirement.getId(), userId);
     }
 
@@ -327,28 +314,28 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public PaginationResult<Category> listCategoriesByProjectId(int projectId, Pageable pageable) throws BazaarException {
+    public PaginationResult<Category> listCategoriesByProjectId(int projectId, Pageable pageable, int userId) throws BazaarException {
         categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
-        return categoryRepository.findByProjectId(projectId, pageable);
+        return categoryRepository.findByProjectId(projectId, pageable, userId);
     }
 
     @Override
-    public PaginationResult<Category> listCategoriesByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
+    public PaginationResult<Category> listCategoriesByRequirementId(int requirementId, Pageable pageable, int userId) throws BazaarException {
         categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
-        return categoryRepository.findByRequirementId(requirementId, pageable);
+        return categoryRepository.findByRequirementId(requirementId, pageable, userId);
     }
 
     @Override
-    public Category createCategory(Category category) throws BazaarException {
+    public Category createCategory(Category category, int userId) throws BazaarException {
         categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
         Category newCategory = categoryRepository.add(category);
-        return categoryRepository.findById(newCategory.getId());
+        return categoryRepository.findById(newCategory.getId(), userId);
     }
 
     @Override
-    public Category getCategoryById(int categoryId) throws Exception {
+    public Category getCategoryById(int categoryId, int userId) throws Exception {
         categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
-        return categoryRepository.findById(categoryId);
+        return categoryRepository.findById(categoryId, userId);
     }
 
     @Override
@@ -365,8 +352,8 @@ public class DALFacadeImpl implements DALFacade {
         PaginationResult<Requirement> requirements = listRequirementsByCategory(categoryId, new PageInfo(0, Integer.MAX_VALUE, new HashMap<>()), 0);
 
         // Get default category
-        Category categoryById = getCategoryById(categoryId);
-        Project projectById = getProjectById(categoryById.getProjectId());
+        Category categoryById = getCategoryById(categoryId, userId);
+        Project projectById = getProjectById(categoryById.getProjectId(), userId);
 
         // Move requirements from this category to the default if requirement has no more categories
         for (Requirement requirement : requirements.getElements()) {

@@ -60,11 +60,10 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
     }
 
     @Override
-    public Project findById(int id) throws BazaarException {
+    public Project findById(int id, int userId) throws BazaarException {
         Project project = null;
         try {
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User leaderUser = USER.as("leaderUser");
-            de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User followerUsers = USER.as("followerUsers");
 
             Field<Object> categoryCount = jooq.select(DSL.count())
                     .from(CATEGORY)
@@ -81,16 +80,19 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID))
                     .asField("followerCount");
 
+            Field<Object> isFollower = DSL.select(DSL.count())
+                    .from(PROJECT_FOLLOWER_MAP)
+                    .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID).and(PROJECT_FOLLOWER_MAP.USER_ID.equal(userId)))
+                    .asField("isFollower");
+
             Result<Record> queryResult = jooq.select(PROJECT.fields())
                     .select(categoryCount)
                     .select(requirementCount)
                     .select(followerCount)
+                    .select(isFollower)
                     .select(leaderUser.fields())
-                    .select(followerUsers.fields())
                     .from(PROJECT)
                     .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(PROJECT.LEADER_ID))
-                    .leftOuterJoin(PROJECT_FOLLOWER_MAP).on(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID))
-                    .leftOuterJoin(followerUsers).on(followerUsers.ID.equal(PROJECT_FOLLOWER_MAP.USER_ID))
                     .where(transformer.getTableId().equal(id))
                     .fetch();
 
@@ -112,23 +114,15 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
             //Filling up LeadDeveloper
             builder.leader(userTransformer.getEntityFromQueryResult(leaderUser, queryResult));
 
-            //Filling up follower list
-            List<User> followers = new ArrayList<>();
-            for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(followerUsers.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
-                Result<Record> records = entry.getValue();
-                followers.add(
-                        userTransformer.getEntityFromQueryResult(followerUsers, records)
-                );
-            }
-            builder.followers(followers);
-
             project = builder.build();
 
-            // Filling additional information TODO: add other additional information here (leaddev, followers)
+            // Filling additional information
             project.setNumberOfCategories((Integer) queryResult.getValues(categoryCount).get(0));
             project.setNumberOfRequirements((Integer) queryResult.getValues(requirementCount).get(0));
             project.setNumberOfFollowers((Integer) queryResult.getValues(followerCount).get(0));
+            if (userId != 1) {
+                project.setFollower((Integer) queryResult.getValues(isFollower).get(0) == 0 ? false : true);
+            }
 
         } catch (BazaarException be) {
             ExceptionHandler.getInstance().convertAndThrowException(be);
@@ -139,7 +133,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
     }
 
     @Override
-    public PaginationResult<Project> findAllPublic(Pageable pageable) throws BazaarException {
+    public PaginationResult<Project> findAllPublic(Pageable pageable, int userId) throws BazaarException {
         PaginationResult<Project> result = null;
         List<Project> projects;
         try {
@@ -167,11 +161,17 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID))
                     .asField("followerCount");
 
+            Field<Object> isFollower = DSL.select(DSL.count())
+                    .from(PROJECT_FOLLOWER_MAP)
+                    .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID).and(PROJECT_FOLLOWER_MAP.USER_ID.equal(userId)))
+                    .asField("isFollower");
+
             Result<Record> queryResults = jooq.select(PROJECT.fields())
                     .select(idCount)
                     .select(categoryCount)
                     .select(requirementCount)
                     .select(followerCount)
+                    .select(isFollower)
                     .select(leaderUser.fields())
                     .from(PROJECT)
                     .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(PROJECT.LEADER_ID))
@@ -191,6 +191,9 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                 project.setNumberOfCategories((Integer) queryResult.getValue(categoryCount));
                 project.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
                 project.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
+                if (userId != 1) {
+                    project.setFollower((Integer) queryResult.getValue(isFollower) == 0 ? false : true);
+                }
                 projects.add(project);
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
@@ -202,7 +205,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
     }
 
     @Override
-    public PaginationResult<Project> findAllPublicAndAuthorized(PageInfo pageable, long userId) throws BazaarException {
+    public PaginationResult<Project> findAllPublicAndAuthorized(PageInfo pageable, int userId) throws BazaarException {
         PaginationResult<Project> result = null;
         List<Project> projects;
         try {
@@ -229,12 +232,18 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID))
                     .asField("followerCount");
 
+            Field<Object> isFollower = DSL.select(DSL.count())
+                    .from(PROJECT_FOLLOWER_MAP)
+                    .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID).and(PROJECT_FOLLOWER_MAP.USER_ID.equal(userId)))
+                    .asField("isFollower");
+
             //TODO only authorized projects?
             List<Record> queryResults = jooq.select(PROJECT.fields())
                     .select(idCount)
                     .select(categoryCount)
                     .select(requirementCount)
                     .select(followerCount)
+                    .select(isFollower)
                     .select(leaderUser.fields())
                     .from(PROJECT)
                     .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(PROJECT.LEADER_ID))
@@ -256,6 +265,9 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                 project.setNumberOfCategories((Integer) queryResult.getValue(categoryCount));
                 project.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
                 project.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
+                if (userId != 1) {
+                    project.setFollower((Integer) queryResult.getValue(isFollower) == 0 ? false : true);
+                }
                 projects.add(project);
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));

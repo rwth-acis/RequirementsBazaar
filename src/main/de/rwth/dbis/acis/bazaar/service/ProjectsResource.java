@@ -114,10 +114,11 @@ public class ProjectsResource {
             PaginationResult<Project> projectsResult;
             if (agent.getLoginName().equals("anonymous")) {
                 // return only public projects
-                projectsResult = dalFacade.listPublicProjects(pageInfo);
+                projectsResult = dalFacade.listPublicProjects(pageInfo, 0);
             } else {
                 // return public projects and the ones the user belongs to
-                projectsResult = dalFacade.listPublicAndAuthorizedProjects(pageInfo, userId);
+                Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+                projectsResult = dalFacade.listPublicAndAuthorizedProjects(pageInfo, internalUserId);
             }
 
             Map<String, List<String>> parameter = new HashMap<>();
@@ -191,7 +192,7 @@ public class ProjectsResource {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.read"));
                 }
             }
-            Project projectToReturn = dalFacade.getProjectById(projectId);
+            Project projectToReturn = dalFacade.getProjectById(projectId, internalUserId);
             Gson gson = new Gson();
             return Response.ok(gson.toJson(projectToReturn)).build();
         } catch (BazaarException bex) {
@@ -249,7 +250,7 @@ public class ProjectsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.create"));
             }
             projectToCreate.setLeader(dalFacade.getUserById(internalUserId));
-            Project createdProject = dalFacade.createProject(projectToCreate);
+            Project createdProject = dalFacade.createProject(projectToCreate, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, createdProject.getCreationDate(), Activity.ActivityAction.CREATE, createdProject.getId(),
                     Activity.DataType.PROJECT, 0, null, internalUserId);
             return Response.status(Response.Status.CREATED).entity(gson.toJson(createdProject)).build();
@@ -366,7 +367,7 @@ public class ProjectsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.follow.create"));
             }
             dalFacade.followProject(internalUserId, projectId);
-            Project project = dalFacade.getProjectById(projectId);
+            Project project = dalFacade.getProjectById(projectId, internalUserId);
             Gson gson = new Gson();
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.FOLLOW, project.getId(),
                     Activity.DataType.PROJECT, 0, null, internalUserId);
@@ -421,7 +422,7 @@ public class ProjectsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.follow.delete"));
             }
             dalFacade.unFollowProject(internalUserId, projectId);
-            Project project = dalFacade.getProjectById(projectId);
+            Project project = dalFacade.getProjectById(projectId, internalUserId);
             Gson gson = new Gson();
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.UNFOLLOW, project.getId(),
                     Activity.DataType.PROJECT, 0, null, internalUserId);

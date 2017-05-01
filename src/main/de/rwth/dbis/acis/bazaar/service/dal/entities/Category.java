@@ -52,10 +52,10 @@ public class Category extends EntityBase {
 
     private User leader;
 
-    private List<User> followers;
-
     @Min(value= 0, profiles = {"create"})
     private int projectId;
+
+    private Boolean isFollower;
 
     private Integer numberOfRequirements;
 
@@ -101,6 +101,10 @@ public class Category extends EntityBase {
         this.leader = leader;
     }
 
+    public void setFollower(Boolean follower) {
+        isFollower = follower;
+    }
+
     public void setNumberOfRequirements(Integer numberOfRequirements) {
         this.numberOfRequirements = numberOfRequirements;
     }
@@ -123,7 +127,7 @@ public class Category extends EntityBase {
         this.name = builder.name;
         this.projectId = builder.projectId;
         this.leader = builder.leader;
-        this.followers = builder.followers;
+        this.isFollower = builder.isFollower;
         this.creationDate = builder.creationDate;
         this.lastUpdatedDate = builder.lastUpdatedDate;
     }
@@ -147,8 +151,8 @@ public class Category extends EntityBase {
         private Date creationDate;
         private Date lastUpdatedDate;
         private int projectId;
+        private Boolean isFollower;
         public User leader;
-        public List<User> followers;
 
         public Builder(String name) {
             this.name = name;
@@ -169,8 +173,8 @@ public class Category extends EntityBase {
             return this;
         }
 
-        public Builder followers(List<User> followers) {
-            this.followers = followers;
+        public Builder isFollower(Boolean isFollower) {
+            this.isFollower = isFollower;
             return this;
         }
 

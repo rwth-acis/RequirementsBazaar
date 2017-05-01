@@ -45,12 +45,13 @@ public class Requirement extends EntityBase {
     private User creator;
     private User leadDeveloper;
     private List<User> developers;
-    private List<User> followers;
     private List<User> contributors;
 
     private Integer numberOfComments;
     private Integer numberOfAttachments;
     private Integer numberOfFollowers;
+
+    private Boolean isFollower;
 
     public Date getRealized() {
         return realized;
@@ -124,10 +125,6 @@ public class Requirement extends EntityBase {
         return developers;
     }
 
-    public List<User> getFollowers() {
-        return followers;
-    }
-
     public List<User> getContributors() {
         return contributors;
     }
@@ -142,6 +139,10 @@ public class Requirement extends EntityBase {
 
     public void setNumberOfFollowers(Integer numberOfFollowers) {
         this.numberOfFollowers = numberOfFollowers;
+    }
+
+    public void setFollower(Boolean follower) {
+        isFollower = follower;
     }
 
     public Requirement() {
@@ -162,8 +163,8 @@ public class Requirement extends EntityBase {
         this.creator = builder.creator;
         this.leadDeveloper = builder.leadDeveloper;
         this.developers = builder.developers;
-        this.followers = builder.followers;
         this.contributors = builder.contributors;
+        this.isFollower = builder.isFollower;
     }
 
     /**
@@ -190,9 +191,9 @@ public class Requirement extends EntityBase {
         private List<Attachment> attachments;
         private User creator;
         private List<User> developers;
-        private List<User> followers;
         private List<User> contributors;
         private User leadDeveloper;
+        private Boolean isFollower;
 
         public Builder(String name) {
             this.name = name;
@@ -275,8 +276,8 @@ public class Requirement extends EntityBase {
             return this;
         }
 
-        public Requirement.Builder followers(List<User> followers) {
-            this.followers = followers;
+        public Requirement.Builder isFollower(Boolean isFollower) {
+            this.isFollower = isFollower;
             return this;
         }
 

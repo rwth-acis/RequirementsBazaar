@@ -106,7 +106,7 @@ public class RequirementsResource {
             }
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            if (dalFacade.getProjectById(projectId) == null) {
+            if (dalFacade.getProjectById(projectId, internalUserId) == null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.NOT_FOUND, String.format(Localization.getInstance().getResourceBundle().getString("error.resource.notfound"), "resource"));
             }
             if (dalFacade.isProjectPublic(projectId)) {
@@ -211,11 +211,11 @@ public class RequirementsResource {
             }
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            if (dalFacade.getCategoryById(categoryId) == null) {
+            if (dalFacade.getCategoryById(categoryId, internalUserId) == null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.NOT_FOUND, String.format(Localization.getInstance().getResourceBundle().getString("error.resource.notfound"), "category"));
             }
-            Category category = dalFacade.getCategoryById(categoryId);
-            Project project = dalFacade.getProjectById(category.getProjectId());
+            Category category = dalFacade.getCategoryById(categoryId, internalUserId);
+            Project project = dalFacade.getProjectById(category.getProjectId(), internalUserId);
             if (dalFacade.isCategoryPublic(categoryId)) {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, String.valueOf(project.getId()), dalFacade);
                 if (!authorized) {
@@ -370,7 +370,7 @@ public class RequirementsResource {
 
             // check if all categories are in the same project
             for (Category category : requirementToCreate.getCategories()) {
-                category = dalFacade.getCategoryById(category.getId());
+                category = dalFacade.getCategoryById(category.getId(), internalUserId);
                 if (requirementToCreate.getProjectId() != category.getProjectId()) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.VALIDATION, "Category does not fit with project");
                 }
@@ -509,7 +509,7 @@ public class RequirementsResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirementToDelete = dalFacade.getRequirementById(requirementId, internalUserId);
-            Project project = dalFacade.getProjectById(requirementToDelete.getProjectId());
+            Project project = dalFacade.getProjectById(requirementToDelete.getProjectId(), internalUserId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, Arrays.asList(String.valueOf(project.getId()), String.valueOf(requirementId)), dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.delete"));
@@ -1101,7 +1101,7 @@ public class RequirementsResource {
      * This method allows to retrieve statistics for one requirement.
      *
      * @param requirementId
-     * @param since timestamp since filter
+     * @param since         timestamp since filter
      * @return Response with statistics as a JSON object.
      */
     @GET
