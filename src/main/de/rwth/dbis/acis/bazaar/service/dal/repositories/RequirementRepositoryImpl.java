@@ -40,8 +40,11 @@ import org.jooq.Result;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
+
+import static org.jooq.impl.DSL.*;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
 
@@ -208,7 +211,6 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
         try {
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User creatorUser = USER.as("creatorUser");
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User leadDeveloperUser = USER.as("leadDeveloperUser");
-            //Users contributorUsers = Users.USERS.as("contributorUsers");
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Vote vote = VOTE.as("vote");
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Vote userVote = VOTE.as("userVote");
 
@@ -237,12 +239,31 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .where(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID).and(REQUIREMENT_DEVELOPER_MAP.USER_ID.equal(userId)))
                     .asField("isDeveloper");
 
+            // Contributors = {Creator, Lead Developer, Developers, Comments creators,  Attachments creators}
+            // This code could be improved so that not only "1" or "0" will return but how much contributions an user made
+            // I tried this for 2-3 hours. SQL ... yeah ... I leave this to someone else. :->
+            Field<Object> isContributor = select(sum(choose()
+                    .when(REQUIREMENT.CREATOR_ID.eq(userId), inline(1))
+                    .when(REQUIREMENT.LEAD_DEVELOPER_ID.eq(userId), inline(1))
+                    .when(REQUIREMENT_DEVELOPER_MAP.USER_ID.eq(userId), inline(1))
+                    .when(COMMENT.USER_ID.eq(userId), inline(1))
+                    .when(ATTACHMENT.USER_ID.eq(userId), inline(1))
+                    .otherwise(inline(0))
+            ))
+                    .from(REQUIREMENT)
+                    .leftOuterJoin(REQUIREMENT_DEVELOPER_MAP).on(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+                    .leftOuterJoin(COMMENT).on(COMMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+                    .leftOuterJoin(ATTACHMENT).on(ATTACHMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+                    .where(REQUIREMENT.ID.equal(id))
+                    .asField("isContributor");
+
             Result<Record> queryResult = jooq.select(REQUIREMENT.fields())
                     .select(commentCount)
                     .select(attachmentCount)
                     .select(followerCount)
                     .select(isFollower)
                     .select(isDeveloper)
+                    .select(isContributor)
                     .select(creatorUser.fields())
                     .select(leadDeveloperUser.fields())
                     .select(ATTACHMENT.fields())
@@ -254,8 +275,6 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
                     .join(creatorUser).on(creatorUser.ID.equal(REQUIREMENT.CREATOR_ID))
                     .leftOuterJoin(leadDeveloperUser).on(leadDeveloperUser.ID.equal(REQUIREMENT.LEAD_DEVELOPER_ID))
-
-                    //.leftOuterJoin(contributorUsers).on(Attachments.ATTACHMENTS.USER_ID.equal(contributorUsers.ID))
 
                     .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
                     .leftOuterJoin(CATEGORY).on(CATEGORY.ID.equal(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID))
@@ -290,20 +309,6 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                         userTransformer.getEntityFromQueryResult(leadDeveloperUser, queryResult)
                 );
             }
-
-            //Filling up contributors
-            /*
-            List<User> contributorList = new ArrayList<>();
-
-            for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(contributorUsers.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
-                Result<Record> records = entry.getValue();
-                contributorList.add(
-                        userTransformer.getEntityFromQueryResult(contributorUsers, records)
-                );
-            }
-            builder.contributors(contributorList);
-            */
 
             //Filling up attachments
             List<Attachment> attachments = new ArrayList<>();
@@ -371,6 +376,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             if (userId != 1) {
                 requirement.setFollower((Integer) queryResult.getValues(isFollower).get(0) == 0 ? false : true);
                 requirement.setDeveloper((Integer) queryResult.getValues(isDeveloper).get(0) == 0 ? false : true);
+                requirement.setContributor(((BigDecimal) queryResult.getValues(isContributor).get(0)).equals(new BigDecimal(0)) ? false : true);
             }
 
         } catch (BazaarException be) {

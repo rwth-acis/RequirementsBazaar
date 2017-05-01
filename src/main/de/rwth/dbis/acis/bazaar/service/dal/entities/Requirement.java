@@ -52,6 +52,7 @@ public class Requirement extends EntityBase {
 
     private Boolean isFollower;
     private Boolean isDeveloper;
+    private Boolean isContributor;
 
     public Date getRealized() {
         return realized;
@@ -145,6 +146,10 @@ public class Requirement extends EntityBase {
         isDeveloper = developer;
     }
 
+    public void setContributor(Boolean contributor) {
+        isContributor = contributor;
+    }
+
     public Requirement() {
     }
 
@@ -162,9 +167,9 @@ public class Requirement extends EntityBase {
         this.attachments = builder.attachments;
         this.creator = builder.creator;
         this.leadDeveloper = builder.leadDeveloper;
-        this.contributors = builder.contributors;
         this.isFollower = builder.isFollower;
         this.isDeveloper = builder.isDeveloper;
+        this.isContributor = builder.isContributor;
     }
 
     /**
@@ -190,10 +195,10 @@ public class Requirement extends EntityBase {
         private UserVote userVoted;
         private List<Attachment> attachments;
         private User creator;
-        private List<User> contributors;
         private User leadDeveloper;
         private Boolean isFollower;
         private Boolean isDeveloper;
+        private Boolean isContributor;
 
         public Builder(String name) {
             this.name = name;
@@ -281,8 +286,8 @@ public class Requirement extends EntityBase {
             return this;
         }
 
-        public Requirement.Builder contributors(List<User> contributors) {
-            this.contributors = contributors;
+        public Requirement.Builder isContributor(Boolean isContributor) {
+            this.isContributor = isContributor;
             return this;
         }
 
