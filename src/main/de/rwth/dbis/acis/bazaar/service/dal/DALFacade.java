@@ -72,6 +72,26 @@ public interface DALFacade {
     Integer getUserIdByLAS2PeerId(long las2PeerId) throws Exception;
 
     /**
+     * Get all contributors for a requirement
+     *
+     * @param requirementId
+     * @param pageable
+     * @return
+     * @throws BazaarException
+     */
+    PaginationResult<User> listContributorsForRequirement(int requirementId, Pageable pageable) throws BazaarException;
+
+    /**
+     * Get all developers for a requirement
+     *
+     * @param requirementId
+     * @param pageable
+     * @return
+     * @throws BazaarException
+     */
+    PaginationResult<User> listDevelopersForRequirement(int requirementId, Pageable pageable) throws BazaarException;
+
+    /**
      * @param projectId
      * @return list of users to receive email notification
      */
