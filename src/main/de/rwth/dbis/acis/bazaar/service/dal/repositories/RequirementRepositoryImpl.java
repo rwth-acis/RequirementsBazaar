@@ -242,6 +242,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             // Contributors = {Creator, Lead Developer, Developers, Comments creators,  Attachments creators}
             // This code could be improved so that not only "1" or "0" will return but how much contributions an user made
             // I tried this for 2-3 hours. SQL ... yeah ... I leave this to someone else. :->
+            // TODO: Try the first idea from here: http://stackoverflow.com/questions/43717672/sum-over-multiple-count-field/43721212?noredirect=1#comment74498115_43721212
             Field<Object> isContributor = select(sum(choose()
                     .when(REQUIREMENT.CREATOR_ID.eq(userId), inline(1))
                     .when(REQUIREMENT.LEAD_DEVELOPER_ID.eq(userId), inline(1))
