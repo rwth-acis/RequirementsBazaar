@@ -130,6 +130,12 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public PaginationResult<User> listFollowersForRequirement(int requirementId, Pageable pageable) throws BazaarException {
+        userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
+        return userRepository.findAllByFollowing(0, 0, requirementId, pageable);
+    }
+
+    @Override
     public List<User> getRecipientListForProject(int projectId) throws BazaarException {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
         return userRepository.getEmailReceiverForProject(projectId);
@@ -205,6 +211,12 @@ public class DALFacadeImpl implements DALFacade {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         Timestamp timestamp  = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
         return projectRepository.getStatisticsForProject(userId, projectId, timestamp);
+    }
+
+    @Override
+    public PaginationResult<User> listFollowersForProject(int projectId, Pageable pageable) throws BazaarException {
+        userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
+        return userRepository.findAllByFollowing(projectId, 0, 0, pageable);
     }
 
     @Override
@@ -391,6 +403,12 @@ public class DALFacadeImpl implements DALFacade {
         categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
         Timestamp timestamp  = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
         return categoryRepository.getStatisticsForCategory(userId, categoryId, timestamp);
+    }
+
+    @Override
+    public PaginationResult<User> listFollowersForCategory(int categoryId, Pageable pageable) throws BazaarException {
+        userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
+        return userRepository.findAllByFollowing(0, categoryId, 0, pageable);
     }
 
     @Override

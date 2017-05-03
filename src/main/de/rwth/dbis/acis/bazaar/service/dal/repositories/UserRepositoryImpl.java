@@ -198,6 +198,55 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
     }
 
     @Override
+    public PaginationResult<User> findAllByFollowing(int projectId, int categoryId, int requirementId, Pageable pageable) throws BazaarException {
+        PaginationResult<User> result = null;
+        List<User> users;
+        try {
+            users = new ArrayList<>();
+
+            Field<Object> idCount = jooq.selectCount()
+                    .from(jooq.selectDistinct()
+                            .from(
+                                    jooq.select(USER.fields())
+                                            .from(USER)
+                                            .leftOuterJoin(PROJECT_FOLLOWER_MAP).on(PROJECT_FOLLOWER_MAP.USER_ID.equal(USER.ID))
+                                            .leftOuterJoin(CATEGORY_FOLLOWER_MAP).on(CATEGORY_FOLLOWER_MAP.USER_ID.equal(USER.ID))
+                                            .leftOuterJoin(REQUIREMENT_FOLLOWER_MAP).on(REQUIREMENT_FOLLOWER_MAP.USER_ID.equal(USER.ID))
+                                            .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(projectId))
+                                            .or(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(categoryId))
+                                            .or(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(requirementId))
+                                            .asTable("inner"))
+                    ).asField("idCount");
+
+            List<Record> queryResults = jooq.selectDistinct()
+                    .from(
+                            jooq.select(USER.fields())
+                                    .select(idCount)
+                                    .from(USER)
+                                    .leftOuterJoin(PROJECT_FOLLOWER_MAP).on(PROJECT_FOLLOWER_MAP.USER_ID.equal(USER.ID))
+                                    .leftOuterJoin(CATEGORY_FOLLOWER_MAP).on(CATEGORY_FOLLOWER_MAP.USER_ID.equal(USER.ID))
+                                    .leftOuterJoin(REQUIREMENT_FOLLOWER_MAP).on(REQUIREMENT_FOLLOWER_MAP.USER_ID.equal(USER.ID))
+                                    .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(projectId))
+                                    .or(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(categoryId))
+                                    .or(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(requirementId))
+                                    .asTable("inner"))
+                    .limit(pageable.getPageSize())
+                    .offset(pageable.getOffset())
+                    .fetch();
+
+            for (Record queryResult : queryResults) {
+                UserRecord userRecord = queryResult.into(UserRecord.class);
+                users.add(transformer.getEntityFromTableRecord(userRecord));
+            }
+            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
+            result = new PaginationResult<>(total, pageable, users);
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return result;
+    }
+
+    @Override
     public List<User> getEmailReceiverForProject(int projectId) throws BazaarException {
         List<User> entries = null;
         try {

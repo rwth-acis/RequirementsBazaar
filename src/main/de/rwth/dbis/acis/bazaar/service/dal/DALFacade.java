@@ -92,6 +92,16 @@ public interface DALFacade {
     PaginationResult<User> listDevelopersForRequirement(int requirementId, Pageable pageable) throws BazaarException;
 
     /**
+     * Get all followers for a requirement
+     *
+     * @param requirementId
+     * @param pageable
+     * @return
+     * @throws BazaarException
+     */
+    PaginationResult<User> listFollowersForRequirement(int requirementId, Pageable pageable) throws BazaarException;
+
+    /**
      * @param projectId
      * @return list of users to receive email notification
      */
@@ -185,6 +195,16 @@ public interface DALFacade {
      * @param projectId the the identifier of the project to unfollow
      */
     void unFollowProject(int userId, int projectId) throws BazaarException;
+
+    /**
+     * Get all followers for a project
+     *
+     * @param projectId
+     * @param pageable
+     * @return
+     * @throws BazaarException
+     */
+    PaginationResult<User> listFollowersForProject(int projectId, Pageable pageable) throws BazaarException;
     //endregion
 
     //region Requirement
@@ -360,6 +380,16 @@ public interface DALFacade {
      * @param categoryId the the identifier of the category to unfollow
      */
     void unFollowCategory(int userId, int categoryId) throws BazaarException;
+
+    /**
+     * Get all followers for a category
+     *
+     * @param categoryId
+     * @param pageable
+     * @return
+     * @throws BazaarException
+     */
+    PaginationResult<User> listFollowersForCategory(int categoryId, Pageable pageable) throws BazaarException;
     //endregion
 
     //region Attachment

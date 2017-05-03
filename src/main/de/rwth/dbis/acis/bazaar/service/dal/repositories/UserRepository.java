@@ -41,6 +41,8 @@ public interface UserRepository extends Repository<User> {
 
     PaginationResult<User> findAllByContribution(int requirementId, Pageable pageable) throws BazaarException;
 
+    PaginationResult<User> findAllByFollowing(int projectId, int categoryId, int requirementId, Pageable pageable) throws BazaarException;
+
     List<User> getEmailReceiverForProject(int projectId) throws BazaarException;
 
     List<User> getEmailReceiverForCategory(int categoryId) throws BazaarException;
