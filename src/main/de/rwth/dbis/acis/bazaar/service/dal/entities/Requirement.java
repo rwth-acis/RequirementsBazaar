@@ -19,15 +19,17 @@ public class Requirement extends EntityBase {
     @MaxLength(value = 50, profiles = {"*"})
     private String name;
 
-    private Date creationDate;
-
-    private Date lastUpdatedDate;
-
     @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
     private String description;
 
     private Date realized;
+
+    @Min(value = 0, profiles = {"create"})
+    private int projectId;
+
+    private User creator;
+    private User leadDeveloper;
 
     @NotNull(profiles = {"create"})
     @Size(min = 1, profiles = {"create"})
@@ -37,19 +39,17 @@ public class Requirement extends EntityBase {
     // But the API still allows to create a requirement with attachments at the same time.
     private List<Attachment> attachments;
 
-    @Min(value = 0, profiles = {"create"})
-    private int projectId;
+    private Date creationDate;
 
-    private int upVotes;
-    private int downVotes;
-    private UserVote userVoted;
-
-    private User creator;
-    private User leadDeveloper;
+    private Date lastUpdatedDate;
 
     private Integer numberOfComments;
     private Integer numberOfAttachments;
     private Integer numberOfFollowers;
+
+    private int upVotes;
+    private int downVotes;
+    private UserVote userVoted;
 
     private Boolean isFollower;
     private Boolean isDeveloper;
@@ -148,17 +148,17 @@ public class Requirement extends EntityBase {
 
     protected Requirement(Builder builder) {
         this.id = builder.id;
-        this.description = builder.description;
         this.name = builder.name;
+        this.description = builder.description;
         this.realized = builder.realized;
         this.projectId = builder.projectId;
+        this.creator = builder.creator;
+        this.leadDeveloper = builder.leadDeveloper;
         this.creationDate = builder.creationDate;
         this.lastUpdatedDate = builder.lastUpdatedDate;
         this.upVotes = builder.upVotes;
         this.downVotes = builder.downVotes;
         this.userVoted = builder.userVoted;
-        this.creator = builder.creator;
-        this.leadDeveloper = builder.leadDeveloper;
         this.isFollower = builder.isFollower;
         this.isDeveloper = builder.isDeveloper;
         this.isContributor = builder.isContributor;

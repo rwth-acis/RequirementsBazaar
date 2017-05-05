@@ -39,27 +39,26 @@ public class Category extends EntityBase {
 
     @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
-    private String description;
+    @MaxLength(value= 50, profiles = {"*"})
+    private String name;
 
     @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
-    @MaxLength(value= 50, profiles = {"*"})
-    private String name;
+    private String description;
+
+    @Min(value= 0, profiles = {"create"})
+    private int projectId;
+
+    private User leader;
 
     private Date creationDate;
 
     private Date lastUpdatedDate;
 
-    private User leader;
-
-    @Min(value= 0, profiles = {"create"})
-    private int projectId;
-
+    private Integer numberOfRequirements;
+    private Integer numberOfFollowers;
     private Boolean isFollower;
 
-    private Integer numberOfRequirements;
-
-    private Integer numberOfFollowers;
 
     public int getProjectId() {
         return projectId;
@@ -123,13 +122,13 @@ public class Category extends EntityBase {
      */
     private Category(Builder builder) {
         this.id = builder.id;
-        this.description = builder.description;
         this.name = builder.name;
+        this.description = builder.description;
         this.projectId = builder.projectId;
         this.leader = builder.leader;
-        this.isFollower = builder.isFollower;
         this.creationDate = builder.creationDate;
         this.lastUpdatedDate = builder.lastUpdatedDate;
+        this.isFollower = builder.isFollower;
     }
 
 

@@ -32,6 +32,11 @@ public class User extends EntityBase {
 
     private int id;
 
+    @NotBlank(profiles = {"*"})
+    @NotNull(profiles = {"create"})
+    @MaxLength(value = 1000, profiles = {"*"})
+    private String userName;
+
     @MaxLength(value = 1000, profiles = {"*"})
     private String firstName;
 
@@ -47,11 +52,6 @@ public class User extends EntityBase {
 
     @Min(value = 1, profiles = {"create"})
     private long las2peerId;
-
-    @NotBlank(profiles = {"*"})
-    @NotNull(profiles = {"create"})
-    @MaxLength(value = 1000, profiles = {"*"})
-    private String userName;
 
     private String profileImage;
 
@@ -70,12 +70,12 @@ public class User extends EntityBase {
 
     public User(Builder builder) {
         this.id = builder.id;
+        this.userName = builder.userName;
         this.firstName = builder.firstName;
         this.lastName = builder.lastName;
         this.eMail = builder.eMail;
         this.admin = builder.admin;
         this.las2peerId = builder.las2peerId;
-        this.userName = builder.userName;
         this.profileImage = builder.profileImage;
         this.emailLeadSubscription = builder.emailLeadSubscription;
         this.emailFollowSubscription = builder.emailFollowSubscription;

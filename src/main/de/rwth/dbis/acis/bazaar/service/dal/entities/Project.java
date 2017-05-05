@@ -37,30 +37,27 @@ public class Project extends EntityBase {
 
     @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
-    private String description;
-
-    @NotBlank(profiles = {"*"})
-    @NotNull(profiles = {"create"})
     @MaxLength(value= 50, profiles = {"*"})
     private String name;
 
+    @NotBlank(profiles = {"*"})
+    @NotNull(profiles = {"create"})
+    private String description;
+
     private Boolean visibility;
+
+    private Integer defaultCategoryId;
+
+    private User leader;
 
     private Date creationDate;
 
     private Date lastUpdatedDate;
 
-    private User leader;
-
-    private Integer defaultCategoryId;
-
-    private Boolean isFollower;
-
     private Integer numberOfCategories;
-
     private Integer numberOfRequirements;
-
     private Integer numberOfFollowers;
+    private Boolean isFollower;
 
     public Boolean getVisibility() {
         return visibility;
@@ -96,11 +93,11 @@ public class Project extends EntityBase {
      */
     private Project(Builder builder) {
         this.id = builder.id;
-        this.description = builder.description;
         this.name = builder.name;
+        this.description = builder.description;
         this.visibility = builder.visibility;
-        this.leader = builder.leader;
         this.defaultCategoryId = builder.defaultCategoryId;
+        this.leader = builder.leader;
         this.isFollower = builder.isFollower;
         this.creationDate = builder.creationDate;
         this.lastUpdatedDate = builder.lastUpdatedDate;

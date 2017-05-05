@@ -28,10 +28,8 @@ import jodd.vtor.constraint.NotNull;
 import java.util.Date;
 
 public class Attachment extends EntityBase {
-    private int id;
 
-    @Min(value = 0, profiles = {"create"})
-    private int requirementId;
+    private int id;
 
     @NotNull(profiles = {"create"})
     @NotBlank(profiles = {"*"})
@@ -55,26 +53,29 @@ public class Attachment extends EntityBase {
     @MaxLength(value = 1000, profiles = {"*"})
     private String fileUrl;
 
+    @Min(value = 0, profiles = {"create"})
+    private int requirementId;
+
+    private User creator;
+
     private Date creationDate;
 
     private Date lastUpdatedDate;
-
-    private User creator;
 
     public Attachment() {
     }
 
     public Attachment(Builder builder) {
         this.id = builder.id;
-        this.requirementId = builder.requirementId;
         this.name = builder.name;
         this.description = builder.description;
         this.mimeType = builder.mimeType;
         this.identifier = builder.identifier;
         this.fileUrl = builder.fileUrl;
         this.creationDate = builder.creationDate;
-        this.lastUpdatedDate = builder.lastUpdatedDate;
         this.creator = builder.creator;
+        this.requirementId = builder.requirementId;
+        this.lastUpdatedDate = builder.lastUpdatedDate;
     }
 
     public int getId() {
