@@ -56,11 +56,10 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
     }
 
     @Override
-    public Category findById(int id) throws BazaarException {
+    public Category findById(int id, int userId) throws BazaarException {
         Category category = null;
         try {
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User leaderUser = USER.as("leaderUser");
-            de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User followerUsers = USER.as("followerUsers");
 
             Field<Object> requirementCount = jooq.select(DSL.count())
                     .from(REQUIREMENT)
@@ -73,15 +72,18 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                     .where(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID))
                     .asField("followerCount");
 
+            Field<Object> isFollower = DSL.select(DSL.count())
+                    .from(CATEGORY_FOLLOWER_MAP)
+                    .where(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID).and(CATEGORY_FOLLOWER_MAP.USER_ID.equal(userId)))
+                    .asField("isFollower");
+
             Result<Record> queryResult = jooq.select(CATEGORY.fields())
                     .select(requirementCount)
                     .select(followerCount)
+                    .select(isFollower)
                     .select(leaderUser.fields())
-                    .select(followerUsers.fields())
                     .from(CATEGORY)
                     .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(CATEGORY.LEADER_ID))
-                    .leftOuterJoin(CATEGORY_FOLLOWER_MAP).on(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID))
-                    .leftOuterJoin(followerUsers).on(CATEGORY_FOLLOWER_MAP.USER_ID.equal(followerUsers.ID))
                     .where(transformer.getTableId().equal(id))
                     .fetch();
 
@@ -95,7 +97,6 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                     .description(queryResult.getValues(CATEGORY.DESCRIPTION).get(0))
                     .projectId(queryResult.getValues(CATEGORY.PROJECT_ID).get(0))
                     .id(queryResult.getValues(CATEGORY.ID).get(0))
-                    .leaderId(queryResult.getValues(CATEGORY.LEADER_ID).get(0))
                     .creationDate(queryResult.getValues(CATEGORY.CREATION_DATE).get(0))
                     .lastUpdatedDate(queryResult.getValues(CATEGORY.LAST_UPDATED_DATE).get(0));
 
@@ -103,22 +104,14 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
             //Filling up LeadDeveloper
             builder.leader(userTransformer.getEntityFromQueryResult(leaderUser, queryResult));
 
-            //Filling up follower list
-            List<User> followers = new ArrayList<>();
-            for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(followerUsers.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
-                Result<Record> records = entry.getValue();
-                followers.add(
-                        userTransformer.getEntityFromQueryResult(followerUsers, records)
-                );
-            }
-            builder.followers(followers);
-
             category = builder.build();
 
             // Filling additional information
             category.setNumberOfRequirements((Integer) queryResult.getValues(requirementCount).get(0));
             category.setNumberOfFollowers((Integer) queryResult.getValues(followerCount).get(0));
+            if (userId != 1) {
+                category.setFollower((Integer) queryResult.getValues(isFollower).get(0) == 0 ? false : true);
+            }
 
         } catch (BazaarException be) {
             ExceptionHandler.getInstance().convertAndThrowException(be);
@@ -129,7 +122,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
     }
 
     @Override
-    public PaginationResult<Category> findByProjectId(int projectId, Pageable pageable) throws BazaarException {
+    public PaginationResult<Category> findByProjectId(int projectId, Pageable pageable, int userId) throws BazaarException {
         PaginationResult<Category> result = null;
         List<Category> categories;
         try {
@@ -153,10 +146,16 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                     .where(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID))
                     .asField("followerCount");
 
+            Field<Object> isFollower = DSL.select(DSL.count())
+                    .from(CATEGORY_FOLLOWER_MAP)
+                    .where(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID).and(CATEGORY_FOLLOWER_MAP.USER_ID.equal(userId)))
+                    .asField("isFollower");
+
             List<Record> queryResults = jooq.select(CATEGORY.fields())
                     .select(idCount)
                     .select(requirementCount)
                     .select(followerCount)
+                    .select(isFollower)
                     .select(leaderUser.fields())
                     .from(CATEGORY)
                     .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(CATEGORY.LEADER_ID))
@@ -175,6 +174,9 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                 category.setLeader(userTransformer.getEntityFromTableRecord(userRecord));
                 category.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
                 category.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
+                if (userId != 1) {
+                    category.setFollower((Integer) queryResult.getValue(isFollower) == 0 ? false : true);
+                }
                 categories.add(category);
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
@@ -186,7 +188,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
     }
 
     @Override
-    public PaginationResult<Category> findByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
+    public PaginationResult<Category> findByRequirementId(int requirementId, Pageable pageable, int userId) throws BazaarException {
         PaginationResult<Category> result = null;
         List<Category> categories;
         try {
@@ -210,10 +212,16 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                     .where(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID))
                     .asField("followerCount");
 
+            Field<Object> isFollower = DSL.select(DSL.count())
+                    .from(CATEGORY_FOLLOWER_MAP)
+                    .where(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID).and(CATEGORY_FOLLOWER_MAP.USER_ID.equal(userId)))
+                    .asField("isFollower");
+
             List<Record> queryResults = jooq.select(CATEGORY.fields())
                     .select(idCount)
                     .select(requirementCount)
                     .select(followerCount)
+                    .select(isFollower)
                     .select(leaderUser.fields())
                     .from(CATEGORY)
                     .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(CATEGORY.LEADER_ID))
@@ -232,6 +240,9 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                 category.setLeader(userTransformer.getEntityFromTableRecord(userRecord));
                 category.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
                 category.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
+                if (userId != 1) {
+                    category.setFollower((Integer) queryResult.getValue(isFollower) == 0 ? false : true);
+                }
                 categories.add(category);
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));

@@ -37,47 +37,38 @@ public class Project extends EntityBase {
 
     @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
-    private String description;
-
-    @NotBlank(profiles = {"*"})
-    @NotNull(profiles = {"create"})
     @MaxLength(value= 50, profiles = {"*"})
     private String name;
 
+    @NotBlank(profiles = {"*"})
+    @NotNull(profiles = {"create"})
+    private String description;
+
     private Boolean visibility;
+
+    private Integer defaultCategoryId;
+
+    private User leader;
 
     private Date creationDate;
 
     private Date lastUpdatedDate;
 
-    private List<User> followers;
-
-    private int leaderId;
-
-    private User leader;
-
-    private Integer defaultCategoryId;
-
     private Integer numberOfCategories;
-
     private Integer numberOfRequirements;
-
     private Integer numberOfFollowers;
+    private Boolean isFollower;
 
     public Boolean getVisibility() {
         return visibility;
     }
 
-    public int getLeaderId() {
-        return leaderId;
-    }
-
-    public void setLeaderId(int leaderId) {
-        this.leaderId = leaderId;
-    }
-
     public void setLeader(User leader) {
         this.leader = leader;
+    }
+
+    public void setFollower(Boolean follower) {
+        isFollower = follower;
     }
 
     public void setNumberOfCategories(Integer numberOfCategories) {
@@ -102,13 +93,12 @@ public class Project extends EntityBase {
      */
     private Project(Builder builder) {
         this.id = builder.id;
-        this.description = builder.description;
         this.name = builder.name;
+        this.description = builder.description;
         this.visibility = builder.visibility;
-        this.followers = builder.followers;
-        this.leader = builder.leader;
-        this.leaderId = builder.leaderId;
         this.defaultCategoryId = builder.defaultCategoryId;
+        this.leader = builder.leader;
+        this.isFollower = builder.isFollower;
         this.creationDate = builder.creationDate;
         this.lastUpdatedDate = builder.lastUpdatedDate;
     }
@@ -170,12 +160,11 @@ public class Project extends EntityBase {
         private String description;
         private String name;
         private Boolean visibility;
-        private List<User> followers;
         private User leader;
-        private int leaderId;
         private Date creationDate;
         private Date lastUpdatedDate;
         private Integer defaultCategoryId;
+        private Boolean isFollower;
 
         public Builder(String name) {
             this.name = name;
@@ -196,23 +185,18 @@ public class Project extends EntityBase {
             return this;
         }
 
-        public Builder followers(List<User> followers) {
-            this.followers = followers;
-            return this;
-        }
-
         public Builder leader(User leader) {
             this.leader = leader;
             return this;
         }
 
-        public Builder leaderId(int userId) {
-            this.leaderId = userId;
+        public Builder defaultCategoryId(Integer defaultCategoryId) {
+            this.defaultCategoryId = defaultCategoryId;
             return this;
         }
 
-        public Builder defaultCategoryId(Integer defaultCategoryId) {
-            this.defaultCategoryId = defaultCategoryId;
+        public Builder isFollower(Boolean isFollower) {
+            this.isFollower = isFollower;
             return this;
         }
 

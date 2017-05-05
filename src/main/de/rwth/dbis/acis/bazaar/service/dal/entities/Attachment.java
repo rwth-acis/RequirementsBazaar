@@ -28,12 +28,8 @@ import jodd.vtor.constraint.NotNull;
 import java.util.Date;
 
 public class Attachment extends EntityBase {
+
     private int id;
-
-    private int creatorId;
-
-    @Min(value = 0, profiles = {"create"})
-    private int requirementId;
 
     @NotNull(profiles = {"create"})
     @NotBlank(profiles = {"*"})
@@ -57,39 +53,33 @@ public class Attachment extends EntityBase {
     @MaxLength(value = 1000, profiles = {"*"})
     private String fileUrl;
 
+    @Min(value = 0, profiles = {"create"})
+    private int requirementId;
+
+    private User creator;
+
     private Date creationDate;
 
     private Date lastUpdatedDate;
-
-    private User creator;
 
     public Attachment() {
     }
 
     public Attachment(Builder builder) {
         this.id = builder.id;
-        this.creatorId = builder.creatorId;
-        this.requirementId = builder.requirementId;
         this.name = builder.name;
         this.description = builder.description;
         this.mimeType = builder.mimeType;
         this.identifier = builder.identifier;
         this.fileUrl = builder.fileUrl;
         this.creationDate = builder.creationDate;
-        this.lastUpdatedDate = builder.lastUpdatedDate;
         this.creator = builder.creator;
+        this.requirementId = builder.requirementId;
+        this.lastUpdatedDate = builder.lastUpdatedDate;
     }
 
     public int getId() {
         return id;
-    }
-
-    public int getCreatorId() {
-        return creatorId;
-    }
-
-    public void setCreatorId(int creatorId) {
-        this.creatorId = creatorId;
     }
 
     public int getRequirementId() {
@@ -150,7 +140,6 @@ public class Attachment extends EntityBase {
 
     public static class Builder {
         private int id;
-        private int creatorId;
         private int requirementId;
         private String name;
         private String description;
@@ -163,11 +152,6 @@ public class Attachment extends EntityBase {
 
         public Builder id(int id) {
             this.id = id;
-            return this;
-        }
-
-        public Builder creator(int creatorId) {
-            this.creatorId = creatorId;
             return this;
         }
 

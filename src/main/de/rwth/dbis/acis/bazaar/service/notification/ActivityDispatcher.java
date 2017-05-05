@@ -54,7 +54,7 @@ public class ActivityDispatcher {
             } else if (dataType.equals(Activity.DataType.CATEGORY)) {
                 resourcePath = "categories";
                 parentResourcePath = "projects";
-                Category category = dalFacade.getCategoryById(dataId);
+                Category category = dalFacade.getCategoryById(dataId, userId);
                 frontendResourcePath = "projects" + "/" + category.getProjectId() + "/" + "categories" + "/" + String.valueOf(dataId);
             } else if (dataType.equals(Activity.DataType.REQUIREMENT)) {
                 resourcePath = "requirements";

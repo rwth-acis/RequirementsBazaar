@@ -21,7 +21,6 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 
-import jodd.vtor.constraint.MaxLength;
 import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
 import jodd.vtor.constraint.NotNull;
@@ -34,42 +33,38 @@ import java.util.Date;
  */
 public class Comment extends EntityBase {
 
-    private int Id;
-
-    @Min(value = 0, profiles = {"create"})
-    private int requirementId;
-
+    private int id;
     @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
     private String message;
 
-    private int creatorId;
-
     @Min(value = 0, profiles = {"create"})
     private Integer replyToComment;
+
+    @Min(value = 0, profiles = {"create"})
+    private int requirementId;
+
+    private User creator;
 
     private Date creationDate;
 
     private Date lastUpdatedDate;
 
-    private User creator;
-
     public Comment() {
     }
 
     public Comment(Builder builder) {
-        this.Id = builder.id;
+        this.id = builder.id;
         this.message = builder.message;
-        this.creatorId = builder.userId;
-        this.requirementId = builder.requirementId;
         this.replyToComment = builder.replyToComment;
+        this.requirementId = builder.requirementId;
+        this.creator = builder.creator;
         this.creationDate = builder.creationDate;
         this.lastUpdatedDate = builder.lastUpdatedDate;
-        this.creator = builder.creator;
     }
 
     public int getId() {
-        return Id;
+        return id;
     }
 
     public int getRequirementId() {
@@ -82,14 +77,6 @@ public class Comment extends EntityBase {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    public int getCreatorId() {
-        return creatorId;
-    }
-
-    public void setCreatorId(int creatorId) {
-        this.creatorId = creatorId;
     }
 
     public Integer getReplyToComment() {
@@ -119,7 +106,6 @@ public class Comment extends EntityBase {
     public static class Builder {
         private int id;
         private String message;
-        private int userId;
         private int requirementId;
         private Integer replyToComment;
         public Date creationDate;
@@ -138,11 +124,6 @@ public class Comment extends EntityBase {
 
         public Builder message(String message) {
             this.message = message;
-            return this;
-        }
-
-        public Builder creatorId(int creatorId) {
-            this.userId = creatorId;
             return this;
         }
 

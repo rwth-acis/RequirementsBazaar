@@ -21,6 +21,8 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -28,6 +30,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
 
 import java.util.ArrayList;
@@ -35,6 +38,7 @@ import java.util.Calendar;
 import java.util.List;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
+
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
@@ -67,6 +71,179 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
+    }
+
+    @Override
+    public PaginationResult<User> findAllByContribution(int requirementId, Pageable pageable) throws BazaarException {
+        PaginationResult<User> result = null;
+        List<User> users;
+        try {
+            users = new ArrayList<>();
+
+            Field<Object> idCount = jooq.selectCount().from(
+                    jooq.select(USER.fields())
+                            .from(USER)
+                            .leftOuterJoin(REQUIREMENT).on(REQUIREMENT.CREATOR_ID.equal(USER.ID))
+                            .where(REQUIREMENT.ID.equal(requirementId))
+                            .union(
+                                    jooq.select(USER.fields())
+                                            .from(USER)
+                                            .leftOuterJoin(REQUIREMENT).on(REQUIREMENT.LEAD_DEVELOPER_ID.equal(USER.ID))
+                                            .where(REQUIREMENT.ID.equal(requirementId))
+                            )
+                            .union(
+                                    jooq.select(USER.fields())
+                                            .from(USER)
+                                            .leftOuterJoin(REQUIREMENT_DEVELOPER_MAP).on(REQUIREMENT_DEVELOPER_MAP.USER_ID.equal(USER.ID))
+                                            .where(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID.equal(requirementId))
+                            )
+                            .union(
+                                    jooq.select(USER.fields())
+                                            .from(USER)
+                                            .leftOuterJoin(COMMENT).on(COMMENT.USER_ID.equal(USER.ID))
+                                            .where(COMMENT.REQUIREMENT_ID.equal(requirementId))
+                            )
+                            .union(
+                                    jooq.select(USER.fields())
+                                            .from(USER)
+                                            .leftOuterJoin(ATTACHMENT).on(ATTACHMENT.USER_ID.equal(USER.ID))
+                                            .where(ATTACHMENT.REQUIREMENT_ID.equal(requirementId))
+                            )
+            )
+                    .asField("idCount");
+
+            List<Record> queryResults =
+                    jooq.select(USER.fields())
+                            .select(idCount)
+                            .from(USER)
+                            .leftOuterJoin(REQUIREMENT).on(REQUIREMENT.CREATOR_ID.equal(USER.ID))
+                            .where(REQUIREMENT.ID.equal(requirementId))
+                            .union(
+                                    jooq.select(USER.fields())
+                                            .select(idCount)
+                                            .from(USER)
+                                            .leftOuterJoin(REQUIREMENT).on(REQUIREMENT.LEAD_DEVELOPER_ID.equal(USER.ID))
+                                            .where(REQUIREMENT.ID.equal(requirementId))
+                            )
+                            .union(
+                                    jooq.select(USER.fields())
+                                            .select(idCount)
+                                            .from(USER)
+                                            .leftOuterJoin(REQUIREMENT_DEVELOPER_MAP).on(REQUIREMENT_DEVELOPER_MAP.USER_ID.equal(USER.ID))
+                                            .where(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID.equal(requirementId))
+                            )
+                            .union(
+                                    jooq.select(USER.fields())
+                                            .select(idCount)
+                                            .from(USER)
+                                            .leftOuterJoin(COMMENT).on(COMMENT.USER_ID.equal(USER.ID))
+                                            .where(COMMENT.REQUIREMENT_ID.equal(requirementId))
+                            )
+                            .union(
+                                    jooq.select(USER.fields())
+                                            .select(idCount)
+                                            .from(USER)
+                                            .leftOuterJoin(ATTACHMENT).on(ATTACHMENT.USER_ID.equal(USER.ID))
+                                            .where(ATTACHMENT.REQUIREMENT_ID.equal(requirementId))
+                            )
+                            .limit(pageable.getPageSize())
+                            .offset(pageable.getOffset())
+                            .fetch();
+
+            for (Record queryResult : queryResults) {
+                UserRecord userRecord = queryResult.into(UserRecord.class);
+                users.add(transformer.getEntityFromTableRecord(userRecord));
+            }
+
+            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
+            result = new PaginationResult<>(total, pageable, users);
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return result;
+    }
+
+    @Override
+    public PaginationResult<User> findAllByDeveloping(int requirementId, Pageable pageable) throws BazaarException {
+        PaginationResult<User> result = null;
+        List<User> users;
+        try {
+            users = new ArrayList<>();
+
+            Field<Object> idCount = jooq.selectCount()
+                    .from(USER)
+                    .leftOuterJoin(REQUIREMENT_DEVELOPER_MAP).on(REQUIREMENT_DEVELOPER_MAP.USER_ID.equal(USER.ID))
+                    .where(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID.equal(requirementId))
+                    .asField("idCount");
+
+            List<Record> queryResults = jooq.select(USER.fields())
+                    .select(idCount)
+                    .from(USER)
+                    .leftOuterJoin(REQUIREMENT_DEVELOPER_MAP).on(REQUIREMENT_DEVELOPER_MAP.USER_ID.equal(USER.ID))
+                    .where(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID.equal(requirementId))
+                    .limit(pageable.getPageSize())
+                    .offset(pageable.getOffset())
+                    .fetch();
+
+            for (Record queryResult : queryResults) {
+                UserRecord userRecord = queryResult.into(UserRecord.class);
+                users.add(transformer.getEntityFromTableRecord(userRecord));
+            }
+            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
+            result = new PaginationResult<>(total, pageable, users);
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return result;
+    }
+
+    @Override
+    public PaginationResult<User> findAllByFollowing(int projectId, int categoryId, int requirementId, Pageable pageable) throws BazaarException {
+        PaginationResult<User> result = null;
+        List<User> users;
+        try {
+            users = new ArrayList<>();
+
+            Field<Object> idCount = jooq.selectCount()
+                    .from(jooq.selectDistinct()
+                            .from(
+                                    jooq.select(USER.fields())
+                                            .from(USER)
+                                            .leftOuterJoin(PROJECT_FOLLOWER_MAP).on(PROJECT_FOLLOWER_MAP.USER_ID.equal(USER.ID))
+                                            .leftOuterJoin(CATEGORY_FOLLOWER_MAP).on(CATEGORY_FOLLOWER_MAP.USER_ID.equal(USER.ID))
+                                            .leftOuterJoin(REQUIREMENT_FOLLOWER_MAP).on(REQUIREMENT_FOLLOWER_MAP.USER_ID.equal(USER.ID))
+                                            .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(projectId))
+                                            .or(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(categoryId))
+                                            .or(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(requirementId))
+                                            .asTable("inner"))
+                    ).asField("idCount");
+
+            List<Record> queryResults = jooq.selectDistinct()
+                    .from(
+                            jooq.select(USER.fields())
+                                    .select(idCount)
+                                    .from(USER)
+                                    .leftOuterJoin(PROJECT_FOLLOWER_MAP).on(PROJECT_FOLLOWER_MAP.USER_ID.equal(USER.ID))
+                                    .leftOuterJoin(CATEGORY_FOLLOWER_MAP).on(CATEGORY_FOLLOWER_MAP.USER_ID.equal(USER.ID))
+                                    .leftOuterJoin(REQUIREMENT_FOLLOWER_MAP).on(REQUIREMENT_FOLLOWER_MAP.USER_ID.equal(USER.ID))
+                                    .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(projectId))
+                                    .or(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(categoryId))
+                                    .or(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(requirementId))
+                                    .asTable("inner"))
+                    .limit(pageable.getPageSize())
+                    .offset(pageable.getOffset())
+                    .fetch();
+
+            for (Record queryResult : queryResults) {
+                UserRecord userRecord = queryResult.into(UserRecord.class);
+                users.add(transformer.getEntityFromTableRecord(userRecord));
+            }
+            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
+            result = new PaginationResult<>(total, pageable, users);
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return result;
     }
 
     @Override

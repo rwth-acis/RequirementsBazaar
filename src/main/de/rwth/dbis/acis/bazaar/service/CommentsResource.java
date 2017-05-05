@@ -81,7 +81,7 @@ public class CommentsResource {
             //Todo use requirement's projectId for security context, not the one sent from client
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            Project project = dalFacade.getProjectById(requirement.getProjectId());
+            Project project = dalFacade.getProjectById(requirement.getProjectId(), internalUserId);
             if (dalFacade.isRequirementPublic(requirementId)) {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT, String.valueOf(project.getId()), dalFacade);
                 if (!authorized) {
@@ -225,7 +225,7 @@ public class CommentsResource {
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.create"));
             }
-            commentToCreate.setCreatorId(internalUserId);
+            commentToCreate.setCreator(dalFacade.getUserById(internalUserId));
             Vtor vtor = bazaarService.getValidators();
             vtor.useProfiles("create");
             vtor.validate(commentToCreate);

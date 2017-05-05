@@ -42,7 +42,7 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
         ProjectRecord record = new ProjectRecord();
         record.setDescription(entry.getDescription());
         record.setName(entry.getName());
-        record.setLeaderId(entry.getLeaderId());
+        record.setLeaderId(entry.getLeader().getId());
         record.setVisibility((byte) (entry.getVisibility() == true ? 1 : 0 ));
         record.setDefaultCategoryId(entry.getDefaultCategoryId());
         record.setCreationDate(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
@@ -54,7 +54,6 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
         return Project.getBuilder(record.getName())
                 .description(record.getDescription())
                 .id(record.getId())
-                .leaderId(record.getLeaderId())
                 .defaultCategoryId(record.getDefaultCategoryId())
                 .visibility(record.getVisibility() == 1)
                 .creationDate(record.getCreationDate())
@@ -86,8 +85,8 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
             if (entry.getName() != null) {
                 put(PROJECT.NAME, entry.getName());
             }
-            if (entry.getLeaderId() != 0) {
-                put(PROJECT.LEADER_ID, entry.getLeaderId());
+            if (entry.getLeader() != null) {
+                put(PROJECT.LEADER_ID, entry.getLeader().getId());
             }
             if (entry.getDefaultCategoryId() != null) {
                 put(PROJECT.DEFAULT_CATEGORY_ID, entry.getDefaultCategoryId());

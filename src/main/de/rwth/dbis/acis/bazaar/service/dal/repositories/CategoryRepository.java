@@ -34,11 +34,11 @@ import java.sql.Timestamp;
  */
 public interface CategoryRepository extends Repository<Category> {
 
-    Category findById(int id) throws BazaarException;
+    Category findById(int id, int userId) throws BazaarException;
 
-    PaginationResult<Category> findByProjectId(int projectId, Pageable pageable) throws BazaarException;
+    PaginationResult<Category> findByProjectId(int projectId, Pageable pageable, int userId) throws BazaarException;
 
-    PaginationResult<Category> findByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
+    PaginationResult<Category> findByRequirementId(int requirementId, Pageable pageable, int userId) throws BazaarException;
 
     boolean belongsToPublicProject(int id) throws BazaarException;
 

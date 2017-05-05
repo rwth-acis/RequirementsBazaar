@@ -72,21 +72,48 @@ public interface DALFacade {
     Integer getUserIdByLAS2PeerId(long las2PeerId) throws Exception;
 
     /**
+     * Get all contributors for a requirement
      *
+     * @param requirementId
+     * @param pageable
+     * @return
+     * @throws BazaarException
+     */
+    PaginationResult<User> listContributorsForRequirement(int requirementId, Pageable pageable) throws BazaarException;
+
+    /**
+     * Get all developers for a requirement
+     *
+     * @param requirementId
+     * @param pageable
+     * @return
+     * @throws BazaarException
+     */
+    PaginationResult<User> listDevelopersForRequirement(int requirementId, Pageable pageable) throws BazaarException;
+
+    /**
+     * Get all followers for a requirement
+     *
+     * @param requirementId
+     * @param pageable
+     * @return
+     * @throws BazaarException
+     */
+    PaginationResult<User> listFollowersForRequirement(int requirementId, Pageable pageable) throws BazaarException;
+
+    /**
      * @param projectId
      * @return list of users to receive email notification
      */
     List<User> getRecipientListForProject(int projectId) throws BazaarException;
 
     /**
-     *
      * @param categoryId
      * @return list of users to receive email notification
      */
     List<User> getRecipientListForCategory(int categoryId) throws BazaarException;
 
     /**
-     *
      * @param requirementId
      * @return list of users to receive email notification
      */
@@ -97,9 +124,10 @@ public interface DALFacade {
 
     /**
      * @param pageable pagination information
+     * @param userId   the identifier of the user, whose projects should be returned as well
      * @return the paginated result of the public projects
      */
-    PaginationResult<Project> listPublicProjects(Pageable pageable) throws BazaarException;
+    PaginationResult<Project> listPublicProjects(Pageable pageable, int userId) throws BazaarException;
 
 
     /**
@@ -107,25 +135,20 @@ public interface DALFacade {
      * @param userId   the identifier of the user, whose projects should be returned as well
      * @return all the public projects and all the projects, which the user is authorized to see
      */
-    PaginationResult<Project> listPublicAndAuthorizedProjects(PageInfo pageable, long userId) throws BazaarException;
-
-    /**
-     * @param searchTerm the text, which is used to search. Search is case insensitive.
-     * @param pageable   pagination information
-     * @return the found projects from the database based on the given parameters
-     */
-    List<Project> searchProjects(String searchTerm, Pageable pageable) throws Exception;
+    PaginationResult<Project> listPublicAndAuthorizedProjects(PageInfo pageable, int userId) throws BazaarException;
 
     /**
      * @param projectId identifier of the project should be returned
+     * @param userId    the identifier of the user, whose projects should be returned as well
      * @return the project and all of its data with the given id.
      */
-    Project getProjectById(int projectId) throws Exception;
+    Project getProjectById(int projectId, int userId) throws Exception;
 
     /**
      * @param project data to be created.
+     * @param userId  the identifier of the user, whose projects should be returned as well
      */
-    Project createProject(Project project) throws Exception;
+    Project createProject(Project project, int userId) throws Exception;
 
     /**
      * Modifies the project in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
@@ -160,18 +183,28 @@ public interface DALFacade {
     /**
      * This method create a new follow relation between a user and a project
      *
-     * @param userId        the identifier of the user, who wants to follow the project
-     * @param projectId     the the identifier of the project to follow
+     * @param userId    the identifier of the user, who wants to follow the project
+     * @param projectId the the identifier of the project to follow
      */
     CreationStatus followProject(int userId, int projectId) throws BazaarException;
 
     /**
      * This method deleted the follow relationship between the given user and project.
      *
-     * @param userId        the identifier of the user, who wants not to follow the project
-     * @param projectId     the the identifier of the project to unfollow
+     * @param userId    the identifier of the user, who wants not to follow the project
+     * @param projectId the the identifier of the project to unfollow
      */
     void unFollowProject(int userId, int projectId) throws BazaarException;
+
+    /**
+     * Get all followers for a project
+     *
+     * @param projectId
+     * @param pageable
+     * @return
+     * @throws BazaarException
+     */
+    PaginationResult<User> listFollowersForProject(int projectId, Pageable pageable) throws BazaarException;
     //endregion
 
     //region Requirement
@@ -192,18 +225,11 @@ public interface DALFacade {
 
     /**
      * @param categoryId the id of the category we are looking in
-     * @param pageable    pagination information
+     * @param pageable   pagination information
      * @param userId
      * @return the requirements under the given category in a paginated way
      */
     PaginationResult<Requirement> listRequirementsByCategory(int categoryId, Pageable pageable, int userId) throws BazaarException;
-
-    /**
-     * @param searchTerm the text, which is used to search. Search is case insensitive.
-     * @param pageable   pagination information
-     * @return the found requirements with the given parameters filled up with only the direct data.
-     */
-    List<Requirement> searchRequirements(String searchTerm, Pageable pageable) throws Exception;
 
     /**
      * @param requirementId the identifier of the requirement should be returned
@@ -253,7 +279,7 @@ public interface DALFacade {
     Requirement setRequirementToUnRealized(int requirementId, int userId) throws Exception;
 
     /**
-     *  This method set userId as lead developer for requirement
+     * This method set userId as lead developer for requirement
      *
      * @param requirementId
      * @param userId
@@ -290,25 +316,25 @@ public interface DALFacade {
      * @param pageable  pagination information
      * @return the categories under the given project in a paginated way
      */
-    PaginationResult<Category> listCategoriesByProjectId(int projectId, Pageable pageable) throws BazaarException;
+    PaginationResult<Category> listCategoriesByProjectId(int projectId, Pageable pageable, int userId) throws BazaarException;
 
     /**
      * @param requirementId the id of the requirement we are looking in
-     * @param pageable  pagination information
+     * @param pageable      pagination information
      * @return the categories under the given project in a paginated way
      */
-    PaginationResult<Category> listCategoriesByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
+    PaginationResult<Category> listCategoriesByRequirementId(int requirementId, Pageable pageable, int userId) throws BazaarException;
 
     /**
      * @param category to be added to the database.
      */
-    Category createCategory(Category category) throws BazaarException;
+    Category createCategory(Category category, int userId) throws BazaarException;
 
-   /**
+    /**
      * @param categoryId identifier of the category should be returned
      * @return the category and all of its data with the given id.
      */
-    Category getCategoryById(int categoryId) throws Exception;
+    Category getCategoryById(int categoryId, int userId) throws Exception;
 
     /**
      * Modifies the category in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
@@ -342,18 +368,28 @@ public interface DALFacade {
     /**
      * This method create a new follow relation between a user and a category
      *
-     * @param userId        the identifier of the user, who wants to follow the category
-     * @param categoryId   the the identifier of the category to follow
+     * @param userId     the identifier of the user, who wants to follow the category
+     * @param categoryId the the identifier of the category to follow
      */
     CreationStatus followCategory(int userId, int categoryId) throws BazaarException;
 
     /**
      * This method deleted the follow relationship between the given user and category.
      *
-     * @param userId        the identifier of the user, who wants not to follow the category
-     * @param categoryId   the the identifier of the category to unfollow
+     * @param userId     the identifier of the user, who wants not to follow the category
+     * @param categoryId the the identifier of the category to unfollow
      */
     void unFollowCategory(int userId, int categoryId) throws BazaarException;
+
+    /**
+     * Get all followers for a category
+     *
+     * @param categoryId
+     * @param pageable
+     * @return
+     * @throws BazaarException
+     */
+    PaginationResult<User> listFollowersForCategory(int categoryId, Pageable pageable) throws BazaarException;
     //endregion
 
     //region Attachment
@@ -452,7 +488,7 @@ public interface DALFacade {
      * This method creates a connection, that the given requirement belongs to the given category.
      *
      * @param requirementId the identifier of the requirement
-     * @param categoryId   the id of the category
+     * @param categoryId    the id of the category
      */
     void addCategoryTag(int requirementId, int categoryId) throws BazaarException;
 
@@ -460,7 +496,7 @@ public interface DALFacade {
      * This method removes the connection, that the given requirement belongs to the given category.
      *
      * @param requirementId the identifier of the requirement
-     * @param categoryId   the id of the category
+     * @param categoryId    the id of the category
      */
     void deleteCategoryTag(int requirementId, int categoryId) throws BazaarException;
     //endregion
@@ -496,6 +532,7 @@ public interface DALFacade {
     //endregion
 
     //region Authorization
+
     /**
      * This method returns all the roles and permissions for the given user
      *

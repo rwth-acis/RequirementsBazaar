@@ -77,7 +77,7 @@ public class EmailDispatcher {
                         subject = Localization.getInstance().getResourceBundle().getString("email.subject.project.updated");
                         bodyText = Localization.getInstance().getResourceBundle().getString("email.bodyText.project.updated");
                     }
-                    Project project = dalFacade.getProjectById(dataId);
+                    Project project = dalFacade.getProjectById(dataId, 0);
                     objectName = project.getName();
                     resourcePath = "projects" + "/" + String.valueOf(dataId);
                 } else if (dataType == Activity.DataType.CATEGORY) {
@@ -88,7 +88,7 @@ public class EmailDispatcher {
                         subject = Localization.getInstance().getResourceBundle().getString("email.subject.category.updated");
                         bodyText = Localization.getInstance().getResourceBundle().getString("email.bodyText.category.updated");
                     }
-                    Category category = dalFacade.getCategoryById(dataId);
+                    Category category = dalFacade.getCategoryById(dataId, userId);
                     objectName = category.getName();
                     resourcePath = "projects" + "/" + category.getProjectId() + "/" + "categories" + "/" + String.valueOf(dataId);
                 } else if (dataType == Activity.DataType.REQUIREMENT) {

@@ -19,41 +19,41 @@ public class Requirement extends EntityBase {
     @MaxLength(value = 50, profiles = {"*"})
     private String name;
 
-    private Date creationDate;
-
-    private Date lastUpdatedDate;
-
     @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
     private String description;
 
     private Date realized;
 
+    @Min(value = 0, profiles = {"create"})
+    private int projectId;
+
+    private User creator;
+    private User leadDeveloper;
+
     @NotNull(profiles = {"create"})
     @Size(min = 1, profiles = {"create"})
     private List<Category> categories;
 
+    // This field is not filled because attachments should be not included in requirements response.
+    // But the API still allows to create a requirement with attachments at the same time.
     private List<Attachment> attachments;
 
-    @Min(value = 0, profiles = {"create"})
-    private int projectId;
+    private Date creationDate;
+
+    private Date lastUpdatedDate;
+
+    private Integer numberOfComments;
+    private Integer numberOfAttachments;
+    private Integer numberOfFollowers;
 
     private int upVotes;
     private int downVotes;
     private UserVote userVoted;
 
-    @Min(-1)
-    private int creatorId;
-
-    private User creator;
-    private User leadDeveloper;
-    private List<User> developers;
-    private List<User> followers;
-    private List<User> contributors;
-
-    private Integer numberOfComments;
-    private Integer numberOfAttachments;
-    private Integer numberOfFollowers;
+    private Boolean isFollower;
+    private Boolean isDeveloper;
+    private Boolean isContributor;
 
     public Date getRealized() {
         return realized;
@@ -87,10 +87,6 @@ public class Requirement extends EntityBase {
         return attachments;
     }
 
-    public void setAttachments(List<Attachment> attachments) {
-        this.attachments = attachments;
-    }
-
     public String getName() {
         return name;
     }
@@ -111,32 +107,16 @@ public class Requirement extends EntityBase {
         this.projectId = projectId;
     }
 
-    public int getCreatorId() {
-        return creatorId;
-    }
-
-    public void setCreatorId(int creatorId) {
-        this.creatorId = creatorId;
-    }
-
     public User getCreator() {
         return creator;
     }
 
+    public void setCreator(User creator) {
+        this.creator = creator;
+    }
+
     public User getLeadDeveloper() {
         return leadDeveloper;
-    }
-
-    public List<User> getDevelopers() {
-        return developers;
-    }
-
-    public List<User> getFollowers() {
-        return followers;
-    }
-
-    public List<User> getContributors() {
-        return contributors;
     }
 
     public void setNumberOfComments(Integer numberOfComments) {
@@ -151,27 +131,37 @@ public class Requirement extends EntityBase {
         this.numberOfFollowers = numberOfFollowers;
     }
 
+    public void setFollower(Boolean follower) {
+        isFollower = follower;
+    }
+
+    public void setDeveloper(Boolean developer) {
+        isDeveloper = developer;
+    }
+
+    public void setContributor(Boolean contributor) {
+        isContributor = contributor;
+    }
+
     public Requirement() {
     }
 
     protected Requirement(Builder builder) {
         this.id = builder.id;
-        this.description = builder.description;
         this.name = builder.name;
+        this.description = builder.description;
         this.realized = builder.realized;
         this.projectId = builder.projectId;
-        this.creatorId = builder.creatorId;
+        this.creator = builder.creator;
+        this.leadDeveloper = builder.leadDeveloper;
         this.creationDate = builder.creationDate;
         this.lastUpdatedDate = builder.lastUpdatedDate;
         this.upVotes = builder.upVotes;
         this.downVotes = builder.downVotes;
         this.userVoted = builder.userVoted;
-        this.attachments = builder.attachments;
-        this.creator = builder.creator;
-        this.leadDeveloper = builder.leadDeveloper;
-        this.developers = builder.developers;
-        this.followers = builder.followers;
-        this.contributors = builder.contributors;
+        this.isFollower = builder.isFollower;
+        this.isDeveloper = builder.isDeveloper;
+        this.isContributor = builder.isContributor;
     }
 
     /**
@@ -190,18 +180,16 @@ public class Requirement extends EntityBase {
         private String name;
         private Date realized;
         private int projectId;
-        private int creatorId;
         private Date creationDate;
         private Date lastUpdatedDate;
         private int upVotes;
         private int downVotes;
         private UserVote userVoted;
-        private List<Attachment> attachments;
         private User creator;
-        private List<User> developers;
-        private List<User> followers;
-        private List<User> contributors;
         private User leadDeveloper;
+        private Boolean isFollower;
+        private Boolean isDeveloper;
+        private Boolean isContributor;
 
         public Builder(String name) {
             this.name = name;
@@ -236,11 +224,6 @@ public class Requirement extends EntityBase {
 
         public Builder projectId(int projectId) {
             this.projectId = projectId;
-            return this;
-        }
-
-        public Builder creatorId(int userId) {
-            this.creatorId = userId;
             return this;
         }
 
@@ -284,23 +267,18 @@ public class Requirement extends EntityBase {
             return this;
         }
 
-        public Requirement.Builder developers(List<User> developers) {
-            this.developers = developers;
+        public Requirement.Builder isFollower(Boolean isFollower) {
+            this.isFollower = isFollower;
             return this;
         }
 
-        public Requirement.Builder followers(List<User> followers) {
-            this.followers = followers;
+        public Requirement.Builder isDeveloper(Boolean isDeveloper) {
+            this.isDeveloper = isDeveloper;
             return this;
         }
 
-        public Requirement.Builder contributors(List<User> contributors) {
-            this.contributors = contributors;
-            return this;
-        }
-
-        public Requirement.Builder attachments(List<Attachment> attachments) {
-            this.attachments = attachments;
+        public Requirement.Builder isContributor(Boolean isContributor) {
+            this.isContributor = isContributor;
             return this;
         }
     }

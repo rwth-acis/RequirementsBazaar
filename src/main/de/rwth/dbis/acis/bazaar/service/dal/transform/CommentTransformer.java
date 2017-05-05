@@ -41,7 +41,7 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
         entity = this.cleanEntity(entity);
 
         CommentRecord record = new CommentRecord();
-        record.setUserId(entity.getCreatorId());
+        record.setUserId(entity.getCreator().getId());
         record.setMessage(entity.getMessage());
         record.setRequirementId(entity.getRequirementId());
         record.setReplyToCommentId(entity.getReplyToComment());
@@ -54,7 +54,6 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
         return Comment.getBuilder(record.getMessage())
                 .id(record.getId())
                 .requirementId(record.getRequirementId())
-                .creatorId(record.getUserId())
                 .replyToComment(record.getReplyToCommentId())
                 .creationDate(record.getCreationDate())
                 .lastUpdatedDate(record.getLastUpdatedDate())
@@ -80,7 +79,6 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
     public Map<Field, Object> getUpdateMap(final Comment entity) {
         HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
             put(COMMENT.REQUIREMENT_ID, entity.getRequirementId());
-            put(COMMENT.USER_ID, entity.getCreatorId());
             put(COMMENT.MESSAGE, entity.getMessage());
         }};
         if (!updateMap.isEmpty()) {

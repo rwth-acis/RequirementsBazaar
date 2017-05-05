@@ -40,7 +40,7 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
         record.setDescription(entry.getDescription());
         record.setName(entry.getName());
         record.setCreationDate(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
-        record.setCreatorId(entry.getCreatorId());
+        record.setCreatorId(entry.getCreator().getId());
         record.setProjectId(entry.getProjectId());
         return record;
     }
@@ -52,8 +52,7 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
                 .realized(record.getRealized())
                 .creationDate(record.getCreationDate())
                 .lastUpdatedDate(record.getLastUpdatedDate())
-                .projectId(record.getProjectId())
-                .creatorId(record.getCreatorId());
+                .projectId(record.getProjectId());
     }
 
     @Override

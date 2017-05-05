@@ -40,7 +40,7 @@ public class AttachmentTransformer implements Transformer<Attachment, Attachment
         AttachmentRecord record = new AttachmentRecord();
         record.setLastUpdatedDate(record.getCreationDate());
         record.setRequirementId(entity.getRequirementId());
-        record.setUserId(entity.getCreatorId());
+        record.setUserId(entity.getCreator().getId());
         record.setName(entity.getName());
         record.setDescription(entity.getDescription());
         record.setMimeType(entity.getMimeType());
@@ -54,7 +54,6 @@ public class AttachmentTransformer implements Transformer<Attachment, Attachment
     public Attachment getEntityFromTableRecord(AttachmentRecord record) {
         Attachment entity = Attachment.getBuilder()
                 .id(record.getId())
-                .creator(record.getUserId())
                 .requirementId(record.getRequirementId())
                 .name(record.getName())
                 .description(record.getDescription())

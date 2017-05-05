@@ -40,8 +40,11 @@ import org.jooq.Result;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.*;
+
+import static org.jooq.impl.DSL.*;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
 
@@ -82,8 +85,6 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
                     .asField("followerCount");
 
-            // last activity (if possible)
-
             List<Record> queryResults = jooq.select(REQUIREMENT.fields())
                     .select(idCount)
                     .select(voteCount)
@@ -102,7 +103,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             for (Record queryResult : queryResults) {
                 RequirementRecord requirementRecord = queryResult.into(REQUIREMENT);
                 Requirement requirement = transformer.getEntityFromTableRecord(requirementRecord);
-                requirements.add(findById(requirement.getId(), userId));
+                requirements.add(findById(requirement.getId(), userId)); // TODO: Remove the getId call and create the objects themself here
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
             result = new PaginationResult<>(total, pageable, requirements);
@@ -179,7 +180,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
             for (Record queryResult : queryResults) {
                 RequirementRecord requirementRecord = queryResult.into(RequirementRecord.class);
-                requirements.add(findById(requirementRecord.getId(), userId));
+                requirements.add(findById(requirementRecord.getId(), userId)); // TODO: Remove the getId call and create the objects themself here
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
             result = new PaginationResult<>(total, pageable, requirements);
@@ -208,11 +209,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     public Requirement findById(int id, int userId) throws Exception {
         Requirement requirement = null;
         try {
-            de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User followerUser = USER.as("followerUser");
-            de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User developerUser = USER.as("developerUser");
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User creatorUser = USER.as("creatorUser");
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User leadDeveloperUser = USER.as("leadDeveloperUser");
-            //Users contributorUsers = Users.USERS.as("contributorUsers");
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Vote vote = VOTE.as("vote");
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Vote userVote = VOTE.as("userVote");
 
@@ -231,35 +229,50 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
                     .asField("followerCount");
 
+            Field<Object> isFollower = DSL.select(DSL.count())
+                    .from(REQUIREMENT_FOLLOWER_MAP)
+                    .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID).and(REQUIREMENT_FOLLOWER_MAP.USER_ID.equal(userId)))
+                    .asField("isFollower");
+
+            Field<Object> isDeveloper = DSL.select(DSL.count())
+                    .from(REQUIREMENT_DEVELOPER_MAP)
+                    .where(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID).and(REQUIREMENT_DEVELOPER_MAP.USER_ID.equal(userId)))
+                    .asField("isDeveloper");
+
+            // Contributors = {Creator, Lead Developer, Developers, Comments creators,  Attachments creators}
+            // This code could be improved so that not only "1" or "0" will return but how much contributions an user made
+            // I tried this for 2-3 hours. SQL ... yeah ... I leave this to someone else. :->
+            // TODO: Try the first idea from here: http://stackoverflow.com/questions/43717672/sum-over-multiple-count-field/43721212?noredirect=1#comment74498115_43721212
+            Field<Object> isContributor = select(sum(choose()
+                    .when(REQUIREMENT.CREATOR_ID.eq(userId), inline(1))
+                    .when(REQUIREMENT.LEAD_DEVELOPER_ID.eq(userId), inline(1))
+                    .when(REQUIREMENT_DEVELOPER_MAP.USER_ID.eq(userId), inline(1))
+                    .when(COMMENT.USER_ID.eq(userId), inline(1))
+                    .when(ATTACHMENT.USER_ID.eq(userId), inline(1))
+                    .otherwise(inline(0))
+            ))
+                    .from(REQUIREMENT)
+                    .leftOuterJoin(REQUIREMENT_DEVELOPER_MAP).on(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+                    .leftOuterJoin(COMMENT).on(COMMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+                    .leftOuterJoin(ATTACHMENT).on(ATTACHMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+                    .where(REQUIREMENT.ID.equal(id))
+                    .asField("isContributor");
+
             Result<Record> queryResult = jooq.select(REQUIREMENT.fields())
                     .select(commentCount)
                     .select(attachmentCount)
                     .select(followerCount)
-                    .select(followerUser.fields())
-                    .select(developerUser.fields())
+                    .select(isFollower)
+                    .select(isDeveloper)
+                    .select(isContributor)
                     .select(creatorUser.fields())
                     .select(leadDeveloperUser.fields())
-                    .select(ATTACHMENT.fields())
                     .select(CATEGORY.fields())
-
                     .from(REQUIREMENT)
-                    //.leftOuterJoin(Comments.COMMENTS).on(Comments.COMMENTS.REQUIREMENT_ID.equal(REQUIREMENTS.ID))
-                    .leftOuterJoin(ATTACHMENT).on(ATTACHMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-
-                    .leftOuterJoin(REQUIREMENT_FOLLOWER_MAP).on(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .leftOuterJoin(followerUser).on(REQUIREMENT_FOLLOWER_MAP.USER_ID.equal(followerUser.ID))
-
-                    .leftOuterJoin(REQUIREMENT_DEVELOPER_MAP).on(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .leftOuterJoin(developerUser).on(REQUIREMENT_DEVELOPER_MAP.USER_ID.equal(developerUser.ID))
-
                     .join(creatorUser).on(creatorUser.ID.equal(REQUIREMENT.CREATOR_ID))
                     .leftOuterJoin(leadDeveloperUser).on(leadDeveloperUser.ID.equal(REQUIREMENT.LEAD_DEVELOPER_ID))
-
-                    //.leftOuterJoin(contributorUsers).on(Attachments.ATTACHMENTS.USER_ID.equal(contributorUsers.ID))
-
                     .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
                     .leftOuterJoin(CATEGORY).on(CATEGORY.ID.equal(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID))
-
                     .where(transformer.getTableId().equal(id))
                     .fetch();
 
@@ -276,8 +289,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .realized(queryResult.getValues(REQUIREMENT.REALIZED).get(0))
                     .creationDate(queryResult.getValues(REQUIREMENT.CREATION_DATE).get(0))
                     .lastUpdatedDate(queryResult.getValues(REQUIREMENT.LAST_UPDATED_DATE).get(0))
-                    .projectId(queryResult.getValues(REQUIREMENT.PROJECT_ID).get(0))
-                    .creatorId(queryResult.getValues(REQUIREMENT.CREATOR_ID).get(0));
+                    .projectId(queryResult.getValues(REQUIREMENT.PROJECT_ID).get(0));
 
             UserTransformer userTransformer = new UserTransformer();
             //Filling up Creator
@@ -291,69 +303,6 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                         userTransformer.getEntityFromQueryResult(leadDeveloperUser, queryResult)
                 );
             }
-
-            //Filling up developers list
-            List<User> devList = new ArrayList<>();
-
-            for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(developerUser.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
-                Result<Record> records = entry.getValue();
-                devList.add(
-                        userTransformer.getEntityFromQueryResult(developerUser, records)
-                );
-            }
-            builder.developers(devList);
-
-            //Filling up follower list
-            List<User> followers = new ArrayList<>();
-            for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(followerUser.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
-                Result<Record> records = entry.getValue();
-                followers.add(
-                        userTransformer.getEntityFromQueryResult(followerUser, records)
-                );
-            }
-            builder.followers(followers);
-
-            //Filling up contributors
-            /*
-            List<User> contributorList = new ArrayList<>();
-
-            for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(contributorUsers.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
-                Result<Record> records = entry.getValue();
-                contributorList.add(
-                        userTransformer.getEntityFromQueryResult(contributorUsers, records)
-                );
-            }
-            builder.contributors(contributorList);
-            */
-
-            //Filling up attachments
-            List<Attachment> attachments = new ArrayList<>();
-
-            AttachmentTransformer attachmentTransform = new AttachmentTransformer();
-
-            for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(ATTACHMENT.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
-                Result<Record> records = entry.getValue();
-                AttachmentRecord record = new AttachmentRecord(
-                        records.getValues(ATTACHMENT.ID).get(0),
-                        records.getValues(ATTACHMENT.CREATION_DATE).get(0),
-                        records.getValues(ATTACHMENT.LAST_UPDATED_DATE).get(0),
-                        records.getValues(ATTACHMENT.REQUIREMENT_ID).get(0),
-                        records.getValues(ATTACHMENT.USER_ID).get(0),
-                        records.getValues(ATTACHMENT.NAME).get(0),
-                        records.getValues(ATTACHMENT.DESCRIPTION).get(0),
-                        records.getValues(ATTACHMENT.MIME_TYPE).get(0),
-                        records.getValues(ATTACHMENT.IDENTIFIER).get(0),
-                        records.getValues(ATTACHMENT.FILE_URL).get(0)
-                );
-                attachments.add(
-                        attachmentTransform.getEntityFromTableRecord(record)
-                );
-            }
-            builder.attachments(attachments);
 
             //Filling up votes
             Result<Record> voteQueryResult = jooq.select(DSL.count(DSL.nullif(vote.IS_UPVOTE, 0)).as("upVotes"))
@@ -392,7 +341,11 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             requirement.setNumberOfComments((Integer) queryResult.getValues(commentCount).get(0));
             requirement.setNumberOfAttachments((Integer) queryResult.getValues(attachmentCount).get(0));
             requirement.setNumberOfFollowers((Integer) queryResult.getValues(followerCount).get(0));
-
+            if (userId != 1) {
+                requirement.setFollower((Integer) queryResult.getValues(isFollower).get(0) == 0 ? false : true);
+                requirement.setDeveloper((Integer) queryResult.getValues(isDeveloper).get(0) == 0 ? false : true);
+                requirement.setContributor(((BigDecimal) queryResult.getValues(isContributor).get(0)).equals(new BigDecimal(0)) ? false : true);
+            }
 
         } catch (BazaarException be) {
             ExceptionHandler.getInstance().convertAndThrowException(be);

@@ -47,7 +47,7 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
         record.setDescription(entry.getDescription());
         record.setName(entry.getName());
         record.setProjectId(entry.getProjectId());
-        record.setLeaderId(entry.getLeaderId());
+        record.setLeaderId(entry.getLeader().getId());
         record.setCreationDate(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         return record;
     }
@@ -58,7 +58,6 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
                 .description(record.getDescription())
                 .projectId(record.getProjectId())
                 .id(record.getId())
-                .leaderId(record.getLeaderId())
                 .creationDate(record.getCreationDate())
                 .lastUpdatedDate(record.getLastUpdatedDate())
                 .build();
@@ -87,6 +86,9 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
             }
             if (entry.getName() != null) {
                 put(CATEGORY.NAME, entry.getName());
+            }
+            if (entry.getLeader() != null) {
+                put(CATEGORY.LEADER_ID, entry.getLeader().getId());
             }
         }};
         if (!updateMap.isEmpty()) {
