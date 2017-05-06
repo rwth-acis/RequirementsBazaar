@@ -1,21 +1,6 @@
 Requirements Bazaar
 ===================
 
-Table of contents
--------------------
-- [Requirements Bazaar](#)
-	- [Table of contents](#)
-	- [Idea](#)
-	- [Technology](#)
-	- [Dependencies](#)
-	- [How to run using Docker](#)
-	- [How to set up the database](#)
-	- [Configuration](#)
-	- [Build](#)
-	- [How to run](#)
-
-----------
-
 Idea
 -------------------
 In years of research at RWTH Aachen we have developed and actually operated an **Open Innovation Platform for gathering requirements** for prototypes in large international academic projects. The last version of the current product is available under http://requirements-bazaar.org . End-users can enter their requirements by providing short descriptions including user stories, screenshots and other images. The requirements can then be shared amongst its users. On the other side of the chain, developers may take up ideas and transfer the accepted requirements to an issue system like JIRA.
@@ -61,14 +46,6 @@ In order to be able to run this service project the following components should 
  - MySQL 5.7 
  - Apache Ant to build
 
-How to run using Docker
--------------------
-Docker is providing the simplest way to run the Requirement Bazaar back-end. Just follow the following steps if Docker is already installed on your system:
-
- 1. `git clone` this repo
- 2. `docker build -t rwthacis/reqbaz-service`
- 3. `docker run -i -t --rm -v "pwd":/build rwthacis/reqbaz-service`
-
 How to set up the database
 -------------------
  1. `git clone` this repo
@@ -109,5 +86,13 @@ How to run
  3. [Build](#build)
  4. Open a console/terminal window and navigate to the `\bin` directory
  5. Run the `start_network.bat` or `start_network.sh` script
+ 
+ How to run using Docker
+ -------------------
+ Docker is providing the simplest way to run the Requirement Bazaar back-end. Just follow the following steps if Docker is already installed on your system:
+ 
+  1. `git clone` this repo
+  2. `docker build -t rwthacis/reqbaz-service`
+  3. `docker run -i -t --rm -v "pwd":/build rwthacis/reqbaz-service`
 
 
