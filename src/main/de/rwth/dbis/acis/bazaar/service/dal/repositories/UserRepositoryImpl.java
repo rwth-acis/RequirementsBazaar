@@ -67,7 +67,9 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
     @Override
     public void updateLastLoginDate(int userId) throws Exception {
         try {
-            jooq.update(USER).set(USER.LAST_LOGIN_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime())).execute();
+            jooq.update(USER).set(USER.LAST_LOGIN_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()))
+                    .where(USER.ID.equal(userId))
+                    .execute();
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
