@@ -215,7 +215,8 @@ CREATE TABLE IF NOT EXISTS reqbaz.user (
   creation_date             TIMESTAMP    NOT NULL  DEFAULT CURRENT_TIMESTAMP,
   last_updated_date         TIMESTAMP    NULL,
   last_login_date           TIMESTAMP    NULL,
-  CONSTRAINT user_pk PRIMARY KEY (id)
+  CONSTRAINT user_pk PRIMARY KEY (id),
+  UNIQUE KEY las2peer_idx (las2peer_id)
 );
 
 -- Table vote
