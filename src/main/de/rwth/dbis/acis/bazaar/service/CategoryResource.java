@@ -56,7 +56,7 @@ public class CategoryResource {
     private final L2pLogger logger = L2pLogger.getInstance(CategoryResource.class.getName());
 
     public CategoryResource() throws Exception {
-        bazaarService = new BazaarService();
+        bazaarService = (BazaarService) Context.getCurrent().getService();
     }
 
     /**

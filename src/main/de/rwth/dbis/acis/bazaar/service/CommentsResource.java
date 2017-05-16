@@ -53,7 +53,7 @@ public class CommentsResource {
     private final L2pLogger logger = L2pLogger.getInstance(CommentsResource.class.getName());
 
     public CommentsResource() throws Exception {
-        bazaarService = new BazaarService();
+        bazaarService = (BazaarService) Context.getCurrent().getService();
     }
 
     /**

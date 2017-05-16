@@ -49,7 +49,7 @@ public class UsersResource {
     private final L2pLogger logger = L2pLogger.getInstance(UsersResource.class.getName());
 
     public UsersResource() throws Exception {
-        bazaarService = new BazaarService();
+        bazaarService = (BazaarService) Context.getCurrent().getService();
     }
 
     /**

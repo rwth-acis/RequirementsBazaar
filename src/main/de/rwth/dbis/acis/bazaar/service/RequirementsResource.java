@@ -56,7 +56,7 @@ public class RequirementsResource {
     private final L2pLogger logger = L2pLogger.getInstance(RequirementsResource.class.getName());
 
     public RequirementsResource() throws Exception {
-        bazaarService = new BazaarService();
+        bazaarService = (BazaarService) Context.getCurrent().getService();
     }
 
     /**

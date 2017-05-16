@@ -53,7 +53,7 @@ public class AttachmentsResource {
     private final L2pLogger logger = L2pLogger.getInstance(AttachmentsResource.class.getName());
 
     public AttachmentsResource() throws Exception {
-        bazaarService = new BazaarService();
+        bazaarService = (BazaarService) Context.getCurrent().getService();
     }
 
     /**
