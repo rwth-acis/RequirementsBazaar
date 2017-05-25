@@ -550,7 +550,7 @@ public class RequirementsResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response setUserAsLeadDeveloper(@PathParam("requirementId") int requirementId) {
+    public Response leaddevelopRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -604,7 +604,7 @@ public class RequirementsResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response removeUserAsLeadDeveloper(@PathParam("requirementId") int requirementId) {
+    public Response unleaddevelopRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -662,7 +662,7 @@ public class RequirementsResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response addUserToDevelopers(@PathParam("requirementId") int requirementId) {
+    public Response developRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -718,7 +718,7 @@ public class RequirementsResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response removeUserFromDevelopers(@PathParam("requirementId") int requirementId) {
+    public Response undevelopRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -773,7 +773,7 @@ public class RequirementsResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response addUserToFollowers(@PathParam("requirementId") int requirementId) {
+    public Response followRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -828,7 +828,7 @@ public class RequirementsResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response removeUserFromFollowers(@PathParam("requirementId") int requirementId) {
+    public Response unfollowRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -884,8 +884,8 @@ public class RequirementsResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response addVote(@PathParam("requirementId") int requirementId,
-                            @ApiParam(value = "Vote direction", allowableValues = "up, down") @DefaultValue("up") @QueryParam("direction") String direction) {
+    public Response vote(@PathParam("requirementId") int requirementId,
+                         @ApiParam(value = "Vote direction", allowableValues = "up, down") @DefaultValue("up") @QueryParam("direction") String direction) {
         DALFacade dalFacade = null;
         try {
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -948,7 +948,7 @@ public class RequirementsResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response removeVote(@PathParam("requirementId") int requirementId) {
+    public Response unvote(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -1112,7 +1112,7 @@ public class RequirementsResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response getStatisticForOneCategory(
+    public Response getStatisticsForRequirement(
             @PathParam("requirementId") int requirementId,
             @ApiParam(value = "Since timestamp", required = false) @QueryParam("since") String since) {
         DALFacade dalFacade = null;

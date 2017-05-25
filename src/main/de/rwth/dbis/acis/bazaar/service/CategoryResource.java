@@ -420,7 +420,7 @@ public class CategoryResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response addUserToFollowers(@PathParam("categoryId") int categoryId) {
+    public Response followCategory(@PathParam("categoryId") int categoryId) {
         DALFacade dalFacade = null;
         try {
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -475,7 +475,7 @@ public class CategoryResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response removeUserFromFollowers(@PathParam("categoryId") int categoryId) {
+    public Response unfollowCategory(@PathParam("categoryId") int categoryId) {
         DALFacade dalFacade = null;
         try {
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -531,7 +531,7 @@ public class CategoryResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response getStatisticForOneCategory(
+    public Response getStatisticsForCategory(
             @PathParam("categoryId") int categoryId,
             @ApiParam(value = "Since timestamp", required = false) @QueryParam("since") String since) {
         DALFacade dalFacade = null;
@@ -580,9 +580,9 @@ public class CategoryResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response getFollowersForRequirement(@PathParam("categoryId") int categoryId,
-                                               @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
-                                               @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) throws Exception {
+    public Response getFollowersForCategory(@PathParam("categoryId") int categoryId,
+                                            @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
+                                            @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) throws Exception {
         DALFacade dalFacade = null;
         try {
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
