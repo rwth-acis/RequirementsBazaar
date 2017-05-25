@@ -179,8 +179,6 @@ public class BazaarService extends RESTService {
                             url = "http://requirements-bazaar.org/license"
                     )
             ),
-            host = "requirements-bazaar.org",
-            basePath = "",
             schemes = SwaggerDefinition.Scheme.HTTPS
     )
     @Path("/")

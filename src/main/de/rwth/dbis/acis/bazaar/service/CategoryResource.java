@@ -44,8 +44,6 @@ import java.util.*;
                         url = "http://requirements-bazaar.org/license"
                 )
         ),
-        host = "requirements-bazaar.org",
-        basePath = "",
         schemes = SwaggerDefinition.Scheme.HTTPS
 )
 @Path("/categories")
