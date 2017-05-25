@@ -84,6 +84,7 @@ public class BazaarService extends RESTService {
     protected String baseURL;
     protected String frontendBaseURL;
     protected String activityTrackerService;
+    protected String activityOrigin;
     protected String smtpServer;
     protected String emailFromAddress;
 
@@ -153,7 +154,7 @@ public class BazaarService extends RESTService {
 
         notificationDispatcher = new NotificationDispatcherImp();
         if (!activityTrackerService.isEmpty()) {
-            notificationDispatcher.setActivityDispatcher(new ActivityDispatcher(this, activityTrackerService, baseURL, frontendBaseURL));
+            notificationDispatcher.setActivityDispatcher(new ActivityDispatcher(this, activityTrackerService, activityOrigin, baseURL, frontendBaseURL));
         }
         if (!smtpServer.isEmpty()) {
             Properties props = System.getProperties();

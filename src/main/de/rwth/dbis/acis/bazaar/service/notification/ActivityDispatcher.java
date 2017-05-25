@@ -23,12 +23,14 @@ public class ActivityDispatcher {
 
     private BazaarService bazaarService;
     private final String activityTrackerService;
+    private final String activityOrigin;
     private final String baseURL;
     private final String frontendBaseURL;
 
-    public ActivityDispatcher(BazaarService bazaarService, String activityTrackerService, String baseURL, String frontendBaseURL) {
+    public ActivityDispatcher(BazaarService bazaarService, String activityTrackerService, String activityOrigin, String baseURL, String frontendBaseURL) {
         this.bazaarService = bazaarService;
         this.activityTrackerService = activityTrackerService;
+        this.activityOrigin = activityOrigin;
         this.baseURL = baseURL;
         this.frontendBaseURL = frontendBaseURL;
     }
@@ -36,7 +38,7 @@ public class ActivityDispatcher {
     public void sendActivityOverRMI(Service service, Date creationDate, Activity.ActivityAction activityAction,
                                     int dataId, Activity.DataType dataType, int parentDataId,
                                     Activity.DataType parentDataTyp, int userId) {
-        DALFacade dalFacade = null;
+        DALFacade dalFacade;
         try {
             dalFacade = bazaarService.getDBConnection();
 
@@ -86,6 +88,7 @@ public class ActivityDispatcher {
                 activityBuilder = activityBuilder.parentDataType(parentDataTyp);
             }
             activityBuilder = activityBuilder.userUrl(baseURL + "users" + "/" + String.valueOf(userId));
+            activityBuilder = activityBuilder.origin(activityOrigin);
             Activity activity = activityBuilder.build();
 
             Object result = service.getContext().invoke(activityTrackerService, "createActivity", new Serializable[]{gson.toJson(activity)});

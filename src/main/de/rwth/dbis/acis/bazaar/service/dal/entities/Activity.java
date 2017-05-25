@@ -13,6 +13,7 @@ public class Activity extends EntityBase {
     private final String parentDataUrl;
     private final DataType parentDataType;
     private final String userUrl;
+    private final String origin;
 
     @Override
     public int getId() {
@@ -51,6 +52,8 @@ public class Activity extends EntityBase {
         return userUrl;
     }
 
+    public String getOrigin() { return origin; }
+
     protected Activity(Builder builder) {
         this.id = builder.id;
         this.creationDate = builder.creationDate;
@@ -61,6 +64,7 @@ public class Activity extends EntityBase {
         this.parentDataUrl = builder.parentDataUrl;
         this.parentDataType = builder.parentDataType;
         this.userUrl = builder.userUrl;
+        this.origin = builder.origin;
     }
 
     public static Builder getBuilder() {
@@ -78,6 +82,7 @@ public class Activity extends EntityBase {
         protected String parentDataUrl;
         protected DataType parentDataType;
         protected String userUrl;
+        protected String origin;
 
         public Builder creationDate(Date creationDate) {
             this.creationDate = creationDate;
@@ -116,6 +121,11 @@ public class Activity extends EntityBase {
 
         public Builder userUrl(String userUrl) {
             this.userUrl = userUrl;
+            return this;
+        }
+
+        public Builder origin(String origin) {
+            this.origin = origin;
             return this;
         }
 
