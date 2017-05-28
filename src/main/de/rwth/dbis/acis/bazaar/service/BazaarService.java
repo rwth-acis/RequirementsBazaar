@@ -42,6 +42,7 @@ import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcherImp;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Context;
 import i5.las2peer.logging.L2pLogger;
+import i5.las2peer.logging.NodeObserver;
 import i5.las2peer.restMapper.RESTService;
 import i5.las2peer.restMapper.annotations.ServicePath;
 import i5.las2peer.security.UserAgent;
@@ -213,6 +214,7 @@ public class BazaarService extends RESTService {
                 Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
                 Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
                 Statistic statisticsResult = dalFacade.getStatisticsForAllProjects(internalUserId, sinceCal);
+                L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_2, Context.getCurrent().getMainAgent(), "Get statistics");
                 Gson gson = new Gson();
                 return Response.ok(gson.toJson(statisticsResult)).build();
             } catch (BazaarException bex) {
@@ -226,6 +228,7 @@ public class BazaarService extends RESTService {
                 }
             } catch (Exception ex) {
                 BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get statistics failed");
                 bazaarService.logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } finally {
@@ -307,6 +310,7 @@ public class BazaarService extends RESTService {
                 User user = userBuilder.admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).profileImage(profileImage)
                         .emailLeadSubscription(true).emailFollowSubscription(true).build();
                 int userId = dalFacade.createUser(user).getId();
+                L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_55, Context.getCurrent().getMainAgent(), "Create user " + userId);
                 dalFacade.addUserToRole(userId, "SystemAdmin", null);
             } else {
                 // update lastLoginDate

@@ -13,6 +13,7 @@ import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Context;
 import i5.las2peer.logging.L2pLogger;
+import i5.las2peer.logging.NodeObserver;
 import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
 import jodd.vtor.Vtor;
@@ -80,6 +81,8 @@ public class AttachmentsResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Project project = dalFacade.getProjectById(requirement.getProjectId(), internalUserId);
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_44, Context.getCurrent().getMainAgent(), "Get attachments for requirement " + requirementId);
+
             if (dalFacade.isRequirementPublic(requirementId)) {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT, String.valueOf(project.getId()), dalFacade);
                 if (!authorized) {
@@ -116,11 +119,13 @@ public class AttachmentsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
+                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get attachments for requirement " + requirementId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get attachments for requirement " + requirementId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -156,6 +161,7 @@ public class AttachmentsResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Attachment attachment = dalFacade.getAttachmentById(attachmentId);
             Requirement requirement = dalFacade.getRequirementById(attachment.getRequirementId(), internalUserId);
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_49, Context.getCurrent().getMainAgent(), "Get attachment " + attachmentId);
             if (dalFacade.isProjectPublic(requirement.getProjectId())) {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_ATTACHMENT, String.valueOf(requirement.getProjectId()), dalFacade);
                 if (!authorized) {
@@ -176,11 +182,13 @@ public class AttachmentsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
+                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get attachment " + attachmentId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get attachment " + attachmentId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -228,6 +236,7 @@ public class AttachmentsResource {
             }
             attachmentToCreate.setCreator(dalFacade.getUserById(internalUserId));
             Attachment createdAttachment = dalFacade.createAttachment(attachmentToCreate);
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_50, Context.getCurrent().getMainAgent(), "Create attachment " + createdAttachment.getId());
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, attachmentToCreate.getCreationDate(), Activity.ActivityAction.CREATE, attachmentToCreate.getId(),
                     Activity.DataType.ATTACHMENT, attachmentToCreate.getRequirementId(), Activity.DataType.REQUIREMENT, internalUserId);
             return Response.status(Response.Status.CREATED).entity(gson.toJson(createdAttachment)).build();
@@ -235,11 +244,14 @@ public class AttachmentsResource {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
+                logger.warning(bex.getMessage());
+                L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_50, Context.getCurrent().getMainAgent(), "Create attachment");
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_50, Context.getCurrent().getMainAgent(), "Create attachment");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -279,6 +291,7 @@ public class AttachmentsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.attachment.modify"));
             }
             Attachment deletedAttachment = dalFacade.deleteAttachmentById(attachmentId);
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_52, Context.getCurrent().getMainAgent(), "Delete attachment " + attachmentId);
             Gson gson = new Gson();
             return Response.ok(gson.toJson(deletedAttachment)).build();
         } catch (BazaarException bex) {
@@ -288,11 +301,13 @@ public class AttachmentsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
+                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Delete attachment " + attachmentId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Delete attachment " + attachmentId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);

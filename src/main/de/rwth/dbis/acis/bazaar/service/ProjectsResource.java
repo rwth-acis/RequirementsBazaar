@@ -14,6 +14,7 @@ import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Context;
 import i5.las2peer.logging.L2pLogger;
+import i5.las2peer.logging.NodeObserver;
 import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
 import jodd.vtor.Vtor;
@@ -118,6 +119,7 @@ public class ProjectsResource {
                 Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
                 projectsResult = dalFacade.listPublicAndAuthorizedProjects(pageInfo, internalUserId);
             }
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_3, Context.getCurrent().getMainAgent(), "Get projects");
 
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{
@@ -142,10 +144,12 @@ public class ProjectsResource {
             return response;
         } catch (BazaarException bex) {
             logger.warning(bex.getMessage());
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get projects failed");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get projects failed");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -191,6 +195,7 @@ public class ProjectsResource {
                 }
             }
             Project projectToReturn = dalFacade.getProjectById(projectId, internalUserId);
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_4, Context.getCurrent().getMainAgent(), "Get project " + projectId);
             Gson gson = new Gson();
             return Response.ok(gson.toJson(projectToReturn)).build();
         } catch (BazaarException bex) {
@@ -200,11 +205,13 @@ public class ProjectsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
+                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get project " + projectId + " failed");
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get project " + projectId + " failed");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -249,6 +256,7 @@ public class ProjectsResource {
             }
             projectToCreate.setLeader(dalFacade.getUserById(internalUserId));
             Project createdProject = dalFacade.createProject(projectToCreate, internalUserId);
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_5, Context.getCurrent().getMainAgent(), "Create project " + createdProject.getId());
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, createdProject.getCreationDate(), Activity.ActivityAction.CREATE, createdProject.getId(),
                     Activity.DataType.PROJECT, 0, null, internalUserId);
             return Response.status(Response.Status.CREATED).entity(gson.toJson(createdProject)).build();
@@ -257,11 +265,13 @@ public class ProjectsResource {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
+                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Create project");
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Create project");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -312,6 +322,7 @@ public class ProjectsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
             }
             Project updatedProject = dalFacade.modifyProject(projectToUpdate);
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_6, Context.getCurrent().getMainAgent(), "Update project " + projectId);
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, updatedProject.getLastUpdatedDate(), Activity.ActivityAction.UPDATE, updatedProject.getId(),
                     Activity.DataType.PROJECT, 0, null, internalUserId);
             return Response.ok(gson.toJson(updatedProject)).build();
@@ -322,11 +333,13 @@ public class ProjectsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
+                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Update project");
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Update project");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -365,6 +378,7 @@ public class ProjectsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.follow.create"));
             }
             dalFacade.followProject(internalUserId, projectId);
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_8, Context.getCurrent().getMainAgent(), "Follow project " + projectId);
             Project project = dalFacade.getProjectById(projectId, internalUserId);
             Gson gson = new Gson();
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.FOLLOW, project.getId(),
@@ -377,11 +391,13 @@ public class ProjectsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
+                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Follow project " + projectId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Follow project " + projectId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -421,6 +437,7 @@ public class ProjectsResource {
             }
             dalFacade.unFollowProject(internalUserId, projectId);
             Project project = dalFacade.getProjectById(projectId, internalUserId);
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_9, Context.getCurrent().getMainAgent(), "Unfollow project " + projectId);
             Gson gson = new Gson();
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.UNFOLLOW, project.getId(),
                     Activity.DataType.PROJECT, 0, null, internalUserId);
@@ -432,11 +449,13 @@ public class ProjectsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
+                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Unfollow project " + projectId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Unfollow project " + projectId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -471,6 +490,7 @@ public class ProjectsResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
             Statistic statisticsResult = dalFacade.getStatisticsForProject(internalUserId, projectId, sinceCal);
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_10, Context.getCurrent().getMainAgent(), "Get statistics for project " + projectId);
             Gson gson = new Gson();
             return Response.ok(gson.toJson(statisticsResult)).build();
         } catch (BazaarException bex) {
@@ -480,11 +500,13 @@ public class ProjectsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
+                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get statistics for project " + projectId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get statistics for project " + projectId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -528,6 +550,7 @@ public class ProjectsResource {
             }
             dalFacade = bazaarService.getDBConnection();
             PaginationResult<User> requirementsResult = dalFacade.listFollowersForProject(projectId, pageInfo);
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_12, Context.getCurrent().getMainAgent(), "Get followers for project " + projectId);
 
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{
@@ -552,11 +575,13 @@ public class ProjectsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
+                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get followers for project " + projectId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
+            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get followers for project " + projectId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
