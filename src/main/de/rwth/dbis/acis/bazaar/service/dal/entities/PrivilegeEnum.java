@@ -30,10 +30,10 @@ public enum PrivilegeEnum {
     Read_PUBLIC_PROJECT,
     Modify_PROJECT,
 
-    Create_COMPONENT,
-    Read_COMPONENT,
-    Read_PUBLIC_COMPONENT,
-    Modify_COMPONENT,
+    Create_CATEGORY,
+    Read_CATEGORY,
+    Read_PUBLIC_CATEGORY,
+    Modify_CATEGORY,
 
     Create_REQUIREMENT,
     Read_REQUIREMENT,

@@ -5,7 +5,7 @@ import java.util.Date;
 public class Activity extends EntityBase {
 
     private final int id;
-    private final Date creationTime;
+    private final Date creationDate;
     private final ActivityAction activityAction;
     private final String dataUrl;
     private final DataType dataType;
@@ -13,14 +13,15 @@ public class Activity extends EntityBase {
     private final String parentDataUrl;
     private final DataType parentDataType;
     private final String userUrl;
+    private final String origin;
 
     @Override
     public int getId() {
         return id;
     }
 
-    public Date getCreationTime() {
-        return creationTime;
+    public Date getCreationDate() {
+        return creationDate;
     }
 
     public ActivityAction getActivityAction() {
@@ -51,9 +52,11 @@ public class Activity extends EntityBase {
         return userUrl;
     }
 
+    public String getOrigin() { return origin; }
+
     protected Activity(Builder builder) {
         this.id = builder.id;
-        this.creationTime = builder.creationTime;
+        this.creationDate = builder.creationDate;
         this.activityAction = builder.activityAction;
         this.dataUrl = builder.dataUrl;
         this.dataType = builder.dataType;
@@ -61,6 +64,7 @@ public class Activity extends EntityBase {
         this.parentDataUrl = builder.parentDataUrl;
         this.parentDataType = builder.parentDataType;
         this.userUrl = builder.userUrl;
+        this.origin = builder.origin;
     }
 
     public static Builder getBuilder() {
@@ -70,7 +74,7 @@ public class Activity extends EntityBase {
     public static class Builder {
 
         protected int id;
-        protected Date creationTime;
+        protected Date creationDate;
         protected ActivityAction activityAction;
         protected String dataUrl;
         protected DataType dataType;
@@ -78,9 +82,10 @@ public class Activity extends EntityBase {
         protected String parentDataUrl;
         protected DataType parentDataType;
         protected String userUrl;
+        protected String origin;
 
-        public Builder creationTime(Date creationTime) {
-            this.creationTime = creationTime;
+        public Builder creationDate(Date creationDate) {
+            this.creationDate = creationDate;
             return this;
         }
 
@@ -119,6 +124,11 @@ public class Activity extends EntityBase {
             return this;
         }
 
+        public Builder origin(String origin) {
+            this.origin = origin;
+            return this;
+        }
+
         public Activity build() {
             Activity created = new Activity(this);
             return created;
@@ -127,7 +137,7 @@ public class Activity extends EntityBase {
 
     public enum DataType {
         PROJECT,
-        COMPONENT,
+        CATEGORY,
         REQUIREMENT,
         COMMENT,
         ATTACHMENT

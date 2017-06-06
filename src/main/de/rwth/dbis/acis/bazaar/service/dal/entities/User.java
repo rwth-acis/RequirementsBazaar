@@ -20,48 +20,68 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
+
+import jodd.vtor.constraint.MaxLength;
 import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
 import jodd.vtor.constraint.NotNull;
+
+import java.util.Date;
 
 public class User extends EntityBase {
 
     private int id;
 
+    @NotBlank(profiles = {"*"})
+    @NotNull(profiles = {"create"})
+    @MaxLength(value = 1000, profiles = {"*"})
+    private String userName;
+
+    @MaxLength(value = 1000, profiles = {"*"})
     private String firstName;
 
+    @MaxLength(value = 1000, profiles = {"*"})
     private String lastName;
 
+    @NotBlank(profiles = {"*"})
+    @NotNull(profiles = {"create"})
+    @MaxLength(value = 1000, profiles = {"*"})
     private transient String eMail;
 
     private Boolean admin;
 
-    private long Las2peerId;
-
-    @NotBlank(profiles = {"*"})
-    @NotNull(profiles = {"*"})
-    private String userName;
+    @Min(value = 1, profiles = {"create"})
+    private long las2peerId;
 
     private String profileImage;
 
-    private Boolean emailLeadItems;
+    private Boolean emailLeadSubscription;
 
-    private Boolean emailFollowItems;
+    private Boolean emailFollowSubscription;
+
+    private Date creationDate;
+
+    private Date lastUpdatedDate;
+
+    private Date lastLoginDate;
 
     public User() {
     }
 
     public User(Builder builder) {
-        id = builder.id;
+        this.id = builder.id;
+        this.userName = builder.userName;
         this.firstName = builder.firstName;
         this.lastName = builder.lastName;
         this.eMail = builder.eMail;
         this.admin = builder.admin;
-        Las2peerId = builder.las2peerId;
-        this.userName = builder.userName;
+        this.las2peerId = builder.las2peerId;
         this.profileImage = builder.profileImage;
-        this.emailLeadItems = builder.emailLeadItems;
-        this.emailFollowItems = builder.emailFollowItems;
+        this.emailLeadSubscription = builder.emailLeadSubscription;
+        this.emailFollowSubscription = builder.emailFollowSubscription;
+        this.creationDate = builder.creationDate;
+        this.lastUpdatedDate = builder.lastUpdatedDate;
+        this.lastLoginDate = builder.lastLoginDate;
     }
 
     public int getId() {
@@ -76,7 +96,7 @@ public class User extends EntityBase {
         return lastName;
     }
 
-    public String geteMail() {
+    public String getEMail() {
         return eMail;
     }
 
@@ -85,7 +105,7 @@ public class User extends EntityBase {
     }
 
     public long getLas2peerId() {
-        return Las2peerId;
+        return las2peerId;
     }
 
     public String getUserName() {
@@ -96,12 +116,24 @@ public class User extends EntityBase {
         return profileImage;
     }
 
-    public Boolean isEmailLeadItems() {
-        return emailLeadItems;
+    public Boolean isEmailLeadSubscription() {
+        return emailLeadSubscription;
     }
 
-    public Boolean isEmailFollowItems() {
-        return emailFollowItems;
+    public Boolean isEmailFollowSubscription() {
+        return emailFollowSubscription;
+    }
+
+    public Date getCreationDate() {
+        return creationDate;
+    }
+
+    public Date getLastUpdatedDate() {
+        return lastUpdatedDate;
+    }
+
+    public Date getLastLoginDate() {
+        return lastLoginDate;
     }
 
     public static Builder geBuilder(String eMail) {
@@ -121,8 +153,11 @@ public class User extends EntityBase {
         private long las2peerId;
         private String userName;
         private String profileImage;
-        private Boolean emailLeadItems;
-        private Boolean emailFollowItems;
+        private Boolean emailLeadSubscription;
+        private Boolean emailFollowSubscription;
+        private Date creationDate;
+        private Date lastUpdatedDate;
+        private Date lastLoginDate;
 
         public Builder(String eMail) {
             this.eMail = eMail;
@@ -168,13 +203,28 @@ public class User extends EntityBase {
             return this;
         }
 
-        public Builder emailLeadItems(Boolean emailLeadItems) {
-            this.emailLeadItems = emailLeadItems;
+        public Builder emailLeadSubscription(Boolean emailLeadSubscription) {
+            this.emailLeadSubscription = emailLeadSubscription;
             return this;
         }
 
-        public Builder emailFollowItems(Boolean emailFollowItems) {
-            this.emailFollowItems = emailFollowItems;
+        public Builder emailFollowSubscription(Boolean emailFollowSubscription) {
+            this.emailFollowSubscription = emailFollowSubscription;
+            return this;
+        }
+
+        public Builder creationDate(Date creationDate) {
+            this.creationDate = creationDate;
+            return this;
+        }
+
+        public Builder lastUpdatedDate(Date lastUpdatedDate) {
+            this.lastUpdatedDate = lastUpdatedDate;
+            return this;
+        }
+
+        public Builder lastLoginDate(Date lastLoginDate) {
+            this.lastLoginDate = lastLoginDate;
             return this;
         }
 

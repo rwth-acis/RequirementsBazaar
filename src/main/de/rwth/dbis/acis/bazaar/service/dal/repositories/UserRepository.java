@@ -21,6 +21,8 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.util.List;
@@ -30,11 +32,20 @@ import java.util.List;
  * @since 6/22/2014
  */
 public interface UserRepository extends Repository<User> {
+
     Integer getIdByLas2PeerId(long las2PeerId) throws BazaarException;
+
+    void updateLastLoginDate(int userId) throws Exception;
+
+    PaginationResult<User> findAllByDeveloping(int requirementId, Pageable pageable) throws BazaarException;
+
+    PaginationResult<User> findAllByContribution(int requirementId, Pageable pageable) throws BazaarException;
+
+    PaginationResult<User> findAllByFollowing(int projectId, int categoryId, int requirementId, Pageable pageable) throws BazaarException;
 
     List<User> getEmailReceiverForProject(int projectId) throws BazaarException;
 
-    List<User> getEmailReceiverForComponent(int componentId) throws BazaarException;
+    List<User> getEmailReceiverForCategory(int categoryId) throws BazaarException;
 
     List<User> getEmailReceiverForRequirement(int requirementId) throws BazaarException;
 }

@@ -21,17 +21,12 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachments;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Projects;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirements;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentsRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.AttachmentTransformator;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformator;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.AttachmentTransformer;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -44,38 +39,40 @@ import org.jooq.exception.DataAccessException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
+
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/22/2014
  */
-public class AttachmentRepositoryImpl extends RepositoryImpl<Attachment, AttachmentsRecord> implements AttachmentRepository {
+public class AttachmentRepositoryImpl extends RepositoryImpl<Attachment, AttachmentRecord> implements AttachmentRepository {
 
     /**
      * @param jooq DSLContext for JOOQ connection
      */
     public AttachmentRepositoryImpl(DSLContext jooq) {
-        super(jooq, new AttachmentTransformator());
+        super(jooq, new AttachmentTransformer());
     }
 
     @Override
     public Attachment findById(int id) throws Exception {
         Attachment attachment = null;
         try {
-            Users creatorUser = Users.USERS.as("creatorUser");
-            Record record = jooq.selectFrom(Attachments.ATTACHMENTS
-                    .join(creatorUser).on(creatorUser.ID.equal(Attachments.ATTACHMENTS.USER_ID)))
-                    .where(transformator.getTableId().equal(id))
+            de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User creatorUser = USER.as("creatorUser");
+            Record record = jooq.selectFrom(ATTACHMENT
+                    .join(creatorUser).on(creatorUser.ID.equal(ATTACHMENT.USER_ID)))
+                    .where(transformer.getTableId().equal(id))
                     .fetchOne();
-            AttachmentsRecord attachmentsRecord = record.into(AttachmentsRecord.class);
-            attachment = transformator.getEntityFromTableRecord(attachmentsRecord);
-            UserTransformator userTransformator = new UserTransformator();
-            UsersRecord usersRecord = record.into(creatorUser);
-            attachment.setCreator(userTransformator.getEntityFromTableRecord(usersRecord));
+            AttachmentRecord attachmentRecord = record.into(AttachmentRecord.class);
+            attachment = transformer.getEntityFromTableRecord(attachmentRecord);
+            UserTransformer userTransformer = new UserTransformer();
+            UserRecord userRecord = record.into(creatorUser);
+            attachment.setCreator(userTransformer.getEntityFromTableRecord(userRecord));
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         } catch (NullPointerException e) {
             ExceptionHandler.getInstance().convertAndThrowException(
-                    new Exception("No " + transformator.getRecordClass() + " found with id: " + id),
+                    new Exception("No " + transformer.getRecordClass() + " found with id: " + id),
                     ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
         }
         return attachment;
@@ -87,28 +84,28 @@ public class AttachmentRepositoryImpl extends RepositoryImpl<Attachment, Attachm
         List<Attachment> attachments;
         try {
             attachments = new ArrayList<>();
-            Users creatorUser = Users.USERS.as("creatorUser");
+            de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User creatorUser = USER.as("creatorUser");
 
             Field<Object> idCount = jooq.selectCount()
-                    .from(Attachments.ATTACHMENTS)
-                    .where(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(requirementId))
+                    .from(ATTACHMENT)
+                    .where(ATTACHMENT.REQUIREMENT_ID.equal(requirementId))
                     .asField("idCount");
 
-            List<Record> queryResults = jooq.select(Attachments.ATTACHMENTS.fields()).select(creatorUser.fields()).select(idCount)
-                    .from(Attachments.ATTACHMENTS)
-                    .join(creatorUser).on(creatorUser.ID.equal(Attachments.ATTACHMENTS.USER_ID))
-                    .where(Attachments.ATTACHMENTS.REQUIREMENT_ID.equal(requirementId))
-                    .orderBy(transformator.getSortFields(pageable.getSorts()))
+            List<Record> queryResults = jooq.select(ATTACHMENT.fields()).select(creatorUser.fields()).select(idCount)
+                    .from(ATTACHMENT)
+                    .join(creatorUser).on(creatorUser.ID.equal(ATTACHMENT.USER_ID))
+                    .where(ATTACHMENT.REQUIREMENT_ID.equal(requirementId))
+                    .orderBy(transformer.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
                     .fetch();
 
             for (Record record : queryResults) {
-                AttachmentsRecord attachmentsRecord = record.into(AttachmentsRecord.class);
-                Attachment entry = transformator.getEntityFromTableRecord(attachmentsRecord);
-                UserTransformator userTransformator = new UserTransformator();
-                UsersRecord usersRecord = record.into(creatorUser);
-                entry.setCreator(userTransformator.getEntityFromTableRecord(usersRecord));
+                AttachmentRecord attachmentRecord = record.into(AttachmentRecord.class);
+                Attachment entry = transformer.getEntityFromTableRecord(attachmentRecord);
+                UserTransformer userTransformer = new UserTransformer();
+                UserRecord userRecord = record.into(creatorUser);
+                entry.setCreator(userTransformer.getEntityFromTableRecord(userRecord));
                 attachments.add(entry);
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
@@ -123,10 +120,10 @@ public class AttachmentRepositoryImpl extends RepositoryImpl<Attachment, Attachm
     public boolean belongsToPublicProject(int id) throws BazaarException {
         try {
             Integer countOfPublicProjects = jooq.selectCount()
-                    .from(transformator.getTable())
-                    .join(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.ID.eq(Attachments.ATTACHMENTS.REQUIREMENT_ID))
-                    .join(Projects.PROJECTS).on(Projects.PROJECTS.ID.eq(Requirements.REQUIREMENTS.PROJECT_ID))
-                    .where(transformator.getTableId().eq(id).and(Projects.PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar())))
+                    .from(transformer.getTable())
+                    .join(REQUIREMENT).on(REQUIREMENT.ID.eq(ATTACHMENT.REQUIREMENT_ID))
+                    .join(PROJECT).on(PROJECT.ID.eq(REQUIREMENT.PROJECT_ID))
+                    .where(transformer.getTableId().eq(id).and(PROJECT.VISIBILITY.isTrue()))
                     .fetchOne(0, int.class);
 
             return (countOfPublicProjects == 1);

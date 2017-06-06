@@ -27,7 +27,6 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
-import java.sql.Connection;
 import java.util.Calendar;
 import java.util.List;
 
@@ -51,10 +50,17 @@ public interface DALFacade {
      */
     User modifyUser(User modifiedUser) throws Exception;
 
+    /**
+     * Update lastLoginDate for user.
+     *
+     * @param userId to update lastLoginDate
+     */
+    void updateLastLoginDate(int userId) throws Exception;
+
      /* TODO delete? Should it delete its projects? What should happen after deletion? */
 
     /**
-     * @param userId the identifier of the user, which should be retreived
+     * @param userId the identifier of the user, which should be retrieved
      * @return the user with its data from the database
      */
     User getUserById(int userId) throws Exception;
@@ -66,21 +72,48 @@ public interface DALFacade {
     Integer getUserIdByLAS2PeerId(long las2PeerId) throws Exception;
 
     /**
+     * Get all contributors for a requirement
      *
+     * @param requirementId
+     * @param pageable
+     * @return
+     * @throws BazaarException
+     */
+    PaginationResult<User> listContributorsForRequirement(int requirementId, Pageable pageable) throws BazaarException;
+
+    /**
+     * Get all developers for a requirement
+     *
+     * @param requirementId
+     * @param pageable
+     * @return
+     * @throws BazaarException
+     */
+    PaginationResult<User> listDevelopersForRequirement(int requirementId, Pageable pageable) throws BazaarException;
+
+    /**
+     * Get all followers for a requirement
+     *
+     * @param requirementId
+     * @param pageable
+     * @return
+     * @throws BazaarException
+     */
+    PaginationResult<User> listFollowersForRequirement(int requirementId, Pageable pageable) throws BazaarException;
+
+    /**
      * @param projectId
      * @return list of users to receive email notification
      */
     List<User> getRecipientListForProject(int projectId) throws BazaarException;
 
     /**
-     *
-     * @param componentId
+     * @param categoryId
      * @return list of users to receive email notification
      */
-    List<User> getRecipientListForComponent(int componentId) throws BazaarException;
+    List<User> getRecipientListForCategory(int categoryId) throws BazaarException;
 
     /**
-     *
      * @param requirementId
      * @return list of users to receive email notification
      */
@@ -91,9 +124,10 @@ public interface DALFacade {
 
     /**
      * @param pageable pagination information
+     * @param userId   the identifier of the user, whose projects should be returned as well
      * @return the paginated result of the public projects
      */
-    PaginationResult<Project> listPublicProjects(Pageable pageable) throws BazaarException;
+    PaginationResult<Project> listPublicProjects(Pageable pageable, int userId) throws BazaarException;
 
 
     /**
@@ -101,25 +135,20 @@ public interface DALFacade {
      * @param userId   the identifier of the user, whose projects should be returned as well
      * @return all the public projects and all the projects, which the user is authorized to see
      */
-    PaginationResult<Project> listPublicAndAuthorizedProjects(PageInfo pageable, long userId) throws BazaarException;
-
-    /**
-     * @param searchTerm the text, which is used to search. Search is case insensitive.
-     * @param pageable   pagination information
-     * @return the found projects from the database based on the given parameters
-     */
-    List<Project> searchProjects(String searchTerm, Pageable pageable) throws Exception;
+    PaginationResult<Project> listPublicAndAuthorizedProjects(PageInfo pageable, int userId) throws BazaarException;
 
     /**
      * @param projectId identifier of the project should be returned
+     * @param userId    the identifier of the user, whose projects should be returned as well
      * @return the project and all of its data with the given id.
      */
-    Project getProjectById(int projectId) throws Exception;
+    Project getProjectById(int projectId, int userId) throws Exception;
 
     /**
      * @param project data to be created.
+     * @param userId  the identifier of the user, whose projects should be returned as well
      */
-    Project createProject(Project project) throws Exception;
+    Project createProject(Project project, int userId) throws Exception;
 
     /**
      * Modifies the project in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
@@ -154,18 +183,28 @@ public interface DALFacade {
     /**
      * This method create a new follow relation between a user and a project
      *
-     * @param userId        the identifier of the user, who wants to follow the project
-     * @param projectId     the the identifier of the project to follow
+     * @param userId    the identifier of the user, who wants to follow the project
+     * @param projectId the the identifier of the project to follow
      */
     CreationStatus followProject(int userId, int projectId) throws BazaarException;
 
     /**
      * This method deleted the follow relationship between the given user and project.
      *
-     * @param userId        the identifier of the user, who wants not to follow the project
-     * @param projectId     the the identifier of the project to unfollow
+     * @param userId    the identifier of the user, who wants not to follow the project
+     * @param projectId the the identifier of the project to unfollow
      */
     void unFollowProject(int userId, int projectId) throws BazaarException;
+
+    /**
+     * Get all followers for a project
+     *
+     * @param projectId
+     * @param pageable
+     * @return
+     * @throws BazaarException
+     */
+    PaginationResult<User> listFollowersForProject(int projectId, Pageable pageable) throws BazaarException;
     //endregion
 
     //region Requirement
@@ -182,34 +221,27 @@ public interface DALFacade {
      * @param userId
      * @return the requirements under the given project in a paginated way
      */
-    PaginationResult<RequirementEx> listRequirementsByProject(int projectId, Pageable pageable, int userId) throws BazaarException;
+    PaginationResult<Requirement> listRequirementsByProject(int projectId, Pageable pageable, int userId) throws BazaarException;
 
     /**
-     * @param componentId the id of the component we are looking in
-     * @param pageable    pagination information
-     * @param userId
-     * @return the requirements under the given component in a paginated way
-     */
-    PaginationResult<RequirementEx> listRequirementsByComponent(int componentId, Pageable pageable, int userId) throws BazaarException;
-
-    /**
-     * @param searchTerm the text, which is used to search. Search is case insensitive.
+     * @param categoryId the id of the category we are looking in
      * @param pageable   pagination information
-     * @return the found requirements with the given parameters filled up with only the direct data.
+     * @param userId
+     * @return the requirements under the given category in a paginated way
      */
-    List<Requirement> searchRequirements(String searchTerm, Pageable pageable) throws Exception;
+    PaginationResult<Requirement> listRequirementsByCategory(int categoryId, Pageable pageable, int userId) throws BazaarException;
 
     /**
      * @param requirementId the identifier of the requirement should be returned
      * @return the requirement identified by the given id and all of its assets: comments,attachments,followers,developers,creator
      */
-    RequirementEx getRequirementById(int requirementId, int userId) throws Exception;
+    Requirement getRequirementById(int requirementId, int userId) throws Exception;
 
 
     /**
      * @param requirement to be added to the database.
      */
-    RequirementEx createRequirement(Requirement requirement, int userId) throws Exception;
+    Requirement createRequirement(Requirement requirement, int userId) throws Exception;
 
     /**
      * Modifies the requirement in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
@@ -217,44 +249,44 @@ public interface DALFacade {
      *
      * @param modifiedRequirement hold the modified data
      */
-    RequirementEx modifyRequirement(Requirement modifiedRequirement, int userId) throws Exception;
+    Requirement modifyRequirement(Requirement modifiedRequirement, int userId) throws Exception;
 
     /**
-     * This method deletes a requirement with its assets: All of its comments and attachments and connections to users, projects or components.
+     * This method deletes a requirement with its assets: All of its comments and attachments and connections to users, projects or categories.
      *
      * @param requirementId which identifies the requirement to delete.
      */
-    RequirementEx deleteRequirementById(int requirementId, int userId) throws Exception;
+    Requirement deleteRequirementById(int requirementId, int userId) throws Exception;
 
     /**
      * This method set a requirements realized flag to now
      *
      * @param requirementId
      * @param userId
-     * @return updated RequirementEx
+     * @return updated Requirement
      * @throws Exception
      */
-    RequirementEx setRequirementToRealized(int requirementId, int userId) throws Exception;
+    Requirement setRequirementToRealized(int requirementId, int userId) throws Exception;
 
     /**
      * This method set a requirements realized flag to NULL
      *
      * @param requirementId
      * @param userId
-     * @return updated RequirementEx
+     * @return updated Requirement
      * @throws Exception
      */
-    RequirementEx setRequirementToUnRealized(int requirementId, int userId) throws Exception;
+    Requirement setRequirementToUnRealized(int requirementId, int userId) throws Exception;
 
     /**
-     *  This method set userId as lead developer for requirement
+     * This method set userId as lead developer for requirement
      *
      * @param requirementId
      * @param userId
      * @return
      * @throws Exception
      */
-    RequirementEx setUserAsLeadDeveloper(int requirementId, int userId) throws Exception;
+    Requirement setUserAsLeadDeveloper(int requirementId, int userId) throws Exception;
 
     /**
      * This method set lead developer for requirement to NULL
@@ -264,7 +296,7 @@ public interface DALFacade {
      * @return
      * @throws Exception
      */
-    RequirementEx deleteUserAsLeadDeveloper(int requirementId, int userId) throws Exception;
+    Requirement deleteUserAsLeadDeveloper(int requirementId, int userId) throws Exception;
 
     /**
      * Returns true if requirement belongs to a public project
@@ -277,77 +309,87 @@ public interface DALFacade {
     Statistic getStatisticsForRequirement(int userId, int requirementId, Calendar timestamp) throws BazaarException;
     //endregion
 
-    //region Component
+    //region Category
 
     /**
      * @param projectId the id of the project we are looking in
      * @param pageable  pagination information
-     * @return the components under the given project in a paginated way
+     * @return the categories under the given project in a paginated way
      */
-    PaginationResult<Component> listComponentsByProjectId(int projectId, Pageable pageable) throws BazaarException;
+    PaginationResult<Category> listCategoriesByProjectId(int projectId, Pageable pageable, int userId) throws BazaarException;
 
     /**
      * @param requirementId the id of the requirement we are looking in
-     * @param pageable  pagination information
-     * @return the components under the given project in a paginated way
+     * @param pageable      pagination information
+     * @return the categories under the given project in a paginated way
      */
-    PaginationResult<Component> listComponentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
+    PaginationResult<Category> listCategoriesByRequirementId(int requirementId, Pageable pageable, int userId) throws BazaarException;
 
     /**
-     * @param component to be added to the database.
+     * @param category to be added to the database.
      */
-    Component createComponent(Component component) throws BazaarException;
-
-   /**
-     * @param componentId identifier of the component should be returned
-     * @return the component and all of its data with the given id.
-     */
-    Component getComponentById(int componentId) throws Exception;
+    Category createCategory(Category category, int userId) throws BazaarException;
 
     /**
-     * Modifies the component in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
+     * @param categoryId identifier of the category should be returned
+     * @return the category and all of its data with the given id.
+     */
+    Category getCategoryById(int categoryId, int userId) throws Exception;
+
+    /**
+     * Modifies the category in the database to the data in the parameter. Id field of the parameter used for identifying the object to be modified.
      * It does NOT update any relations of the object, just only the direct fields!
      *
-     * @param component hold the modified data
+     * @param category hold the modified data
      */
-    Component modifyComponent(Component component) throws Exception;
+    Category modifyCategory(Category category) throws Exception;
 
 
     /**
-     * It deletes a component from the database with the tags to requirements
+     * It deletes a category from the database with the tags to requirements
      *
-     * @param componentId for the component to be deleted
+     * @param categoryId for the category to be deleted
      */
-    Component deleteComponentById(int componentId, int userId) throws Exception;
+    Category deleteCategoryById(int categoryId, int userId) throws Exception;
 
     /**
-     * Returns true if component belongs to a public project
+     * Returns true if category belongs to a public project
      *
-     * @param componentId
+     * @param categoryId
      * @return
      */
-    boolean isComponentPublic(int componentId) throws BazaarException;
+    boolean isCategoryPublic(int categoryId) throws BazaarException;
 
-    Statistic getStatisticsForComponent(int userId, int componentId, Calendar timestamp) throws BazaarException;
+    Statistic getStatisticsForCategory(int userId, int categoryId, Calendar timestamp) throws BazaarException;
     //endregion
 
-    //region ComponentFollower
+    //region CategoryFollower
 
     /**
-     * This method create a new follow relation between a user and a component
+     * This method create a new follow relation between a user and a category
      *
-     * @param userId        the identifier of the user, who wants to follow the component
-     * @param componentId   the the identifier of the component to follow
+     * @param userId     the identifier of the user, who wants to follow the category
+     * @param categoryId the the identifier of the category to follow
      */
-    CreationStatus followComponent(int userId, int componentId) throws BazaarException;
+    CreationStatus followCategory(int userId, int categoryId) throws BazaarException;
 
     /**
-     * This method deleted the follow relationship between the given user and component.
+     * This method deleted the follow relationship between the given user and category.
      *
-     * @param userId        the identifier of the user, who wants not to follow the component
-     * @param componentId   the the identifier of the component to unfollow
+     * @param userId     the identifier of the user, who wants not to follow the category
+     * @param categoryId the the identifier of the category to unfollow
      */
-    void unFollowComponent(int userId, int componentId) throws BazaarException;
+    void unFollowCategory(int userId, int categoryId) throws BazaarException;
+
+    /**
+     * Get all followers for a category
+     *
+     * @param categoryId
+     * @param pageable
+     * @return
+     * @throws BazaarException
+     */
+    PaginationResult<User> listFollowersForCategory(int categoryId, Pageable pageable) throws BazaarException;
     //endregion
 
     //region Attachment
@@ -368,7 +410,7 @@ public interface DALFacade {
     /**
      * @param attachment object, which holds the data should be persisted
      */
-    Attachment createAttachment(Attachment attachment) throws BazaarException;
+    Attachment createAttachment(Attachment attachment) throws Exception;
 
     /**
      * @param attachmentId id of the attachment should be deleted
@@ -421,7 +463,7 @@ public interface DALFacade {
     void unFollowRequirement(int userId, int requirementId) throws BazaarException;
     //endregion
 
-    //region Developer
+    //region RequirementDeveloper
 
     /**
      * This method create a develop relation between a given requirement and a given user
@@ -440,23 +482,23 @@ public interface DALFacade {
     void notWantToDevelop(int userId, int requirementId) throws BazaarException;
     //endregion
 
-    //region Tag (Component >-< Requirement)
+    //region RequirementCategory (Category >-< Requirement)
 
     /**
-     * This method creates a connection, that the given requirement belongs to the given component.
+     * This method creates a connection, that the given requirement belongs to the given category.
      *
      * @param requirementId the identifier of the requirement
-     * @param componentId   the id of the component
+     * @param categoryId    the id of the category
      */
-    void addComponentTag(int requirementId, int componentId) throws BazaarException;
+    void addCategoryTag(int requirementId, int categoryId) throws BazaarException;
 
     /**
-     * This method removes the connection, that the given requirement belongs to the given component.
+     * This method removes the connection, that the given requirement belongs to the given category.
      *
      * @param requirementId the identifier of the requirement
-     * @param componentId   the id of the component
+     * @param categoryId    the id of the category
      */
-    void deleteComponentTag(int requirementId, int componentId) throws BazaarException;
+    void deleteCategoryTag(int requirementId, int categoryId) throws BazaarException;
     //endregion
 
     //region Vote
@@ -490,6 +532,7 @@ public interface DALFacade {
     //endregion
 
     //region Authorization
+
     /**
      * This method returns all the roles and permissions for the given user
      *

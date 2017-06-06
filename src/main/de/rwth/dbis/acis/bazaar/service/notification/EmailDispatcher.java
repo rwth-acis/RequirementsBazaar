@@ -27,7 +27,7 @@ public class EmailDispatcher {
         this.frontendBaseURL = frontendBaseURL;
     }
 
-    public void sendEmailNotification(Date creationTime, Activity.ActivityAction activityAction,
+    public void sendEmailNotification(Date creationDate, Activity.ActivityAction activityAction,
                                       int dataId, Activity.DataType dataType, int userId) {
         DALFacade dalFacade = null;
         try {
@@ -39,8 +39,8 @@ public class EmailDispatcher {
             } else if (dataType.equals(Activity.DataType.COMMENT)) {
                 int requirementId = dalFacade.getCommentById(dataId).getRequirementId();
                 recipients = dalFacade.getRecipientListForRequirement(requirementId);
-            } else if (dataType.equals(Activity.DataType.COMPONENT)) {
-                recipients = dalFacade.getRecipientListForComponent(dataId);
+            } else if (dataType.equals(Activity.DataType.CATEGORY)) {
+                recipients = dalFacade.getRecipientListForCategory(dataId);
             } else if (dataType.equals(Activity.DataType.PROJECT)) {
                 recipients = dalFacade.getRecipientListForProject(dataId);
             }
@@ -60,76 +60,76 @@ public class EmailDispatcher {
                 Message mailMessage = new MimeMessage(session);
                 mailMessage.setFrom(new InternetAddress(emailFromAddress));
                 for (int i = 0; i < recipients.size(); i++) {
-                    if (recipients.get(i).geteMail() != null && !recipients.get(i).geteMail().isEmpty())
+                    if (recipients.get(i).getEMail() != null && !recipients.get(i).getEMail().isEmpty())
                         mailMessage.addRecipients(Message.RecipientType.BCC,
-                                InternetAddress.parse(recipients.get(i).geteMail(), false));
+                                InternetAddress.parse(recipients.get(i).getEMail(), false));
                 }
                 // use activityAction and dataType to generate email text
                 String subject = new String();
-                String bodytext = new String();
+                String bodyText = new String();
                 String objectName = new String();
                 String resourcePath = new String();
                 if (dataType == Activity.DataType.PROJECT) {
                     if (activityAction == Activity.ActivityAction.CREATE) {
                         subject = Localization.getInstance().getResourceBundle().getString("email.subject.project.created");
-                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.project.created");
+                        bodyText = Localization.getInstance().getResourceBundle().getString("email.bodyText.project.created");
                     } else if (activityAction == Activity.ActivityAction.UPDATE) {
                         subject = Localization.getInstance().getResourceBundle().getString("email.subject.project.updated");
-                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.project.updated");
+                        bodyText = Localization.getInstance().getResourceBundle().getString("email.bodyText.project.updated");
                     }
-                    Project project = dalFacade.getProjectById(dataId);
+                    Project project = dalFacade.getProjectById(dataId, 0);
                     objectName = project.getName();
                     resourcePath = "projects" + "/" + String.valueOf(dataId);
-                } else if (dataType == Activity.DataType.COMPONENT) {
+                } else if (dataType == Activity.DataType.CATEGORY) {
                     if (activityAction == Activity.ActivityAction.CREATE) {
-                        subject = Localization.getInstance().getResourceBundle().getString("email.subject.component.created");
-                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.component.created");
+                        subject = Localization.getInstance().getResourceBundle().getString("email.subject.category.created");
+                        bodyText = Localization.getInstance().getResourceBundle().getString("email.bodyText.category.created");
                     } else if (activityAction == Activity.ActivityAction.UPDATE) {
-                        subject = Localization.getInstance().getResourceBundle().getString("email.subject.component.updated");
-                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.component.updated");
+                        subject = Localization.getInstance().getResourceBundle().getString("email.subject.category.updated");
+                        bodyText = Localization.getInstance().getResourceBundle().getString("email.bodyText.category.updated");
                     }
-                    Component component = dalFacade.getComponentById(dataId);
-                    objectName = component.getName();
-                    resourcePath = "projects" + "/" + component.getProjectId() + "/" + "components" + "/" + String.valueOf(dataId);
+                    Category category = dalFacade.getCategoryById(dataId, userId);
+                    objectName = category.getName();
+                    resourcePath = "projects" + "/" + category.getProjectId() + "/" + "categories" + "/" + String.valueOf(dataId);
                 } else if (dataType == Activity.DataType.REQUIREMENT) {
                     if (activityAction == Activity.ActivityAction.CREATE) {
                         subject = Localization.getInstance().getResourceBundle().getString("email.subject.requirement.created");
-                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.requirement.created");
+                        bodyText = Localization.getInstance().getResourceBundle().getString("email.bodyText.requirement.created");
                     } else if (activityAction == Activity.ActivityAction.UPDATE) {
                         subject = Localization.getInstance().getResourceBundle().getString("email.subject.requirement.updated");
-                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.requirement.updated");
+                        bodyText = Localization.getInstance().getResourceBundle().getString("email.bodyText.requirement.updated");
                     } else if (activityAction == Activity.ActivityAction.REALIZE) {
                         subject = Localization.getInstance().getResourceBundle().getString("email.subject.requirement.realized");
-                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.requirement.realized");
+                        bodyText = Localization.getInstance().getResourceBundle().getString("email.bodyText.requirement.realized");
                     }
-                    RequirementEx requirement = dalFacade.getRequirementById(dataId, userId);
-                    objectName = requirement.getTitle();
-                    resourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "components" + "/" +
-                            requirement.getComponents().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(dataId);
+                    Requirement requirement = dalFacade.getRequirementById(dataId, userId);
+                    objectName = requirement.getName();
+                    resourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
+                            requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(dataId);
                 } else if (dataType == Activity.DataType.COMMENT) {
                     if (activityAction == Activity.ActivityAction.CREATE) {
                         subject = Localization.getInstance().getResourceBundle().getString("email.subject.comment.created");
-                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.comment.created");
+                        bodyText = Localization.getInstance().getResourceBundle().getString("email.bodyText.comment.created");
                     } else if (activityAction == Activity.ActivityAction.UPDATE) {
                         subject = Localization.getInstance().getResourceBundle().getString("email.subject.comment.updated");
-                        bodytext = Localization.getInstance().getResourceBundle().getString("email.bodytext.comment.updated");
+                        bodyText = Localization.getInstance().getResourceBundle().getString("email.bodyText.comment.updated");
                     }
                     Comment comment = dalFacade.getCommentById(dataId);
-                    RequirementEx requirement = dalFacade.getRequirementById(comment.getRequirementId(), userId);
-                    objectName = requirement.getTitle();
-                    resourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "components" + "/" +
-                            requirement.getComponents().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
+                    Requirement requirement = dalFacade.getRequirementById(comment.getRequirementId(), userId);
+                    objectName = requirement.getName();
+                    resourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
+                            requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
                 }
                 String dataUrl = frontendBaseURL.concat(resourcePath);
                 objectName = objectName.length() > 40 ? objectName.substring(0, 39) : objectName;
                 subject = subject.concat(" " + objectName);
                 mailMessage.setSubject(subject);
-                String greeting = Localization.getInstance().getResourceBundle().getString("email.bodytext.greeting");
-                String footer1 = Localization.getInstance().getResourceBundle().getString("email.bodytext.footer1");
-                String footer2 = Localization.getInstance().getResourceBundle().getString("email.bodytext.footer2");
+                String greeting = Localization.getInstance().getResourceBundle().getString("email.bodyText.greeting");
+                String footer1 = Localization.getInstance().getResourceBundle().getString("email.bodyText.footer1");
+                String footer2 = Localization.getInstance().getResourceBundle().getString("email.bodyText.footer2");
                 String text = greeting;
                 text = text.concat("\r\n\r\n");
-                text = text.concat(bodytext);
+                text = text.concat(bodyText);
                 text = text.concat("\r\n" + dataUrl);
                 text = text.concat("\r\n\r\n");
                 text = text.concat(footer1);
@@ -137,7 +137,7 @@ public class EmailDispatcher {
                 text = text.concat(footer2);
                 mailMessage.setText(text);
                 mailMessage.setHeader("X-Mailer", "msgsend");
-                mailMessage.setSentDate(creationTime);
+                mailMessage.setSentDate(creationDate);
 
                 // send mail
                 Transport.send(mailMessage);

@@ -30,7 +30,6 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import i5.las2peer.testing.MockAgentFactory;
 import i5.las2peer.webConnector.client.ClientResponse;
 import i5.las2peer.webConnector.client.MiniClient;
-import jdk.nashorn.internal.parser.JSONParser;
 import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -101,8 +100,8 @@ public class SysAdminRightsTest extends TestBase {
     @Ignore
     public void test_createAndDeleteComponents( ){
         BazaarRequestParams params = new BazaarRequestParams();
-        Component component = Component.getBuilder("TestCreateComponent").id(901).description("hello").projectId(1).build();
-        params.setContentParam(new Gson().toJson(component));
+        Category category = Category.getBuilder("TestCreateComponent").id(901).description("hello").projectId(1).build();
+        params.setContentParam(new Gson().toJson(category));
         params.setQueryParams(new HashMap<String, String>() {{
             put("projectId", String.valueOf(1));
         }});
@@ -134,9 +133,9 @@ public class SysAdminRightsTest extends TestBase {
         }});
         ClientResponse response = super.test_getComponents(params);
         assertThat(response, is(notNullValue()));
-        List<Component> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Component>>() {}.getType());
+        List<Category> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Category>>() {}.getType());
         assertThat(projectList, hasSize(1));
-        assertThat(projectList, hasItem(Matchers.<Component>hasProperty("id", equalTo(1))));
+        assertThat(projectList, hasItem(Matchers.<Category>hasProperty("id", equalTo(1))));
     }
 
     @Test
@@ -147,9 +146,9 @@ public class SysAdminRightsTest extends TestBase {
         }});
         ClientResponse response = super.test_getComponents(params);
         assertThat(response, is(notNullValue()));
-        List<Component> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Component>>() {}.getType());
+        List<Category> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Category>>() {}.getType());
         assertThat(projectList, hasSize(1));
-        assertThat(projectList, hasItem(Matchers.<Component>hasProperty("id", equalTo(2))));
+        assertThat(projectList, hasItem(Matchers.<Category>hasProperty("id", equalTo(2))));
     }
 
     @Test
@@ -174,8 +173,8 @@ public class SysAdminRightsTest extends TestBase {
         }});
         ClientResponse response = super.test_getRequirementsByProject(params);
         assertThat(response, is(notNullValue()));
-        List<Component> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Component>>() {}.getType());
-        assertThat(projectList, hasItem(Matchers.<Component>hasProperty("id", equalTo(1))));
+        List<Category> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Category>>() {}.getType());
+        assertThat(projectList, hasItem(Matchers.<Category>hasProperty("id", equalTo(1))));
         assertThat(projectList, hasSize(1));
     }
 
@@ -187,8 +186,8 @@ public class SysAdminRightsTest extends TestBase {
         }});
         ClientResponse response = super.test_getRequirementsByProject(params);
         assertThat(response, is(notNullValue()));
-        List<Component> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Component>>() {}.getType());
-        assertThat(projectList, hasItem(Matchers.<Component>hasProperty("id", equalTo(2))));
+        List<Category> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Category>>() {}.getType());
+        assertThat(projectList, hasItem(Matchers.<Category>hasProperty("id", equalTo(2))));
         assertThat(projectList, hasSize(1));
     }
 
@@ -201,8 +200,8 @@ public class SysAdminRightsTest extends TestBase {
         }});
         ClientResponse response = super.test_getRequirementsByComponent(params);
         assertThat(response, is(notNullValue()));
-        List<Component> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Component>>() {}.getType());
-        assertThat(projectList, hasItem(Matchers.<Component>hasProperty("id", equalTo(1))));
+        List<Category> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Category>>() {}.getType());
+        assertThat(projectList, hasItem(Matchers.<Category>hasProperty("id", equalTo(1))));
         assertThat(projectList, hasSize(1));
     }
 
@@ -215,8 +214,8 @@ public class SysAdminRightsTest extends TestBase {
         }});
         ClientResponse response = super.test_getRequirementsByComponent(params);
         assertThat(response, is(notNullValue()));
-        List<Component> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Component>>() {}.getType());
-        assertThat(projectList, hasItem(Matchers.<Component>hasProperty("id", equalTo(2))));
+        List<Category> projectList = new Gson().fromJson(response.getResponse(), new TypeToken<List<Category>>() {}.getType());
+        assertThat(projectList, hasItem(Matchers.<Category>hasProperty("id", equalTo(2))));
         assertThat(projectList, hasSize(1));
     }
 
@@ -232,7 +231,7 @@ public class SysAdminRightsTest extends TestBase {
         assertThat(response,is(notNullValue()));
         RequirementEx requirementEx = new Gson().fromJson(response.getResponse(), RequirementEx.class);
         assertThat(requirementEx.getId(), is(1));
-        assertThat(requirementEx.getTitle(), is("PublicRequirement"));
+        assertThat(requirementEx.getName(), is("PublicRequirement"));
     }
 
     @Test
@@ -247,7 +246,7 @@ public class SysAdminRightsTest extends TestBase {
         assertThat(response,is(notNullValue()));
         RequirementEx requirementEx = new Gson().fromJson(response.getResponse(), RequirementEx.class);
         assertThat(requirementEx.getId(), is(2));
-        assertThat(requirementEx.getTitle(), is("PrivateRequirement"));
+        assertThat(requirementEx.getName(), is("PrivateRequirement"));
     }
 
     @Test

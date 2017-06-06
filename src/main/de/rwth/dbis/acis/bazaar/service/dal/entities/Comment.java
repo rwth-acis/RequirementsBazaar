@@ -21,7 +21,6 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 
-import jodd.vtor.constraint.MaxLength;
 import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
 import jodd.vtor.constraint.NotNull;
@@ -34,43 +33,38 @@ import java.util.Date;
  */
 public class Comment extends EntityBase {
 
-    private int Id;
+    private int id;
+    @NotBlank(profiles = {"*"})
+    @NotNull(profiles = {"create"})
+    private String message;
+
+    @Min(value = 0, profiles = {"create"})
+    private Integer replyToComment;
 
     @Min(value = 0, profiles = {"create"})
     private int requirementId;
 
-    @NotBlank(profiles = {"*"})
-    @NotNull(profiles = {"create"})
-    @MaxLength(value = 1000, profiles = {"*"})
-    private String message;
-
-    private int creatorId;
-
-    @Min(value = 0, profiles = {"create"})
-    private Integer belongsToComment;
-
-    private Date creationTime;
-
-    private Date lastupdatedTime;
-
     private User creator;
+
+    private Date creationDate;
+
+    private Date lastUpdatedDate;
 
     public Comment() {
     }
 
     public Comment(Builder builder) {
-        this.Id = builder.id;
+        this.id = builder.id;
         this.message = builder.message;
-        this.creatorId = builder.userId;
+        this.replyToComment = builder.replyToComment;
         this.requirementId = builder.requirementId;
-        this.belongsToComment = builder.belongsToComment;
-        this.creationTime = builder.creationTime;
-        this.lastupdatedTime = builder.lastupdatedTime;
         this.creator = builder.creator;
+        this.creationDate = builder.creationDate;
+        this.lastUpdatedDate = builder.lastUpdatedDate;
     }
 
     public int getId() {
-        return Id;
+        return id;
     }
 
     public int getRequirementId() {
@@ -85,24 +79,16 @@ public class Comment extends EntityBase {
         this.message = message;
     }
 
-    public int getCreatorId() {
-        return creatorId;
+    public Integer getReplyToComment() {
+        return replyToComment;
     }
 
-    public void setCreatorId(int creatorId) {
-        this.creatorId = creatorId;
+    public Date getCreationDate() {
+        return creationDate;
     }
 
-    public Integer getBelongsToComment() {
-        return belongsToComment;
-    }
-
-    public Date getCreationTime() {
-        return creationTime;
-    }
-
-    public Date getLastupdatedTime() {
-        return lastupdatedTime;
+    public Date getLastUpdatedDate() {
+        return lastUpdatedDate;
     }
 
     public User getCreator() {
@@ -120,11 +106,10 @@ public class Comment extends EntityBase {
     public static class Builder {
         private int id;
         private String message;
-        private int userId;
         private int requirementId;
-        private Integer belongsToComment;
-        public Date creationTime;
-        public Date lastupdatedTime;
+        private Integer replyToComment;
+        public Date creationDate;
+        public Date lastUpdatedDate;
         public User creator;
 
 
@@ -142,23 +127,18 @@ public class Comment extends EntityBase {
             return this;
         }
 
-        public Builder creatorId(int creatorId) {
-            this.userId = creatorId;
+        public Builder replyToComment(Integer replyToComment) {
+            this.replyToComment = replyToComment;
             return this;
         }
 
-        public Builder belongsToComment(Integer belongsToComment) {
-            this.belongsToComment = belongsToComment;
+        public Builder creationDate(Date creationDate) {
+            this.creationDate = creationDate;
             return this;
         }
 
-        public Builder creationTime(Date creationTime) {
-            this.creationTime = creationTime;
-            return this;
-        }
-
-        public Builder lastupdatedTime(Date lastupdatedTime) {
-            this.lastupdatedTime = lastupdatedTime;
+        public Builder lastUpdatedDate(Date lastUpdatedDate) {
+            this.lastUpdatedDate = lastUpdatedDate;
             return this;
         }
 

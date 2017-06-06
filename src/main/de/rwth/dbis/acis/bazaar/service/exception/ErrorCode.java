@@ -29,7 +29,7 @@ public enum ErrorCode {
     VALIDATION("001", "Constraint validation failed."),
     CANNOTDELETE("002", "The item cannot be deleted"),
     AUTHORIZATION("003", "This user is not authorized to use this method."),
-    DB_COMM("004", "Error during communicating to database. Possibly wrong connection paramerters."),
+    DB_COMM("004", "Error during communicating to database. Possibly wrong connection parameters."),
     NOT_FOUND("005", "The item was not found"),
     RMI_ERROR("006", "RMI call did not work");
 

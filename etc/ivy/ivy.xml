@@ -17,9 +17,9 @@
         <dependency org="mysql" name="mysql-connector-java" rev="5.1.6" conf="bundle->default"/>
         <dependency org="org.apache.commons" name="commons-pool2" rev="2.2" conf="bundle->default"/>
         <dependency org="org.apache.commons" name="commons-dbcp2" rev="2.0" conf="bundle->default"/>
-        <dependency org="org.jooq" name="jooq" rev="3.8.2" conf="bundle->default"/>
-        <dependency org="org.jooq" name="jooq-codegen" rev="3.8.2" conf="bundle->default"/>
-        <dependency org="org.jooq" name="jooq-meta" rev="3.8.2" conf="bundle->default"/>
+        <dependency org="org.jooq" name="jooq" rev="3.9.1" conf="bundle->default"/>
+        <dependency org="org.jooq" name="jooq-codegen" rev="3.9.1" conf="bundle->default"/>
+        <dependency org="org.jooq" name="jooq-meta" rev="3.9.1" conf="bundle->default"/>
         <dependency org="com.google.code.gson" name="gson" rev="2.3" conf="bundle->default"/>
         <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.1" conf="bundle->default"/>
         <dependency org="commons-io" name="commons-io" rev="2.4" conf="bundle->default"/>

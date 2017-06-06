@@ -41,13 +41,13 @@
 //
 //    List<User> userList = new ArrayList<User>();
 //    List<Project> projectList = new ArrayList<Project>();
-//    List<Component> componentList = new ArrayList<Component>();
+//    List<Category> componentList = new ArrayList<Category>();
 //    List<Requirement> requirementList = new ArrayList<Requirement>();
 //    List<Comment> commentList = new ArrayList<Comment>();
 //    List<Attachment> attachmentList = new ArrayList<Attachment>();
 //    List<Vote> voteList = new ArrayList<Vote>();
-//    List<Tag> tagList = new ArrayList<Tag>();
-//    List<Developer> developerList = new ArrayList<Developer>();
+//    List<RequirementCategory> tagList = new ArrayList<RequirementCategory>();
+//    List<RequirementDeveloper> developerList = new ArrayList<RequirementDeveloper>();
 //    List<RequirementFollower> followerList = new ArrayList<RequirementFollower>();
 //
 //    //endregion
@@ -63,12 +63,12 @@
 //        return Math.min(listSize,(pageable.getPageNumber()+1)*pageable.getPageSize());
 //    }
 //
-//    private List<Component> getComponents(int requirementId) {
-//        List<Component> components = new ArrayList<Component>();
+//    private List<Category> getCategories(int requirementId) {
+//        List<Category> components = new ArrayList<Category>();
 //
-//        for (Tag tag : tagList) {
+//        for (RequirementCategory tag : tagList) {
 //            if (tag.getRequirementId() == requirementId) {
-//                for (Component component : componentList) {
+//                for (Category component : componentList) {
 //                    if (component.getId() == tag.getComponentId())
 //                        components.add(component);
 //                }
@@ -113,7 +113,7 @@
 //    private List<User> getDevelopers(int requirementId) {
 //        List<User> users = new ArrayList<User>();
 //
-//        for (Developer developer : developerList) {
+//        for (RequirementDeveloper developer : developerList) {
 //            if (developer.getRequirementId() == requirementId) {
 //                for (User user : userList) {
 //                    if (user.getId() == developer.getUserId())
@@ -257,7 +257,7 @@
 //    @Override
 //    public List<Requirement> listRequirementsByComponent(int componentId, Pageable pageable) {
 //        List<Integer> requirementIdList = new ArrayList<Integer>();
-//        for (Tag tag : tagList) {
+//        for (RequirementCategory tag : tagList) {
 //            if (tag.getComponentId() == componentId)
 //                requirementIdList.add(tag.getRequirementId());
 //        }
@@ -294,9 +294,9 @@
 //            List<User> developers = getDevelopers(requirementId);
 //            List<User> followers = getFollowers(requirementId);
 //            List<User> contributors = getContributors(attachments);
-//            List<Component> components = getComponents(requirementId);
+//            List<Category> components = getCategories(requirementId);
 //
-//            return RequirementEx.getBuilder(requirement.getTitle())
+//            return RequirementEx.getBuilder(requirement.getName())
 //                    .id(requirement.getId())
 //                    .description(requirement.getDescription())
 //                    .projectId(requirement.getProjectId())
@@ -330,9 +330,9 @@
 //    @Override
 //    public void deleteRequirementById(int requirementId) {
 //        //Delete component tags
-//        Iterator<Tag> tagIterator = tagList.iterator();
+//        Iterator<RequirementCategory> tagIterator = tagList.iterator();
 //        while (tagIterator.hasNext()) {
-//            Tag tag = tagIterator.next();
+//            RequirementCategory tag = tagIterator.next();
 //
 //            if (tag.getRequirementId() == requirementId)
 //                tagIterator.remove();
@@ -348,9 +348,9 @@
 //        }
 //
 //        //Delete developers
-//        Iterator<Developer> developerIterator = developerList.iterator();
+//        Iterator<RequirementDeveloper> developerIterator = developerList.iterator();
 //        while (developerIterator.hasNext()) {
-//            Developer developer = developerIterator.next();
+//            RequirementDeveloper developer = developerIterator.next();
 //
 //            if (developer.getRequirementId() == requirementId)
 //                developerIterator.remove();
@@ -393,10 +393,10 @@
 //    }
 //
 //    @Override
-//    public List<Component> listComponentsByProjectId(int projectId, Pageable pageable) {
-//        Component.getBuilder("dd").projectId(2);
-//        List<Component> toReturn = new ArrayList<Component>();
-//        for (Component component : componentList) {
+//    public List<Category> listComponentsByProjectId(int projectId, Pageable pageable) {
+//        Category.getBuilder("dd").projectId(2);
+//        List<Category> toReturn = new ArrayList<Category>();
+//        for (Category component : componentList) {
 //            if (component.getProjectId() == projectId)
 //                toReturn.add(component);
 //        }
@@ -404,20 +404,20 @@
 //    }
 //
 //    @Override
-//    public int createComponent(Component component) {
+//    public int createComponent(Category component) {
 //        componentList.add(component);
 //        return 0;
 //    }
 //
 //    @Override
-//    public void modifyComponent(Component component) {
+//    public void modifyComponent(Category component) {
 //
 //    }
 //
 //    @Override
 //    public void deleteComponentById(int componentId) {
 //        Integer index = null;
-//        for (Component comp : componentList) {
+//        for (Category comp : componentList) {
 //            if (comp.getId() == componentId)
 //                index = componentList.indexOf(comp);
 //        }
@@ -488,16 +488,16 @@
 //
 //    @Override
 //    public void wantToDevelop(int userId, int requirementId) {
-//        Developer developer = Developer.getBuilder().id(new Random().nextInt()).userId(userId).requirementId(requirementId).build();
+//        RequirementDeveloper developer = RequirementDeveloper.getBuilder().id(new Random().nextInt()).userId(userId).requirementId(requirementId).build();
 //
 //        developerList.add(developer);
 //    }
 //
 //    @Override
 //    public void notWantToDevelop(int userId, int requirementId) {
-//        Iterator<Developer> itr = developerList.iterator();
+//        Iterator<RequirementDeveloper> itr = developerList.iterator();
 //        while (itr.hasNext()) {
-//            Developer developer = itr.next();
+//            RequirementDeveloper developer = itr.next();
 //
 //            if (developer.getUserId() == userId && developer.getRequirementId() == requirementId)
 //                itr.remove();
@@ -508,16 +508,16 @@
 //
 //    @Override
 //    public void addComponentTag(int requirementId, int componentId) {
-//        Tag tag = Tag.getBuilder(componentId).requirementId(requirementId).id(new Random().nextInt()).build();
+//        RequirementCategory tag = RequirementCategory.getBuilder(componentId).requirementId(requirementId).id(new Random().nextInt()).build();
 //
 //        tagList.add(tag);
 //    }
 //
 //    @Override
 //    public void deleteComponentTag(int requirementId, int componentId) {
-//        Iterator<Tag> itr = tagList.iterator();
+//        Iterator<RequirementCategory> itr = tagList.iterator();
 //        while (itr.hasNext()) {
-//            Tag tag = itr.next();
+//            RequirementCategory tag = itr.next();
 //
 //            if (tag.getRequirementId() == requirementId && tag.getComponentId() == componentId)
 //                itr.remove();
@@ -567,7 +567,7 @@
 //    }
 //
 //	@Override
-//	public Component getComponentById(int componentId) throws Exception {
+//	public Category getComponentById(int componentId) throws Exception {
 //		// TODO Auto-generated method stub
 //		return null;
 //	}
