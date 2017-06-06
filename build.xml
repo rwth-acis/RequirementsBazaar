@@ -270,7 +270,7 @@
             <arg value='-p'/>
             <arg value='9011'/>
             <arg value='uploadStartupDirectory'/>
-            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.BazaarService@0.5\",\"SampleServicePass\")'/>
+            <arg value='startService(\"de.rwth.dbis.acis.bazaar.service.BazaarService@0.6\",\"SampleServicePass\")'/>
             <arg value='startWebConnector'/>
             <arg value='interactive'/>
         </java>
