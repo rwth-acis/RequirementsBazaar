@@ -21,31 +21,34 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.*;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UsersRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformator;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Users.USERS;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
-public class UserRepositoryImpl extends RepositoryImpl<User, UsersRecord> implements UserRepository {
+public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> implements UserRepository {
     /**
      * @param jooq DSLContext for JOOQ connection
      */
     public UserRepositoryImpl(DSLContext jooq) {
-        super(jooq, new UserTransformator());
+        super(jooq, new UserTransformer());
     }
 
     final byte ONE = 1;
@@ -54,11 +57,195 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UsersRecord> implem
     public Integer getIdByLas2PeerId(long las2PeerId) throws BazaarException {
         Integer id = null;
         try {
-            id = jooq.selectFrom(USERS).where(USERS.LAS2PEER_ID.equal(las2PeerId)).fetchOne(USERS.ID);
+            id = jooq.selectFrom(USER).where(USER.LAS2PEER_ID.equal(las2PeerId)).fetchOne(USER.ID);
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return id;
+    }
+
+    @Override
+    public void updateLastLoginDate(int userId) throws Exception {
+        try {
+            jooq.update(USER).set(USER.LAST_LOGIN_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()))
+                    .where(USER.ID.equal(userId))
+                    .execute();
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+    }
+
+    @Override
+    public PaginationResult<User> findAllByContribution(int requirementId, Pageable pageable) throws BazaarException {
+        PaginationResult<User> result = null;
+        List<User> users;
+        try {
+            users = new ArrayList<>();
+
+            Field<Object> idCount = jooq.selectCount().from(
+                    jooq.select(USER.fields())
+                            .from(USER)
+                            .leftOuterJoin(REQUIREMENT).on(REQUIREMENT.CREATOR_ID.equal(USER.ID))
+                            .where(REQUIREMENT.ID.equal(requirementId))
+                            .union(
+                                    jooq.select(USER.fields())
+                                            .from(USER)
+                                            .leftOuterJoin(REQUIREMENT).on(REQUIREMENT.LEAD_DEVELOPER_ID.equal(USER.ID))
+                                            .where(REQUIREMENT.ID.equal(requirementId))
+                            )
+                            .union(
+                                    jooq.select(USER.fields())
+                                            .from(USER)
+                                            .leftOuterJoin(REQUIREMENT_DEVELOPER_MAP).on(REQUIREMENT_DEVELOPER_MAP.USER_ID.equal(USER.ID))
+                                            .where(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID.equal(requirementId))
+                            )
+                            .union(
+                                    jooq.select(USER.fields())
+                                            .from(USER)
+                                            .leftOuterJoin(COMMENT).on(COMMENT.USER_ID.equal(USER.ID))
+                                            .where(COMMENT.REQUIREMENT_ID.equal(requirementId))
+                            )
+                            .union(
+                                    jooq.select(USER.fields())
+                                            .from(USER)
+                                            .leftOuterJoin(ATTACHMENT).on(ATTACHMENT.USER_ID.equal(USER.ID))
+                                            .where(ATTACHMENT.REQUIREMENT_ID.equal(requirementId))
+                            )
+            )
+                    .asField("idCount");
+
+            List<Record> queryResults =
+                    jooq.select(USER.fields())
+                            .select(idCount)
+                            .from(USER)
+                            .leftOuterJoin(REQUIREMENT).on(REQUIREMENT.CREATOR_ID.equal(USER.ID))
+                            .where(REQUIREMENT.ID.equal(requirementId))
+                            .union(
+                                    jooq.select(USER.fields())
+                                            .select(idCount)
+                                            .from(USER)
+                                            .leftOuterJoin(REQUIREMENT).on(REQUIREMENT.LEAD_DEVELOPER_ID.equal(USER.ID))
+                                            .where(REQUIREMENT.ID.equal(requirementId))
+                            )
+                            .union(
+                                    jooq.select(USER.fields())
+                                            .select(idCount)
+                                            .from(USER)
+                                            .leftOuterJoin(REQUIREMENT_DEVELOPER_MAP).on(REQUIREMENT_DEVELOPER_MAP.USER_ID.equal(USER.ID))
+                                            .where(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID.equal(requirementId))
+                            )
+                            .union(
+                                    jooq.select(USER.fields())
+                                            .select(idCount)
+                                            .from(USER)
+                                            .leftOuterJoin(COMMENT).on(COMMENT.USER_ID.equal(USER.ID))
+                                            .where(COMMENT.REQUIREMENT_ID.equal(requirementId))
+                            )
+                            .union(
+                                    jooq.select(USER.fields())
+                                            .select(idCount)
+                                            .from(USER)
+                                            .leftOuterJoin(ATTACHMENT).on(ATTACHMENT.USER_ID.equal(USER.ID))
+                                            .where(ATTACHMENT.REQUIREMENT_ID.equal(requirementId))
+                            )
+                            .limit(pageable.getPageSize())
+                            .offset(pageable.getOffset())
+                            .fetch();
+
+            for (Record queryResult : queryResults) {
+                UserRecord userRecord = queryResult.into(UserRecord.class);
+                users.add(transformer.getEntityFromTableRecord(userRecord));
+            }
+
+            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
+            result = new PaginationResult<>(total, pageable, users);
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return result;
+    }
+
+    @Override
+    public PaginationResult<User> findAllByDeveloping(int requirementId, Pageable pageable) throws BazaarException {
+        PaginationResult<User> result = null;
+        List<User> users;
+        try {
+            users = new ArrayList<>();
+
+            Field<Object> idCount = jooq.selectCount()
+                    .from(USER)
+                    .leftOuterJoin(REQUIREMENT_DEVELOPER_MAP).on(REQUIREMENT_DEVELOPER_MAP.USER_ID.equal(USER.ID))
+                    .where(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID.equal(requirementId))
+                    .asField("idCount");
+
+            List<Record> queryResults = jooq.select(USER.fields())
+                    .select(idCount)
+                    .from(USER)
+                    .leftOuterJoin(REQUIREMENT_DEVELOPER_MAP).on(REQUIREMENT_DEVELOPER_MAP.USER_ID.equal(USER.ID))
+                    .where(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID.equal(requirementId))
+                    .limit(pageable.getPageSize())
+                    .offset(pageable.getOffset())
+                    .fetch();
+
+            for (Record queryResult : queryResults) {
+                UserRecord userRecord = queryResult.into(UserRecord.class);
+                users.add(transformer.getEntityFromTableRecord(userRecord));
+            }
+            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
+            result = new PaginationResult<>(total, pageable, users);
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return result;
+    }
+
+    @Override
+    public PaginationResult<User> findAllByFollowing(int projectId, int categoryId, int requirementId, Pageable pageable) throws BazaarException {
+        PaginationResult<User> result = null;
+        List<User> users;
+        try {
+            users = new ArrayList<>();
+
+            Field<Object> idCount = jooq.selectCount()
+                    .from(jooq.selectDistinct()
+                            .from(
+                                    jooq.select(USER.fields())
+                                            .from(USER)
+                                            .leftOuterJoin(PROJECT_FOLLOWER_MAP).on(PROJECT_FOLLOWER_MAP.USER_ID.equal(USER.ID))
+                                            .leftOuterJoin(CATEGORY_FOLLOWER_MAP).on(CATEGORY_FOLLOWER_MAP.USER_ID.equal(USER.ID))
+                                            .leftOuterJoin(REQUIREMENT_FOLLOWER_MAP).on(REQUIREMENT_FOLLOWER_MAP.USER_ID.equal(USER.ID))
+                                            .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(projectId))
+                                            .or(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(categoryId))
+                                            .or(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(requirementId))
+                                            .asTable("inner"))
+                    ).asField("idCount");
+
+            List<Record> queryResults = jooq.selectDistinct()
+                    .from(
+                            jooq.select(USER.fields())
+                                    .select(idCount)
+                                    .from(USER)
+                                    .leftOuterJoin(PROJECT_FOLLOWER_MAP).on(PROJECT_FOLLOWER_MAP.USER_ID.equal(USER.ID))
+                                    .leftOuterJoin(CATEGORY_FOLLOWER_MAP).on(CATEGORY_FOLLOWER_MAP.USER_ID.equal(USER.ID))
+                                    .leftOuterJoin(REQUIREMENT_FOLLOWER_MAP).on(REQUIREMENT_FOLLOWER_MAP.USER_ID.equal(USER.ID))
+                                    .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(projectId))
+                                    .or(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(categoryId))
+                                    .or(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(requirementId))
+                                    .asTable("inner"))
+                    .limit(pageable.getPageSize())
+                    .offset(pageable.getOffset())
+                    .fetch();
+
+            for (Record queryResult : queryResults) {
+                UserRecord userRecord = queryResult.into(UserRecord.class);
+                users.add(transformer.getEntityFromTableRecord(userRecord));
+            }
+            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
+            result = new PaginationResult<>(total, pageable, users);
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return result;
     }
 
     @Override
@@ -68,22 +255,22 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UsersRecord> implem
             entries = new ArrayList<>();
 
             // select distinct all project leader and follower
-            List<Record> queryResults = jooq.selectDistinct(USERS.fields())
-                    .from(USERS
-                            .join(Projects.PROJECTS).on(USERS.ID.eq(Projects.PROJECTS.LEADER_ID)))
-                    .where(Projects.PROJECTS.ID.eq(projectId))
-                    .and(USERS.EMAIL_LEAD_ITEMS.eq(ONE))
+            List<Record> queryResults = jooq.selectDistinct(USER.fields())
+                    .from(USER
+                            .join(PROJECT).on(USER.ID.eq(PROJECT.LEADER_ID)))
+                    .where(PROJECT.ID.eq(projectId))
+                    .and(USER.EMAIL_LEAD_SUBSCRIPTION.eq(ONE))
 
-                    .union(jooq.selectDistinct(USERS.fields())
-                            .from(USERS
-                                    .join(ProjectFollower.PROJECT_FOLLOWER).on(USERS.ID.eq(ProjectFollower.PROJECT_FOLLOWER.USER_ID)))
-                            .where(ProjectFollower.PROJECT_FOLLOWER.PROJECT_ID.eq(projectId))
-                            .and(USERS.EMAIL_FOLLOW_ITEMS.eq(ONE)))
+                    .union(jooq.selectDistinct(USER.fields())
+                            .from(USER
+                                    .join(PROJECT_FOLLOWER_MAP).on(USER.ID.eq(PROJECT_FOLLOWER_MAP.USER_ID)))
+                            .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.eq(projectId))
+                            .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.eq(ONE)))
                     .fetch();
 
             for (Record queryResult : queryResults) {
-                UsersRecord usersRecord = queryResult.into(UsersRecord.class);
-                entries.add(transformator.getEntityFromTableRecord(usersRecord));
+                UserRecord userRecord = queryResult.into(UserRecord.class);
+                entries.add(transformer.getEntityFromTableRecord(userRecord));
             }
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
@@ -92,44 +279,44 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UsersRecord> implem
     }
 
     @Override
-    public List<User> getEmailReceiverForComponent(int componentId) throws BazaarException {
+    public List<User> getEmailReceiverForCategory(int categoryId) throws BazaarException {
         List<User> entries = null;
         try {
             entries = new ArrayList<>();
 
-            // select distinct all followers union project leader union components leader
-            List<Record> queryResults = jooq.selectDistinct(USERS.fields())
-                    .from(USERS
-                            .join(Components.COMPONENTS).on(USERS.ID.eq(Components.COMPONENTS.LEADER_ID)))
-                    .where(Components.COMPONENTS.ID.eq(componentId))
-                    .and(USERS.EMAIL_LEAD_ITEMS.eq(ONE))
+            // select distinct all followers union project leader union categories leader
+            List<Record> queryResults = jooq.selectDistinct(USER.fields())
+                    .from(USER
+                            .join(CATEGORY).on(USER.ID.eq(CATEGORY.LEADER_ID)))
+                    .where(CATEGORY.ID.eq(categoryId))
+                    .and(USER.EMAIL_LEAD_SUBSCRIPTION.eq(ONE))
 
-                    .union(jooq.selectDistinct(USERS.fields())
-                            .from(USERS
-                                    .join(ComponentFollower.COMPONENT_FOLLOWER).on(USERS.ID.eq(ComponentFollower.COMPONENT_FOLLOWER.USER_ID)))
-                            .where(ComponentFollower.COMPONENT_FOLLOWER.COMPONENT_ID.eq(componentId))
-                            .and(USERS.EMAIL_FOLLOW_ITEMS.eq(ONE)))
+                    .union(jooq.selectDistinct(USER.fields())
+                            .from(USER
+                                    .join(CATEGORY_FOLLOWER_MAP).on(USER.ID.eq(CATEGORY_FOLLOWER_MAP.USER_ID)))
+                            .where(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.eq(categoryId))
+                            .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.eq(ONE)))
 
-                    .union(jooq.selectDistinct(USERS.fields())
-                            .from(USERS
-                                    .join(Projects.PROJECTS).on(USERS.ID.eq(Projects.PROJECTS.LEADER_ID))
-                                    .join(Components.COMPONENTS).on(Components.COMPONENTS.PROJECT_ID.eq(Projects.PROJECTS.ID)))
-                            .where(Components.COMPONENTS.ID.eq(componentId))
-                            .and(USERS.EMAIL_LEAD_ITEMS.eq(ONE)))
+                    .union(jooq.selectDistinct(USER.fields())
+                            .from(USER
+                                    .join(PROJECT).on(USER.ID.eq(PROJECT.LEADER_ID))
+                                    .join(CATEGORY).on(CATEGORY.PROJECT_ID.eq(PROJECT.ID)))
+                            .where(CATEGORY.ID.eq(categoryId))
+                            .and(USER.EMAIL_LEAD_SUBSCRIPTION.eq(ONE)))
 
-                    .union(jooq.selectDistinct(USERS.fields())
-                            .from(USERS
-                                    .join(ProjectFollower.PROJECT_FOLLOWER).on(USERS.ID.eq(ProjectFollower.PROJECT_FOLLOWER.USER_ID))
-                                    .join(Components.COMPONENTS).on(Components.COMPONENTS.PROJECT_ID.eq(ProjectFollower.PROJECT_FOLLOWER.PROJECT_ID)))
-                            .where(Components.COMPONENTS.ID.eq(componentId))
-                            .and(ProjectFollower.PROJECT_FOLLOWER.PROJECT_ID.eq(Components.COMPONENTS.PROJECT_ID))
-                            .and(USERS.EMAIL_FOLLOW_ITEMS.eq(ONE)))
+                    .union(jooq.selectDistinct(USER.fields())
+                            .from(USER
+                                    .join(PROJECT_FOLLOWER_MAP).on(USER.ID.eq(PROJECT_FOLLOWER_MAP.USER_ID))
+                                    .join(CATEGORY).on(CATEGORY.PROJECT_ID.eq(PROJECT_FOLLOWER_MAP.PROJECT_ID)))
+                            .where(CATEGORY.ID.eq(categoryId))
+                            .and(PROJECT_FOLLOWER_MAP.PROJECT_ID.eq(CATEGORY.PROJECT_ID))
+                            .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.eq(ONE)))
 
                     .fetch();
 
             for (Record queryResult : queryResults) {
-                UsersRecord usersRecord = queryResult.into(UsersRecord.class);
-                entries.add(transformator.getEntityFromTableRecord(usersRecord));
+                UserRecord userRecord = queryResult.into(UserRecord.class);
+                entries.add(transformer.getEntityFromTableRecord(userRecord));
             }
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
@@ -143,60 +330,60 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UsersRecord> implem
         try {
             entries = new ArrayList<>();
 
-            // select distinct all followers union project leader union components leader union req leader
-            List<Record> queryResults = jooq.selectDistinct(USERS.fields())
+            // select distinct all followers union project leader union categories leader union req leader
+            List<Record> queryResults = jooq.selectDistinct(USER.fields())
                     // req leader
-                    .from(USERS
-                            .join(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.LEAD_DEVELOPER_ID.eq(USERS.ID)))
-                    .where(Requirements.REQUIREMENTS.ID.eq(requirementId))
-                    .and(USERS.EMAIL_LEAD_ITEMS.eq(ONE))
+                    .from(USER
+                            .join(REQUIREMENT).on(REQUIREMENT.LEAD_DEVELOPER_ID.eq(USER.ID)))
+                    .where(REQUIREMENT.ID.eq(requirementId))
+                    .and(USER.EMAIL_LEAD_SUBSCRIPTION.eq(ONE))
 
                     // req follower
-                    .union(jooq.selectDistinct(USERS.fields())
-                            .from(USERS
-                                    .join(RequirementFollower.REQUIREMENT_FOLLOWER).on(USERS.ID.eq(RequirementFollower.REQUIREMENT_FOLLOWER.USER_ID)))
-                            .where(RequirementFollower.REQUIREMENT_FOLLOWER.REQUIREMENT_ID.eq(requirementId))
-                            .and(USERS.EMAIL_FOLLOW_ITEMS.eq(ONE)))
+                    .union(jooq.selectDistinct(USER.fields())
+                            .from(USER
+                                    .join(REQUIREMENT_FOLLOWER_MAP).on(USER.ID.eq(REQUIREMENT_FOLLOWER_MAP.USER_ID)))
+                            .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.eq(requirementId))
+                            .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.eq(ONE)))
 
-                    // component leader
-                    .union(jooq.selectDistinct(USERS.fields())
-                            .from(USERS
-                                    .join(Components.COMPONENTS).on(USERS.ID.eq(Components.COMPONENTS.LEADER_ID))
-                                    .join(Tags.TAGS).on(Tags.TAGS.COMPONENTS_ID.eq(Components.COMPONENTS.ID)))
-                            .where(Tags.TAGS.REQUIREMENTS_ID.eq(requirementId))
-                            .and(USERS.EMAIL_LEAD_ITEMS.eq(ONE)))
+                    // category leader
+                    .union(jooq.selectDistinct(USER.fields())
+                            .from(USER
+                                    .join(CATEGORY).on(USER.ID.eq(CATEGORY.LEADER_ID))
+                                    .join(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.eq(CATEGORY.ID)))
+                            .where(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.eq(requirementId))
+                            .and(USER.EMAIL_LEAD_SUBSCRIPTION.eq(ONE)))
 
-                    // component follower
-                    .union(jooq.selectDistinct(USERS.fields())
-                            .from(USERS
-                                    .join(ComponentFollower.COMPONENT_FOLLOWER).on(USERS.ID.eq(ComponentFollower.COMPONENT_FOLLOWER.USER_ID))
-                                    .join(Tags.TAGS).on(Tags.TAGS.COMPONENTS_ID.eq(ComponentFollower.COMPONENT_FOLLOWER.COMPONENT_ID))
-                                    .join(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.ID.eq(Tags.TAGS.REQUIREMENTS_ID)))
-                            .where(Requirements.REQUIREMENTS.ID.eq(requirementId))
-                            .and(USERS.EMAIL_FOLLOW_ITEMS.eq(ONE)))
+                    // category follower
+                    .union(jooq.selectDistinct(USER.fields())
+                            .from(USER
+                                    .join(CATEGORY_FOLLOWER_MAP).on(USER.ID.eq(CATEGORY_FOLLOWER_MAP.USER_ID))
+                                    .join(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.eq(CATEGORY_FOLLOWER_MAP.CATEGORY_ID))
+                                    .join(REQUIREMENT).on(REQUIREMENT.ID.eq(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID)))
+                            .where(REQUIREMENT.ID.eq(requirementId))
+                            .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.eq(ONE)))
 
                     // project leader
-                    .union(jooq.selectDistinct(USERS.fields())
-                            .from(USERS
-                                    .join(Projects.PROJECTS).on(USERS.ID.eq(Projects.PROJECTS.LEADER_ID))
-                                    .join(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.PROJECT_ID.eq(Projects.PROJECTS.ID)))
-                            .where(Requirements.REQUIREMENTS.ID.eq(requirementId))
-                            .and(USERS.EMAIL_LEAD_ITEMS.eq(ONE)))
+                    .union(jooq.selectDistinct(USER.fields())
+                            .from(USER
+                                    .join(PROJECT).on(USER.ID.eq(PROJECT.LEADER_ID))
+                                    .join(REQUIREMENT).on(REQUIREMENT.PROJECT_ID.eq(PROJECT.ID)))
+                            .where(REQUIREMENT.ID.eq(requirementId))
+                            .and(USER.EMAIL_LEAD_SUBSCRIPTION.eq(ONE)))
 
                     // project follower
-                    .union(jooq.selectDistinct(USERS.fields())
-                            .from(USERS
-                                    .join(ProjectFollower.PROJECT_FOLLOWER).on(USERS.ID.eq(ProjectFollower.PROJECT_FOLLOWER.USER_ID))
-                                    .join(Requirements.REQUIREMENTS).on(Requirements.REQUIREMENTS.PROJECT_ID.eq(ProjectFollower.PROJECT_FOLLOWER.PROJECT_ID)))
-                            .where(Requirements.REQUIREMENTS.ID.eq(requirementId))
-                            .and(ProjectFollower.PROJECT_FOLLOWER.PROJECT_ID.eq(Requirements.REQUIREMENTS.PROJECT_ID))
-                            .and(USERS.EMAIL_FOLLOW_ITEMS.eq(ONE)))
+                    .union(jooq.selectDistinct(USER.fields())
+                            .from(USER
+                                    .join(PROJECT_FOLLOWER_MAP).on(USER.ID.eq(PROJECT_FOLLOWER_MAP.USER_ID))
+                                    .join(REQUIREMENT).on(REQUIREMENT.PROJECT_ID.eq(PROJECT_FOLLOWER_MAP.PROJECT_ID)))
+                            .where(REQUIREMENT.ID.eq(requirementId))
+                            .and(PROJECT_FOLLOWER_MAP.PROJECT_ID.eq(REQUIREMENT.PROJECT_ID))
+                            .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.eq(ONE)))
 
                     .fetch();
 
             for (Record queryResult : queryResults) {
-                UsersRecord usersRecord = queryResult.into(UsersRecord.class);
-                entries.add(transformator.getEntityFromTableRecord(usersRecord));
+                UserRecord userRecord = queryResult.into(UserRecord.class);
+                entries.add(transformer.getEntityFromTableRecord(userRecord));
             }
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);

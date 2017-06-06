@@ -35,11 +35,11 @@ import java.sql.Timestamp;
  */
 public interface ProjectRepository extends Repository<Project> {
 
-    Project findById(int id) throws BazaarException;
+    Project findById(int id, int userId) throws BazaarException;
 
-    PaginationResult<Project> findAllPublic(Pageable pageable) throws BazaarException;
+    PaginationResult<Project> findAllPublic(Pageable pageable, int userId) throws BazaarException;
 
-    PaginationResult<Project> findAllPublicAndAuthorized(PageInfo pageable, long userId) throws BazaarException;
+    PaginationResult<Project> findAllPublicAndAuthorized(PageInfo pageable, int userId) throws BazaarException;
 
     boolean belongsToPublicProject(int id) throws BazaarException;
 

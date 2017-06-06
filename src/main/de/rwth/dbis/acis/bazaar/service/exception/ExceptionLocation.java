@@ -26,7 +26,7 @@ package de.rwth.dbis.acis.bazaar.service.exception;
  */
 public enum ExceptionLocation {
     REPOSITORY("01", "Repository"),
-    TRANSFORMATOR("02", "Transformators"),
+    TRANSFORMER("02", "Transformers"),
     DALFACADE("03", "DAL facade implementation"),
     BAZAARSERVICE("04", "Bazaar service"),
     NETWORK("5", "Network");

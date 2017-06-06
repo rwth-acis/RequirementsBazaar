@@ -14,19 +14,12 @@ So briefly what is Requirement Bazaar? It is a web application that provides a u
 Service Documentation
 -------------------
 We use **[<i class="icon-link "></i>Swagger](http://swagger.io/specification/)** for documenting this microservice. You can use **[<i class="icon-link "></i>Swagger UI](http://swagger.io/swagger-ui/)** to inspect the API.
-In the future we want to deploy our own Swagger UI instance which you can use to check and use the API. Until then please use the **[<i class="icon-link "></i>Swagger petstore instance](http://petstore.swagger.io/)**. 
-Open the Swagger UI petstore demo, enter the APi endpoint you want to inspect and press explore. Of course the microservice instance you want to inspect needs to run. At the moment you can not authorize yourself, but we are working on this feature. 
+In the future we want to deploy our own Swagger UI instance which you can use to check and use the API. Until then please use the **[<i class="icon-link "></i>Swagger petstore instance](http://petstore.swagger.io/)**.
+Open the Swagger UI petstore demo, enter the APi endpoint you want to inspect and press explore. Of course the microservice instance you want to inspect needs to run. At the moment you can not authorize yourself, but we are working on this feature.
 
 API documentation endpoints:
 
  - `baseURL/bazaar/swagger.json`
- - `baseURL/bazaar/projects/swagger.json`
- - `baseURL/bazaar/categories/swagger.json`
- - `baseURL/bazaar/requirements/swagger.json`
- - `baseURL/bazaar/comments/swagger.json`
- - `baseURL/bazaar/attachments/swagger.json`
- - `baseURL/bazaar/users/swagger.json`
- - `baseURL/bazaar/statistics/swagger.json`
 
 ----------
 
@@ -42,8 +35,8 @@ Dependencies
 -------------------
 In order to be able to run this service project the following components should be installed on your system:
 
- - JDK (min v1.8) + Java Cryptography Extension (JCE) 
- - MySQL 5.7 
+ - JDK (min v1.8) + Java Cryptography Extension (JCE)
+ - MySQL 5.7
  - Apache Ant to build
 
 How to set up the database
@@ -65,7 +58,7 @@ You need to configure this service to work with your own specific environment. H
  - `dbUrl`:			    JDBC Connection string to access the database. Modify it if you have changed the name of your database
  - `land`:              Default language setting
  - `country`:           Default country setting
- - `baseURL`:           Base URL this service runs on 
+ - `baseURL`:           Base URL this service runs on
  - `frontendBaseURL`    Base URL for the frontend which uses Requirements-Bazaar service
  - `activityTrackerService` p2p microservice name of the las2peer activity tracker. Leave this field empty if no las2peer activity tracker is used. (example: `de.rwth.dbis.acis.activitytracker.service.ActivityTrackerService@0.2`)
  - `smtpServer`         SMTP server to send email notifications to users. Leave this field empty if no email notification is used.
@@ -86,13 +79,11 @@ How to run
  3. [Build](#build)
  4. Open a console/terminal window and navigate to the `\bin` directory
  5. Run the `start_network.bat` or `start_network.sh` script
- 
+
  How to run using Docker
  -------------------
  Docker is providing the simplest way to run the Requirement Bazaar back-end. Just follow the following steps if Docker is already installed on your system:
- 
+
   1. `git clone` this repo
   2. `docker build -t rwthacis/reqbaz-service`
   3. `docker run -i -t --rm -v "pwd":/build rwthacis/reqbaz-service`
-
-

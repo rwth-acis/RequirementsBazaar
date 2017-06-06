@@ -21,7 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service;
 
 
-// TODO: update tests, see older revison
+// TODO: update tests, see older revision
 public abstract class TestBase {
 
 }

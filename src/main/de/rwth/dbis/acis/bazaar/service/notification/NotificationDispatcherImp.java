@@ -25,13 +25,13 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
     }
 
     @Override
-    public void dispatchNotification(final Service service, final Date creationTime, final Activity.ActivityAction activityAction,
+    public void dispatchNotification(final Service service, final Date creationDate, final Activity.ActivityAction activityAction,
                                      final int dataId, final Activity.DataType dataType, final int parentDataId,
                                      final Activity.DataType parentDataType, final int userId) {
 //        executorService.execute(new Runnable() {
 //            public void run() {
 //                if (activityDispatcher != null) {
-//                    activityDispatcher.sendActivityOverRMI(service, creationTime, activityAction, dataId, dataType, userId);
+//                    activityDispatcher.sendActivityOverRMI(service, creationDate, activityAction, dataId, dataType, userId);
 //                }
 //            }
 //        });
@@ -39,12 +39,12 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
             public void run() {
                 if (emailDispatcher != null && (activityAction == Activity.ActivityAction.CREATE || activityAction == Activity.ActivityAction.UPDATE ||
                         activityAction == Activity.ActivityAction.REALIZE)) {
-                    emailDispatcher.sendEmailNotification(creationTime, activityAction, dataId, dataType, userId);
+                    emailDispatcher.sendEmailNotification(creationDate, activityAction, dataId, dataType, userId);
                 }
             }
         });
         if (activityDispatcher != null) {
-            activityDispatcher.sendActivityOverRMI(service, creationTime, activityAction, dataId, dataType, parentDataId,
+            activityDispatcher.sendActivityOverRMI(service, creationDate, activityAction, dataId, dataType, parentDataId,
                     parentDataType, userId);
         }
     }

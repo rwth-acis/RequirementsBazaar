@@ -20,12 +20,14 @@
 
 package de.rwth.dbis.acis.bazaar.service;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -38,6 +40,9 @@ import de.rwth.dbis.acis.bazaar.service.notification.EmailDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcherImp;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
+import i5.las2peer.api.Context;
+import i5.las2peer.logging.L2pLogger;
+import i5.las2peer.logging.NodeObserver;
 import i5.las2peer.restMapper.RESTService;
 import i5.las2peer.restMapper.annotations.ServicePath;
 import i5.las2peer.security.UserAgent;
@@ -47,10 +52,16 @@ import org.apache.commons.dbcp2.*;
 import org.apache.http.client.utils.URIBuilder;
 import org.jooq.SQLDialect;
 
-import javax.annotation.Resource;
 import javax.sql.DataSource;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Link;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.DatatypeConverter;
+import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.util.*;
 
@@ -62,8 +73,7 @@ import java.util.*;
  *
  * @author István Koren
  */
-//TODO Service from BasaarService, here is no Endpoint
-@ServicePath("/bazaar/main")
+@ServicePath("/bazaar")
 public class BazaarService extends RESTService {
 
     //CONFIG PROPERTIES
@@ -75,17 +85,26 @@ public class BazaarService extends RESTService {
     protected String baseURL;
     protected String frontendBaseURL;
     protected String activityTrackerService;
+    protected String activityOrigin;
     protected String smtpServer;
     protected String emailFromAddress;
 
     private Vtor vtor;
-    private List<BazaarFunctionRegistrator> functionRegistrators;
+    private List<BazaarFunctionRegistrar> functionRegistrar;
     private NotificationDispatcher notificationDispatcher;
     private DataSource dataSource;
+
+    private final L2pLogger logger = L2pLogger.getInstance(BazaarService.class.getName());
 
     @Override
     protected void initResources() {
         getResourceConfig().register(Resource.class);
+        getResourceConfig().register(ProjectsResource.class);
+        getResourceConfig().register(CategoryResource.class);
+        getResourceConfig().register(RequirementsResource.class);
+        getResourceConfig().register(CommentsResource.class);
+        getResourceConfig().register(AttachmentsResource.class);
+        getResourceConfig().register(UsersResource.class);
     }
 
     public BazaarService() throws Exception {
@@ -98,8 +117,8 @@ public class BazaarService extends RESTService {
 
         dataSource = setupDataSource(dbUrl, dbUserName, dbPassword);
 
-        functionRegistrators = new ArrayList<>();
-        functionRegistrators.add(new BazaarFunctionRegistrator() {
+        functionRegistrar = new ArrayList<>();
+        functionRegistrar.add(new BazaarFunctionRegistrar() {
             @Override
             public void registerFunction(EnumSet<BazaarFunction> functions) throws BazaarException {
                 DALFacade dalFacade = null;
@@ -109,14 +128,14 @@ public class BazaarService extends RESTService {
                 } catch (CommunicationsException commEx) {
                     ExceptionHandler.getInstance().convertAndThrowException(commEx, ExceptionLocation.BAZAARSERVICE, ErrorCode.DB_COMM, Localization.getInstance().getResourceBundle().getString("error.db_comm"));
                 } catch (Exception ex) {
-                    ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.privilige_sync"));
+                    ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.privilege_sync"));
                 } finally {
                     closeDBConnection(dalFacade);
                 }
             }
         });
 
-        functionRegistrators.add(new BazaarFunctionRegistrator() {
+        functionRegistrar.add(new BazaarFunctionRegistrar() {
             @Override
             public void registerFunction(EnumSet<BazaarFunction> functions) {
                 if (functions.contains(BazaarFunction.VALIDATION)) {
@@ -125,7 +144,7 @@ public class BazaarService extends RESTService {
             }
         });
 
-        functionRegistrators.add(new BazaarFunctionRegistrator() {
+        functionRegistrar.add(new BazaarFunctionRegistrar() {
             @Override
             public void registerFunction(EnumSet<BazaarFunction> functions) throws Exception {
                 if (functions.contains(BazaarFunction.USER_FIRST_LOGIN_HANDLING)) {
@@ -136,7 +155,7 @@ public class BazaarService extends RESTService {
 
         notificationDispatcher = new NotificationDispatcherImp();
         if (!activityTrackerService.isEmpty()) {
-            notificationDispatcher.setActivityDispatcher(new ActivityDispatcher(this, activityTrackerService, baseURL, frontendBaseURL));
+            notificationDispatcher.setActivityDispatcher(new ActivityDispatcher(this, activityTrackerService, activityOrigin, baseURL, frontendBaseURL));
         }
         if (!smtpServer.isEmpty()) {
             Properties props = System.getProperties();
@@ -145,16 +164,89 @@ public class BazaarService extends RESTService {
         }
     }
 
-    public String notifyRegistrators(EnumSet<BazaarFunction> functions) {
+    @Api(value = "/", description = "Bazaar service")
+    @SwaggerDefinition(
+            info = @Info(
+                    title = "Requirements Bazaar",
+                    version = "0.6",
+                    description = "Requirements Bazaar project",
+                    termsOfService = "http://requirements-bazaar.org",
+                    contact = @Contact(
+                            name = "Requirements Bazaar Dev Team",
+                            url = "http://requirements-bazaar.org",
+                            email = "info@requirements-bazaar.org"
+                    ),
+                    license = @License(
+                            name = "Apache2",
+                            url = "http://requirements-bazaar.org/license"
+                    )
+            ),
+            schemes = SwaggerDefinition.Scheme.HTTPS
+    )
+    @Path("/")
+    public static class Resource {
+
+        private final BazaarService bazaarService = (BazaarService) Context.getCurrent().getService();
+
+        /**
+         * This method allows to retrieve statistics over all projects.
+         *
+         * @param since      timestamp since filter
+         * @return Response with statistics as a JSON object.
+         */
+        @GET
+        @Path("/statistics")
+        @Produces(MediaType.APPLICATION_JSON)
+        @ApiOperation(value = "This method allows to retrieve statistics over all projects.")
+        @ApiResponses(value = {
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns statistics", response = Statistic.class),
+                @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+                @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+                @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+        })
+        public Response getStatistics(
+                @ApiParam(value = "Since timestamp", required = false) @QueryParam("since") String since) {
+            DALFacade dalFacade = null;
+            try {
+                UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
+                long userId = agent.getId();
+                dalFacade = bazaarService.getDBConnection();
+                Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+                Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
+                Statistic statisticsResult = dalFacade.getStatisticsForAllProjects(internalUserId, sinceCal);
+                L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_2, Context.getCurrent().getMainAgent(), "Get statistics");
+                Gson gson = new Gson();
+                return Response.ok(gson.toJson(statisticsResult)).build();
+            } catch (BazaarException bex) {
+                if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                    return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                    return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else {
+                    bazaarService.logger.warning(bex.getMessage());
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                }
+            } catch (Exception ex) {
+                BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get statistics failed");
+                bazaarService.logger.warning(bex.getMessage());
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } finally {
+                bazaarService.closeDBConnection(dalFacade);
+            }
+        }
+    }
+
+    public String notifyRegistrars(EnumSet<BazaarFunction> functions) {
         String resultJSON = null;
         try {
-            for (BazaarFunctionRegistrator functionRegistrator : functionRegistrators) {
-                functionRegistrator.registerFunction(functions);
+            for (BazaarFunctionRegistrar functionRegistrar : functionRegistrar) {
+                functionRegistrar.registerFunction(functions);
             }
         } catch (BazaarException bazaarEx) {
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarEx);
         } catch (Exception ex) {
-            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.registrators"));
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.registrars"));
             resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
         }
         return resultJSON;
@@ -209,18 +301,24 @@ public class BazaarService extends RESTService {
             dalFacade = getDBConnection();
             Integer userIdByLAS2PeerId = dalFacade.getUserIdByLAS2PeerId(agent.getId());
             if (userIdByLAS2PeerId == null) {
+                // create user
                 User.Builder userBuilder = User.geBuilder(agent.getEmail());
                 if (givenName != null)
                     userBuilder = userBuilder.firstName(givenName);
                 if (familyName != null)
                     userBuilder = userBuilder.lastName(familyName);
                 User user = userBuilder.admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).profileImage(profileImage)
-                        .emailLeadItems(true).emailFollowItems(true).build();
+                        .emailLeadSubscription(true).emailFollowSubscription(true).build();
                 int userId = dalFacade.createUser(user).getId();
+                L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_55, Context.getCurrent().getMainAgent(), "Create user " + userId);
                 dalFacade.addUserToRole(userId, "SystemAdmin", null);
+            } else {
+                // update lastLoginDate
+                dalFacade.updateLastLoginDate(userIdByLAS2PeerId);
             }
         } catch (Exception ex) {
             ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.first_login"));
+            logger.warning(ex.getMessage());
         } finally {
             closeDBConnection(dalFacade);
         }

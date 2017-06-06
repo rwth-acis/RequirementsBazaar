@@ -22,8 +22,8 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementFollower;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementFollowerRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementFollowerTransformator;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementFollowerMapRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementFollowerTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -31,25 +31,25 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
 import org.jooq.exception.DataAccessException;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementFollower.REQUIREMENT_FOLLOWER;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.REQUIREMENT_FOLLOWER_MAP;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
-public class RequirementFollowerRepositoryImpl extends RepositoryImpl<RequirementFollower, RequirementFollowerRecord> implements RequirementFollowerRepository {
+public class RequirementFollowerRepositoryImpl extends RepositoryImpl<RequirementFollower, RequirementFollowerMapRecord> implements RequirementFollowerRepository {
     /**
      * @param jooq DSLContext for JOOQ connection
      */
     public RequirementFollowerRepositoryImpl(DSLContext jooq) {
-        super(jooq, new RequirementFollowerTransformator());
+        super(jooq, new RequirementFollowerTransformer());
     }
 
     @Override
     public void delete(int userId, int requirementId) throws BazaarException {
         try {
-            jooq.delete(REQUIREMENT_FOLLOWER)
-                    .where(REQUIREMENT_FOLLOWER.USER_ID.equal(userId).and(REQUIREMENT_FOLLOWER.REQUIREMENT_ID.equal(requirementId)))
+            jooq.delete(REQUIREMENT_FOLLOWER_MAP)
+                    .where(REQUIREMENT_FOLLOWER_MAP.USER_ID.equal(userId).and(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(requirementId)))
                     .execute();
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
@@ -60,8 +60,8 @@ public class RequirementFollowerRepositoryImpl extends RepositoryImpl<Requiremen
     public boolean hasUserAlreadyFollows(int userId, int requirementId) throws BazaarException {
         int execute = 0;
         try {
-            execute = jooq.selectFrom(REQUIREMENT_FOLLOWER)
-                    .where(REQUIREMENT_FOLLOWER.USER_ID.equal(userId).and(REQUIREMENT_FOLLOWER.REQUIREMENT_ID.equal(requirementId)))
+            execute = jooq.selectFrom(REQUIREMENT_FOLLOWER_MAP)
+                    .where(REQUIREMENT_FOLLOWER_MAP.USER_ID.equal(userId).and(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(requirementId)))
                     .execute();
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
@@ -71,8 +71,8 @@ public class RequirementFollowerRepositoryImpl extends RepositoryImpl<Requiremen
 
     @Override
     public CreationStatus addOrUpdate(RequirementFollower requirementFollower) throws BazaarException {
-        RequirementFollowerRecord record = jooq.selectFrom(REQUIREMENT_FOLLOWER)
-                .where(REQUIREMENT_FOLLOWER.USER_ID.equal(requirementFollower.getUserId()).and(REQUIREMENT_FOLLOWER.REQUIREMENT_ID.equal(requirementFollower.getRequirementId())))
+        RequirementFollowerMapRecord record = jooq.selectFrom(REQUIREMENT_FOLLOWER_MAP)
+                .where(REQUIREMENT_FOLLOWER_MAP.USER_ID.equal(requirementFollower.getUserId()).and(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(requirementFollower.getRequirementId())))
                 .fetchOne();
 
         if (record != null) {
