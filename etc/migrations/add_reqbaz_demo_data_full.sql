@@ -620,6 +620,8 @@ VALUES
   (20, 1, 15, 6),
   (21, 1, 16, 7);
 
+  -- roles and privilege schema is already set up with V1__create_reqbaz_schema
+
 REPLACE INTO reqbaz.role
 (id, name)
 VALUES

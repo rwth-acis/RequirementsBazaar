@@ -24,7 +24,6 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import com.mysql.jdbc.exceptions.jdbc4.CommunicationsException;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
@@ -61,6 +60,7 @@ import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
+import java.io.SyncFailedException;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -125,10 +125,10 @@ public class BazaarService extends RESTService {
                 try {
                     dalFacade = getDBConnection();
                     AuthorizationManager.SyncPrivileges(dalFacade);
-                } catch (CommunicationsException commEx) {
-                    ExceptionHandler.getInstance().convertAndThrowException(commEx, ExceptionLocation.BAZAARSERVICE, ErrorCode.DB_COMM, Localization.getInstance().getResourceBundle().getString("error.db_comm"));
-                } catch (Exception ex) {
+                } catch (BazaarException ex) {
                     ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.privilege_sync"));
+                } catch (Exception e) {
+                    ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.privilege_sync"));
                 } finally {
                     closeDBConnection(dalFacade);
                 }

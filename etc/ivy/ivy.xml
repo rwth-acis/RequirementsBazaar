@@ -14,7 +14,9 @@
         <dependency org="i5" name="las2peer-web-connector" rev="0.6.7" changing="true" conf="platform->*"/>
         <dependency org="junit" name="junit" rev="4.12" conf="platform->*"/>
         <!-- service dependencies -->
-        <dependency org="mysql" name="mysql-connector-java" rev="5.1.6" conf="bundle->default"/>
+        <dependency org="mysql" name="mysql-connector-java" rev="6.0.5" conf="bundle->default"/>
+        <dependency org="org.flywaydb" name="flyway-ant" rev="4.2.0" conf="bundle->default"/>
+        <dependency org="com.h2database" name="h2" rev="1.4.191" conf="bundle->default"/>
         <dependency org="org.apache.commons" name="commons-pool2" rev="2.2" conf="bundle->default"/>
         <dependency org="org.apache.commons" name="commons-dbcp2" rev="2.0" conf="bundle->default"/>
         <dependency org="org.jooq" name="jooq" rev="3.9.1" conf="bundle->default"/>
