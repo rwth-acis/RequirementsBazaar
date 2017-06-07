@@ -16,6 +16,7 @@
     <property name="service" location="service"/>
 
     <property name="tmp.classes" location="${tmp}/classes"/>
+    <property name="tmp.bundle" location="${tmp}/bundle"/>
     <property name="tmp.junit" location="${tmp}/test"/>
 
     <property name="export" location="export"/>
@@ -68,6 +69,7 @@
         </ivy:settings>
         <ivy:retrieve type="jar, bundle" conf="platform" pattern="${lib}/[artifact]-[revision].[ext]"/>
         <ivy:retrieve type="jar, bundle" conf="bundle" pattern="${service}/[artifact]-[revision].[ext]"/>
+        <ivy:retrieve type="jar, bundle" conf="bundle" pattern="${tmp.bundle}/[artifact]-[revision].[ext]" />
     </target>
 
 
@@ -80,6 +82,7 @@
     <target name="init_general">
         <tstamp/>
         <mkdir dir="${tmp}"/>
+        <mkdir dir="${tmp}.bundle"/>
         <mkdir dir="${export}"/>
         <mkdir dir="${startup}"/>
         <mkdir dir="${log}"/>
@@ -175,6 +178,18 @@
         <copy todir="${service}">
             <fileset dir="${export.jars}"/>
         </copy>
+    </target>
+
+    <!-- Generate Jars ncluding all deps -->
+    <target name="jar-big" depends="compile_main" description="--> build service jar including all deps">
+        <jar jarfile="${service}/${service.name}-${service.version}.jar">
+            <fileset dir="${tmp.classes}" />
+            <zipgroupfileset dir="${tmp.bundle}" />
+            <manifest>
+                <attribute name="las2peer-service-name" value="${service.name}" />
+                <attribute name="las2peer-service-version" value="${service.version}" />
+            </manifest>
+        </jar>
     </target>
 
 
