@@ -327,7 +327,7 @@ public class BazaarService extends RESTService {
     public static DataSource setupDataSource(String dbUrl, String dbUserName, String dbPassword) {
         BasicDataSource dataSource = new BasicDataSource();
         dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUrl(dbUrl + "?useSSL=false&amp;serverTimezone=UTC");
+        dataSource.setUrl(dbUrl + "?useSSL=false&serverTimezone=UTC");
         dataSource.setUsername(dbUserName);
         dataSource.setPassword(dbPassword);
         dataSource.setValidationQuery("SELECT 1;");
