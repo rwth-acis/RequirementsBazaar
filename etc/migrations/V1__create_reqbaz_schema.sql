@@ -309,4 +309,10 @@ REPLACE INTO reqbaz.user_role_map
 VALUES
   (1, 1, 1);
 
+REPLACE INTO reqbaz.user
+(id, first_name, last_name, email, admin, las2peer_id, user_name, profile_image, email_lead_subscription, email_follow_subscription)
+VALUES
+  (1, NULL, NULL, 'anonymous@requirements-bazaar.org', 0, '-1722613621014065292', 'anonymous',
+   'https://api.learning-layers.eu/profile.png', 0, 0);
+
 SET FOREIGN_KEY_CHECKS = 1;
