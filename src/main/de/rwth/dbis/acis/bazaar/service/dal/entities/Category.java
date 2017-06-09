@@ -21,13 +21,13 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jodd.vtor.constraint.MaxLength;
 import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
 import jodd.vtor.constraint.NotNull;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -59,13 +59,41 @@ public class Category extends EntityBase {
     private Integer numberOfFollowers;
     private Boolean isFollower;
 
+    public Category() {
+    }
 
-    public int getProjectId() {
-        return projectId;
+    /**
+     * Private constructor, should be called from its builder only.
+     *
+     * @param builder
+     */
+    private Category(Builder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
+        this.description = builder.description;
+        this.projectId = builder.projectId;
+        this.leader = builder.leader;
+        this.creationDate = builder.creationDate;
+        this.lastUpdatedDate = builder.lastUpdatedDate;
+        this.isFollower = builder.isFollower;
+    }
+
+    /**
+     * Builder to easily build Category objects
+     *
+     * @param name Name field will be initialized using the passed value
+     * @return a builder with name returned
+     */
+    public static Builder getBuilder(String name) {
+        return new Builder(name);
     }
 
     public int getId() {
         return id;
+    }
+
+    public int getProjectId() {
+        return projectId;
     }
 
     public Date getCreationDate() {
@@ -104,46 +132,30 @@ public class Category extends EntityBase {
         isFollower = follower;
     }
 
+    public Integer getNumberOfRequirements() {
+        return numberOfRequirements;
+    }
+
     public void setNumberOfRequirements(Integer numberOfRequirements) {
         this.numberOfRequirements = numberOfRequirements;
+    }
+
+    public Integer getNumberOfFollowers() {
+        return numberOfFollowers;
     }
 
     public void setNumberOfFollowers(Integer numberOfFollowers) {
         this.numberOfFollowers = numberOfFollowers;
     }
 
-    public Category() {
-    }
-
-    /**
-     * Private constructor, should be called from its builder only.
-     *
-     * @param builder
-     */
-    private Category(Builder builder) {
-        this.id = builder.id;
-        this.name = builder.name;
-        this.description = builder.description;
-        this.projectId = builder.projectId;
-        this.leader = builder.leader;
-        this.creationDate = builder.creationDate;
-        this.lastUpdatedDate = builder.lastUpdatedDate;
-        this.isFollower = builder.isFollower;
-    }
-
-
-    /**
-     * Builder to easily build Category objects
-     *
-     * @param name Name field will be initialized using the passed value
-     * @return a builder with name returned
-     */
-    public static Builder getBuilder(String name) {
-        return new Builder(name);
+    @JsonProperty("isFollower")
+    public Boolean isFollower() {
+        return isFollower;
     }
 
     public static class Builder {
 
+        public User leader;
         private int id;
         private String description;
         private String name;
@@ -151,7 +163,6 @@ public class Category extends EntityBase {
         private Date lastUpdatedDate;
         private int projectId;
         private Boolean isFollower;
-        public User leader;
 
         public Builder(String name) {
             this.name = name;

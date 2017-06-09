@@ -1,6 +1,7 @@
 package de.rwth.dbis.acis.bazaar.service;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
@@ -51,6 +52,7 @@ public class ProjectsResource {
     private BazaarService bazaarService;
 
     private final L2pLogger logger = L2pLogger.getInstance(ProjectsResource.class.getName());
+    private ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     public ProjectsResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
@@ -88,7 +90,6 @@ public class ProjectsResource {
             }
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
             long userId = agent.getId();
-            Gson gson = new Gson();
             List<Pageable.SortField> sortList = new ArrayList<>();
             for (String sortOption : sort) {
                 Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
@@ -136,7 +137,7 @@ public class ProjectsResource {
             parameter.put("sort", sort);
 
             Response.ResponseBuilder responseBuilder = Response.ok();
-            responseBuilder = responseBuilder.entity(gson.toJson(projectsResult.getElements()));
+            responseBuilder = responseBuilder.entity(mapper.writeValueAsString(projectsResult.getElements()));
             responseBuilder = bazaarService.paginationLinks(responseBuilder, projectsResult, "projects", parameter);
             responseBuilder = bazaarService.xHeaderFields(responseBuilder, projectsResult);
             Response response = responseBuilder.build();
@@ -196,8 +197,7 @@ public class ProjectsResource {
             }
             Project projectToReturn = dalFacade.getProjectById(projectId, internalUserId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_4, Context.getCurrent().getMainAgent(), "Get project " + projectId);
-            Gson gson = new Gson();
-            return Response.ok(gson.toJson(projectToReturn)).build();
+            return Response.ok(mapper.writeValueAsString(projectToReturn)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -243,7 +243,6 @@ public class ProjectsResource {
             }
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
             long userId = agent.getId();
-            Gson gson = new Gson();
             Vtor vtor = bazaarService.getValidators();
             vtor.useProfiles("create");
             vtor.validate(projectToCreate);
@@ -259,7 +258,7 @@ public class ProjectsResource {
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_5, Context.getCurrent().getMainAgent(), "Create project " + createdProject.getId());
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, createdProject.getCreationDate(), Activity.ActivityAction.CREATE, createdProject.getId(),
                     Activity.DataType.PROJECT, 0, null, internalUserId);
-            return Response.status(Response.Status.CREATED).entity(gson.toJson(createdProject)).build();
+            return Response.status(Response.Status.CREATED).entity(mapper.writeValueAsString(createdProject)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -306,7 +305,6 @@ public class ProjectsResource {
             }
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
             long userId = agent.getId();
-            Gson gson = new Gson();
             Vtor vtor = bazaarService.getValidators();
             vtor.validate(projectToUpdate);
             if (vtor.hasViolations()) {
@@ -325,7 +323,7 @@ public class ProjectsResource {
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_6, Context.getCurrent().getMainAgent(), "Update project " + projectId);
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, updatedProject.getLastUpdatedDate(), Activity.ActivityAction.UPDATE, updatedProject.getId(),
                     Activity.DataType.PROJECT, 0, null, internalUserId);
-            return Response.ok(gson.toJson(updatedProject)).build();
+            return Response.ok(mapper.writeValueAsString(updatedProject)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -380,10 +378,9 @@ public class ProjectsResource {
             dalFacade.followProject(internalUserId, projectId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_8, Context.getCurrent().getMainAgent(), "Follow project " + projectId);
             Project project = dalFacade.getProjectById(projectId, internalUserId);
-            Gson gson = new Gson();
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.FOLLOW, project.getId(),
                     Activity.DataType.PROJECT, 0, null, internalUserId);
-            return Response.status(Response.Status.CREATED).entity(gson.toJson(project)).build();
+            return Response.status(Response.Status.CREATED).entity(mapper.writeValueAsString(project)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -438,10 +435,9 @@ public class ProjectsResource {
             dalFacade.unFollowProject(internalUserId, projectId);
             Project project = dalFacade.getProjectById(projectId, internalUserId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_9, Context.getCurrent().getMainAgent(), "Unfollow project " + projectId);
-            Gson gson = new Gson();
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.UNFOLLOW, project.getId(),
                     Activity.DataType.PROJECT, 0, null, internalUserId);
-            return Response.ok(gson.toJson(project)).build();
+            return Response.ok(mapper.writeValueAsString(project)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -484,6 +480,10 @@ public class ProjectsResource {
             @ApiParam(value = "Since timestamp", required = false) @QueryParam("since") String since) {
         DALFacade dalFacade = null;
         try {
+            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registrarErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
+            }
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
             long userId = agent.getId();
             dalFacade = bazaarService.getDBConnection();
@@ -491,8 +491,7 @@ public class ProjectsResource {
             Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
             Statistic statisticsResult = dalFacade.getStatisticsForProject(internalUserId, projectId, sinceCal);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_10, Context.getCurrent().getMainAgent(), "Get statistics for project " + projectId);
-            Gson gson = new Gson();
-            return Response.ok(gson.toJson(statisticsResult)).build();
+            return Response.ok(mapper.writeValueAsString(statisticsResult)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -560,9 +559,8 @@ public class ProjectsResource {
                 add(String.valueOf(perPage));
             }});
 
-            Gson gson = new Gson();
             Response.ResponseBuilder responseBuilder = Response.ok();
-            responseBuilder = responseBuilder.entity(gson.toJson(requirementsResult.getElements()));
+            responseBuilder = responseBuilder.entity(mapper.writeValueAsString(requirementsResult.getElements()));
             responseBuilder = bazaarService.paginationLinks(responseBuilder, requirementsResult, "projects/" + String.valueOf(projectId) + "/followers", parameter);
             responseBuilder = bazaarService.xHeaderFields(responseBuilder, requirementsResult);
             Response response = responseBuilder.build();

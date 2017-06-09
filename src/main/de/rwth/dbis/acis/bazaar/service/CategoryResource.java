@@ -1,6 +1,7 @@
 package de.rwth.dbis.acis.bazaar.service;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
@@ -53,6 +54,7 @@ public class CategoryResource {
     private BazaarService bazaarService;
 
     private final L2pLogger logger = L2pLogger.getInstance(CategoryResource.class.getName());
+    private ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     public CategoryResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
@@ -77,7 +79,6 @@ public class CategoryResource {
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
-            Gson gson = new Gson();
             List<Pageable.SortField> sortList = new ArrayList<>();
             for (String sortOption : sort) {
                 Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
@@ -132,7 +133,7 @@ public class CategoryResource {
             parameter.put("sort", sort);
 
             Response.ResponseBuilder responseBuilder = Response.ok();
-            responseBuilder = responseBuilder.entity(gson.toJson(categoriesResult.getElements()));
+            responseBuilder = responseBuilder.entity(mapper.writeValueAsString(categoriesResult.getElements()));
             responseBuilder = bazaarService.paginationLinks(responseBuilder, categoriesResult, "projects/" + String.valueOf(projectId) + "/categories", parameter);
             responseBuilder = bazaarService.xHeaderFields(responseBuilder, categoriesResult);
             Response response = responseBuilder.build();
@@ -198,8 +199,7 @@ public class CategoryResource {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.read"));
                 }
             }
-            Gson gson = new Gson();
-            return Response.ok(gson.toJson(categoryToReturn)).build();
+            return Response.ok(mapper.writeValueAsString(categoryToReturn)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -247,7 +247,6 @@ public class CategoryResource {
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
-            Gson gson = new Gson();
             Vtor vtor = bazaarService.getValidators();
             vtor.useProfiles("create");
             vtor.validate(categoryToCreate);
@@ -265,7 +264,7 @@ public class CategoryResource {
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_16, Context.getCurrent().getMainAgent(), "Create category " + createdCategory.getId());
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, createdCategory.getCreationDate(), Activity.ActivityAction.CREATE, createdCategory.getId(),
                     Activity.DataType.CATEGORY, createdCategory.getProjectId(), Activity.DataType.PROJECT, internalUserId);
-            return Response.status(Response.Status.CREATED).entity(gson.toJson(createdCategory)).build();
+            return Response.status(Response.Status.CREATED).entity(mapper.writeValueAsString(createdCategory)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -313,7 +312,6 @@ public class CategoryResource {
             }
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
             long userId = agent.getId();
-            Gson gson = new Gson();
             Vtor vtor = bazaarService.getValidators();
             vtor.validate(categoryToUpdate);
             if (vtor.hasViolations()) {
@@ -332,7 +330,7 @@ public class CategoryResource {
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_17, Context.getCurrent().getMainAgent(), "Update category " + categoryId);
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, updatedCategory.getLastUpdatedDate(), Activity.ActivityAction.UPDATE, updatedCategory.getId(),
                     Activity.DataType.CATEGORY, updatedCategory.getProjectId(), Activity.DataType.PROJECT, internalUserId);
-            return Response.ok(gson.toJson(updatedCategory)).build();
+            return Response.ok(mapper.writeValueAsString(updatedCategory)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -395,11 +393,10 @@ public class CategoryResource {
                         MessageFormat.format(Localization.getInstance().getResourceBundle().getString("error.authorization.category.delete"), categoryId)
                 );
             }
-            Gson gson = new Gson();
             Category deletedCategory = dalFacade.deleteCategoryById(categoryId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, deletedCategory.getLastUpdatedDate(), Activity.ActivityAction.DELETE, deletedCategory.getId(),
                     Activity.DataType.CATEGORY, deletedCategory.getProjectId(), Activity.DataType.PROJECT, internalUserId);
-            return Response.ok(gson.toJson(deletedCategory)).build();
+            return Response.ok(mapper.writeValueAsString(deletedCategory)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -454,10 +451,9 @@ public class CategoryResource {
             dalFacade.followCategory(internalUserId, categoryId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_19, Context.getCurrent().getMainAgent(), "Follow category " + categoryId);
             Category category = dalFacade.getCategoryById(categoryId, internalUserId);
-            Gson gson = new Gson();
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.FOLLOW, category.getId(),
                     Activity.DataType.CATEGORY, category.getProjectId(), Activity.DataType.PROJECT, internalUserId);
-            return Response.status(Response.Status.CREATED).entity(gson.toJson(category)).build();
+            return Response.status(Response.Status.CREATED).entity(mapper.writeValueAsString(category)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -512,10 +508,9 @@ public class CategoryResource {
             dalFacade.unFollowCategory(internalUserId, categoryId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_20, Context.getCurrent().getMainAgent(), "Unfollow category " + categoryId);
             Category category = dalFacade.getCategoryById(categoryId, internalUserId);
-            Gson gson = new Gson();
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.UNFOLLOW, category.getId(),
                     Activity.DataType.CATEGORY, category.getProjectId(), Activity.DataType.PROJECT, internalUserId);
-            return Response.ok(gson.toJson(category)).build();
+            return Response.ok(mapper.writeValueAsString(category)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -558,6 +553,10 @@ public class CategoryResource {
             @ApiParam(value = "Since timestamp", required = false) @QueryParam("since") String since) {
         DALFacade dalFacade = null;
         try {
+            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registrarErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
+            }
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
             long userId = agent.getId();
             dalFacade = bazaarService.getDBConnection();
@@ -565,8 +564,7 @@ public class CategoryResource {
             Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
             Statistic statisticsResult = dalFacade.getStatisticsForCategory(internalUserId, categoryId, sinceCal);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_21, Context.getCurrent().getMainAgent(), "Get statistics for category " + categoryId);
-            Gson gson = new Gson();
-            return Response.ok(gson.toJson(statisticsResult)).build();
+            return Response.ok(mapper.writeValueAsString(statisticsResult)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -634,9 +632,8 @@ public class CategoryResource {
                 add(String.valueOf(perPage));
             }});
 
-            Gson gson = new Gson();
             Response.ResponseBuilder responseBuilder = Response.ok();
-            responseBuilder = responseBuilder.entity(gson.toJson(requirementsResult.getElements()));
+            responseBuilder = responseBuilder.entity(mapper.writeValueAsString(requirementsResult.getElements()));
             responseBuilder = bazaarService.paginationLinks(responseBuilder, requirementsResult, "categories/" + String.valueOf(categoryId) + "/followers", parameter);
             responseBuilder = bazaarService.xHeaderFields(responseBuilder, requirementsResult);
             Response response = responseBuilder.build();

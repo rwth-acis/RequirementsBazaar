@@ -20,12 +20,12 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jodd.vtor.constraint.MaxLength;
 import jodd.vtor.constraint.NotBlank;
 import jodd.vtor.constraint.NotNull;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -37,7 +37,7 @@ public class Project extends EntityBase {
 
     @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
-    @MaxLength(value= 50, profiles = {"*"})
+    @MaxLength(value = 50, profiles = {"*"})
     private String name;
 
     @NotBlank(profiles = {"*"})
@@ -58,30 +58,6 @@ public class Project extends EntityBase {
     private Integer numberOfRequirements;
     private Integer numberOfFollowers;
     private Boolean isFollower;
-
-    public Boolean getVisibility() {
-        return visibility;
-    }
-
-    public void setLeader(User leader) {
-        this.leader = leader;
-    }
-
-    public void setFollower(Boolean follower) {
-        isFollower = follower;
-    }
-
-    public void setNumberOfCategories(Integer numberOfCategories) {
-        this.numberOfCategories = numberOfCategories;
-    }
-
-    public void setNumberOfRequirements(Integer numberOfRequirements) {
-        this.numberOfRequirements = numberOfRequirements;
-    }
-
-    public void setNumberOfFollowers(Integer numberOfFollowers) {
-        this.numberOfFollowers = numberOfFollowers;
-    }
 
     public Project() {
     }
@@ -113,7 +89,6 @@ public class Project extends EntityBase {
         return new Builder(name);
     }
 
-    @Override
     public int getId() {
         return id;
     }
@@ -146,12 +121,53 @@ public class Project extends EntityBase {
         return leader;
     }
 
+    public void setLeader(User leader) {
+        this.leader = leader;
+    }
+
     public Integer getDefaultCategoryId() {
         return defaultCategoryId;
     }
 
     public void setDefaultCategoryId(Integer defaultCategoryId) {
         this.defaultCategoryId = defaultCategoryId;
+    }
+
+    public Boolean getVisibility() {
+        return visibility;
+    }
+
+    public Integer getNumberOfCategories() {
+        return numberOfCategories;
+    }
+
+    public void setNumberOfCategories(Integer numberOfCategories) {
+        this.numberOfCategories = numberOfCategories;
+    }
+
+    public Integer getNumberOfRequirements() {
+        return numberOfRequirements;
+    }
+
+    public void setNumberOfRequirements(Integer numberOfRequirements) {
+        this.numberOfRequirements = numberOfRequirements;
+    }
+
+    public Integer getNumberOfFollowers() {
+        return numberOfFollowers;
+    }
+
+    public void setNumberOfFollowers(Integer numberOfFollowers) {
+        this.numberOfFollowers = numberOfFollowers;
+    }
+
+    public void setFollower(Boolean isFollower) {
+        this.isFollower = isFollower;
+    }
+
+    @JsonProperty("isFollower")
+    public Boolean isFollower() {
+        return isFollower;
     }
 
     public static class Builder {

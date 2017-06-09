@@ -95,7 +95,7 @@ public class BazaarService extends RESTService {
 
     private final L2pLogger logger = L2pLogger.getInstance(BazaarService.class.getName());
 
-    private static ObjectMapper mapper = new ObjectMapper();
+    private static ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     @Override
     protected void initResources() {
@@ -163,8 +163,6 @@ public class BazaarService extends RESTService {
             props.put("mail.smtp.host", smtpServer);
             notificationDispatcher.setEmailDispatcher(new EmailDispatcher(this, smtpServer, emailFromAddress, frontendBaseURL));
         }
-
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     @Api(value = "/", description = "Bazaar service")
@@ -222,7 +220,6 @@ public class BazaarService extends RESTService {
                 Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
                 Statistic statisticsResult = dalFacade.getStatisticsForAllProjects(internalUserId, sinceCal);
                 L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_2, Context.getCurrent().getMainAgent(), "Get statistics");
-
                 return Response.ok(mapper.writeValueAsString(statisticsResult)).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
