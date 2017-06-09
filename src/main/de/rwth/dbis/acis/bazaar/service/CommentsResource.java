@@ -1,6 +1,7 @@
 package de.rwth.dbis.acis.bazaar.service;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
@@ -50,6 +51,7 @@ public class CommentsResource {
     private BazaarService bazaarService;
 
     private final L2pLogger logger = L2pLogger.getInstance(CommentsResource.class.getName());
+    private ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     public CommentsResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
@@ -103,9 +105,8 @@ public class CommentsResource {
                 add(String.valueOf(perPage));
             }});
 
-            Gson gson = new Gson();
             Response.ResponseBuilder responseBuilder = Response.ok();
-            responseBuilder = responseBuilder.entity(gson.toJson(commentsResult.getElements()));
+            responseBuilder = responseBuilder.entity(mapper.writeValueAsString(commentsResult.getElements()));
             responseBuilder = bazaarService.paginationLinks(responseBuilder, commentsResult, "requirements/" + String.valueOf(requirementId) + "/comments", parameter);
             responseBuilder = bazaarService.xHeaderFields(responseBuilder, commentsResult);
             Response response = responseBuilder.build();
@@ -172,8 +173,7 @@ public class CommentsResource {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.read"));
                 }
             }
-            Gson gson = new Gson();
-            return Response.ok(gson.toJson(comment)).build();
+            return Response.ok(mapper.writeValueAsString(comment)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -222,7 +222,6 @@ public class CommentsResource {
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
-            Gson gson = new Gson();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(commentToCreate.getRequirementId(), internalUserId);
@@ -242,7 +241,7 @@ public class CommentsResource {
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_46, Context.getCurrent().getMainAgent(), "Create comment " + commentToCreate.getId());
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, createdComment.getCreationDate(), Activity.ActivityAction.CREATE, createdComment.getId(),
                     Activity.DataType.COMMENT, createdComment.getRequirementId(), Activity.DataType.REQUIREMENT, internalUserId);
-            return Response.status(Response.Status.CREATED).entity(gson.toJson(createdComment)).build();
+            return Response.status(Response.Status.CREATED).entity(mapper.writeValueAsString(createdComment)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -295,12 +294,11 @@ public class CommentsResource {
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.modify"));
             }
-            Gson gson = new Gson();
             Comment deletedComment = dalFacade.deleteCommentById(commentId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_48, Context.getCurrent().getMainAgent(), "Delete comment " + commentId);
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, deletedComment.getCreationDate(), Activity.ActivityAction.DELETE, deletedComment.getId(),
                     Activity.DataType.COMMENT, commentToDelete.getRequirementId(), Activity.DataType.REQUIREMENT, internalUserId);
-            return Response.ok(gson.toJson(deletedComment)).build();
+            return Response.ok(mapper.writeValueAsString(deletedComment)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();

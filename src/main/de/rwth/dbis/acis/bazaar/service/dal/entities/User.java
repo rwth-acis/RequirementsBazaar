@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jodd.vtor.constraint.MaxLength;
 import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
@@ -96,6 +97,7 @@ public class User extends EntityBase {
         return lastName;
     }
 
+    @JsonIgnore
     public String getEMail() {
         return eMail;
     }

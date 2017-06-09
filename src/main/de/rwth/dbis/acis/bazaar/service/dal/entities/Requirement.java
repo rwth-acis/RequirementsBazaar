@@ -1,6 +1,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.UserVote;
 import jodd.vtor.constraint.*;
 
@@ -54,6 +55,37 @@ public class Requirement extends EntityBase {
     private Boolean isFollower;
     private Boolean isDeveloper;
     private Boolean isContributor;
+
+    public Requirement() {
+    }
+
+    protected Requirement(Builder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
+        this.description = builder.description;
+        this.realized = builder.realized;
+        this.projectId = builder.projectId;
+        this.creator = builder.creator;
+        this.leadDeveloper = builder.leadDeveloper;
+        this.creationDate = builder.creationDate;
+        this.lastUpdatedDate = builder.lastUpdatedDate;
+        this.upVotes = builder.upVotes;
+        this.downVotes = builder.downVotes;
+        this.userVoted = builder.userVoted;
+        this.isFollower = builder.isFollower;
+        this.isDeveloper = builder.isDeveloper;
+        this.isContributor = builder.isContributor;
+    }
+
+    /**
+     * Builder to easily build Requirement objects
+     *
+     * @param name Name field will be initialized using the passed value
+     * @return a builder with name returned
+     */
+    public static Builder getBuilder(String name) {
+        return new Builder(name);
+    }
 
     public Date getRealized() {
         return realized;
@@ -119,18 +151,6 @@ public class Requirement extends EntityBase {
         return leadDeveloper;
     }
 
-    public void setNumberOfComments(Integer numberOfComments) {
-        this.numberOfComments = numberOfComments;
-    }
-
-    public void setNumberOfAttachments(Integer numberOfAttachments) {
-        this.numberOfAttachments = numberOfAttachments;
-    }
-
-    public void setNumberOfFollowers(Integer numberOfFollowers) {
-        this.numberOfFollowers = numberOfFollowers;
-    }
-
     public void setFollower(Boolean follower) {
         isFollower = follower;
     }
@@ -143,35 +163,55 @@ public class Requirement extends EntityBase {
         isContributor = contributor;
     }
 
-    public Requirement() {
+    public Integer getNumberOfComments() {
+        return numberOfComments;
     }
 
-    protected Requirement(Builder builder) {
-        this.id = builder.id;
-        this.name = builder.name;
-        this.description = builder.description;
-        this.realized = builder.realized;
-        this.projectId = builder.projectId;
-        this.creator = builder.creator;
-        this.leadDeveloper = builder.leadDeveloper;
-        this.creationDate = builder.creationDate;
-        this.lastUpdatedDate = builder.lastUpdatedDate;
-        this.upVotes = builder.upVotes;
-        this.downVotes = builder.downVotes;
-        this.userVoted = builder.userVoted;
-        this.isFollower = builder.isFollower;
-        this.isDeveloper = builder.isDeveloper;
-        this.isContributor = builder.isContributor;
+    public void setNumberOfComments(Integer numberOfComments) {
+        this.numberOfComments = numberOfComments;
     }
 
-    /**
-     * Builder to easily build Requirement objects
-     *
-     * @param name Name field will be initialized using the passed value
-     * @return a builder with name returned
-     */
-    public static Builder getBuilder(String name) {
-        return new Builder(name);
+    public Integer getNumberOfAttachments() {
+        return numberOfAttachments;
+    }
+
+    public void setNumberOfAttachments(Integer numberOfAttachments) {
+        this.numberOfAttachments = numberOfAttachments;
+    }
+
+    public Integer getNumberOfFollowers() {
+        return numberOfFollowers;
+    }
+
+    public void setNumberOfFollowers(Integer numberOfFollowers) {
+        this.numberOfFollowers = numberOfFollowers;
+    }
+
+    public int getUpVotes() {
+        return upVotes;
+    }
+
+    public int getDownVotes() {
+        return downVotes;
+    }
+
+    public UserVote getUserVoted() {
+        return userVoted;
+    }
+
+    @JsonProperty("isFollower")
+    public Boolean isFollower() {
+        return isFollower;
+    }
+
+    @JsonProperty("isDeveloper")
+    public Boolean isDeveloper() {
+        return isDeveloper;
+    }
+
+    @JsonProperty("isContributor")
+    public Boolean isContributor() {
+        return isContributor;
     }
 
     public static class Builder {

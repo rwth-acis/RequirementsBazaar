@@ -1,6 +1,8 @@
 package de.rwth.dbis.acis.bazaar.service;
 
-import com.google.gson.Gson;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
@@ -50,6 +52,7 @@ public class AttachmentsResource {
     private BazaarService bazaarService;
 
     private final L2pLogger logger = L2pLogger.getInstance(AttachmentsResource.class.getName());
+    private ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     public AttachmentsResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
@@ -95,8 +98,7 @@ public class AttachmentsResource {
                 }
             }
             PaginationResult<Attachment> attachmentsResult = dalFacade.listAttachmentsByRequirementId(requirementId, pageInfo);
-            Gson gson = new Gson();
-
+            
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{
                 add(String.valueOf(page));
@@ -106,7 +108,7 @@ public class AttachmentsResource {
             }});
 
             Response.ResponseBuilder responseBuilder = Response.ok();
-            responseBuilder = responseBuilder.entity(gson.toJson(attachmentsResult.getElements()));
+            responseBuilder = responseBuilder.entity(mapper.writeValueAsString(attachmentsResult.getElements()));
             responseBuilder = bazaarService.paginationLinks(responseBuilder, attachmentsResult, "requirements/" + String.valueOf(requirementId) + "/attachments", parameter);
             responseBuilder = bazaarService.xHeaderFields(responseBuilder, attachmentsResult);
             Response response = responseBuilder.build();
@@ -173,8 +175,7 @@ public class AttachmentsResource {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.attachment.read"));
                 }
             }
-            Gson gson = new Gson();
-            return Response.ok(gson.toJson(attachment)).build();
+            return Response.ok(mapper.writeValueAsString(attachment)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -220,7 +221,6 @@ public class AttachmentsResource {
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
-            Gson gson = new Gson();
             Vtor vtor = bazaarService.getValidators();
             vtor.useProfiles("create");
             vtor.validate(attachmentToCreate);
@@ -239,7 +239,7 @@ public class AttachmentsResource {
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_50, Context.getCurrent().getMainAgent(), "Create attachment " + createdAttachment.getId());
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, attachmentToCreate.getCreationDate(), Activity.ActivityAction.CREATE, attachmentToCreate.getId(),
                     Activity.DataType.ATTACHMENT, attachmentToCreate.getRequirementId(), Activity.DataType.REQUIREMENT, internalUserId);
-            return Response.status(Response.Status.CREATED).entity(gson.toJson(createdAttachment)).build();
+            return Response.status(Response.Status.CREATED).entity(mapper.writeValueAsString(createdAttachment)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -292,8 +292,7 @@ public class AttachmentsResource {
             }
             Attachment deletedAttachment = dalFacade.deleteAttachmentById(attachmentId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_52, Context.getCurrent().getMainAgent(), "Delete attachment " + attachmentId);
-            Gson gson = new Gson();
-            return Response.ok(gson.toJson(deletedAttachment)).build();
+            return Response.ok(mapper.writeValueAsString(deletedAttachment)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();

@@ -22,6 +22,54 @@ public class Statistic {
         this.numberOfVotes = builder.numberOfVotes;
     }
 
+    public int getNumberOfProjects() {
+        return numberOfProjects;
+    }
+
+    public void setNumberOfProjects(int numberOfProjects) {
+        this.numberOfProjects = numberOfProjects;
+    }
+
+    public int getNumberOfCategories() {
+        return numberOfCategories;
+    }
+
+    public void setNumberOfCategories(int numberOfCategories) {
+        this.numberOfCategories = numberOfCategories;
+    }
+
+    public int getNumberOfRequirements() {
+        return numberOfRequirements;
+    }
+
+    public void setNumberOfRequirements(int numberOfRequirements) {
+        this.numberOfRequirements = numberOfRequirements;
+    }
+
+    public int getNumberOfComments() {
+        return numberOfComments;
+    }
+
+    public void setNumberOfComments(int numberOfComments) {
+        this.numberOfComments = numberOfComments;
+    }
+
+    public int getNumberOfAttachments() {
+        return numberOfAttachments;
+    }
+
+    public void setNumberOfAttachments(int numberOfAttachments) {
+        this.numberOfAttachments = numberOfAttachments;
+    }
+
+    public int getNumberOfVotes() {
+        return numberOfVotes;
+    }
+
+    public void setNumberOfVotes(int numberOfVotes) {
+        this.numberOfVotes = numberOfVotes;
+    }
+
     public static Builder getBuilder() {
         return new Builder();
     }

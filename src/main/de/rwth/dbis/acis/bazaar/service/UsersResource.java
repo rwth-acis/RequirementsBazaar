@@ -1,6 +1,7 @@
 package de.rwth.dbis.acis.bazaar.service;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -46,6 +47,7 @@ public class UsersResource {
     private BazaarService bazaarService;
 
     private final L2pLogger logger = L2pLogger.getInstance(UsersResource.class.getName());
+    private ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     public UsersResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
@@ -78,8 +80,8 @@ public class UsersResource {
             dalFacade = bazaarService.getDBConnection();
             User user = dalFacade.getUserById(userId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_53, Context.getCurrent().getMainAgent(), "Get user " + userId);
-            Gson gson = new Gson();
-            return Response.ok(gson.toJson(user)).build();
+            
+            return Response.ok(mapper.writeValueAsString(user)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -128,8 +130,8 @@ public class UsersResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             User user = dalFacade.getUserById(internalUserId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_54, Context.getCurrent().getMainAgent(), "Get active user " + internalUserId);
-            Gson gson = new Gson();
-            return Response.ok(gson.toJson(user)).build();
+            
+            return Response.ok(mapper.writeValueAsString(user)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -177,7 +179,7 @@ public class UsersResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            Gson gson = new Gson();
+            
             Vtor vtor = bazaarService.getValidators();
             vtor.validate(userToUpdate);
             if (vtor.hasViolations()) {
@@ -191,7 +193,7 @@ public class UsersResource {
             }
             User updatedUser = dalFacade.modifyUser(userToUpdate);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_56, Context.getCurrent().getMainAgent(), "Update user " + userId);
-            return Response.ok(gson.toJson(updatedUser)).build();
+            return Response.ok(mapper.writeValueAsString(updatedUser)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
