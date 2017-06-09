@@ -20,6 +20,7 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jodd.vtor.constraint.MaxLength;
 import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
@@ -58,8 +59,10 @@ public class Attachment extends EntityBase {
 
     private User creator;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
     private Date creationDate;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
     private Date lastUpdatedDate;
 
     public Attachment() {

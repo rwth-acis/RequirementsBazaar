@@ -1,6 +1,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.UserVote;
 import jodd.vtor.constraint.*;
@@ -24,6 +25,7 @@ public class Requirement extends EntityBase {
     @NotNull(profiles = {"create"})
     private String description;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
     private Date realized;
 
     @Min(value = 0, profiles = {"create"})
@@ -40,8 +42,10 @@ public class Requirement extends EntityBase {
     // But the API still allows to create a requirement with attachments at the same time.
     private List<Attachment> attachments;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
     private Date creationDate;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
     private Date lastUpdatedDate;
 
     private Integer numberOfComments;
