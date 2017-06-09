@@ -20,10 +20,9 @@
 
 package de.rwth.dbis.acis.bazaar.service;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
@@ -96,6 +95,8 @@ public class BazaarService extends RESTService {
 
     private final L2pLogger logger = L2pLogger.getInstance(BazaarService.class.getName());
 
+    private static ObjectMapper mapper = new ObjectMapper();
+
     @Override
     protected void initResources() {
         getResourceConfig().register(Resource.class);
@@ -162,6 +163,8 @@ public class BazaarService extends RESTService {
             props.put("mail.smtp.host", smtpServer);
             notificationDispatcher.setEmailDispatcher(new EmailDispatcher(this, smtpServer, emailFromAddress, frontendBaseURL));
         }
+
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     @Api(value = "/", description = "Bazaar service")
@@ -208,6 +211,10 @@ public class BazaarService extends RESTService {
                 @ApiParam(value = "Since timestamp", required = false) @QueryParam("since") String since) {
             DALFacade dalFacade = null;
             try {
+                String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+                if (registrarErrors != null) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
+                }
                 UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
                 long userId = agent.getId();
                 dalFacade = bazaarService.getDBConnection();
@@ -215,8 +222,8 @@ public class BazaarService extends RESTService {
                 Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
                 Statistic statisticsResult = dalFacade.getStatisticsForAllProjects(internalUserId, sinceCal);
                 L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_2, Context.getCurrent().getMainAgent(), "Get statistics");
-                Gson gson = new Gson();
-                return Response.ok(gson.toJson(statisticsResult)).build();
+
+                return Response.ok(mapper.writeValueAsString(statisticsResult)).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                     return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -277,21 +284,21 @@ public class BazaarService extends RESTService {
         if (agent.getLoginName().equals("anonymous")) {
             agent.setEmail("anonymous@requirements-bazaar.org");
         } else if (agent.getUserData() != null) {
-            JsonObject userDataJson = new JsonParser().parse(agent.getUserData().toString()).getAsJsonObject();
-            JsonPrimitive pictureJson = userDataJson.getAsJsonPrimitive("picture");
+            JsonNode userDataJson = mapper.readTree(agent.getUserData().toString());
+            JsonNode pictureJson = userDataJson.get("picture");
             String agentPicture;
 
             if (pictureJson == null)
                 agentPicture = profileImage;
             else
-                agentPicture = pictureJson.getAsString();
+                agentPicture = pictureJson.textValue();
 
             if (agentPicture != null && !agentPicture.isEmpty())
                 profileImage = agentPicture;
-            String givenNameData = userDataJson.getAsJsonPrimitive("given_name").getAsString();
+            String givenNameData = userDataJson.get("given_name").textValue();
             if (givenNameData != null && !givenNameData.isEmpty())
                 givenName = givenNameData;
-            String familyNameData = userDataJson.getAsJsonPrimitive("family_name").getAsString();
+            String familyNameData = userDataJson.get("family_name").textValue();
             if (familyNameData != null && !familyNameData.isEmpty())
                 familyName = familyNameData;
         }
