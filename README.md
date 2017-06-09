@@ -74,9 +74,9 @@ Build
 -------------------
 For build management we use Ant. To build the cloned code, please using a console/terminal navigate to the home directory, where the build.xml file is located and run the following commands:
 
- 1. `ant`
+ - `ant`
  
- You can also generate a bundled jar with all the dependencies with the command
+You can also generate a bundled jar with all the dependencies with the command
  
   - `ant jar-big`
 
