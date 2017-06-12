@@ -43,7 +43,10 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
                 }
             }
         });
-        if (activityDispatcher != null) {
+        if (activityDispatcher != null && (activityAction == Activity.ActivityAction.CREATE || activityAction == Activity.ActivityAction.UPDATE ||
+                activityAction == Activity.ActivityAction.REALIZE || activityAction == Activity.ActivityAction.DEVELOP ||
+                activityAction == Activity.ActivityAction.LEADDEVELOP || activityAction == Activity.ActivityAction.FOLLOW ||
+                activityAction == Activity.ActivityAction.VOTE)) {
             activityDispatcher.sendActivityOverRMI(service, creationDate, activityAction, dataId, dataType, parentDataId,
                     parentDataType, userId);
         }
