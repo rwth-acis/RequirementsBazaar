@@ -6,7 +6,7 @@ import java.util.Date;
 
 public class Activity extends EntityBase {
 
-    private final int id;
+    private final transient int id;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
     private final Date creationDate;

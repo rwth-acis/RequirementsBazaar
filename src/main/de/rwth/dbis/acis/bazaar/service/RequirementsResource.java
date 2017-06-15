@@ -1263,23 +1263,19 @@ public class RequirementsResource {
      * This method returns the list of contributors for a specific requirement.
      *
      * @param requirementId id of the requirement
-     * @param page          page number
-     * @param perPage       number of projects by page
-     * @return Response with contributors as a JSON array.
+     * @return Response with requirement contributors
      */
     @GET
     @Path("/{requirementId}/contributors")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method returns the list of contributors for a specific requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of contributors for a given requirement", response = User.class, responseContainer = "List"),
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of contributors for a given requirement", response = RequirementContributors.class),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response getContributorsForRequirement(@PathParam("requirementId") int requirementId,
-                                                  @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
-                                                  @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) throws Exception {
+    public Response getContributorsForRequirement(@PathParam("requirementId") int requirementId) throws Exception {
         DALFacade dalFacade = null;
         try {
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -1288,31 +1284,10 @@ public class RequirementsResource {
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
-            PageInfo pageInfo = new PageInfo(page, perPage);
-            Vtor vtor = bazaarService.getValidators();
-            vtor.validate(pageInfo);
-            if (vtor.hasViolations()) {
-                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            }
             dalFacade = bazaarService.getDBConnection();
-            PaginationResult<User> requirementsResult = dalFacade.listContributorsForRequirement(requirementId, pageInfo);
+            RequirementContributors requirementContributors = dalFacade.listContributorsForRequirement(requirementId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_41, Context.getCurrent().getMainAgent(), "Get contributors for requirement " + requirementId);
-
-            Map<String, List<String>> parameter = new HashMap<>();
-            parameter.put("page", new ArrayList() {{
-                add(String.valueOf(page));
-            }});
-            parameter.put("per_page", new ArrayList() {{
-                add(String.valueOf(perPage));
-            }});
-
-            Response.ResponseBuilder responseBuilder = Response.ok();
-            responseBuilder = responseBuilder.entity(mapper.writeValueAsString(requirementsResult.getElements()));
-            responseBuilder = bazaarService.paginationLinks(responseBuilder, requirementsResult, "requirements/" + String.valueOf(requirementId) + "/contributors", parameter);
-            responseBuilder = bazaarService.xHeaderFields(responseBuilder, requirementsResult);
-            Response response = responseBuilder.build();
-
-            return response;
+            return Response.ok(requirementContributors.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
