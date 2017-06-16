@@ -237,8 +237,8 @@ public class AttachmentsResource {
             attachmentToCreate.setCreator(dalFacade.getUserById(internalUserId));
             Attachment createdAttachment = dalFacade.createAttachment(attachmentToCreate);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_50, Context.getCurrent().getMainAgent(), "Create attachment " + createdAttachment.getId());
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, attachmentToCreate.getCreationDate(), Activity.ActivityAction.CREATE, attachmentToCreate.getId(),
-                    Activity.DataType.ATTACHMENT, attachmentToCreate.getRequirementId(), Activity.DataType.REQUIREMENT, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, createdAttachment.getCreationDate(), Activity.ActivityAction.CREATE, createdAttachment.getId(),
+                    Activity.DataType.ATTACHMENT, createdAttachment.getRequirementId(), Activity.DataType.REQUIREMENT, internalUserId);
             return Response.status(Response.Status.CREATED).entity(mapper.writeValueAsString(createdAttachment)).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {

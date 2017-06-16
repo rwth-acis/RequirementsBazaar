@@ -1,16 +1,19 @@
 package de.rwth.dbis.acis.bazaar.service.notification;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Category;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import i5.las2peer.api.Service;
+import i5.las2peer.logging.L2pLogger;
+
 
 import javax.ws.rs.core.Response;
 import java.io.Serializable;
@@ -21,11 +24,12 @@ import java.util.Date;
  */
 public class ActivityDispatcher {
 
-    private BazaarService bazaarService;
+    private final L2pLogger logger = L2pLogger.getInstance(ActivityDispatcher.class.getName());
     private final String activityTrackerService;
     private final String activityOrigin;
     private final String baseURL;
     private final String frontendBaseURL;
+    private BazaarService bazaarService;
 
     public ActivityDispatcher(BazaarService bazaarService, String activityTrackerService, String activityOrigin, String baseURL, String frontendBaseURL) {
         this.bazaarService = bazaarService;
@@ -42,7 +46,6 @@ public class ActivityDispatcher {
         try {
             dalFacade = bazaarService.getDBConnection();
 
-            Gson gson = new Gson();
             Activity.Builder activityBuilder = Activity.getBuilder();
             activityBuilder = activityBuilder.creationDate(creationDate);
             activityBuilder = activityBuilder.activityAction(activityAction);
@@ -50,27 +53,48 @@ public class ActivityDispatcher {
             String resourcePath = new String();
             String parentResourcePath = null;
             String frontendResourcePath = new String();
+            Activity.AdditionalObject additionalObject = null;
             if (dataType.equals(Activity.DataType.PROJECT)) {
                 resourcePath = "projects";
+                Project project = dalFacade.getProjectById(dataId, userId);
                 frontendResourcePath = "projects" + "/" + String.valueOf(dataId);
+                additionalObject = new Activity.AdditionalObject(project, null, null);
             } else if (dataType.equals(Activity.DataType.CATEGORY)) {
                 resourcePath = "categories";
                 parentResourcePath = "projects";
                 Category category = dalFacade.getCategoryById(dataId, userId);
+                Project project = dalFacade.getProjectById(category.getProjectId(), userId);
                 frontendResourcePath = "projects" + "/" + category.getProjectId() + "/" + "categories" + "/" + String.valueOf(dataId);
+                additionalObject = new Activity.AdditionalObject(project, category, null);
             } else if (dataType.equals(Activity.DataType.REQUIREMENT)) {
                 resourcePath = "requirements";
                 parentResourcePath = "categories";
                 Requirement requirement = dalFacade.getRequirementById(dataId, userId);
+                Category category = dalFacade.getCategoryById(requirement.getCategories().get(0).getId(), userId);
+                Project project = dalFacade.getProjectById(requirement.getProjectId(), userId);
                 frontendResourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
                         requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(dataId);
+                additionalObject = new Activity.AdditionalObject(project, category, requirement);
             } else if (dataType.equals(Activity.DataType.COMMENT)) {
                 resourcePath = "comments";
                 parentResourcePath = "requirements";
                 Comment comment = dalFacade.getCommentById(dataId);
-                Requirement requirement = dalFacade.getRequirementById(comment.getRequirementId(), userId);
+                Requirement requirement = dalFacade.getRequirementById(comment.getId(), userId);
+                Category category = dalFacade.getCategoryById(requirement.getCategories().get(0).getId(), userId);
+                Project project = dalFacade.getProjectById(requirement.getProjectId(), userId);
                 frontendResourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
                         requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
+                additionalObject = new Activity.AdditionalObject(project, category, requirement);
+            } else if (dataType.equals(Activity.DataType.ATTACHMENT)) {
+                resourcePath = "attachments";
+                parentResourcePath = "requirements";
+                Attachment attachment = dalFacade.getAttachmentById(dataId);
+                Requirement requirement = dalFacade.getRequirementById(attachment.getRequirementId(), userId);
+                Category category = dalFacade.getCategoryById(requirement.getCategories().get(0).getId(), userId);
+                Project project = dalFacade.getProjectById(requirement.getProjectId(), userId);
+                frontendResourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
+                        requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
+                additionalObject = new Activity.AdditionalObject(project, category, requirement);
             }
             resourcePath = resourcePath + "/" + String.valueOf(dataId);
             if (parentResourcePath != null) {
@@ -89,15 +113,24 @@ public class ActivityDispatcher {
             }
             activityBuilder = activityBuilder.userUrl(baseURL + "users" + "/" + String.valueOf(userId));
             activityBuilder = activityBuilder.origin(activityOrigin);
+            activityBuilder = activityBuilder.addtitionalObject(additionalObject);
             Activity activity = activityBuilder.build();
 
-            Object result = service.getContext().invoke(activityTrackerService, "createActivity", new Serializable[]{gson.toJson(activity)});
+            FilterProvider filters =
+                    new SimpleFilterProvider().addFilter(
+                            "ActivityFilter",
+                            SimpleBeanPropertyFilter.filterOutAllExcept("id", "name"));
+
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            mapper.setFilters(filters);
+
+            Object result = service.getContext().invoke(activityTrackerService, "createActivity", new Serializable[]{mapper.writeValueAsString(activity)});
             if (!(result).equals(new Integer(Response.Status.CREATED.getStatusCode()).toString())) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.NETWORK, ErrorCode.RMI_ERROR, "ActivityTracker RMI call failed");
             }
         } catch (Exception ex) {
-            //TODO log
-            System.out.println(ex.getMessage());
+            logger.warning(ex.getMessage());
         }
     }
 }

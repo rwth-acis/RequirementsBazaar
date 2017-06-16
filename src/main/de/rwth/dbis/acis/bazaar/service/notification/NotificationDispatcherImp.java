@@ -28,7 +28,7 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
     public void dispatchNotification(final Service service, final Date creationDate, final Activity.ActivityAction activityAction,
                                      final int dataId, final Activity.DataType dataType, final int parentDataId,
                                      final Activity.DataType parentDataType, final int userId) {
-//        executorService.execute(new Runnable() {
+//        executorService.execute(new Runnable() { //TODO: try to run sendActivityOverRMI inside Runnable when las2peer allows this
 //            public void run() {
 //                if (activityDispatcher != null) {
 //                    activityDispatcher.sendActivityOverRMI(service, creationDate, activityAction, dataId, dataType, userId);
