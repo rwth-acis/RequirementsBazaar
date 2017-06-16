@@ -1,7 +1,9 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Date;
@@ -182,26 +184,31 @@ public class Activity extends EntityBase {
     }
 
     public static class AdditionalObject {
-        private Integer projectId;
-        private Integer categoryId;
-        private Integer requirementId;
+        @JsonFilter("ActivityFilter")
+        private Project project;
 
-        public Integer getProjectId() {
-            return projectId;
+        @JsonFilter("ActivityFilter")
+        private Category category;
+
+        @JsonFilter("ActivityFilter")
+        private Requirement requirement;
+
+        public Project getProject() {
+            return project;
         }
 
-        public Integer getCategoryId() {
-            return categoryId;
+        public Category getCategory() {
+            return category;
         }
 
-        public Integer getRequirementId() {
-            return requirementId;
+        public Requirement getRequirement() {
+            return requirement;
         }
 
-        public AdditionalObject(Integer projectId, Integer categoryId, Integer requirementId) {
-            this.projectId = projectId;
-            this.categoryId = categoryId;
-            this.requirementId = requirementId;
+        public AdditionalObject(Project project, Category category, Requirement requirement) {
+            this.project = project;
+            this.category = category;
+            this.requirement = requirement;
         }
     }
 }
