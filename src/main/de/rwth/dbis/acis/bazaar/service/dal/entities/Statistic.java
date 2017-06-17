@@ -1,5 +1,9 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * Created by hugif on 26.12.2016.
  */
@@ -70,6 +74,10 @@ public class Statistic {
         this.numberOfVotes = numberOfVotes;
     }
 
+    public String toJSON() throws JsonProcessingException {
+        return new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL).writeValueAsString(this);
+    }
+
     public static Builder getBuilder() {
         return new Builder();
     }
@@ -117,7 +125,6 @@ public class Statistic {
             Statistic created = new Statistic(this);
             return created;
         }
-
     }
 
 }

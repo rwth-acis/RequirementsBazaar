@@ -1,6 +1,10 @@
 package de.rwth.dbis.acis.bazaar.service.dal.helpers;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.List;
 
 public class PaginationResult<T> {
@@ -45,5 +49,9 @@ public class PaginationResult<T> {
         } else {
             return -1;
         }
+    }
+
+    public String toJSON() throws JsonProcessingException {
+        return new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL).writeValueAsString(this.getElements());
     }
 }

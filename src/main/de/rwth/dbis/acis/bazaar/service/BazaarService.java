@@ -59,7 +59,6 @@ import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
-import java.io.SyncFailedException;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.util.*;
@@ -94,7 +93,6 @@ public class BazaarService extends RESTService {
     private DataSource dataSource;
 
     private final L2pLogger logger = L2pLogger.getInstance(BazaarService.class.getName());
-
     private static ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     @Override
@@ -218,9 +216,9 @@ public class BazaarService extends RESTService {
                 dalFacade = bazaarService.getDBConnection();
                 Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
                 Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
-                Statistic statisticsResult = dalFacade.getStatisticsForAllProjects(internalUserId, sinceCal);
+                Statistic platformStatistics = dalFacade.getStatisticsForAllProjects(internalUserId, sinceCal);
                 L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_2, Context.getCurrent().getMainAgent(), "Get statistics");
-                return Response.ok(mapper.writeValueAsString(statisticsResult)).build();
+                return Response.ok(platformStatistics.toJSON()).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                     return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();

@@ -1,7 +1,5 @@
 package de.rwth.dbis.acis.bazaar.service;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
@@ -54,7 +52,6 @@ public class CategoryResource {
     private BazaarService bazaarService;
 
     private final L2pLogger logger = L2pLogger.getInstance(CategoryResource.class.getName());
-    private ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     public CategoryResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
@@ -133,7 +130,7 @@ public class CategoryResource {
             parameter.put("sort", sort);
 
             Response.ResponseBuilder responseBuilder = Response.ok();
-            responseBuilder = responseBuilder.entity(mapper.writeValueAsString(categoriesResult.getElements()));
+            responseBuilder = responseBuilder.entity(categoriesResult.toJSON());
             responseBuilder = bazaarService.paginationLinks(responseBuilder, categoriesResult, "projects/" + String.valueOf(projectId) + "/categories", parameter);
             responseBuilder = bazaarService.xHeaderFields(responseBuilder, categoriesResult);
             Response response = responseBuilder.build();
@@ -199,7 +196,7 @@ public class CategoryResource {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.read"));
                 }
             }
-            return Response.ok(mapper.writeValueAsString(categoryToReturn)).build();
+            return Response.ok(categoryToReturn.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -264,7 +261,7 @@ public class CategoryResource {
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_16, Context.getCurrent().getMainAgent(), "Create category " + createdCategory.getId());
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, createdCategory.getCreationDate(), Activity.ActivityAction.CREATE, createdCategory.getId(),
                     Activity.DataType.CATEGORY, createdCategory.getProjectId(), Activity.DataType.PROJECT, internalUserId);
-            return Response.status(Response.Status.CREATED).entity(mapper.writeValueAsString(createdCategory)).build();
+            return Response.status(Response.Status.CREATED).entity(createdCategory.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -330,7 +327,7 @@ public class CategoryResource {
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_17, Context.getCurrent().getMainAgent(), "Update category " + categoryId);
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, updatedCategory.getLastUpdatedDate(), Activity.ActivityAction.UPDATE, updatedCategory.getId(),
                     Activity.DataType.CATEGORY, updatedCategory.getProjectId(), Activity.DataType.PROJECT, internalUserId);
-            return Response.ok(mapper.writeValueAsString(updatedCategory)).build();
+            return Response.ok(updatedCategory.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -396,7 +393,7 @@ public class CategoryResource {
             Category deletedCategory = dalFacade.deleteCategoryById(categoryId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, deletedCategory.getLastUpdatedDate(), Activity.ActivityAction.DELETE, deletedCategory.getId(),
                     Activity.DataType.CATEGORY, deletedCategory.getProjectId(), Activity.DataType.PROJECT, internalUserId);
-            return Response.ok(mapper.writeValueAsString(deletedCategory)).build();
+            return Response.ok(deletedCategory.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -453,7 +450,7 @@ public class CategoryResource {
             Category category = dalFacade.getCategoryById(categoryId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.FOLLOW, category.getId(),
                     Activity.DataType.CATEGORY, category.getProjectId(), Activity.DataType.PROJECT, internalUserId);
-            return Response.status(Response.Status.CREATED).entity(mapper.writeValueAsString(category)).build();
+            return Response.status(Response.Status.CREATED).entity(category.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -510,7 +507,7 @@ public class CategoryResource {
             Category category = dalFacade.getCategoryById(categoryId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.UNFOLLOW, category.getId(),
                     Activity.DataType.CATEGORY, category.getProjectId(), Activity.DataType.PROJECT, internalUserId);
-            return Response.ok(mapper.writeValueAsString(category)).build();
+            return Response.ok(category.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -562,9 +559,9 @@ public class CategoryResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
-            Statistic statisticsResult = dalFacade.getStatisticsForCategory(internalUserId, categoryId, sinceCal);
+            Statistic categoryStatistics = dalFacade.getStatisticsForCategory(internalUserId, categoryId, sinceCal);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_21, Context.getCurrent().getMainAgent(), "Get statistics for category " + categoryId);
-            return Response.ok(mapper.writeValueAsString(statisticsResult)).build();
+            return Response.ok(categoryStatistics.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -670,7 +667,7 @@ public class CategoryResource {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
             dalFacade = bazaarService.getDBConnection();
-            PaginationResult<User> requirementsResult = dalFacade.listFollowersForCategory(categoryId, pageInfo);
+            PaginationResult<User> categoryFollowers = dalFacade.listFollowersForCategory(categoryId, pageInfo);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_23, Context.getCurrent().getMainAgent(), "Get followers for category " + categoryId);
 
             Map<String, List<String>> parameter = new HashMap<>();
@@ -682,9 +679,9 @@ public class CategoryResource {
             }});
 
             Response.ResponseBuilder responseBuilder = Response.ok();
-            responseBuilder = responseBuilder.entity(mapper.writeValueAsString(requirementsResult.getElements()));
-            responseBuilder = bazaarService.paginationLinks(responseBuilder, requirementsResult, "categories/" + String.valueOf(categoryId) + "/followers", parameter);
-            responseBuilder = bazaarService.xHeaderFields(responseBuilder, requirementsResult);
+            responseBuilder = responseBuilder.entity(categoryFollowers.toJSON());
+            responseBuilder = bazaarService.paginationLinks(responseBuilder, categoryFollowers, "categories/" + String.valueOf(categoryId) + "/followers", parameter);
+            responseBuilder = bazaarService.xHeaderFields(responseBuilder, categoryFollowers);
             Response response = responseBuilder.build();
 
             return response;
