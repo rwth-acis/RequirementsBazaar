@@ -401,7 +401,7 @@ public class RequirementsResource {
                 }
             }
             createdRequirement = dalFacade.getRequirementById(createdRequirement.getId(), internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, createdRequirement.getCreationDate(), Activity.ActivityAction.CREATE, createdRequirement.getId(),
+            bazaarService.getNotificationDispatcher().dispatchNotification(createdRequirement.getCreationDate(), Activity.ActivityAction.CREATE, createdRequirement.getId(),
                     Activity.DataType.REQUIREMENT, createdRequirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.status(Response.Status.CREATED).entity(createdRequirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -467,7 +467,7 @@ public class RequirementsResource {
             dalFacade.followRequirement(internalUserId, requirementToUpdate.getId());
             Requirement updatedRequirement = dalFacade.modifyRequirement(requirementToUpdate, internalUserId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_27, Context.getCurrent().getMainAgent(), "Update requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, updatedRequirement.getLastUpdatedDate(), Activity.ActivityAction.UPDATE, updatedRequirement.getId(),
+            bazaarService.getNotificationDispatcher().dispatchNotification(updatedRequirement.getLastUpdatedDate(), Activity.ActivityAction.UPDATE, updatedRequirement.getId(),
                     Activity.DataType.REQUIREMENT, updatedRequirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.ok(updatedRequirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -525,7 +525,7 @@ public class RequirementsResource {
             }
             Requirement deletedRequirement = dalFacade.deleteRequirementById(requirementId, internalUserId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_28, Context.getCurrent().getMainAgent(), "Delete requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, deletedRequirement.getLastUpdatedDate(), Activity.ActivityAction.DELETE, deletedRequirement.getId(),
+            bazaarService.getNotificationDispatcher().dispatchNotification(deletedRequirement.getLastUpdatedDate(), Activity.ActivityAction.DELETE, deletedRequirement.getId(),
                     Activity.DataType.REQUIREMENT, deletedRequirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.ok(deletedRequirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -581,7 +581,7 @@ public class RequirementsResource {
             }
             Requirement requirement = dalFacade.setUserAsLeadDeveloper(requirementId, internalUserId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_29, Context.getCurrent().getMainAgent(), "Leaddevelop requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.LEADDEVELOP, requirement.getId(),
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.LEADDEVELOP, requirement.getId(),
                     Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -641,7 +641,7 @@ public class RequirementsResource {
             }
             requirement = dalFacade.deleteUserAsLeadDeveloper(requirementId, internalUserId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_30, Context.getCurrent().getMainAgent(), "Unleaddevelop requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.UNLEADDEVELOP, requirement.getId(),
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNLEADDEVELOP, requirement.getId(),
                     Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -699,7 +699,7 @@ public class RequirementsResource {
             dalFacade.followRequirement(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_31, Context.getCurrent().getMainAgent(), "Develop requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.DEVELOP, requirement.getId(),
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.DEVELOP, requirement.getId(),
                     Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -756,7 +756,7 @@ public class RequirementsResource {
             dalFacade.notWantToDevelop(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_32, Context.getCurrent().getMainAgent(), "Undevelop requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.UNDEVELOP, requirement.getId(),
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNDEVELOP, requirement.getId(),
                     Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -813,7 +813,7 @@ public class RequirementsResource {
             dalFacade.followRequirement(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_33, Context.getCurrent().getMainAgent(), "Follow requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.FOLLOW, requirement.getId(),
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.FOLLOW, requirement.getId(),
                     Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -870,7 +870,7 @@ public class RequirementsResource {
             dalFacade.unFollowRequirement(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_34, Context.getCurrent().getMainAgent(), "Unfollow requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.UNFOLLOW, requirement.getId(),
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNFOLLOW, requirement.getId(),
                     Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -937,7 +937,7 @@ public class RequirementsResource {
             }
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_35, Context.getCurrent().getMainAgent(), "Vote requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.VOTE, requirement.getId(),
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.VOTE, requirement.getId(),
                     Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -994,7 +994,7 @@ public class RequirementsResource {
             dalFacade.unVote(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_36, Context.getCurrent().getMainAgent(), "Unvote requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.UNVOTE, requirement.getId(),
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNVOTE, requirement.getId(),
                     Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -1050,7 +1050,7 @@ public class RequirementsResource {
             }
             Requirement requirement = dalFacade.setRequirementToRealized(requirementId, internalUserId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_37, Context.getCurrent().getMainAgent(), "Realize requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.REALIZE, requirement.getId(),
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.REALIZE, requirement.getId(),
                     Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -1106,7 +1106,7 @@ public class RequirementsResource {
             }
             Requirement requirement = dalFacade.setRequirementToUnRealized(requirementId, internalUserId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_38, Context.getCurrent().getMainAgent(), "Unrealize requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.UNREALIZE, requirement.getId(),
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNREALIZE, requirement.getId(),
                     Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {

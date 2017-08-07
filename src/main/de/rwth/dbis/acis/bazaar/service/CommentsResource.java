@@ -236,7 +236,7 @@ public class CommentsResource {
             dalFacade.followRequirement(internalUserId, requirement.getId());
             Comment createdComment = dalFacade.createComment(commentToCreate);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_46, Context.getCurrent().getMainAgent(), "Create comment " + commentToCreate.getId());
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, createdComment.getCreationDate(), Activity.ActivityAction.CREATE, createdComment.getId(),
+            bazaarService.getNotificationDispatcher().dispatchNotification(createdComment.getCreationDate(), Activity.ActivityAction.CREATE, createdComment.getId(),
                     Activity.DataType.COMMENT, createdComment.getRequirementId(), Activity.DataType.REQUIREMENT, internalUserId);
             return Response.status(Response.Status.CREATED).entity(createdComment.toJSON()).build();
         } catch (BazaarException bex) {
@@ -293,7 +293,7 @@ public class CommentsResource {
             }
             Comment deletedComment = dalFacade.deleteCommentById(commentId);
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_48, Context.getCurrent().getMainAgent(), "Delete comment " + commentId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, deletedComment.getCreationDate(), Activity.ActivityAction.DELETE, deletedComment.getId(),
+            bazaarService.getNotificationDispatcher().dispatchNotification(deletedComment.getCreationDate(), Activity.ActivityAction.DELETE, deletedComment.getId(),
                     Activity.DataType.COMMENT, commentToDelete.getRequirementId(), Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(deletedComment.toJSON()).build();
         } catch (BazaarException bex) {

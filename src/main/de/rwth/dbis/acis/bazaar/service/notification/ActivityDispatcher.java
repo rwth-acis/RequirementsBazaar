@@ -39,7 +39,7 @@ public class ActivityDispatcher {
         this.frontendBaseURL = frontendBaseURL;
     }
 
-    public void sendActivityOverRMI(Service service, Date creationDate, Activity.ActivityAction activityAction,
+    public void sendActivityOverRMI(Date creationDate, Activity.ActivityAction activityAction,
                                     int dataId, Activity.DataType dataType, int parentDataId,
                                     Activity.DataType parentDataTyp, int userId) {
         DALFacade dalFacade;
@@ -125,7 +125,7 @@ public class ActivityDispatcher {
             mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             mapper.setFilters(filters);
 
-            Object result = service.getContext().invoke(activityTrackerService, "createActivity", new Serializable[]{mapper.writeValueAsString(activity)});
+            Object result = bazaarService.getContext().invoke(activityTrackerService, "createActivity", new Serializable[]{mapper.writeValueAsString(activity)});
             if (!(result).equals(new Integer(Response.Status.CREATED.getStatusCode()).toString())) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.NETWORK, ErrorCode.RMI_ERROR, "ActivityTracker RMI call failed");
             }

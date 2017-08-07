@@ -25,7 +25,7 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
     }
 
     @Override
-    public void dispatchNotification(final Service service, final Date creationDate, final Activity.ActivityAction activityAction,
+    public void dispatchNotification(final Date creationDate, final Activity.ActivityAction activityAction,
                                      final int dataId, final Activity.DataType dataType, final int parentDataId,
                                      final Activity.DataType parentDataType, final int userId) {
 //        executorService.execute(new Runnable() { //TODO: try to run sendActivityOverRMI inside Runnable when las2peer allows this
@@ -47,7 +47,7 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
                 activityAction == Activity.ActivityAction.REALIZE || activityAction == Activity.ActivityAction.DEVELOP ||
                 activityAction == Activity.ActivityAction.LEADDEVELOP || activityAction == Activity.ActivityAction.FOLLOW ||
                 activityAction == Activity.ActivityAction.VOTE)) {
-            activityDispatcher.sendActivityOverRMI(service, creationDate, activityAction, dataId, dataType, parentDataId,
+            activityDispatcher.sendActivityOverRMI(creationDate, activityAction, dataId, dataType, parentDataId,
                     parentDataType, userId);
         }
     }
