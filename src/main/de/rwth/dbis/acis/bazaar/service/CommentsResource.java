@@ -92,8 +92,8 @@ public class CommentsResource {
                 }
             }
             PaginationResult<Comment> commentsResult = dalFacade.listCommentsByRequirementId(requirementId, pageInfo);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_43, Context.getCurrent().getMainAgent(), "Get comments for requirement " + requirementId);
-
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_43,
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{
                 add(String.valueOf(page));
@@ -158,7 +158,8 @@ public class CommentsResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Comment comment = dalFacade.getCommentById(commentId);
             Requirement requirement = dalFacade.getRequirementById(comment.getRequirementId(), internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_45, Context.getCurrent().getMainAgent(), "Get comment " + commentId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_45,
+                    commentId, Activity.DataType.COMMENT, internalUserId);
             if (dalFacade.isProjectPublic(requirement.getProjectId())) {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT, String.valueOf(requirement.getProjectId()), dalFacade);
                 if (!authorized) {
@@ -235,9 +236,8 @@ public class CommentsResource {
             }
             dalFacade.followRequirement(internalUserId, requirement.getId());
             Comment createdComment = dalFacade.createComment(commentToCreate);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_46, Context.getCurrent().getMainAgent(), "Create comment " + commentToCreate.getId());
-            bazaarService.getNotificationDispatcher().dispatchNotification(createdComment.getCreationDate(), Activity.ActivityAction.CREATE, createdComment.getId(),
-                    Activity.DataType.COMMENT, createdComment.getRequirementId(), Activity.DataType.REQUIREMENT, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(createdComment.getCreationDate(), Activity.ActivityAction.CREATE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_46,
+                    createdComment.getId(), Activity.DataType.COMMENT, internalUserId);
             return Response.status(Response.Status.CREATED).entity(createdComment.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -292,9 +292,8 @@ public class CommentsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.modify"));
             }
             Comment deletedComment = dalFacade.deleteCommentById(commentId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_48, Context.getCurrent().getMainAgent(), "Delete comment " + commentId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(deletedComment.getCreationDate(), Activity.ActivityAction.DELETE, deletedComment.getId(),
-                    Activity.DataType.COMMENT, commentToDelete.getRequirementId(), Activity.DataType.REQUIREMENT, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(deletedComment.getCreationDate(), Activity.ActivityAction.DELETE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_48,
+                    deletedComment.getId(), Activity.DataType.COMMENT, internalUserId);
             return Response.ok(deletedComment.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {

@@ -40,8 +40,7 @@ public class ActivityDispatcher {
     }
 
     public void sendActivityOverRMI(Date creationDate, Activity.ActivityAction activityAction,
-                                    int dataId, Activity.DataType dataType, int parentDataId,
-                                    Activity.DataType parentDataTyp, int userId) {
+                                    int dataId, Activity.DataType dataType, int userId, Activity.AdditionalObject additionalObject) {
         DALFacade dalFacade;
         try {
             dalFacade = bazaarService.getDBConnection();
@@ -53,48 +52,45 @@ public class ActivityDispatcher {
             String resourcePath = new String();
             String parentResourcePath = null;
             String frontendResourcePath = new String();
-            Activity.AdditionalObject additionalObject = null;
+            int parentDataId = 0;
+            Activity.DataType parentDataTyp = null;
+
             if (dataType.equals(Activity.DataType.PROJECT)) {
                 resourcePath = "projects";
-                Project project = dalFacade.getProjectById(dataId, userId);
                 frontendResourcePath = "projects" + "/" + String.valueOf(dataId);
-                additionalObject = new Activity.AdditionalObject(project, null, null);
             } else if (dataType.equals(Activity.DataType.CATEGORY)) {
                 resourcePath = "categories";
                 parentResourcePath = "projects";
                 Category category = dalFacade.getCategoryById(dataId, userId);
-                Project project = dalFacade.getProjectById(category.getProjectId(), userId);
                 frontendResourcePath = "projects" + "/" + category.getProjectId() + "/" + "categories" + "/" + String.valueOf(dataId);
-                additionalObject = new Activity.AdditionalObject(project, category, null);
+                parentDataId = category.getProjectId();
+                parentDataTyp = Activity.DataType.PROJECT;
             } else if (dataType.equals(Activity.DataType.REQUIREMENT)) {
                 resourcePath = "requirements";
                 parentResourcePath = "categories";
                 Requirement requirement = dalFacade.getRequirementById(dataId, userId);
-                Category category = dalFacade.getCategoryById(requirement.getCategories().get(0).getId(), userId);
-                Project project = dalFacade.getProjectById(requirement.getProjectId(), userId);
                 frontendResourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
                         requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(dataId);
-                additionalObject = new Activity.AdditionalObject(project, category, requirement);
+                parentDataId = requirement.getCategories().get(0).getId();
+                parentDataTyp = Activity.DataType.CATEGORY;
             } else if (dataType.equals(Activity.DataType.COMMENT)) {
                 resourcePath = "comments";
                 parentResourcePath = "requirements";
                 Comment comment = dalFacade.getCommentById(dataId);
                 Requirement requirement = dalFacade.getRequirementById(comment.getId(), userId);
-                Category category = dalFacade.getCategoryById(requirement.getCategories().get(0).getId(), userId);
-                Project project = dalFacade.getProjectById(requirement.getProjectId(), userId);
                 frontendResourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
                         requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
-                additionalObject = new Activity.AdditionalObject(project, category, requirement);
+                parentDataId = requirement.getId();
+                parentDataTyp = Activity.DataType.REQUIREMENT;
             } else if (dataType.equals(Activity.DataType.ATTACHMENT)) {
                 resourcePath = "attachments";
                 parentResourcePath = "requirements";
                 Attachment attachment = dalFacade.getAttachmentById(dataId);
                 Requirement requirement = dalFacade.getRequirementById(attachment.getRequirementId(), userId);
-                Category category = dalFacade.getCategoryById(requirement.getCategories().get(0).getId(), userId);
-                Project project = dalFacade.getProjectById(requirement.getProjectId(), userId);
                 frontendResourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
                         requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
-                additionalObject = new Activity.AdditionalObject(project, category, requirement);
+                parentDataId = requirement.getId();
+                parentDataTyp = Activity.DataType.REQUIREMENT;
             }
             resourcePath = resourcePath + "/" + String.valueOf(dataId);
             if (parentResourcePath != null) {

@@ -90,14 +90,18 @@ public class Activity extends EntityBase {
     }
 
     public enum DataType {
+        STATISTIC,
         PROJECT,
         CATEGORY,
         REQUIREMENT,
         COMMENT,
-        ATTACHMENT
+        ATTACHMENT,
+        USER
     }
 
     public enum ActivityAction {
+        RETRIEVE,
+        RETRIEVE_CHILD,
         CREATE,
         UPDATE,
         DELETE,
@@ -193,6 +197,9 @@ public class Activity extends EntityBase {
         @JsonFilter("ActivityFilter")
         private Requirement requirement;
 
+        @JsonFilter("ActivityFiler")
+        private User user;
+
         public Project getProject() {
             return project;
         }
@@ -205,10 +212,15 @@ public class Activity extends EntityBase {
             return requirement;
         }
 
-        public AdditionalObject(Project project, Category category, Requirement requirement) {
+        public User getUser() {
+            return user;
+        }
+
+        public AdditionalObject(Project project, Category category, Requirement requirement, User user) {
             this.project = project;
             this.category = category;
             this.requirement = requirement;
+            this.user = user;
         }
     }
 }

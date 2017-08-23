@@ -1,6 +1,7 @@
 package de.rwth.dbis.acis.bazaar.service;
 
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
@@ -17,6 +18,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
+import java.util.Date;
 import java.util.EnumSet;
 
 
@@ -76,7 +78,8 @@ public class UsersResource {
             }
             dalFacade = bazaarService.getDBConnection();
             User user = dalFacade.getUserById(userId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_53, Context.getCurrent().getMainAgent(), "Get user " + userId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_53,
+                    userId, Activity.DataType.USER, userId);
             
             return Response.ok(user.toJSON()).build();
         } catch (BazaarException bex) {
@@ -126,7 +129,8 @@ public class UsersResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             User user = dalFacade.getUserById(internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_54, Context.getCurrent().getMainAgent(), "Get active user " + internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_54,
+                    internalUserId, Activity.DataType.USER, internalUserId);
             
             return Response.ok(user.toJSON()).build();
         } catch (BazaarException bex) {
@@ -189,7 +193,8 @@ public class UsersResource {
                         "UserId is not identical with user sending this request.");
             }
             User updatedUser = dalFacade.modifyUser(userToUpdate);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_56, Context.getCurrent().getMainAgent(), "Update user " + userId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UPDATE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_56,
+                    userId, Activity.DataType.USER, internalUserId);
             return Response.ok(updatedUser.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {

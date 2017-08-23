@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
@@ -38,6 +39,7 @@ import de.rwth.dbis.acis.bazaar.service.notification.EmailDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcherImp;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
+import i5.las2peer.api.Configurable;
 import i5.las2peer.api.Context;
 import i5.las2peer.logging.L2pLogger;
 import i5.las2peer.logging.NodeObserver;
@@ -86,6 +88,7 @@ public class BazaarService extends RESTService {
     protected String activityOrigin;
     protected String smtpServer;
     protected String emailFromAddress;
+    protected String monitor;
 
     private Vtor vtor;
     private List<BazaarFunctionRegistrar> functionRegistrar;
@@ -161,6 +164,9 @@ public class BazaarService extends RESTService {
             props.put("mail.smtp.host", smtpServer);
             notificationDispatcher.setEmailDispatcher(new EmailDispatcher(this, smtpServer, emailFromAddress, frontendBaseURL));
         }
+        if (!monitor.isEmpty() && monitor.equalsIgnoreCase("true")) {
+            notificationDispatcher.setMobSOSMonitoring(true);
+        }
     }
 
     @Api(value = "/", description = "Bazaar service")
@@ -217,7 +223,8 @@ public class BazaarService extends RESTService {
                 Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
                 Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
                 Statistic platformStatistics = dalFacade.getStatisticsForAllProjects(internalUserId, sinceCal);
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_2, Context.getCurrent().getMainAgent(), "Get statistics");
+                bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_2,
+                        0, Activity.DataType.STATISTIC, internalUserId);
                 return Response.ok(platformStatistics.toJSON()).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -312,7 +319,8 @@ public class BazaarService extends RESTService {
                 User user = userBuilder.admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).profileImage(profileImage)
                         .emailLeadSubscription(true).emailFollowSubscription(true).build();
                 int userId = dalFacade.createUser(user).getId();
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_55, Context.getCurrent().getMainAgent(), "Create user " + userId);
+                this.getNotificationDispatcher().dispatchNotification(user.getCreationDate(), Activity.ActivityAction.CREATE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_55,
+                        userId, Activity.DataType.USER, userId);
                 dalFacade.addUserToRole(userId, "SystemAdmin", null);
             } else {
                 // update lastLoginDate

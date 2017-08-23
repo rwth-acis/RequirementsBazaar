@@ -46,9 +46,8 @@ import java.util.*;
 @Path("/attachments")
 public class AttachmentsResource {
 
-    private BazaarService bazaarService;
-
     private final L2pLogger logger = L2pLogger.getInstance(AttachmentsResource.class.getName());
+    private BazaarService bazaarService;
 
     public AttachmentsResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
@@ -80,8 +79,8 @@ public class AttachmentsResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             Project project = dalFacade.getProjectById(requirement.getProjectId(), internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_44, Context.getCurrent().getMainAgent(), "Get attachments for requirement " + requirementId);
-
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_44,
+                    requirement.getId(), Activity.DataType.REQUIREMENT, internalUserId);
             if (dalFacade.isRequirementPublic(requirementId)) {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT, String.valueOf(project.getId()), dalFacade);
                 if (!authorized) {
@@ -94,7 +93,7 @@ public class AttachmentsResource {
                 }
             }
             PaginationResult<Attachment> attachmentsResult = dalFacade.listAttachmentsByRequirementId(requirementId, pageInfo);
-            
+
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{
                 add(String.valueOf(page));
@@ -159,7 +158,8 @@ public class AttachmentsResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Attachment attachment = dalFacade.getAttachmentById(attachmentId);
             Requirement requirement = dalFacade.getRequirementById(attachment.getRequirementId(), internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_49, Context.getCurrent().getMainAgent(), "Get attachment " + attachmentId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_49,
+                    attachment.getId(), Activity.DataType.ATTACHMENT, internalUserId);
             if (dalFacade.isProjectPublic(requirement.getProjectId())) {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_ATTACHMENT, String.valueOf(requirement.getProjectId()), dalFacade);
                 if (!authorized) {
@@ -232,9 +232,8 @@ public class AttachmentsResource {
             }
             attachmentToCreate.setCreator(dalFacade.getUserById(internalUserId));
             Attachment createdAttachment = dalFacade.createAttachment(attachmentToCreate);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_50, Context.getCurrent().getMainAgent(), "Create attachment " + createdAttachment.getId());
-            bazaarService.getNotificationDispatcher().dispatchNotification(createdAttachment.getCreationDate(), Activity.ActivityAction.CREATE, createdAttachment.getId(),
-                    Activity.DataType.ATTACHMENT, createdAttachment.getRequirementId(), Activity.DataType.REQUIREMENT, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(createdAttachment.getCreationDate(), Activity.ActivityAction.CREATE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_50,
+                    createdAttachment.getId(), Activity.DataType.ATTACHMENT, internalUserId);
             return Response.status(Response.Status.CREATED).entity(createdAttachment.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -287,7 +286,8 @@ public class AttachmentsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.attachment.modify"));
             }
             Attachment deletedAttachment = dalFacade.deleteAttachmentById(attachmentId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_52, Context.getCurrent().getMainAgent(), "Delete attachment " + attachmentId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.DELETE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_52,
+                    deletedAttachment.getId(), Activity.DataType.ATTACHMENT, internalUserId);
             return Response.ok(deletedAttachment.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
