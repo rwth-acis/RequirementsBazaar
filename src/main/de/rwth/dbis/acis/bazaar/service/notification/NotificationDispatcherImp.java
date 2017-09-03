@@ -105,7 +105,7 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
                 additionalObject = new Activity.AdditionalObject(project, category, requirement, user);
             } else if (dataType.equals(Activity.DataType.COMMENT)) {
                 Comment comment = dalFacade.getCommentById(dataId);
-                Requirement requirement = dalFacade.getRequirementById(comment.getId(), userId);
+                Requirement requirement = dalFacade.getRequirementById(comment.getRequirementId(), userId);
                 Category category = dalFacade.getCategoryById(requirement.getCategories().get(0).getId(), userId);
                 Project project = dalFacade.getProjectById(requirement.getProjectId(), userId);
                 additionalObject = new Activity.AdditionalObject(project, category, requirement, user);
