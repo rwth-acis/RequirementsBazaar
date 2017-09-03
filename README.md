@@ -49,7 +49,7 @@ How to set up the database
  2. To configure your database access look at the [Configuration](#configuration) section
  3. Compile the project with `ant`
  4. Create a new database called `reqbaz`, possibly with UTF-8 collation
- 5. Run `ant migrate-db` to create your db schema
+ 5. Run `ant migrate-db` to create your db schema or migrate to a newer version while updating your service
  6. If you need sample data run the file `\etc\add_reqbaz_demo_data.sql` or `\etc\add_reqbaz_demo_data_full.sql`
 
 Configuration
@@ -63,10 +63,11 @@ You need to configure this service to work with your own specific environment. H
  - `land`:              Default language setting
  - `country`:           Default country setting
  - `baseURL`:           Base URL this service runs on
- - `frontendBaseURL`    Base URL for the frontend which uses Requirements-Bazaar service
- - `activityTrackerService` p2p microservice name of the las2peer activity tracker. Leave this field empty if no las2peer activity tracker is used. (example: `de.rwth.dbis.acis.activitytracker.service.ActivityTrackerService@0.2`)
- - `smtpServer`         SMTP server to send email notifications to users. Leave this field empty if no email notification is used.
- - `emailFromAddress`   Email from address which is used for email notifications to users. Leave this field empty if no email notification is used.
+ - `frontendBaseURL`:    Base URL for the frontend which uses Requirements-Bazaar service
+ - `activityTrackerService`: p2p microservice name of the las2peer activity tracker. Leave this field empty if no las2peer activity tracker is used. (example: `de.rwth.dbis.acis.activitytracker.service.ActivityTrackerService@0.2`)
+ - `smtpServer`:         SMTP server to send email notifications to users. Leave this field empty if no email notification is used.
+ - `emailFromAddress`:   Email from address which is used for email notifications to users. Leave this field empty if no email notification is used.
+ - `monitor`:            Boolean value for logging calls to MobSOS data processing
 
 For other configuration settings, check the **[<i class="icon-link "></i>las2peer](https://github.com/rwth-acis/LAS2peer)** project.
 
