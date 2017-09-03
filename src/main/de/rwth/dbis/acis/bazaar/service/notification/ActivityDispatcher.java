@@ -77,7 +77,7 @@ public class ActivityDispatcher {
                 resourcePath = "comments";
                 parentResourcePath = "requirements";
                 Comment comment = dalFacade.getCommentById(dataId);
-                Requirement requirement = dalFacade.getRequirementById(comment.getId(), userId);
+                Requirement requirement = dalFacade.getRequirementById(comment.getRequirementId(), userId);
                 frontendResourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
                         requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
                 parentDataId = requirement.getId();
