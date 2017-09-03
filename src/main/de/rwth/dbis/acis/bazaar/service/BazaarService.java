@@ -39,7 +39,6 @@ import de.rwth.dbis.acis.bazaar.service.notification.EmailDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcherImp;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
-import i5.las2peer.api.Configurable;
 import i5.las2peer.api.Context;
 import i5.las2peer.logging.L2pLogger;
 import i5.las2peer.logging.NodeObserver;
@@ -170,7 +169,7 @@ public class BazaarService extends RESTService {
     @SwaggerDefinition(
             info = @Info(
                     title = "Requirements Bazaar",
-                    version = "0.6",
+                    version = "0.7",
                     description = "Requirements Bazaar project",
                     termsOfService = "http://requirements-bazaar.org",
                     contact = @Contact(
