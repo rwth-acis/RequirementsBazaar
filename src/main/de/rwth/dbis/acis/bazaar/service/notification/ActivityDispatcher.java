@@ -109,7 +109,7 @@ public class ActivityDispatcher {
             }
             activityBuilder = activityBuilder.userUrl(baseURL + "users" + "/" + String.valueOf(userId));
             activityBuilder = activityBuilder.origin(activityOrigin);
-            activityBuilder = activityBuilder.addtitionalObject(additionalObject);
+            activityBuilder = activityBuilder.addititionalObject(additionalObject);
             Activity activity = activityBuilder.build();
 
             FilterProvider filters =

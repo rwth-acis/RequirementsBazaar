@@ -176,7 +176,7 @@ public class Activity extends EntityBase {
             return this;
         }
 
-        public Builder addtitionalObject(AdditionalObject additionalObject) {
+        public Builder addititionalObject(AdditionalObject additionalObject) {
             this.additionalObject = additionalObject;
             return this;
         }
@@ -197,7 +197,7 @@ public class Activity extends EntityBase {
         @JsonFilter("ActivityFilter")
         private Requirement requirement;
 
-        @JsonFilter("ActivityFiler")
+        @JsonFilter("ActivityFilter")
         private User user;
 
         public Project getProject() {
