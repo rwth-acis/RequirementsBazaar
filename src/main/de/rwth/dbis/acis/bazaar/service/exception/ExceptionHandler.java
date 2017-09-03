@@ -62,11 +62,11 @@ public enum ExceptionHandler {
         throw bazaarEx;
     }
 
-    public String toJSON(BazaarException exception) throws BazaarException{
+    public String toJSON(BazaarException exception) {
         try {
             return mapper.writeValueAsString(exception);
         } catch (JsonProcessingException e) {
-            convertAndThrowException(e, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN);
+            // no important error
         }
         return null;
     }
