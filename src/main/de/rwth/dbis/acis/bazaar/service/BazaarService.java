@@ -88,7 +88,6 @@ public class BazaarService extends RESTService {
     protected String activityOrigin;
     protected String smtpServer;
     protected String emailFromAddress;
-    protected String monitor;
 
     private Vtor vtor;
     private List<BazaarFunctionRegistrar> functionRegistrar;
@@ -164,9 +163,7 @@ public class BazaarService extends RESTService {
             props.put("mail.smtp.host", smtpServer);
             notificationDispatcher.setEmailDispatcher(new EmailDispatcher(this, smtpServer, emailFromAddress, frontendBaseURL));
         }
-        if (!monitor.isEmpty() && monitor.equalsIgnoreCase("true")) {
-            notificationDispatcher.setMobSOSMonitoring(true);
-        }
+        notificationDispatcher.setBazaarService(this);
     }
 
     @Api(value = "/", description = "Bazaar service")

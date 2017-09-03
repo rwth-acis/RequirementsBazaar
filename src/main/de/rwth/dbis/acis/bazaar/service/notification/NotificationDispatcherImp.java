@@ -3,7 +3,6 @@ package de.rwth.dbis.acis.bazaar.service.notification;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
@@ -24,8 +23,11 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
     private ExecutorService executorService = Executors.newCachedThreadPool();
     private ActivityDispatcher activityDispatcher;
     private EmailDispatcher emailDispatcher;
-    private boolean mobSOSMonitoring;
-    private BazaarService bazaarService = (BazaarService) Context.getCurrent().getService();
+    private BazaarService bazaarService;
+
+    public void setBazaarService(BazaarService service) {
+        this.bazaarService = service;
+    }
 
     public void setActivityDispatcher(ActivityDispatcher activityDispatcher) {
         this.activityDispatcher = activityDispatcher;
@@ -33,10 +35,6 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
 
     public void setEmailDispatcher(EmailDispatcher emailDispatcher) {
         this.emailDispatcher = emailDispatcher;
-    }
-
-    public void setMobSOSMonitoring(boolean mobSOSMonitoring) {
-        this.mobSOSMonitoring = mobSOSMonitoring;
     }
 
     @Override
@@ -65,7 +63,7 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
                     activityAction == Activity.ActivityAction.VOTE)) {
                 activityDispatcher.sendActivityOverRMI(creationDate, activityAction, dataId, dataType, userId, additionalObject);
             }
-            if (mobSOSMonitoring == true && mobSOSEvent != null) {
+            if (mobSOSEvent != null) {
                 L2pLogger.logEvent(mobSOSEvent, Context.getCurrent().getMainAgent(), new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL).writeValueAsString(additionalObject));
             }
         } catch (JsonProcessingException e) {
