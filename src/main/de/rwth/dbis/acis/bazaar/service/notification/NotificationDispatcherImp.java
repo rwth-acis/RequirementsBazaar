@@ -56,7 +56,7 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
                     }
                 }
             });
-            Activity.AdditionalObject additionalObject = generateAdditonalObject(dataType, dataId, userId);
+            Activity.AdditionalObject additionalObject = generateAdditionalObject(dataType, dataId, userId);
             if (activityDispatcher != null && (activityAction == Activity.ActivityAction.CREATE || activityAction == Activity.ActivityAction.UPDATE ||
                     activityAction == Activity.ActivityAction.REALIZE || activityAction == Activity.ActivityAction.DEVELOP ||
                     activityAction == Activity.ActivityAction.LEADDEVELOP || activityAction == Activity.ActivityAction.FOLLOW ||
@@ -71,7 +71,7 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
         }
     }
 
-    private Activity.AdditionalObject generateAdditonalObject(Activity.DataType dataType, int dataId, int userId) {
+    private Activity.AdditionalObject generateAdditionalObject(Activity.DataType dataType, int dataId, int userId) {
         DALFacade dalFacade;
         Activity.AdditionalObject additionalObject = null;
         try {
