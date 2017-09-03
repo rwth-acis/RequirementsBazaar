@@ -78,7 +78,7 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
             dalFacade = bazaarService.getDBConnection();
 
             User user = dalFacade.getUserById(userId);
-            if (dataType.equals(Activity.DataType.PROJECT)) {
+            if (dataType.equals(Activity.DataType.PROJECT) && dataId != 0) {
                 Project project = dalFacade.getProjectById(dataId, userId);
                 additionalObject = new Activity.AdditionalObject(project, null, null, user);
             } else if (dataType.equals(Activity.DataType.CATEGORY)) {
