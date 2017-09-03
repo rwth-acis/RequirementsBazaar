@@ -3,6 +3,9 @@ package de.rwth.dbis.acis.bazaar.service.notification;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
@@ -24,6 +27,7 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
     private ActivityDispatcher activityDispatcher;
     private EmailDispatcher emailDispatcher;
     private BazaarService bazaarService;
+    private ObjectMapper mapper;
 
     public void setBazaarService(BazaarService service) {
         this.bazaarService = service;
@@ -47,6 +51,15 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
 //                }
 //            }
 //        });
+
+        FilterProvider filters =
+                new SimpleFilterProvider().addFilter(
+                        "ActivityFilter",
+                        SimpleBeanPropertyFilter.filterOutAllExcept("id", "name"));
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        mapper.setFilters(filters);
+
         try {
             executorService.execute(new Runnable() {
                 public void run() {
@@ -64,7 +77,7 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
                 activityDispatcher.sendActivityOverRMI(creationDate, activityAction, dataId, dataType, userId, additionalObject);
             }
             if (mobSOSEvent != null) {
-                L2pLogger.logEvent(mobSOSEvent, Context.getCurrent().getMainAgent(), new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL).writeValueAsString(additionalObject));
+                L2pLogger.logEvent(mobSOSEvent, Context.getCurrent().getMainAgent(), mapper.writeValueAsString(additionalObject));
             }
         } catch (JsonProcessingException e) {
             logger.warning(e.getMessage());
