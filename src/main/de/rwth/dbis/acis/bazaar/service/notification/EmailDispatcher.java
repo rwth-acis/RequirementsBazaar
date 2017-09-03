@@ -34,19 +34,22 @@ public class EmailDispatcher {
             dalFacade = bazaarService.getDBConnection();
 
             List<User> recipients = new ArrayList<>();
-            if (dataType.equals(Activity.DataType.REQUIREMENT)) {
+            if (dataType.equals(Activity.DataType.PROJECT)) {
+                recipients = dalFacade.getRecipientListForProject(dataId);
+            } else if (dataType.equals(Activity.DataType.CATEGORY)) {
+                recipients = dalFacade.getRecipientListForCategory(dataId);
+            } else if (dataType.equals(Activity.DataType.REQUIREMENT)) {
                 recipients = dalFacade.getRecipientListForRequirement(dataId);
             } else if (dataType.equals(Activity.DataType.COMMENT)) {
                 int requirementId = dalFacade.getCommentById(dataId).getRequirementId();
                 recipients = dalFacade.getRecipientListForRequirement(requirementId);
-            } else if (dataType.equals(Activity.DataType.CATEGORY)) {
-                recipients = dalFacade.getRecipientListForCategory(dataId);
-            } else if (dataType.equals(Activity.DataType.PROJECT)) {
-                recipients = dalFacade.getRecipientListForProject(dataId);
+            } else if (dataType.equals(Activity.DataType.ATTACHMENT)) {
+                int requirementId = dalFacade.getAttachmentById(dataId).getRequirementId();
+                recipients = dalFacade.getRecipientListForRequirement(requirementId);
             }
             // delete the user who created the activity
             Iterator<User> recipientsIterator = recipients.iterator();
-            while(recipientsIterator.hasNext()) {
+            while (recipientsIterator.hasNext()) {
                 User recipient = recipientsIterator.next();
                 if (recipient.getId() == userId) {
                     recipientsIterator.remove();
