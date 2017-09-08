@@ -21,6 +21,8 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jodd.vtor.constraint.MaxLength;
 import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
@@ -59,10 +61,13 @@ public class User extends EntityBase {
 
     private Boolean emailFollowSubscription;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
     private Date creationDate;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
     private Date lastUpdatedDate;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
     private Date lastLoginDate;
 
     public User() {
@@ -96,6 +101,7 @@ public class User extends EntityBase {
         return lastName;
     }
 
+    @JsonIgnore
     public String getEMail() {
         return eMail;
     }

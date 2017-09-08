@@ -20,6 +20,9 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
+import de.rwth.dbis.acis.bazaar.service.dal.entities.CategoryContributors;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.ProjectContributors;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementContributors;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
@@ -39,7 +42,11 @@ public interface UserRepository extends Repository<User> {
 
     PaginationResult<User> findAllByDeveloping(int requirementId, Pageable pageable) throws BazaarException;
 
-    PaginationResult<User> findAllByContribution(int requirementId, Pageable pageable) throws BazaarException;
+    RequirementContributors findRequirementContributors(int requirementId) throws BazaarException;
+
+    CategoryContributors findCategoryContributors(int categoryId) throws BazaarException;
+
+    ProjectContributors findProjectContributors(int projectId) throws BazaarException;
 
     PaginationResult<User> findAllByFollowing(int projectId, int categoryId, int requirementId, Pageable pageable) throws BazaarException;
 

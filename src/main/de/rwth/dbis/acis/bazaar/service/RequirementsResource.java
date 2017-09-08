@@ -1,6 +1,5 @@
 package de.rwth.dbis.acis.bazaar.service;
 
-import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
@@ -26,7 +25,6 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
 import java.net.HttpURLConnection;
 import java.util.*;
-
 
 @Api(value = "requirements", description = "Requirements resource")
 @SwaggerDefinition(
@@ -78,7 +76,6 @@ public class RequirementsResource {
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
-            Gson gson = new Gson();
             HashMap<String, String> filters = new HashMap<>();
             if (stateFilter != "all") {
                 filters.put("realized", stateFilter);
@@ -120,7 +117,8 @@ public class RequirementsResource {
                 }
             }
             PaginationResult<Requirement> requirementsResult = dalFacade.listRequirementsByProject(projectId, pageInfo, internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_14, Context.getCurrent().getMainAgent(), "Get requirements for project " + projectId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_14,
+                    projectId, Activity.DataType.PROJECT, internalUserId);
 
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{
@@ -140,7 +138,7 @@ public class RequirementsResource {
             parameter.put("sort", sort);
 
             Response.ResponseBuilder responseBuilder = Response.ok();
-            responseBuilder = responseBuilder.entity(gson.toJson(requirementsResult.getElements()));
+            responseBuilder = responseBuilder.entity(requirementsResult.toJSON());
             responseBuilder = bazaarService.paginationLinks(responseBuilder, requirementsResult, "projects/" + String.valueOf(projectId) + "/requirements", parameter);
             responseBuilder = bazaarService.xHeaderFields(responseBuilder, requirementsResult);
             Response response = responseBuilder.build();
@@ -186,7 +184,6 @@ public class RequirementsResource {
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
-            Gson gson = new Gson();
             HashMap<String, String> filters = new HashMap<>();
             if (stateFilter != "all") {
                 filters.put("realized", stateFilter);
@@ -230,7 +227,8 @@ public class RequirementsResource {
                 }
             }
             PaginationResult<Requirement> requirementsResult = dalFacade.listRequirementsByCategory(categoryId, pageInfo, internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_24, Context.getCurrent().getMainAgent(), "Get requirements for category " + categoryId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_24,
+                    categoryId, Activity.DataType.CATEGORY, internalUserId);
 
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{
@@ -250,7 +248,7 @@ public class RequirementsResource {
             parameter.put("sort", sort);
 
             Response.ResponseBuilder responseBuilder = Response.ok();
-            responseBuilder = responseBuilder.entity(gson.toJson(requirementsResult.getElements()));
+            responseBuilder = responseBuilder.entity(requirementsResult.toJSON());
             responseBuilder = bazaarService.paginationLinks(responseBuilder, requirementsResult, "categories/" + String.valueOf(categoryId) + "/requirements", parameter);
             responseBuilder = bazaarService.xHeaderFields(responseBuilder, requirementsResult);
             Response response = responseBuilder.build();
@@ -304,7 +302,8 @@ public class RequirementsResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_25, Context.getCurrent().getMainAgent(), "Get requirement " + requirementId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_25,
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             if (dalFacade.isRequirementPublic(requirementId)) {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, String.valueOf(requirement.getProjectId()), dalFacade);
                 if (!authorized) {
@@ -316,8 +315,7 @@ public class RequirementsResource {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.read"));
                 }
             }
-            Gson gson = new Gson();
-            return Response.ok(gson.toJson(requirement)).build();
+            return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -365,7 +363,7 @@ public class RequirementsResource {
             }
             // TODO: check whether the current user may create a new requirement
             dalFacade = bazaarService.getDBConnection();
-            Gson gson = new Gson();
+            
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             requirementToCreate.setCreator(dalFacade.getUserById(internalUserId));
             Vtor vtor = bazaarService.getValidators();
@@ -388,7 +386,6 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.create"));
             }
             Requirement createdRequirement = dalFacade.createRequirement(requirementToCreate, internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_26, Context.getCurrent().getMainAgent(), "Create requirement " + createdRequirement.getId());
 
             // check if attachments are given
             if (requirementToCreate.getAttachments() != null && !requirementToCreate.getAttachments().isEmpty()) {
@@ -403,11 +400,10 @@ public class RequirementsResource {
                     dalFacade.createAttachment(attachment);
                 }
             }
-
             createdRequirement = dalFacade.getRequirementById(createdRequirement.getId(), internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, createdRequirement.getCreationDate(), Activity.ActivityAction.CREATE, createdRequirement.getId(),
-                    Activity.DataType.REQUIREMENT, createdRequirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
-            return Response.status(Response.Status.CREATED).entity(gson.toJson(createdRequirement)).build();
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.CREATE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_26,
+                    createdRequirement.getId(), Activity.DataType.REQUIREMENT, internalUserId);
+            return Response.status(Response.Status.CREATED).entity(createdRequirement.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -454,7 +450,6 @@ public class RequirementsResource {
             }
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
             long userId = agent.getId();
-            Gson gson = new Gson();
             Vtor vtor = bazaarService.getValidators();
             vtor.validate(requirementToUpdate);
             if (vtor.hasViolations()) {
@@ -471,10 +466,9 @@ public class RequirementsResource {
             }
             dalFacade.followRequirement(internalUserId, requirementToUpdate.getId());
             Requirement updatedRequirement = dalFacade.modifyRequirement(requirementToUpdate, internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_27, Context.getCurrent().getMainAgent(), "Update requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, updatedRequirement.getLastUpdatedDate(), Activity.ActivityAction.UPDATE, updatedRequirement.getId(),
-                    Activity.DataType.REQUIREMENT, updatedRequirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
-            return Response.ok(gson.toJson(updatedRequirement)).build();
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UPDATE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_27,
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            return Response.ok(updatedRequirement.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -528,12 +522,10 @@ public class RequirementsResource {
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.delete"));
             }
-            Gson gson = new Gson();
             Requirement deletedRequirement = dalFacade.deleteRequirementById(requirementId, internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_28, Context.getCurrent().getMainAgent(), "Delete requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, deletedRequirement.getLastUpdatedDate(), Activity.ActivityAction.DELETE, deletedRequirement.getId(),
-                    Activity.DataType.REQUIREMENT, deletedRequirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
-            return Response.ok(gson.toJson(deletedRequirement)).build();
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.DELETE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_28,
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            return Response.ok(deletedRequirement.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -586,11 +578,9 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.create"));
             }
             Requirement requirement = dalFacade.setUserAsLeadDeveloper(requirementId, internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_29, Context.getCurrent().getMainAgent(), "Leaddevelop requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.LEADDEVELOP, requirement.getId(),
-                    Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
-            Gson gson = new Gson();
-            return Response.status(Response.Status.CREATED).entity(gson.toJson(requirement)).build();
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.LEADDEVELOP, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_29,
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -647,11 +637,9 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "You are not lead developer.");
             }
             requirement = dalFacade.deleteUserAsLeadDeveloper(requirementId, internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_30, Context.getCurrent().getMainAgent(), "Unleaddevelop requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.UNLEADDEVELOP, requirement.getId(),
-                    Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
-            Gson gson = new Gson();
-            return Response.ok(gson.toJson(requirement)).build();
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNLEADDEVELOP, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_30,
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -706,11 +694,9 @@ public class RequirementsResource {
             dalFacade.wantToDevelop(internalUserId, requirementId);
             dalFacade.followRequirement(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_31, Context.getCurrent().getMainAgent(), "Develop requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.DEVELOP, requirement.getId(),
-                    Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
-            Gson gson = new Gson();
-            return Response.status(Response.Status.CREATED).entity(gson.toJson(requirement)).build();
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.DEVELOP, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_31,
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -764,11 +750,9 @@ public class RequirementsResource {
             }
             dalFacade.notWantToDevelop(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_32, Context.getCurrent().getMainAgent(), "Undevelop requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.UNDEVELOP, requirement.getId(),
-                    Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
-            Gson gson = new Gson();
-            return Response.ok(gson.toJson(requirement)).build();
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNDEVELOP, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_32,
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -822,11 +806,9 @@ public class RequirementsResource {
             }
             dalFacade.followRequirement(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_33, Context.getCurrent().getMainAgent(), "Follow requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.FOLLOW, requirement.getId(),
-                    Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
-            Gson gson = new Gson();
-            return Response.status(Response.Status.CREATED).entity(gson.toJson(requirement)).build();
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.FOLLOW, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_33,
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -880,11 +862,9 @@ public class RequirementsResource {
             }
             dalFacade.unFollowRequirement(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_34, Context.getCurrent().getMainAgent(), "Unfollow requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.UNFOLLOW, requirement.getId(),
-                    Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
-            Gson gson = new Gson();
-            return Response.ok(gson.toJson(requirement)).build();
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNFOLLOW, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_34,
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -948,11 +928,9 @@ public class RequirementsResource {
                 dalFacade.followRequirement(internalUserId, requirementId);
             }
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_35, Context.getCurrent().getMainAgent(), "Vote requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.VOTE, requirement.getId(),
-                    Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
-            Gson gson = new Gson();
-            return Response.status(Response.Status.CREATED).entity(gson.toJson(requirement)).build();
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.VOTE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_35,
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -1006,11 +984,9 @@ public class RequirementsResource {
             }
             dalFacade.unVote(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_36, Context.getCurrent().getMainAgent(), "Unvote requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.UNVOTE, requirement.getId(),
-                    Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
-            Gson gson = new Gson();
-            return Response.ok(gson.toJson(requirement)).build();
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNVOTE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_36,
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -1063,11 +1039,9 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.create"));
             }
             Requirement requirement = dalFacade.setRequirementToRealized(requirementId, internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_37, Context.getCurrent().getMainAgent(), "Realize requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.REALIZE, requirement.getId(),
-                    Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
-            Gson gson = new Gson();
-            return Response.status(Response.Status.CREATED).entity(gson.toJson(requirement)).build();
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.REALIZE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_37,
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -1120,11 +1094,9 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.delete"));
             }
             Requirement requirement = dalFacade.setRequirementToUnRealized(requirementId, internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_38, Context.getCurrent().getMainAgent(), "Unrealize requirement " + requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, new Date(), Activity.ActivityAction.UNREALIZE, requirement.getId(),
-                    Activity.DataType.REQUIREMENT, requirement.getCategories().get(0).getId(), Activity.DataType.CATEGORY, internalUserId);
-            Gson gson = new Gson();
-            return Response.ok(gson.toJson(requirement)).build();
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNREALIZE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_38,
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -1167,15 +1139,19 @@ public class RequirementsResource {
             @ApiParam(value = "Since timestamp", required = false) @QueryParam("since") String since) {
         DALFacade dalFacade = null;
         try {
+            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registrarErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
+            }
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
             long userId = agent.getId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
-            Statistic statisticsResult = dalFacade.getStatisticsForRequirement(internalUserId, requirementId, sinceCal);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_39, Context.getCurrent().getMainAgent(), "Get statistics for requirement " + requirementId);
-            Gson gson = new Gson();
-            return Response.ok(gson.toJson(statisticsResult)).build();
+            Statistic requirementStatistics = dalFacade.getStatisticsForRequirement(internalUserId, requirementId, sinceCal);
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_39,
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            return Response.ok(requirementStatistics.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -1232,8 +1208,10 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
             dalFacade = bazaarService.getDBConnection();
-            PaginationResult<User> requirementsResult = dalFacade.listDevelopersForRequirement(requirementId, pageInfo);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_40, Context.getCurrent().getMainAgent(), "Get developers for requirement " + requirementId);
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            PaginationResult<User> requirementDevelopers = dalFacade.listDevelopersForRequirement(requirementId, pageInfo);
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_40,
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
 
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{
@@ -1243,11 +1221,10 @@ public class RequirementsResource {
                 add(String.valueOf(perPage));
             }});
 
-            Gson gson = new Gson();
             Response.ResponseBuilder responseBuilder = Response.ok();
-            responseBuilder = responseBuilder.entity(gson.toJson(requirementsResult.getElements()));
-            responseBuilder = bazaarService.paginationLinks(responseBuilder, requirementsResult, "requirements/" + String.valueOf(requirementId) + "/developers", parameter);
-            responseBuilder = bazaarService.xHeaderFields(responseBuilder, requirementsResult);
+            responseBuilder = responseBuilder.entity(requirementDevelopers.toJSON());
+            responseBuilder = bazaarService.paginationLinks(responseBuilder, requirementDevelopers, "requirements/" + String.valueOf(requirementId) + "/developers", parameter);
+            responseBuilder = bazaarService.xHeaderFields(responseBuilder, requirementDevelopers);
             Response response = responseBuilder.build();
 
             return response;
@@ -1275,23 +1252,19 @@ public class RequirementsResource {
      * This method returns the list of contributors for a specific requirement.
      *
      * @param requirementId id of the requirement
-     * @param page          page number
-     * @param perPage       number of projects by page
-     * @return Response with contributors as a JSON array.
+     * @return Response with requirement contributors
      */
     @GET
     @Path("/{requirementId}/contributors")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method returns the list of contributors for a specific requirement.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of contributors for a given requirement", response = User.class, responseContainer = "List"),
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of contributors for a given requirement", response = RequirementContributors.class),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response getContributorsForRequirement(@PathParam("requirementId") int requirementId,
-                                                  @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
-                                                  @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) throws Exception {
+    public Response getContributorsForRequirement(@PathParam("requirementId") int requirementId) throws Exception {
         DALFacade dalFacade = null;
         try {
             UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
@@ -1300,32 +1273,12 @@ public class RequirementsResource {
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
-            PageInfo pageInfo = new PageInfo(page, perPage);
-            Vtor vtor = bazaarService.getValidators();
-            vtor.validate(pageInfo);
-            if (vtor.hasViolations()) {
-                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            }
             dalFacade = bazaarService.getDBConnection();
-            PaginationResult<User> requirementsResult = dalFacade.listContributorsForRequirement(requirementId, pageInfo);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_41, Context.getCurrent().getMainAgent(), "Get contributors for requirement " + requirementId);
-
-            Map<String, List<String>> parameter = new HashMap<>();
-            parameter.put("page", new ArrayList() {{
-                add(String.valueOf(page));
-            }});
-            parameter.put("per_page", new ArrayList() {{
-                add(String.valueOf(perPage));
-            }});
-
-            Gson gson = new Gson();
-            Response.ResponseBuilder responseBuilder = Response.ok();
-            responseBuilder = responseBuilder.entity(gson.toJson(requirementsResult.getElements()));
-            responseBuilder = bazaarService.paginationLinks(responseBuilder, requirementsResult, "requirements/" + String.valueOf(requirementId) + "/contributors", parameter);
-            responseBuilder = bazaarService.xHeaderFields(responseBuilder, requirementsResult);
-            Response response = responseBuilder.build();
-
-            return response;
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            RequirementContributors requirementContributors = dalFacade.listContributorsForRequirement(requirementId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_41,
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            return Response.ok(requirementContributors.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -1382,8 +1335,10 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
             dalFacade = bazaarService.getDBConnection();
-            PaginationResult<User> requirementsResult = dalFacade.listFollowersForRequirement(requirementId, pageInfo);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_42, Context.getCurrent().getMainAgent(), "Get followers for requirement " + requirementId);
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            PaginationResult<User> requirementFollowers = dalFacade.listFollowersForRequirement(requirementId, pageInfo);
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_42,
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
 
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{
@@ -1392,12 +1347,11 @@ public class RequirementsResource {
             parameter.put("per_page", new ArrayList() {{
                 add(String.valueOf(perPage));
             }});
-
-            Gson gson = new Gson();
+            
             Response.ResponseBuilder responseBuilder = Response.ok();
-            responseBuilder = responseBuilder.entity(gson.toJson(requirementsResult.getElements()));
-            responseBuilder = bazaarService.paginationLinks(responseBuilder, requirementsResult, "requirements/" + String.valueOf(requirementId) + "/followers", parameter);
-            responseBuilder = bazaarService.xHeaderFields(responseBuilder, requirementsResult);
+            responseBuilder = responseBuilder.entity(requirementFollowers.toJSON());
+            responseBuilder = bazaarService.paginationLinks(responseBuilder, requirementFollowers, "requirements/" + String.valueOf(requirementId) + "/followers", parameter);
+            responseBuilder = bazaarService.xHeaderFields(responseBuilder, requirementFollowers);
             Response response = responseBuilder.build();
 
             return response;

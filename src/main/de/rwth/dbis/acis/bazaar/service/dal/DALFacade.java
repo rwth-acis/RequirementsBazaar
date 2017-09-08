@@ -75,11 +75,28 @@ public interface DALFacade {
      * Get all contributors for a requirement
      *
      * @param requirementId
-     * @param pageable
      * @return
      * @throws BazaarException
      */
-    PaginationResult<User> listContributorsForRequirement(int requirementId, Pageable pageable) throws BazaarException;
+    RequirementContributors listContributorsForRequirement(int requirementId) throws BazaarException;
+
+    /**
+     * Get all contributors for a category
+     *
+     * @param categoryId
+     * @return
+     * @throws BazaarException
+     */
+    CategoryContributors listContributorsForCategory(int categoryId) throws BazaarException;
+
+    /**
+     * Get all contributors for a project
+     *
+     * @param projectId
+     * @return
+     * @throws BazaarException
+     */
+    ProjectContributors listContributorsForProject(int projectId) throws BazaarException;
 
     /**
      * Get all developers for a requirement

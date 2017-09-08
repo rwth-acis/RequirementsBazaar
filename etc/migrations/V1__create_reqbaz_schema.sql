@@ -1,13 +1,5 @@
 SET FOREIGN_KEY_CHECKS = 0;
 
-CREATE DATABASE IF NOT EXISTS reqbaz;
-
-DROP TABLE IF EXISTS reqbaz.attachment, reqbaz.comment, reqbaz.category,
-reqbaz.requirement_developer_map, reqbaz.requirement_follower_map, reqbaz.category_follower_map,
-reqbaz.project_follower_map, reqbaz.privilege, reqbaz.project, reqbaz.requirement,
-reqbaz.requirement_category_map, reqbaz.role_privilege_map, reqbaz.role_role_map,
-reqbaz.role, reqbaz.user_role_map, reqbaz.vote;
-
 -- tables
 -- Table attachment
 CREATE TABLE IF NOT EXISTS reqbaz.attachment (
@@ -231,5 +223,96 @@ CREATE TABLE IF NOT EXISTS reqbaz.vote (
     ON DELETE CASCADE,
   CONSTRAINT vote_user FOREIGN KEY vote_user (user_id) REFERENCES user (id)
 );
+
+-- Fill roles and privileges
+REPLACE INTO reqbaz.role
+(id, name)
+VALUES
+  (1, 'Anonymous'),
+  (2, 'LoggedInUser'),
+  (3, 'ProjectAdmin'),
+  (4, 'SystemAdmin');
+
+REPLACE INTO reqbaz.privilege
+(id, name)
+VALUES
+  (1, 'Create_PROJECT'),
+  (2, 'Read_PROJECT'),
+  (3, 'Read_PUBLIC_PROJECT'),
+  (4, 'Modify_PROJECT'),
+  (5, 'Create_CATEGORY'),
+  (6, 'Read_CATEGORY'),
+  (7, 'Read_PUBLIC_CATEGORY'),
+  (8, 'Modify_CATEGORY'),
+  (9, 'Create_REQUIREMENT'),
+  (10, 'Read_REQUIREMENT'),
+  (11, 'Read_PUBLIC_REQUIREMENT'),
+  (12, 'Modify_REQUIREMENT'),
+  (13, 'Create_COMMENT'),
+  (14, 'Read_COMMENT'),
+  (15, 'Read_PUBLIC_COMMENT'),
+  (16, 'Modify_COMMENT'),
+  (17, 'Create_ATTACHMENT'),
+  (18, 'Read_ATTACHMENT'),
+  (19, 'Read_PUBLIC_ATTACHMENT'),
+  (20, 'Modify_ATTACHMENT'),
+  (21, 'Create_VOTE'),
+  (22, 'Delete_VOTE'),
+  (23, 'Create_FOLLOW'),
+  (24, 'Delete_FOLLOW'),
+  (25, 'Create_DEVELOP'),
+  (26, 'Delete_DEVELOP');
+
+REPLACE INTO reqbaz.role_privilege_map
+(id, role_id, privilege_id)
+VALUES
+  (1, 1, 3),
+  (2, 1, 7),
+  (3, 1, 11),
+  (4, 1, 15),
+  (5, 1, 19),
+  (6, 4, 1),
+  (7, 4, 2),
+  (8, 4, 8),
+  (9, 4, 7),
+  (10, 4, 6),
+  (11, 4, 5),
+  (12, 4, 3),
+  (13, 4, 4),
+  (14, 4, 9),
+  (15, 4, 10),
+  (16, 4, 11),
+  (17, 4, 12),
+  (18, 4, 13),
+  (19, 4, 14),
+  (20, 4, 16),
+  (21, 4, 17),
+  (22, 4, 18),
+  (23, 4, 19),
+  (24, 4, 20),
+  (25, 4, 21),
+  (26, 4, 22),
+  (27, 4, 23),
+  (28, 4, 24),
+  (29, 4, 25),
+  (30, 4, 26);
+
+REPLACE INTO reqbaz.role_role_map
+(id, child_id, parent_id)
+VALUES
+  (1, 2, 1),
+  (2, 3, 2),
+  (3, 4, 3);
+
+REPLACE INTO reqbaz.user_role_map
+(id, role_id, user_id)
+VALUES
+  (1, 1, 1);
+
+REPLACE INTO reqbaz.user
+(id, first_name, last_name, email, admin, las2peer_id, user_name, profile_image, email_lead_subscription, email_follow_subscription)
+VALUES
+  (1, NULL, NULL, 'anonymous@requirements-bazaar.org', 0, '-1722613621014065292', 'anonymous',
+   'https://api.learning-layers.eu/profile.png', 0, 0);
 
 SET FOREIGN_KEY_CHECKS = 1;

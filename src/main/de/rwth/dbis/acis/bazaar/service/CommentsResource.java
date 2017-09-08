@@ -1,6 +1,5 @@
 package de.rwth.dbis.acis.bazaar.service;
 
-import com.google.gson.Gson;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
@@ -93,8 +92,8 @@ public class CommentsResource {
                 }
             }
             PaginationResult<Comment> commentsResult = dalFacade.listCommentsByRequirementId(requirementId, pageInfo);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_43, Context.getCurrent().getMainAgent(), "Get comments for requirement " + requirementId);
-
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_43,
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{
                 add(String.valueOf(page));
@@ -103,9 +102,8 @@ public class CommentsResource {
                 add(String.valueOf(perPage));
             }});
 
-            Gson gson = new Gson();
             Response.ResponseBuilder responseBuilder = Response.ok();
-            responseBuilder = responseBuilder.entity(gson.toJson(commentsResult.getElements()));
+            responseBuilder = responseBuilder.entity(commentsResult.toJSON());
             responseBuilder = bazaarService.paginationLinks(responseBuilder, commentsResult, "requirements/" + String.valueOf(requirementId) + "/comments", parameter);
             responseBuilder = bazaarService.xHeaderFields(responseBuilder, commentsResult);
             Response response = responseBuilder.build();
@@ -160,7 +158,8 @@ public class CommentsResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Comment comment = dalFacade.getCommentById(commentId);
             Requirement requirement = dalFacade.getRequirementById(comment.getRequirementId(), internalUserId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_45, Context.getCurrent().getMainAgent(), "Get comment " + commentId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_45,
+                    commentId, Activity.DataType.COMMENT, internalUserId);
             if (dalFacade.isProjectPublic(requirement.getProjectId())) {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT, String.valueOf(requirement.getProjectId()), dalFacade);
                 if (!authorized) {
@@ -172,8 +171,7 @@ public class CommentsResource {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.read"));
                 }
             }
-            Gson gson = new Gson();
-            return Response.ok(gson.toJson(comment)).build();
+            return Response.ok(comment.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -222,7 +220,6 @@ public class CommentsResource {
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
-            Gson gson = new Gson();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(commentToCreate.getRequirementId(), internalUserId);
@@ -239,10 +236,9 @@ public class CommentsResource {
             }
             dalFacade.followRequirement(internalUserId, requirement.getId());
             Comment createdComment = dalFacade.createComment(commentToCreate);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_46, Context.getCurrent().getMainAgent(), "Create comment " + commentToCreate.getId());
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, createdComment.getCreationDate(), Activity.ActivityAction.CREATE, createdComment.getId(),
-                    Activity.DataType.COMMENT, createdComment.getRequirementId(), Activity.DataType.REQUIREMENT, internalUserId);
-            return Response.status(Response.Status.CREATED).entity(gson.toJson(createdComment)).build();
+            bazaarService.getNotificationDispatcher().dispatchNotification(createdComment.getCreationDate(), Activity.ActivityAction.CREATE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_46,
+                    createdComment.getId(), Activity.DataType.COMMENT, internalUserId);
+            return Response.status(Response.Status.CREATED).entity(createdComment.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -295,12 +291,10 @@ public class CommentsResource {
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.modify"));
             }
-            Gson gson = new Gson();
             Comment deletedComment = dalFacade.deleteCommentById(commentId);
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_48, Context.getCurrent().getMainAgent(), "Delete comment " + commentId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(bazaarService, deletedComment.getCreationDate(), Activity.ActivityAction.DELETE, deletedComment.getId(),
-                    Activity.DataType.COMMENT, commentToDelete.getRequirementId(), Activity.DataType.REQUIREMENT, internalUserId);
-            return Response.ok(gson.toJson(deletedComment)).build();
+            bazaarService.getNotificationDispatcher().dispatchNotification(deletedComment.getCreationDate(), Activity.ActivityAction.DELETE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_48,
+                    deletedComment.getId(), Activity.DataType.COMMENT, internalUserId);
+            return Response.ok(deletedComment.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();

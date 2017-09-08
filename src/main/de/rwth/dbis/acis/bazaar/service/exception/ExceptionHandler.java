@@ -20,8 +20,10 @@
 
 package de.rwth.dbis.acis.bazaar.service.exception;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonGenerationException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 import jodd.vtor.Violation;
 
@@ -38,6 +40,8 @@ public enum ExceptionHandler {
     public static ExceptionHandler getInstance() {
         return INSTANCE;
     }
+
+    ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     public BazaarException convert(Exception ex, ExceptionLocation location, ErrorCode errorCode, String message) {
         BazaarException bazaarException = new BazaarException(location);
@@ -59,10 +63,12 @@ public enum ExceptionHandler {
     }
 
     public String toJSON(BazaarException exception) {
-        GsonBuilder builder = new GsonBuilder();
-        builder.excludeFieldsWithoutExposeAnnotation();
-        final Gson gson = builder.create();
-        return gson.toJson(exception);
+        try {
+            return mapper.writeValueAsString(exception);
+        } catch (JsonProcessingException e) {
+            // no important error
+        }
+        return null;
     }
 
     public void handleViolations(List<Violation> violations) throws BazaarException {

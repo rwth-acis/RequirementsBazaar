@@ -134,6 +134,7 @@ VALUES
   (4, 1, 3, 4),
   (5, 1, 4, 4);
 
+-- roles and privilege schema is already set up with V1__create_reqbaz_schema
 REPLACE INTO reqbaz.role
 (id, name)
 VALUES

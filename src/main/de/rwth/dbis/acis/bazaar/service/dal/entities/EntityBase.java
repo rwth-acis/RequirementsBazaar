@@ -20,7 +20,9 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -28,7 +30,7 @@ import com.google.gson.Gson;
  */
 public abstract class EntityBase implements IdentifiedById {
 
-    public String toJSON() {
-        return new Gson().toJson(this);
+    public String toJSON() throws JsonProcessingException {
+        return new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL).writeValueAsString(this);
     }
 }

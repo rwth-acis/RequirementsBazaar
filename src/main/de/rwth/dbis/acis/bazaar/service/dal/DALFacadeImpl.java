@@ -118,9 +118,21 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public PaginationResult<User> listContributorsForRequirement(int requirementId, Pageable pageable) throws BazaarException {
+    public RequirementContributors listContributorsForRequirement(int requirementId) throws BazaarException {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
-        return userRepository.findAllByContribution(requirementId, pageable);
+        return userRepository.findRequirementContributors(requirementId);
+    }
+
+    @Override
+    public CategoryContributors listContributorsForCategory(int categoryId) throws BazaarException {
+        userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
+        return userRepository.findCategoryContributors(categoryId);
+    }
+
+    @Override
+    public ProjectContributors listContributorsForProject(int projectId) throws BazaarException {
+        userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
+        return userRepository.findProjectContributors(projectId);
     }
 
     @Override
