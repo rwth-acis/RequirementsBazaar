@@ -3,6 +3,7 @@ package de.rwth.dbis.acis.bazaar.service.notification;
 import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 
 import javax.mail.*;
@@ -27,10 +28,11 @@ public class EmailDispatcher {
         this.frontendBaseURL = frontendBaseURL;
     }
 
-    public void sendEmailNotification(Date creationDate, Activity.ActivityAction activityAction,
-                                      int dataId, Activity.DataType dataType, int userId) {
-        DALFacade dalFacade = null;
+    public void addEmailNotification(Date creationDate, Activity.ActivityAction activityAction,
+                                     int dataId, Activity.DataType dataType, int userId, Activity.AdditionalObject additionalObject) {
+        DALFacade dalFacade;
         try {
+            Email.Builder emailBuilder = new Email.Builder();
             dalFacade = bazaarService.getDBConnection();
 
             List<User> recipients = new ArrayList<>();
@@ -58,20 +60,13 @@ public class EmailDispatcher {
 
             if (!recipients.isEmpty()) {
                 // generate mail
-                Properties props = System.getProperties();
-                Session session = Session.getInstance(props, null);
-                Message mailMessage = new MimeMessage(session);
-                mailMessage.setFrom(new InternetAddress(emailFromAddress));
-                for (int i = 0; i < recipients.size(); i++) {
-                    if (recipients.get(i).getEMail() != null && !recipients.get(i).getEMail().isEmpty())
-                        mailMessage.addRecipients(Message.RecipientType.BCC,
-                                InternetAddress.parse(recipients.get(i).getEMail(), false));
-                }
+
                 // use activityAction and dataType to generate email text
                 String subject = new String();
                 String bodyText = new String();
                 String objectName = new String();
                 String resourcePath = new String();
+
                 if (dataType == Activity.DataType.PROJECT) {
                     if (activityAction == Activity.ActivityAction.CREATE) {
                         subject = Localization.getInstance().getResourceBundle().getString("email.subject.project.created");
@@ -126,27 +121,50 @@ public class EmailDispatcher {
                 String dataUrl = frontendBaseURL.concat(resourcePath);
                 objectName = objectName.length() > 40 ? objectName.substring(0, 39) : objectName;
                 subject = subject.concat(" " + objectName);
-                mailMessage.setSubject(subject);
-                String greeting = Localization.getInstance().getResourceBundle().getString("email.bodyText.greeting");
-                String footer1 = Localization.getInstance().getResourceBundle().getString("email.bodyText.footer1");
-                String footer2 = Localization.getInstance().getResourceBundle().getString("email.bodyText.footer2");
-                String text = greeting;
-                text = text.concat("\r\n\r\n");
-                text = text.concat(bodyText);
-                text = text.concat("\r\n" + dataUrl);
-                text = text.concat("\r\n\r\n");
-                text = text.concat(footer1);
-                text = text.concat("\r\n");
-                text = text.concat(footer2);
-                mailMessage.setText(text);
-                mailMessage.setHeader("X-Mailer", "msgsend");
-                mailMessage.setSentDate(creationDate);
 
-                // send mail
-                Transport.send(mailMessage);
+                emailBuilder.receivers(new HashSet<>(recipients));
+                emailBuilder.subject(subject);
+                emailBuilder.message(bodyText + "\r\n" + dataUrl);
+                emailBuilder.creationDate(creationDate);
+                Email email = emailBuilder.build();
+
+                sendEmailNotification(email);
             }
-        } catch (Exception e) {
-            //TODO log
+        } catch (Exception ex) {
+            //TODO Log
         }
+    }
+
+    public void sendEmailNotification(Email mail) {
+        try {
+            Properties props = System.getProperties();
+            Session session = Session.getInstance(props, null);
+            Message mailMessage = new MimeMessage(session);
+            mailMessage.setFrom(new InternetAddress(emailFromAddress));
+            for (User receiver : mail.getReceivers()) {
+                if (receiver.getEMail() != null) {
+                    mailMessage.addRecipients(Message.RecipientType.BCC, InternetAddress.parse(receiver.getEMail(), false));
+                }
+            }
+            mailMessage.setSubject(mail.getSubject());
+            String greeting = Localization.getInstance().getResourceBundle().getString("email.bodyText.greeting");
+            String footer1 = Localization.getInstance().getResourceBundle().getString("email.bodyText.footer1");
+            String footer2 = Localization.getInstance().getResourceBundle().getString("email.bodyText.footer2");
+            String text = greeting;
+            text = text.concat("\r\n\r\n");
+            text = text.concat(mail.getMessage());
+            text = text.concat("\r\n\r\n");
+            text = text.concat(footer1);
+            text = text.concat("\r\n");
+            text = text.concat(footer2);
+            mailMessage.setText(text);
+            mailMessage.setHeader("X-Mailer", "msgsend");
+            mailMessage.setSentDate(mail.getCreationDate());
+
+            Transport.send(mailMessage);
+        } catch (MessagingException ex) {
+            //TODO Log
+        }
+
     }
 }

@@ -342,7 +342,7 @@ public class BazaarService extends RESTService {
         return dataSource;
     }
 
-    public DALFacade getDBConnection() throws Exception {
+    public DALFacade getDBConnection() throws Exception { // TODO: Specify Exception
         return new DALFacadeImpl(dataSource, SQLDialect.MYSQL);
     }
 

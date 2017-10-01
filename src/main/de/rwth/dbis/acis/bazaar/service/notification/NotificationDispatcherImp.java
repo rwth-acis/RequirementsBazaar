@@ -60,16 +60,17 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.setFilters(filters);
 
+        Activity.AdditionalObject additionalObject = generateAdditionalObject(dataType, dataId, userId);
+
         try {
             executorService.execute(new Runnable() {
                 public void run() {
                     if (emailDispatcher != null && (activityAction == Activity.ActivityAction.CREATE || activityAction == Activity.ActivityAction.UPDATE ||
                             activityAction == Activity.ActivityAction.REALIZE)) {
-                        emailDispatcher.sendEmailNotification(creationDate, activityAction, dataId, dataType, userId);
+                        emailDispatcher.addEmailNotification(creationDate, activityAction, dataId, dataType, userId, additionalObject);
                     }
                 }
             });
-            Activity.AdditionalObject additionalObject = generateAdditionalObject(dataType, dataId, userId);
             if (activityDispatcher != null && (activityAction == Activity.ActivityAction.CREATE || activityAction == Activity.ActivityAction.UPDATE ||
                     activityAction == Activity.ActivityAction.REALIZE || activityAction == Activity.ActivityAction.DEVELOP ||
                     activityAction == Activity.ActivityAction.LEADDEVELOP || activityAction == Activity.ActivityAction.FOLLOW ||
