@@ -14,13 +14,15 @@ import i5.las2peer.logging.L2pLogger;
 import i5.las2peer.logging.NodeObserver;
 
 import java.util.Date;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
  * Created by martin on 15.02.2016.
- */
-public class NotificationDispatcherImp implements NotificationDispatcher {
+ * TODO: Clean up notification package. Looks messy, especially here.
+ * */
+public class NotificationDispatcherImp extends TimerTask implements NotificationDispatcher {
 
     private L2pLogger logger = L2pLogger.getInstance(NotificationDispatcherImp.class.getName());
     private ExecutorService executorService = Executors.newCachedThreadPool();
@@ -56,7 +58,7 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
                 new SimpleFilterProvider().addFilter(
                         "ActivityFilter",
                         SimpleBeanPropertyFilter.filterOutAllExcept("id", "name"));
-        ObjectMapper mapper = new ObjectMapper();
+        mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.setFilters(filters);
 
@@ -123,5 +125,10 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
             logger.warning(e.getMessage());
         }
         return additionalObject;
+    }
+
+    @Override
+    public void run() {
+        emailDispatcher.emptyNotificationSummery();
     }
 }

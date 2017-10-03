@@ -87,6 +87,7 @@ public class BazaarService extends RESTService {
     protected String activityOrigin;
     protected String smtpServer;
     protected String emailFromAddress;
+    protected String emailSummaryTimePeriodInMinutes;
 
     private Vtor vtor;
     private List<BazaarFunctionRegistrar> functionRegistrar;
@@ -160,8 +161,27 @@ public class BazaarService extends RESTService {
         if (!smtpServer.isEmpty()) {
             Properties props = System.getProperties();
             props.put("mail.smtp.host", smtpServer);
-            notificationDispatcher.setEmailDispatcher(new EmailDispatcher(this, smtpServer, emailFromAddress, frontendBaseURL));
+            notificationDispatcher.setEmailDispatcher(new EmailDispatcher(this, smtpServer, emailFromAddress, frontendBaseURL, emailSummaryTimePeriodInMinutes));
+
+            if (!emailSummaryTimePeriodInMinutes.isEmpty()) {
+                try {
+                    // This task is scheduled to run every 60 seconds * emailSummaryTimePeriodInMinutes
+                    Timer timer = new Timer();
+                    timer.scheduleAtFixedRate((NotificationDispatcherImp) notificationDispatcher, 0, 60000 * Integer.valueOf(emailSummaryTimePeriodInMinutes));
+                    // Set hook when runtime (java) will shot down to try to send all emails in summary
+                    Runtime.getRuntime().addShutdownHook(new Thread() {
+                        @Override
+                        public void run() {
+                            notificationDispatcher.run();
+                        }
+                    });
+                } catch (Exception ex) {
+                    logger.warning(ex.getMessage());
+                }
+            }
+
         }
+
         notificationDispatcher.setBazaarService(this);
     }
 
