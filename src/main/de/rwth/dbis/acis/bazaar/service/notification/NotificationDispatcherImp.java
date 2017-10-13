@@ -14,16 +14,14 @@ import i5.las2peer.logging.L2pLogger;
 import i5.las2peer.logging.NodeObserver;
 
 import java.util.Date;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.TimerTask;
 
 /**
  * Created by martin on 15.02.2016.
  */
-public class NotificationDispatcherImp implements NotificationDispatcher {
+public class NotificationDispatcherImp extends TimerTask implements NotificationDispatcher {
 
     private L2pLogger logger = L2pLogger.getInstance(NotificationDispatcherImp.class.getName());
-    private ExecutorService executorService = Executors.newCachedThreadPool();
     private ActivityDispatcher activityDispatcher;
     private EmailDispatcher emailDispatcher;
     private BazaarService bazaarService;
@@ -44,39 +42,33 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
     @Override
     public void dispatchNotification(final Date creationDate, final Activity.ActivityAction activityAction, final NodeObserver.Event mobSOSEvent,
                                      final int dataId, final Activity.DataType dataType, final int userId) {
-//        executorService.execute(new Runnable() { //TODO: try to run sendActivityOverRMI inside Runnable when las2peer allows this
-//            public void run() {
-//                if (activityDispatcher != null) {
-//                    activityDispatcher.sendActivityOverRMI(service, creationDate, activityAction, dataId, dataType, userId);
-//                }
-//            }
-//        });
 
+        // Filters to generate JSON elements
         FilterProvider filters =
                 new SimpleFilterProvider().addFilter(
                         "ActivityFilter",
                         SimpleBeanPropertyFilter.filterOutAllExcept("id", "name"));
-        ObjectMapper mapper = new ObjectMapper();
+        mapper = new ObjectMapper();
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.setFilters(filters);
 
+        Activity.AdditionalObject additionalObject = generateAdditionalObject(dataType, dataId, userId);
+
         try {
-            executorService.execute(new Runnable() {
-                public void run() {
-                    if (emailDispatcher != null && (activityAction == Activity.ActivityAction.CREATE || activityAction == Activity.ActivityAction.UPDATE ||
-                            activityAction == Activity.ActivityAction.REALIZE)) {
-                        emailDispatcher.sendEmailNotification(creationDate, activityAction, dataId, dataType, userId);
-                    }
-                }
-            });
-            Activity.AdditionalObject additionalObject = generateAdditionalObject(dataType, dataId, userId);
+            if (emailDispatcher != null && (activityAction == Activity.ActivityAction.CREATE || activityAction == Activity.ActivityAction.UPDATE ||
+                    activityAction == Activity.ActivityAction.REALIZE)) {
+                // add email
+                emailDispatcher.addEmailNotification(creationDate, activityAction, dataId, dataType, userId, additionalObject);
+            }
             if (activityDispatcher != null && (activityAction == Activity.ActivityAction.CREATE || activityAction == Activity.ActivityAction.UPDATE ||
                     activityAction == Activity.ActivityAction.REALIZE || activityAction == Activity.ActivityAction.DEVELOP ||
                     activityAction == Activity.ActivityAction.LEADDEVELOP || activityAction == Activity.ActivityAction.FOLLOW ||
                     activityAction == Activity.ActivityAction.VOTE)) {
+                // dispatch activity
                 activityDispatcher.sendActivityOverRMI(creationDate, activityAction, dataId, dataType, userId, additionalObject);
             }
             if (mobSOSEvent != null) {
+                // dispatch mobSOS log call
                 L2pLogger.logEvent(mobSOSEvent, Context.getCurrent().getMainAgent(), mapper.writeValueAsString(additionalObject));
             }
         } catch (JsonProcessingException e) {
@@ -122,5 +114,12 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
             logger.warning(e.getMessage());
         }
         return additionalObject;
+    }
+
+    @Override
+    public void run() {
+        if (emailDispatcher != null) {
+            emailDispatcher.emptyNotificationSummery();
+        }
     }
 }
