@@ -10,6 +10,8 @@ import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by martin on 15.02.2016.
@@ -23,6 +25,8 @@ public class EmailDispatcher {
     private String frontendBaseURL;
     private String emailSummaryTimePeriodInMinutes;
     private Map<Integer, List<Email>> notificationSummery;
+
+    private ExecutorService executorService = Executors.newCachedThreadPool();
 
     public EmailDispatcher(BazaarService bazaarService, String smtpServer, String emailFromAddress, String frontendBaseURL, String emailSummaryTimePeriodInMinutes) throws Exception {
         this.smtpServer = smtpServer;
@@ -66,7 +70,7 @@ public class EmailDispatcher {
                 } else if (!notificationSummery.containsKey(recipient.getId()) && !emailSummaryTimePeriodInMinutes.isEmpty()) {
                     // if user has no notificationsummery: create one
                     notificationSummery.put(recipient.getId(), new ArrayList<>());
-                } else if (!emailSummaryTimePeriodInMinutes.isEmpty()){
+                } else if (!emailSummaryTimePeriodInMinutes.isEmpty()) {
                     //if user has notificationsummery, add this email to it and remove from recipient
                     notificationSummery.get(recipient.getId()).add(new Email.Builder(email).recipients(new HashSet<>(Arrays.asList(recipient))).build());
                     recipientsIterator.remove();
@@ -247,32 +251,33 @@ public class EmailDispatcher {
     }
 
     private void sendEmail(Email mail) {
-        try {
-            Properties props = System.getProperties();
-            Session session = Session.getInstance(props, null);
-            Message mailMessage = new MimeMessage(session);
-            mailMessage.setFrom(new InternetAddress(emailFromAddress));
-            for (User receiver : mail.getRecipients()) {
-                if (receiver.getEMail() != null) {
-                    mailMessage.addRecipients(Message.RecipientType.BCC, InternetAddress.parse(receiver.getEMail(), false));
+        executorService.execute(() -> {
+            try {
+                Properties props = System.getProperties();
+                Session session = Session.getInstance(props, null);
+                Message mailMessage = new MimeMessage(session);
+                mailMessage.setFrom(new InternetAddress(emailFromAddress));
+                for (User receiver : mail.getRecipients()) {
+                    if (receiver.getEMail() != null) {
+                        mailMessage.addRecipients(Message.RecipientType.BCC, InternetAddress.parse(receiver.getEMail(), false));
+                    }
                 }
+                mailMessage.setSubject(mail.getSubject());
+                String text = mail.getStarting();
+                text = text.concat("\r\n\r\n");
+                text = text.concat(mail.getMessage());
+                text = text.concat("\r\n\r\n");
+                text = text.concat(mail.getClosing());
+                text = text.concat("\r\n\r\n");
+                text = text.concat(mail.getFooter());
+                mailMessage.setText(text);
+                mailMessage.setHeader("X-Mailer", "msgsend");
+                mailMessage.setSentDate(mail.getCreationDate());
+
+                Transport.send(mailMessage);
+            } catch (MessagingException ex) {
+                logger.warning(ex.getMessage());
             }
-            mailMessage.setSubject(mail.getSubject());
-            String text = mail.getStarting();
-            text = text.concat("\r\n\r\n");
-            text = text.concat(mail.getMessage());
-            text = text.concat("\r\n\r\n");
-            text = text.concat(mail.getClosing());
-            text = text.concat("\r\n\r\n");
-            text = text.concat(mail.getFooter());
-            mailMessage.setText(text);
-            mailMessage.setHeader("X-Mailer", "msgsend");
-            mailMessage.setSentDate(mail.getCreationDate());
-
-            Transport.send(mailMessage);
-        } catch (MessagingException ex) {
-            logger.warning(ex.getMessage());
-        }
-
+        });
     }
 }

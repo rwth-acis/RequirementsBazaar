@@ -257,16 +257,14 @@ public class BazaarService extends RESTService {
          */
         @POST
         @Path("/notifications")
-        @Consumes(MediaType.APPLICATION_JSON)
-        @Produces(MediaType.APPLICATION_JSON)
         @ApiOperation(value = "This method sends all notifications (emails) in the waiting queue. Run this method before shutting down Requirements Bazaar.")
         @ApiResponses(value = {
                 @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Notifications send"),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
-        // TODO: Use authorization scopes to limit users who can run this method to admins
         public Response sendNotifications() {
+            // TODO: Use authorization scopes to limit users who can run this method to admins
             try {
                 bazaarService.notificationDispatcher.run();
                 return Response.status(Response.Status.CREATED).build();
