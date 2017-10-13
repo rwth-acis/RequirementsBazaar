@@ -5,11 +5,12 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
 import i5.las2peer.logging.NodeObserver;
 
 import java.util.Date;
+import java.util.TimerTask;
 
 /**
  * Created by martin on 15.02.2016.
  */
-public interface NotificationDispatcher {
+public interface NotificationDispatcher extends Runnable {
     void dispatchNotification(Date creationDate, Activity.ActivityAction activityAction, final NodeObserver.Event mobSOSEvent,
                               int dataId, Activity.DataType dataType, int userId);
 
