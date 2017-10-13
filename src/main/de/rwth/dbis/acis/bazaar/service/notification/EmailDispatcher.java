@@ -107,8 +107,11 @@ public class EmailDispatcher {
             resourcePath = "projects" + "/" + String.valueOf(dataId);
             subject = subject.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.project") + ": " + (objectName.length() > 40 ? objectName.substring(0, 39) : objectName));
             bodyText = bodyText.concat(Localization.getInstance().getResourceBundle().getString("email.bodyText.user") + " " + additionalObject.getUser().getUserName());
-            bodyText = bodyText.concat(" " + activity + " " + Localization.getInstance().getResourceBundle().getString("email.bodyText.project") + " \"" + objectName + "\"");
+            bodyText = bodyText.concat(" " + activity);
+            bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.the"));
+            bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.project") + " \"" + objectName + "\"");
             bodyText = bodyText.concat("\r\n" + Localization.getInstance().getResourceBundle().getString("email.bodyText.with"));
+            bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.the"));
             bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.description") + " \"" + project.getDescription() + "\".");
         } else if (dataType == Activity.DataType.CATEGORY) {
             Category category = additionalObject.getCategory();
@@ -116,10 +119,14 @@ public class EmailDispatcher {
             resourcePath = "projects" + "/" + category.getProjectId() + "/" + "categories" + "/" + String.valueOf(dataId);
             subject = subject.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.category") + ": " + (objectName.length() > 40 ? objectName.substring(0, 39) : objectName));
             bodyText = bodyText.concat(Localization.getInstance().getResourceBundle().getString("email.bodyText.user") + " " + additionalObject.getUser().getUserName());
-            bodyText = bodyText.concat(" " + activity + " " + Localization.getInstance().getResourceBundle().getString("email.bodyText.category") + " \"" + objectName + "\"");
+            bodyText = bodyText.concat(" " + activity);
+            bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.the"));
+            bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.category") + " \"" + objectName + "\"");
             bodyText = bodyText.concat("\r\n" + Localization.getInstance().getResourceBundle().getString("email.bodyText.in"));
+            bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.the"));
             bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.project") + " \"" + additionalObject.getProject().getName() + "\"");
             bodyText = bodyText.concat("\r\n" + Localization.getInstance().getResourceBundle().getString("email.bodyText.with"));
+            bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.the"));
             bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.description") + " \"" + category.getDescription() + "\".");
         } else if (dataType == Activity.DataType.REQUIREMENT) {
             Requirement requirement = additionalObject.getRequirement();
@@ -128,10 +135,14 @@ public class EmailDispatcher {
                     requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(dataId);
             subject = subject.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.requirement") + ": " + (objectName.length() > 40 ? objectName.substring(0, 39) : objectName));
             bodyText = bodyText.concat(Localization.getInstance().getResourceBundle().getString("email.bodyText.user") + " " + additionalObject.getUser().getUserName());
-            bodyText = bodyText.concat(" " + activity + " " + Localization.getInstance().getResourceBundle().getString("email.bodyText.requirement") + " \"" + objectName + "\"");
+            bodyText = bodyText.concat(" " + activity);
+            bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.the"));
+            bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.requirement") + " \"" + objectName + "\"");
             bodyText = bodyText.concat("\r\n" + Localization.getInstance().getResourceBundle().getString("email.bodyText.in"));
+            bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.the"));
             bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.category") + " \"" + additionalObject.getCategory().getName() + "\"");
             bodyText = bodyText.concat("\r\n" + Localization.getInstance().getResourceBundle().getString("email.bodyText.with"));
+            bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.the"));
             bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.description") + " \"" + requirement.getDescription() + "\".");
         } else if (dataType == Activity.DataType.COMMENT) {
             Comment comment = dalFacade.getCommentById(dataId);
@@ -156,24 +167,27 @@ public class EmailDispatcher {
                     + Localization.getInstance().getResourceBundle().getString("email.bodyText.for") + " "
                     + Localization.getInstance().getResourceBundle().getString("email.bodyText.requirement") + ": " + (objectName.length() > 40 ? objectName.substring(0, 39) : objectName));
             bodyText = bodyText.concat(Localization.getInstance().getResourceBundle().getString("email.bodyText.user") + " " + additionalObject.getUser().getUserName());
-            bodyText = bodyText.concat(" " + activity + " " + Localization.getInstance().getResourceBundle().getString("email.bodyText.attachment") + " \"" + attachment.getName() + "\"");
+            bodyText = bodyText.concat(" " + activity);
+            bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.the"));
+            bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.attachment") + " \"" + attachment.getName() + "\"");
             bodyText = bodyText.concat("\r\n" + Localization.getInstance().getResourceBundle().getString("email.bodyText.for"));
             bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.requirement") + " \"" + objectName + "\".");
         }
         String dataUrl = frontendBaseURL.concat(resourcePath);
 
         String greeting = Localization.getInstance().getResourceBundle().getString("email.bodyText.greeting");
-        String closing = String.format(Localization.getInstance().getResourceBundle().getString("email.bodyText.nextSummary"), emailSummaryTimePeriodInMinutes);
-        String footer1 = Localization.getInstance().getResourceBundle().getString("email.bodyText.footer1");
-        String footer2 = Localization.getInstance().getResourceBundle().getString("email.bodyText.footer2");
+        String news = Localization.getInstance().getResourceBundle().getString("email.bodyText.news");
+        String closing = String.format(Localization.getInstance().getResourceBundle().getString("email.bodyText.nextSummary"), emailSummaryTimePeriodInMinutes) + "\r\n\r\n" +
+                Localization.getInstance().getResourceBundle().getString("email.bodyText.bestWishes");
+        String footer = Localization.getInstance().getResourceBundle().getString("email.bodyText.footer");
 
         Email.Builder emailBuilder = new Email.Builder();
         emailBuilder.recipients(new HashSet<>(recipients));
         emailBuilder.subject(subject);
-        emailBuilder.starting(greeting);
-        emailBuilder.message(bodyText + "\r\n" + Localization.getInstance().getResourceBundle().getString("email.bodyText.see") + ": " + dataUrl);
+        emailBuilder.starting(greeting + "\r\n\r\n" + news);
+        emailBuilder.message(bodyText + "\r\n" + Localization.getInstance().getResourceBundle().getString("email.bodyText.forDetails") + " " + dataUrl);
         emailBuilder.closing(closing);
-        emailBuilder.footer(footer1 + "\r\n" + footer2);
+        emailBuilder.footer(footer);
         emailBuilder.creationDate(creationDate);
         Email email = emailBuilder.build();
 
@@ -193,22 +207,22 @@ public class EmailDispatcher {
                 if (notifications.size() > 0) {
 
                     String greeting = Localization.getInstance().getResourceBundle().getString("email.bodyText.greeting");
-                    String summery = String.format(Localization.getInstance().getResourceBundle().getString("email.bodyText.summery"), emailSummaryTimePeriodInMinutes);
-                    String closing = String.format(Localization.getInstance().getResourceBundle().getString("email.bodyText.nextSummary"), emailSummaryTimePeriodInMinutes);
-                    String footer1 = Localization.getInstance().getResourceBundle().getString("email.bodyText.footer1");
-                    String footer2 = Localization.getInstance().getResourceBundle().getString("email.bodyText.footer2");
+                    String news = Localization.getInstance().getResourceBundle().getString("email.bodyText.news");
+                    String closing = String.format(Localization.getInstance().getResourceBundle().getString("email.bodyText.nextSummary"), emailSummaryTimePeriodInMinutes) + "\r\n\r\n" +
+                            Localization.getInstance().getResourceBundle().getString("email.bodyText.bestWishes");
+                    String footer = Localization.getInstance().getResourceBundle().getString("email.bodyText.footer");
                     String subject = Integer.toString(notifications.size());
-                    subject = subject.concat(" " + Localization.getInstance().getResourceBundle().getString("email.subject.new"));
                     if (notifications.size() == 1) {
-                        subject = subject.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.notification"));
+                        subject = subject.concat(" " + Localization.getInstance().getResourceBundle().getString("email.subject.singleSummary"));
                     } else {
-                        subject = subject.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.notifications"));
+                        subject = subject.concat(" " + Localization.getInstance().getResourceBundle().getString("email.subject.multipleSummary"));
                     }
 
+                    String message = news;
                     Iterator notificationIterator = notifications.iterator();
                     while (notificationIterator.hasNext()) {
                         Email notification = (Email) notificationIterator.next();
-                        summery = summery.concat("\r\n\r\n" + notification.getMessage());
+                        message = message.concat("\r\n\r\n" + notification.getMessage());
                         notificationIterator.remove();
                     }
 
@@ -216,9 +230,9 @@ public class EmailDispatcher {
                     emailBuilder.recipients(new HashSet<>(Arrays.asList(user)));
                     emailBuilder.subject(subject);
                     emailBuilder.starting(greeting);
-                    emailBuilder.message(summery);
+                    emailBuilder.message(message);
                     emailBuilder.closing(closing);
-                    emailBuilder.footer(footer1 + "\r\n" + footer2);
+                    emailBuilder.footer(footer);
                     emailBuilder.creationDate(new Date());
                     Email summary = emailBuilder.build();
                     sendEmail(summary);
