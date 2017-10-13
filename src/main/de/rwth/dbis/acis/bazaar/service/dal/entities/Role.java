@@ -20,8 +20,6 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
-import jodd.vtor.constraint.Min;
-
 import java.util.List;
 
 /**
@@ -37,7 +35,7 @@ public class Role extends EntityBase {
 
     private final String name;
 
-    public Role(Builder builder) {
+    private Role(Builder builder) {
         Id = builder.id;
         this.privileges = builder.privileges;
 

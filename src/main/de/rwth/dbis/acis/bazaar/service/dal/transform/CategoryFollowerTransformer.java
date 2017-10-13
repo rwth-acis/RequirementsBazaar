@@ -53,7 +53,7 @@ public class CategoryFollowerTransformer implements Transformer<CategoryFollower
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(CATEGORY_FOLLOWER_MAP.ID.asc());
+            return Collections.singletonList(CATEGORY_FOLLOWER_MAP.ID.asc());
         }
         return null;
     }

@@ -5,7 +5,7 @@ public class CategoryFollower extends EntityBase {
     private final int CategoryId;
     private final int UserId;
 
-    public CategoryFollower(Builder builder) {
+    private CategoryFollower(Builder builder) {
         Id = builder.id;
         CategoryId = builder.categoryId;
         UserId = builder.userId;
@@ -28,9 +28,9 @@ public class CategoryFollower extends EntityBase {
     }
 
     public static class Builder {
-        public int userId;
-        public int categoryId;
-        public int id;
+        int userId;
+        int categoryId;
+        int id;
 
         public Builder userId(int userId) {
             this.userId = userId;

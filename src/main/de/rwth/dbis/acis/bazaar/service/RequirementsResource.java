@@ -77,7 +77,7 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
             HashMap<String, String> filters = new HashMap<>();
-            if (stateFilter != "all") {
+            if (!Objects.equals(stateFilter, "all")) {
                 filters.put("realized", stateFilter);
             }
             List<Pageable.SortField> sortList = new ArrayList<>();
@@ -141,9 +141,8 @@ public class RequirementsResource {
             responseBuilder = responseBuilder.entity(requirementsResult.toJSON());
             responseBuilder = bazaarService.paginationLinks(responseBuilder, requirementsResult, "projects/" + String.valueOf(projectId) + "/requirements", parameter);
             responseBuilder = bazaarService.xHeaderFields(responseBuilder, requirementsResult);
-            Response response = responseBuilder.build();
 
-            return response;
+            return responseBuilder.build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -185,7 +184,7 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
             HashMap<String, String> filters = new HashMap<>();
-            if (stateFilter != "all") {
+            if (!Objects.equals(stateFilter, "all")) {
                 filters.put("realized", stateFilter);
             }
             List<Pageable.SortField> sortList = new ArrayList<>();
@@ -251,9 +250,8 @@ public class RequirementsResource {
             responseBuilder = responseBuilder.entity(requirementsResult.toJSON());
             responseBuilder = bazaarService.paginationLinks(responseBuilder, requirementsResult, "categories/" + String.valueOf(categoryId) + "/requirements", parameter);
             responseBuilder = bazaarService.xHeaderFields(responseBuilder, requirementsResult);
-            Response response = responseBuilder.build();
 
-            return response;
+            return responseBuilder.build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -1225,9 +1223,8 @@ public class RequirementsResource {
             responseBuilder = responseBuilder.entity(requirementDevelopers.toJSON());
             responseBuilder = bazaarService.paginationLinks(responseBuilder, requirementDevelopers, "requirements/" + String.valueOf(requirementId) + "/developers", parameter);
             responseBuilder = bazaarService.xHeaderFields(responseBuilder, requirementDevelopers);
-            Response response = responseBuilder.build();
 
-            return response;
+            return responseBuilder.build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -1352,9 +1349,8 @@ public class RequirementsResource {
             responseBuilder = responseBuilder.entity(requirementFollowers.toJSON());
             responseBuilder = bazaarService.paginationLinks(responseBuilder, requirementFollowers, "requirements/" + String.valueOf(requirementId) + "/followers", parameter);
             responseBuilder = bazaarService.xHeaderFields(responseBuilder, requirementFollowers);
-            Response response = responseBuilder.build();
 
-            return response;
+            return responseBuilder.build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();

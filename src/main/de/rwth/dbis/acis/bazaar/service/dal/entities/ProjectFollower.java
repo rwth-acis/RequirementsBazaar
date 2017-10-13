@@ -5,7 +5,7 @@ public class ProjectFollower extends EntityBase {
     private final int ProjectId;
     private final int UserId;
 
-    public ProjectFollower(Builder builder) {
+    private ProjectFollower(Builder builder) {
         Id = builder.id;
         ProjectId = builder.projectId;
         UserId = builder.userId;
@@ -28,9 +28,9 @@ public class ProjectFollower extends EntityBase {
     }
 
     public static class Builder {
-        public int userId;
-        public int projectId;
-        public int id;
+        int userId;
+        int projectId;
+        int id;
 
         public Builder userId(int userId) {
             this.userId = userId;

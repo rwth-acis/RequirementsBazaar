@@ -90,7 +90,7 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(COMMENT.CREATION_DATE.asc());
+            return Collections.singletonList(COMMENT.CREATION_DATE.asc());
         }
         return null;
     }

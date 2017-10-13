@@ -95,8 +95,7 @@ public class RequirementContributors extends EntityBase {
         }
 
         public RequirementContributors build() {
-            RequirementContributors created = new RequirementContributors(this);
-            return created;
+            return new RequirementContributors(this);
         }
     }
 }

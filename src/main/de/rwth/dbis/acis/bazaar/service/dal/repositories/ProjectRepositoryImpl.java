@@ -22,7 +22,6 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
@@ -43,7 +42,6 @@ import org.jooq.impl.DSL;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
 

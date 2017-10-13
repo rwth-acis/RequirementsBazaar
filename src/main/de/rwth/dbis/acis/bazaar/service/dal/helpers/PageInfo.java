@@ -53,7 +53,7 @@ public class PageInfo implements Pageable {
         this.pageSize = pageSize;
         this.filters = filters;
         this.sorts = sorts;
-        this.search = search != null ? search : new String();
+        this.search = search != null ? search : "";
     }
 
     @Override

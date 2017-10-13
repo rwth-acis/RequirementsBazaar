@@ -61,12 +61,10 @@ public class NotificationDispatcherImp implements NotificationDispatcher {
         mapper.setFilters(filters);
 
         try {
-            executorService.execute(new Runnable() {
-                public void run() {
-                    if (emailDispatcher != null && (activityAction == Activity.ActivityAction.CREATE || activityAction == Activity.ActivityAction.UPDATE ||
-                            activityAction == Activity.ActivityAction.REALIZE)) {
-                        emailDispatcher.sendEmailNotification(creationDate, activityAction, dataId, dataType, userId);
-                    }
+            executorService.execute(() -> {
+                if (emailDispatcher != null && (activityAction == Activity.ActivityAction.CREATE || activityAction == Activity.ActivityAction.UPDATE ||
+                        activityAction == Activity.ActivityAction.REALIZE)) {
+                    emailDispatcher.sendEmailNotification(creationDate, activityAction, dataId, dataType, userId);
                 }
             });
             Activity.AdditionalObject additionalObject = generateAdditionalObject(dataType, dataId, userId);

@@ -118,38 +118,29 @@ public class BazaarService extends RESTService {
         dataSource = setupDataSource(dbUrl, dbUserName, dbPassword);
 
         functionRegistrar = new ArrayList<>();
-        functionRegistrar.add(new BazaarFunctionRegistrar() {
-            @Override
-            public void registerFunction(EnumSet<BazaarFunction> functions) throws BazaarException {
-                DALFacade dalFacade = null;
-                try {
-                    dalFacade = getDBConnection();
-                    AuthorizationManager.SyncPrivileges(dalFacade);
-                } catch (BazaarException ex) {
-                    ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.privilege_sync"));
-                } catch (Exception e) {
-                    ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.privilege_sync"));
-                } finally {
-                    closeDBConnection(dalFacade);
-                }
+        functionRegistrar.add(functions -> {
+            DALFacade dalFacade = null;
+            try {
+                dalFacade = getDBConnection();
+                AuthorizationManager.SyncPrivileges(dalFacade);
+            } catch (BazaarException ex) {
+                ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.privilege_sync"));
+            } catch (Exception e) {
+                ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.privilege_sync"));
+            } finally {
+                closeDBConnection(dalFacade);
             }
         });
 
-        functionRegistrar.add(new BazaarFunctionRegistrar() {
-            @Override
-            public void registerFunction(EnumSet<BazaarFunction> functions) {
-                if (functions.contains(BazaarFunction.VALIDATION)) {
-                    createValidators();
-                }
+        functionRegistrar.add(functions -> {
+            if (functions.contains(BazaarFunction.VALIDATION)) {
+                createValidators();
             }
         });
 
-        functionRegistrar.add(new BazaarFunctionRegistrar() {
-            @Override
-            public void registerFunction(EnumSet<BazaarFunction> functions) throws Exception {
-                if (functions.contains(BazaarFunction.USER_FIRST_LOGIN_HANDLING)) {
-                    registerUserAtFirstLogin();
-                }
+        functionRegistrar.add(functions -> {
+            if (functions.contains(BazaarFunction.USER_FIRST_LOGIN_HANDLING)) {
+                registerUserAtFirstLogin();
             }
         });
 

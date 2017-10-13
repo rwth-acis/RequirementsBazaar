@@ -54,7 +54,7 @@ public class ProjectFollowerTransformer implements Transformer<ProjectFollower, 
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(PROJECT_FOLLOWER_MAP.ID.asc());
+            return Collections.singletonList(PROJECT_FOLLOWER_MAP.ID.asc());
         }
         return null;
     }

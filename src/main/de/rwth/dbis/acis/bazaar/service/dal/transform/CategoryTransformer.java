@@ -100,71 +100,76 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(CATEGORY.NAME.asc());
+            return Collections.singletonList(CATEGORY.NAME.asc());
         }
         List<SortField<?>> sortFields = new ArrayList<>();
         for (Pageable.SortField sort : sorts) {
-            if (sort.getField().equals("name")) {
-                switch (sort.getSortDirection()) {
-                    case ASC:
-                        sortFields.add(CATEGORY.NAME.asc());
-                        break;
-                    case DESC:
-                        sortFields.add(CATEGORY.NAME.desc());
-                        break;
-                    default:
-                        sortFields.add(CATEGORY.NAME.asc());
-                        break;
-                }
-            } else if (sort.getField().equals("date")) {
-                switch (sort.getSortDirection()) {
-                    case ASC:
-                        sortFields.add(CATEGORY.CREATION_DATE.asc());
-                        break;
-                    case DESC:
-                        sortFields.add(CATEGORY.CREATION_DATE.desc());
-                        break;
-                    default:
-                        sortFields.add(CATEGORY.CREATION_DATE.desc());
-                        break;
-                }
-            } else if (sort.getField().equals("requirement")) {
+            switch (sort.getField()) {
+                case "name":
+                    switch (sort.getSortDirection()) {
+                        case ASC:
+                            sortFields.add(CATEGORY.NAME.asc());
+                            break;
+                        case DESC:
+                            sortFields.add(CATEGORY.NAME.desc());
+                            break;
+                        default:
+                            sortFields.add(CATEGORY.NAME.asc());
+                            break;
+                    }
+                    break;
+                case "date":
+                    switch (sort.getSortDirection()) {
+                        case ASC:
+                            sortFields.add(CATEGORY.CREATION_DATE.asc());
+                            break;
+                        case DESC:
+                            sortFields.add(CATEGORY.CREATION_DATE.desc());
+                            break;
+                        default:
+                            sortFields.add(CATEGORY.CREATION_DATE.desc());
+                            break;
+                    }
+                    break;
+                case "requirement":
 
-                Field<Object> requirementCount = DSL.select(DSL.count())
-                        .from(Requirement.REQUIREMENT)
-                        .leftJoin(RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP).on(Requirement.REQUIREMENT.ID.equal(RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID))
-                        .where(RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.equal(CATEGORY.ID))
-                        .asField("requirementCount");
+                    Field<Object> requirementCount = DSL.select(DSL.count())
+                            .from(Requirement.REQUIREMENT)
+                            .leftJoin(RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP).on(Requirement.REQUIREMENT.ID.equal(RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID))
+                            .where(RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.equal(CATEGORY.ID))
+                            .asField("requirementCount");
 
-                switch (sort.getSortDirection()) {
-                    case ASC:
-                        sortFields.add(requirementCount.asc());
-                        break;
-                    case DESC:
-                        sortFields.add(requirementCount.desc());
-                        break;
-                    default:
-                        sortFields.add(requirementCount.desc());
-                        break;
-                }
-            } else if (sort.getField().equals("follower")) {
+                    switch (sort.getSortDirection()) {
+                        case ASC:
+                            sortFields.add(requirementCount.asc());
+                            break;
+                        case DESC:
+                            sortFields.add(requirementCount.desc());
+                            break;
+                        default:
+                            sortFields.add(requirementCount.desc());
+                            break;
+                    }
+                    break;
+                case "follower":
 
-                Field<Object> followerCount = DSL.select(DSL.count())
-                        .from(CategoryFollowerMap.CATEGORY_FOLLOWER_MAP)
-                        .where(CategoryFollowerMap.CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID))
-                        .asField("followerCount");
+                    Field<Object> followerCount = DSL.select(DSL.count())
+                            .from(CategoryFollowerMap.CATEGORY_FOLLOWER_MAP)
+                            .where(CategoryFollowerMap.CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID))
+                            .asField("followerCount");
 
-                switch (sort.getSortDirection()) {
-                    case ASC:
-                        sortFields.add(followerCount.asc());
-                        break;
-                    case DESC:
-                        sortFields.add(followerCount.desc());
-                        break;
-                    default:
-                        sortFields.add(followerCount.desc());
-                        break;
-                }
+                    switch (sort.getSortDirection()) {
+                        case ASC:
+                            sortFields.add(followerCount.asc());
+                            break;
+                        case DESC:
+                            sortFields.add(followerCount.desc());
+                            break;
+                        default:
+                            sortFields.add(followerCount.desc());
+                            break;
+                    }
+                    break;
             }
         }
         return sortFields;
@@ -181,7 +186,7 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
         return new ArrayList<>();
     }
 
-    public Category cleanEntry(Category category) {
+    private Category cleanEntry(Category category) {
         if (category.getName() != null) {
             category.setName(EmojiParser.parseToAliases(category.getName()));
         }

@@ -11,7 +11,6 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
-import i5.las2peer.api.Service;
 import i5.las2peer.logging.L2pLogger;
 
 
@@ -49,9 +48,9 @@ public class ActivityDispatcher {
             activityBuilder = activityBuilder.creationDate(creationDate);
             activityBuilder = activityBuilder.activityAction(activityAction);
 
-            String resourcePath = new String();
+            String resourcePath = "";
             String parentResourcePath = null;
-            String frontendResourcePath = new String();
+            String frontendResourcePath = "";
             int parentDataId = 0;
             Activity.DataType parentDataTyp = null;
 
@@ -121,8 +120,8 @@ public class ActivityDispatcher {
             mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             mapper.setFilters(filters);
 
-            Object result = bazaarService.getContext().invoke(activityTrackerService, "createActivity", new Serializable[]{mapper.writeValueAsString(activity)});
-            if (!(result).equals(new Integer(Response.Status.CREATED.getStatusCode()).toString())) {
+            Object result = bazaarService.getContext().invoke(activityTrackerService, "createActivity", mapper.writeValueAsString(activity));
+            if (!(result).equals(Integer.toString(Response.Status.CREATED.getStatusCode()))) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.NETWORK, ErrorCode.RMI_ERROR, "ActivityTracker RMI call failed");
             }
         } catch (Exception ex) {

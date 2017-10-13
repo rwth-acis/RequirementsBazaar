@@ -29,7 +29,7 @@ public class EmailDispatcher {
 
     public void sendEmailNotification(Date creationDate, Activity.ActivityAction activityAction,
                                       int dataId, Activity.DataType dataType, int userId) {
-        DALFacade dalFacade = null;
+        DALFacade dalFacade;
         try {
             dalFacade = bazaarService.getDBConnection();
 
@@ -48,13 +48,7 @@ public class EmailDispatcher {
                 recipients = dalFacade.getRecipientListForRequirement(requirementId);
             }
             // delete the user who created the activity
-            Iterator<User> recipientsIterator = recipients.iterator();
-            while (recipientsIterator.hasNext()) {
-                User recipient = recipientsIterator.next();
-                if (recipient.getId() == userId) {
-                    recipientsIterator.remove();
-                }
-            }
+            recipients.removeIf(recipient -> recipient.getId() == userId);
 
             if (!recipients.isEmpty()) {
                 // generate mail
@@ -62,16 +56,16 @@ public class EmailDispatcher {
                 Session session = Session.getInstance(props, null);
                 Message mailMessage = new MimeMessage(session);
                 mailMessage.setFrom(new InternetAddress(emailFromAddress));
-                for (int i = 0; i < recipients.size(); i++) {
-                    if (recipients.get(i).getEMail() != null && !recipients.get(i).getEMail().isEmpty())
+                for (User recipient : recipients) {
+                    if (recipient.getEMail() != null && !recipient.getEMail().isEmpty())
                         mailMessage.addRecipients(Message.RecipientType.BCC,
-                                InternetAddress.parse(recipients.get(i).getEMail(), false));
+                                InternetAddress.parse(recipient.getEMail(), false));
                 }
                 // use activityAction and dataType to generate email text
-                String subject = new String();
-                String bodyText = new String();
-                String objectName = new String();
-                String resourcePath = new String();
+                String subject = "";
+                String bodyText = "";
+                String objectName = "";
+                String resourcePath = "";
                 if (dataType == Activity.DataType.PROJECT) {
                     if (activityAction == Activity.ActivityAction.CREATE) {
                         subject = Localization.getInstance().getResourceBundle().getString("email.subject.project.created");

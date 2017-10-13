@@ -77,7 +77,7 @@ public class RequirementFollowerTransformer implements Transformer<RequirementFo
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(REQUIREMENT_FOLLOWER_MAP.ID.asc());
+            return Collections.singletonList(REQUIREMENT_FOLLOWER_MAP.ID.asc());
         }
         return null;
     }

@@ -29,12 +29,7 @@ import i5.las2peer.testing.MockAgentFactory;
 import i5.las2peer.webConnector.client.ClientResponse;
 import i5.las2peer.webConnector.client.MiniClient;
 
-import org.hamcrest.Matchers;
-import org.hamcrest.Matchers.*;
 import org.junit.*;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
 
 
 import java.io.UnsupportedEncodingException;

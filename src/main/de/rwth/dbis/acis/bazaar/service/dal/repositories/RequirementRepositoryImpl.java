@@ -24,9 +24,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.UserVote;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.AttachmentTransformer;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementTransformer;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -344,7 +342,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             if (userId != 1) {
                 requirement.setFollower((Integer) queryResult.getValues(isFollower).get(0) == 0 ? false : true);
                 requirement.setDeveloper((Integer) queryResult.getValues(isDeveloper).get(0) == 0 ? false : true);
-                requirement.setContributor(((BigDecimal) queryResult.getValues(isContributor).get(0)).equals(new BigDecimal(0)) ? false : true);
+                requirement.setContributor(queryResult.getValues(isContributor).get(0).equals(new BigDecimal(0)) ? false : true);
             }
 
         } catch (BazaarException be) {

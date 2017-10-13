@@ -30,7 +30,6 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import i5.las2peer.testing.MockAgentFactory;
 import i5.las2peer.webConnector.client.ClientResponse;
 import i5.las2peer.webConnector.client.MiniClient;
-import org.hamcrest.Matchers;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -38,10 +37,6 @@ import org.junit.Test;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.equalTo;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>

@@ -103,7 +103,7 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
     public List<E> findAll() throws BazaarException {
         List<E> entries = null;
         try {
-            entries = new ArrayList<E>();
+            entries = new ArrayList<>();
 
             List<R> queryResults = jooq.selectFrom(transformer.getTable()).fetchInto(transformer.getRecordClass());
 
@@ -122,7 +122,7 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
     public List<E> findAll(Pageable pageable) throws BazaarException {
         List<E> entries = null;
         try {
-            entries = new ArrayList<E>();
+            entries = new ArrayList<>();
 
             List<R> queryResults = jooq.selectFrom(transformer.getTable())
                     .orderBy(transformer.getSortFields(pageable.getSorts()))
@@ -145,7 +145,7 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
     public List<E> searchAll(String searchTerm, Pageable pageable) throws Exception {
         List<E> entries = null;
         try {
-            entries = new ArrayList<E>();
+            entries = new ArrayList<>();
             String likeExpression = "%" + searchTerm + "%";
 
             List<R> queryResults = jooq.selectFrom(transformer.getTable())

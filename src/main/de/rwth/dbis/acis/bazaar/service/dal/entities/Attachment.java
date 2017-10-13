@@ -151,7 +151,7 @@ public class Attachment extends EntityBase {
         private String fileUrl;
         private Date creationDate;
         private Date lastUpdatedDate;
-        public User creator;
+        User creator;
 
         public Builder id(int id) {
             this.id = id;
