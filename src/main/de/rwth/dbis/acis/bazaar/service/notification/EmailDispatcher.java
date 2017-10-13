@@ -260,19 +260,6 @@ public class EmailDispatcher {
                 for (User receiver : mail.getRecipients()) {
                     if (receiver.getEMail() != null) {
                         mailMessage.addRecipients(Message.RecipientType.BCC, InternetAddress.parse(receiver.getEMail(), false));
-                }
-                // use activityAction and dataType to generate email text
-                String subject = "";
-                String bodyText = "";
-                String objectName = "";
-                String resourcePath = "";
-                if (dataType == Activity.DataType.PROJECT) {
-                    if (activityAction == Activity.ActivityAction.CREATE) {
-                        subject = Localization.getInstance().getResourceBundle().getString("email.subject.project.created");
-                        bodyText = Localization.getInstance().getResourceBundle().getString("email.bodyText.project.created");
-                    } else if (activityAction == Activity.ActivityAction.UPDATE) {
-                        subject = Localization.getInstance().getResourceBundle().getString("email.subject.project.updated");
-                        bodyText = Localization.getInstance().getResourceBundle().getString("email.bodyText.project.updated");
                     }
                 }
                 mailMessage.setSubject(mail.getSubject());
@@ -288,7 +275,8 @@ public class EmailDispatcher {
                 mailMessage.setSentDate(mail.getCreationDate());
 
                 Transport.send(mailMessage);
-            } catch (MessagingException ex) {
+
+            } catch (Exception ex) {
                 logger.warning(ex.getMessage());
             }
         });
