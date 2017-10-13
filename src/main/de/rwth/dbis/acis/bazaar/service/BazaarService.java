@@ -52,10 +52,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.jooq.SQLDialect;
 
 import javax.sql.DataSource;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -168,13 +165,6 @@ public class BazaarService extends RESTService {
                     // This task is scheduled to run every 60 seconds * emailSummaryTimePeriodInMinutes
                     Timer timer = new Timer();
                     timer.scheduleAtFixedRate((NotificationDispatcherImp) notificationDispatcher, 0, 60000 * Integer.valueOf(emailSummaryTimePeriodInMinutes));
-                    // Set hook when runtime (java) will shot down to try to send all emails in summary
-                    Runtime.getRuntime().addShutdownHook(new Thread() {
-                        @Override
-                        public void run() {
-                            notificationDispatcher.run();
-                        }
-                    });
                 } catch (Exception ex) {
                     logger.warning(ex.getMessage());
                 }
@@ -222,7 +212,6 @@ public class BazaarService extends RESTService {
         @ApiResponses(value = {
                 @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns statistics", response = Statistic.class),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
-                @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
         public Response getStatistics(
@@ -258,6 +247,34 @@ public class BazaarService extends RESTService {
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } finally {
                 bazaarService.closeDBConnection(dalFacade);
+            }
+        }
+
+        /**
+         * This method sends all notifications (emails) in the waiting queue. Run this method before shutting down Requirements Bazaar.
+         *
+         * @return Response
+         */
+        @POST
+        @Path("/notifications")
+        @Consumes(MediaType.APPLICATION_JSON)
+        @Produces(MediaType.APPLICATION_JSON)
+        @ApiOperation(value = "This method sends all notifications (emails) in the waiting queue. Run this method before shutting down Requirements Bazaar.")
+        @ApiResponses(value = {
+                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Notifications send"),
+                @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+                @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+        })
+        // TODO: Use authorization scopes to limit users who can run this method to admins
+        public Response sendNotifications() {
+            try {
+                bazaarService.notificationDispatcher.run();
+                return Response.status(Response.Status.CREATED).build();
+            } catch (Exception ex) {
+                BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Send Notifications failed");
+                bazaarService.logger.warning(bex.getMessage());
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         }
     }
