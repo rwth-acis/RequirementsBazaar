@@ -188,14 +188,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .from(REQUIREMENT_FOLLOWER_MAP)
                     .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
                     .asField("followerCount");
-
-            Result<Record2<Integer, Timestamp>> test = jooq.select(
-                    ACTIVITY.field(REQUIREMENT.ID),
-                    max(ACTIVITY.field(REQUIREMENT.CREATION_DATE)).as("last_activity"))
-                    .from(ACTIVITY)
-                    .groupBy(ACTIVITY.field(REQUIREMENT.ID))
-                    .fetch();
-
+            
             List<Record> queryResults = jooq.select(REQUIREMENT.fields())
                     .select(idCount)
                     .select(voteCount)
