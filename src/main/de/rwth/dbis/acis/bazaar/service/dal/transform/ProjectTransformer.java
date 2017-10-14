@@ -24,6 +24,7 @@ import com.vdurmont.emoji.EmojiParser;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.repositories.ProjectRepositoryImpl;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
@@ -132,6 +133,19 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
                             break;
                         default:
                             sortFields.add(PROJECT.CREATION_DATE.desc());
+                            break;
+                    }
+                    break;
+                case "last_activity":
+                    switch (sort.getSortDirection()) {
+                        case ASC:
+                            sortFields.add(ProjectRepositoryImpl.LAST_ACTIVITY.field("last_activity").asc());
+                            break;
+                        case DESC:
+                            sortFields.add(ProjectRepositoryImpl.LAST_ACTIVITY.field("last_activity").desc());
+                            break;
+                        default:
+                            sortFields.add(ProjectRepositoryImpl.LAST_ACTIVITY.field("last_activity").desc());
                             break;
                     }
                     break;
