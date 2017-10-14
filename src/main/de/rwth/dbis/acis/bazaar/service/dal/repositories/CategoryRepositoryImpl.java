@@ -32,10 +32,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
-import org.jooq.DSLContext;
-import org.jooq.Field;
-import org.jooq.Record;
-import org.jooq.Result;
+import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 
@@ -44,8 +41,58 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
+import static org.jooq.impl.DSL.max;
+import static org.jooq.impl.DSL.select;
+import static org.jooq.impl.DSL.table;
 
 public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRecord> implements CategoryRepository {
+
+    // derived table for activities inside category
+    public static final Table<?> ACTIVITY = table(
+            select(CATEGORY.ID, CATEGORY.CREATION_DATE)
+                    .from(CATEGORY)
+                    .unionAll(
+                            select(CATEGORY.ID, CATEGORY.LAST_UPDATED_DATE)
+                                    .from(CATEGORY))
+                    .unionAll(
+                            select(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID, REQUIREMENT.CREATION_DATE)
+                                    .from(REQUIREMENT)
+                                    .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
+                    .unionAll(
+                            select(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID, REQUIREMENT.LAST_UPDATED_DATE)
+                                    .from(REQUIREMENT)
+                                    .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
+                    .unionAll(
+                            select(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID, COMMENT.CREATION_DATE)
+                                    .from(COMMENT)
+                                    .leftOuterJoin(REQUIREMENT).on(REQUIREMENT.ID.equal(COMMENT.REQUIREMENT_ID))
+                                    .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
+                    .unionAll(
+                            select(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID, COMMENT.LAST_UPDATED_DATE)
+                                    .from(COMMENT)
+                                    .leftOuterJoin(REQUIREMENT).on(REQUIREMENT.ID.equal(COMMENT.REQUIREMENT_ID))
+                                    .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
+                    .unionAll(
+                            select(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID, ATTACHMENT.CREATION_DATE)
+                                    .from(ATTACHMENT)
+                                    .leftOuterJoin(REQUIREMENT).on(REQUIREMENT.ID.equal(ATTACHMENT.REQUIREMENT_ID))
+                                    .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
+                    .unionAll(
+                            select(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID, ATTACHMENT.LAST_UPDATED_DATE)
+                                    .from(ATTACHMENT)
+                                    .leftOuterJoin(REQUIREMENT).on(REQUIREMENT.ID.equal(ATTACHMENT.REQUIREMENT_ID))
+                                    .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID)))
+    ).as("ACTIVITY");
+
+    // derived table for last activity inside category
+    public static final Table<?> LAST_ACTIVITY = table(
+            select(
+                    ACTIVITY.field(CATEGORY.ID),
+                    max(ACTIVITY.field(CATEGORY.CREATION_DATE)).as("last_activity"))
+                    .from(ACTIVITY)
+                    .groupBy(ACTIVITY.field(CATEGORY.ID)))
+            .as("last_activity");
+
     /**
      * @param jooq DSLContext object to initialize JOOQ connection. For more see JOOQ documentation.
      */
@@ -157,6 +204,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                     .select(leaderUser.fields())
                     .from(CATEGORY)
                     .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(CATEGORY.LEADER_ID))
+                    .leftOuterJoin(LAST_ACTIVITY).on(CATEGORY.ID.eq(LAST_ACTIVITY.field(CATEGORY.ID)))
                     .where(CATEGORY.PROJECT_ID.equal(projectId))
                     .and(transformer.getSearchCondition(pageable.getSearch()))
                     .orderBy(transformer.getSortFields(pageable.getSorts()))
