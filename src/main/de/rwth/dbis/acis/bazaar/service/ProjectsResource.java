@@ -689,7 +689,7 @@ public class ProjectsResource {
                                               @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
                                               @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
                                               @ApiParam(value = "State filter", required = false, allowableValues = "all,open,realized") @DefaultValue("all") @QueryParam("state") String stateFilter,
-                                              @ApiParam(value = "Sort", required = false, allowableValues = "last_activity,date,name,vote,comment,follower,realized") @DefaultValue("last_activity") @QueryParam("sort") List<String> sort) throws Exception {
+                                              @ApiParam(value = "Sort", required = false, allowableValues = "date,last_activity,name,vote,comment,follower,realized") @DefaultValue("date") @QueryParam("sort") List<String> sort) throws Exception {
         RequirementsResource requirementsResource = new RequirementsResource();
         return requirementsResource.getRequirementsForProject(projectId, page, perPage, search, stateFilter, sort);
     }
