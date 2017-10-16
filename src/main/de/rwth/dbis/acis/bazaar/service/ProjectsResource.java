@@ -77,7 +77,7 @@ public class ProjectsResource {
             @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
             @ApiParam(value = "Elements of project by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
             @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
-            @ApiParam(value = "Sort", required = false, allowableValues = "name,date,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort) {
+            @ApiParam(value = "Sort", required = false, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort) {
 
         DALFacade dalFacade = null;
         try {
@@ -658,7 +658,7 @@ public class ProjectsResource {
             @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
             @ApiParam(value = "Elements of categories by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
             @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
-            @ApiParam(value = "Sort", required = false, allowableValues = "name,date,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort) throws Exception {
+            @ApiParam(value = "Sort", required = false, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort) throws Exception {
         CategoryResource categoryResource = new CategoryResource();
         return categoryResource.getCategoriesForProject(projectId, page, perPage, search, sort);
     }
@@ -689,7 +689,7 @@ public class ProjectsResource {
                                               @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
                                               @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
                                               @ApiParam(value = "State filter", required = false, allowableValues = "all,open,realized") @DefaultValue("all") @QueryParam("state") String stateFilter,
-                                              @ApiParam(value = "Sort", required = false, allowableValues = "date,name,vote,comment,follower,realized") @DefaultValue("date") @QueryParam("sort") List<String> sort) throws Exception {
+                                              @ApiParam(value = "Sort", required = false, allowableValues = "last_activity,date,name,vote,comment,follower,realized") @DefaultValue("last_activity") @QueryParam("sort") List<String> sort) throws Exception {
         RequirementsResource requirementsResource = new RequirementsResource();
         return requirementsResource.getRequirementsForProject(projectId, page, perPage, search, stateFilter, sort);
     }
