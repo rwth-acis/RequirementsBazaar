@@ -527,7 +527,7 @@ public class CategoryResource {
      * This method allows to retrieve statistics for one category.
      *
      * @param categoryId
-     * @param since timestamp since filter
+     * @param since timestamp since filter, ISO-8601 e.g. 2017-12-30 or 2017-12-30T18:30:00Z
      * @return Response with statistics as a JSON object.
      */
     @GET
@@ -542,7 +542,7 @@ public class CategoryResource {
     })
     public Response getStatisticsForCategory(
             @PathParam("categoryId") int categoryId,
-            @ApiParam(value = "Since timestamp", required = false) @QueryParam("since") String since) {
+            @ApiParam(value = "Since timestamp, ISO-8601 e.g. 2017-12-30 or 2017-12-30T18:30:00Z", required = false) @QueryParam("since") String since) {
         DALFacade dalFacade = null;
         try {
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
