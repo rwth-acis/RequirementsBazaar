@@ -25,8 +25,6 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
-import java.util.List;
-
 
 public interface AttachmentRepository extends Repository<Attachment> {
     PaginationResult<Attachment> findAllByRequirementId(int requirementId, Pageable pageable) throws BazaarException;

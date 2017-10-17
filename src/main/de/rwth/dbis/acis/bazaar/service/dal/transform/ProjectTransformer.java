@@ -43,7 +43,7 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
         record.setDescription(entry.getDescription());
         record.setName(entry.getName());
         record.setLeaderId(entry.getLeader().getId());
-        record.setVisibility((byte) (entry.getVisibility() == true ? 1 : 0 ));
+        record.setVisibility((byte) (entry.getVisibility() ? 1 : 0 ));
         record.setDefaultCategoryId(entry.getDefaultCategoryId());
         record.setCreationDate(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         return record;
@@ -104,70 +104,75 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(PROJECT.NAME.asc());
+            return Collections.singletonList(PROJECT.NAME.asc());
         }
         List<SortField<?>> sortFields = new ArrayList<>();
         for (Pageable.SortField sort : sorts) {
-            if (sort.getField().equals("name")) {
-                switch (sort.getSortDirection()) {
-                    case ASC:
-                        sortFields.add(PROJECT.NAME.asc());
-                        break;
-                    case DESC:
-                        sortFields.add(PROJECT.NAME.desc());
-                        break;
-                    default:
-                        sortFields.add(PROJECT.NAME.asc());
-                        break;
-                }
-            } else if (sort.getField().equals("date")) {
-                switch (sort.getSortDirection()) {
-                    case ASC:
-                        sortFields.add(PROJECT.CREATION_DATE.asc());
-                        break;
-                    case DESC:
-                        sortFields.add(PROJECT.CREATION_DATE.desc());
-                        break;
-                    default:
-                        sortFields.add(PROJECT.CREATION_DATE.desc());
-                        break;
-                }
-            } else if (sort.getField().equals("requirement")) {
+            switch (sort.getField()) {
+                case "name":
+                    switch (sort.getSortDirection()) {
+                        case ASC:
+                            sortFields.add(PROJECT.NAME.asc());
+                            break;
+                        case DESC:
+                            sortFields.add(PROJECT.NAME.desc());
+                            break;
+                        default:
+                            sortFields.add(PROJECT.NAME.asc());
+                            break;
+                    }
+                    break;
+                case "date":
+                    switch (sort.getSortDirection()) {
+                        case ASC:
+                            sortFields.add(PROJECT.CREATION_DATE.asc());
+                            break;
+                        case DESC:
+                            sortFields.add(PROJECT.CREATION_DATE.desc());
+                            break;
+                        default:
+                            sortFields.add(PROJECT.CREATION_DATE.desc());
+                            break;
+                    }
+                    break;
+                case "requirement":
 
-                Field<Object> requirementCount = DSL.select(DSL.count())
-                        .from(REQUIREMENT)
-                        .where(REQUIREMENT.PROJECT_ID.equal(PROJECT.ID))
-                        .asField("requirementCount");
+                    Field<Object> requirementCount = DSL.select(DSL.count())
+                            .from(REQUIREMENT)
+                            .where(REQUIREMENT.PROJECT_ID.equal(PROJECT.ID))
+                            .asField("requirementCount");
 
-                switch (sort.getSortDirection()) {
-                    case ASC:
-                        sortFields.add(requirementCount.asc());
-                        break;
-                    case DESC:
-                        sortFields.add(requirementCount.desc());
-                        break;
-                    default:
-                        sortFields.add(requirementCount.desc());
-                        break;
-                }
-            } else if (sort.getField().equals("follower")) {
+                    switch (sort.getSortDirection()) {
+                        case ASC:
+                            sortFields.add(requirementCount.asc());
+                            break;
+                        case DESC:
+                            sortFields.add(requirementCount.desc());
+                            break;
+                        default:
+                            sortFields.add(requirementCount.desc());
+                            break;
+                    }
+                    break;
+                case "follower":
 
-                Field<Object> followerCount = DSL.select(DSL.count())
-                        .from(PROJECT_FOLLOWER_MAP)
-                        .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID))
-                        .asField("followerCount");
+                    Field<Object> followerCount = DSL.select(DSL.count())
+                            .from(PROJECT_FOLLOWER_MAP)
+                            .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID))
+                            .asField("followerCount");
 
-                switch (sort.getSortDirection()) {
-                    case ASC:
-                        sortFields.add(followerCount.asc());
-                        break;
-                    case DESC:
-                        sortFields.add(followerCount.desc());
-                        break;
-                    default:
-                        sortFields.add(followerCount.desc());
-                        break;
-                }
+                    switch (sort.getSortDirection()) {
+                        case ASC:
+                            sortFields.add(followerCount.asc());
+                            break;
+                        case DESC:
+                            sortFields.add(followerCount.desc());
+                            break;
+                        default:
+                            sortFields.add(followerCount.desc());
+                            break;
+                    }
+                    break;
             }
         }
         return sortFields;
@@ -184,7 +189,7 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
         return new ArrayList<>();
     }
 
-    public Project cleanEntry(Project project) {
+    private Project cleanEntry(Project project) {
         if (project.getName() != null) {
             project.setName(EmojiParser.parseToAliases(project.getName()));
         }

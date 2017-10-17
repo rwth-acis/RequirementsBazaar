@@ -22,7 +22,6 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
@@ -43,7 +42,6 @@ import org.jooq.impl.DSL;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
 
@@ -250,7 +248,8 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
 //                    .leftOuterJoin(AUTHORIZATIONS).on(AUTHORIZATIONS.PROJECT_ID.equal(PROJECTS.ID))
 //                    .join(USERS).on(AUTHORIZATIONS.USER_ID.equal(USERS.ID))
 //                    .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar())
-                    .where(transformer.getSearchCondition(pageable.getSearch()))
+                    .where(PROJECT.VISIBILITY.isTrue().or(leaderUser.ID.equal(userId))
+                            .and(transformer.getSearchCondition(pageable.getSearch())))
                     .orderBy(transformer.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())

@@ -158,7 +158,7 @@ public class Category extends EntityBase {
 
     public static class Builder {
 
-        public User leader;
+        User leader;
         private int id;
         private String description;
         private String name;

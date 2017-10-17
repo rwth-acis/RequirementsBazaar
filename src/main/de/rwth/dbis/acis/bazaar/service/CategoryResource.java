@@ -133,9 +133,8 @@ public class CategoryResource {
             responseBuilder = responseBuilder.entity(categoriesResult.toJSON());
             responseBuilder = bazaarService.paginationLinks(responseBuilder, categoriesResult, "projects/" + String.valueOf(projectId) + "/categories", parameter);
             responseBuilder = bazaarService.xHeaderFields(responseBuilder, categoriesResult);
-            Response response = responseBuilder.build();
 
-            return response;
+            return responseBuilder.build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -685,9 +684,8 @@ public class CategoryResource {
             responseBuilder = responseBuilder.entity(categoryFollowers.toJSON());
             responseBuilder = bazaarService.paginationLinks(responseBuilder, categoryFollowers, "categories/" + String.valueOf(categoryId) + "/followers", parameter);
             responseBuilder = bazaarService.xHeaderFields(responseBuilder, categoryFollowers);
-            Response response = responseBuilder.build();
 
-            return response;
+            return responseBuilder.build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();

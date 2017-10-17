@@ -80,7 +80,7 @@ public class VoteTransformer implements Transformer<Vote, VoteRecord> {
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(VOTE.ID.asc());
+            return Collections.singletonList(VOTE.ID.asc());
         }
         return null;
     }

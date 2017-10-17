@@ -111,9 +111,9 @@ public class Comment extends EntityBase {
         private String message;
         private int requirementId;
         private Integer replyToComment;
-        public Date creationDate;
-        public Date lastUpdatedDate;
-        public User creator;
+        Date creationDate;
+        Date lastUpdatedDate;
+        User creator;
 
 
         public Builder(String message) {

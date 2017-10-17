@@ -33,7 +33,7 @@ public class BazaarRequestParams {
 
     public Map<String, String> getQueryParams() {
         if (queryParams == null)
-            queryParams = new HashMap<String, String>();
+            queryParams = new HashMap<>();
         return queryParams;
     }
 

@@ -20,8 +20,6 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
-import jodd.vtor.constraint.Min;
-
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 2/17/2015
@@ -32,7 +30,7 @@ public class Privilege extends EntityBase {
 
     private final PrivilegeEnum name;
 
-    public Privilege(Builder builder) {
+    private Privilege(Builder builder) {
         Id = builder.id;
         this.name = builder.name;
     }
@@ -57,7 +55,6 @@ public class Privilege extends EntityBase {
         public Builder(PrivilegeEnum privilege) {
             this.name = privilege;
         }
-
 
         public Builder id(int id) {
             this.id = id;

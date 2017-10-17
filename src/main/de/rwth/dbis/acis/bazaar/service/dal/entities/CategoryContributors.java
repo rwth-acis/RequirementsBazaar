@@ -103,8 +103,7 @@ public class CategoryContributors extends EntityBase {
         }
 
         public CategoryContributors build() {
-            CategoryContributors created = new CategoryContributors(this);
-            return created;
+            return new CategoryContributors(this);
         }
     }
 }

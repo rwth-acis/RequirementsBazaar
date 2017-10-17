@@ -106,9 +106,8 @@ public class AttachmentsResource {
             responseBuilder = responseBuilder.entity(attachmentsResult.toJSON());
             responseBuilder = bazaarService.paginationLinks(responseBuilder, attachmentsResult, "requirements/" + String.valueOf(requirementId) + "/attachments", parameter);
             responseBuilder = bazaarService.xHeaderFields(responseBuilder, attachmentsResult);
-            Response response = responseBuilder.build();
 
-            return response;
+            return responseBuilder.build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();

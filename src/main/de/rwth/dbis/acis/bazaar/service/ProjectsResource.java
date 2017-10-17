@@ -138,9 +138,8 @@ public class ProjectsResource {
             responseBuilder = responseBuilder.entity(projectsResult.toJSON());
             responseBuilder = bazaarService.paginationLinks(responseBuilder, projectsResult, "projects", parameter);
             responseBuilder = bazaarService.xHeaderFields(responseBuilder, projectsResult);
-            Response response = responseBuilder.build();
 
-            return response;
+            return responseBuilder.build();
         } catch (BazaarException bex) {
             logger.warning(bex.getMessage());
             L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get projects failed");
@@ -612,9 +611,8 @@ public class ProjectsResource {
             responseBuilder = responseBuilder.entity(projectFollowers.toJSON());
             responseBuilder = bazaarService.paginationLinks(responseBuilder, projectFollowers, "projects/" + String.valueOf(projectId) + "/followers", parameter);
             responseBuilder = bazaarService.xHeaderFields(responseBuilder, projectFollowers);
-            Response response = responseBuilder.build();
 
-            return response;
+            return responseBuilder.build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();

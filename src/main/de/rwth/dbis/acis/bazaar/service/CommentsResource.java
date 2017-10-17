@@ -106,9 +106,8 @@ public class CommentsResource {
             responseBuilder = responseBuilder.entity(commentsResult.toJSON());
             responseBuilder = bazaarService.paginationLinks(responseBuilder, commentsResult, "requirements/" + String.valueOf(requirementId) + "/comments", parameter);
             responseBuilder = bazaarService.xHeaderFields(responseBuilder, commentsResult);
-            Response response = responseBuilder.build();
 
-            return response;
+            return responseBuilder.build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();

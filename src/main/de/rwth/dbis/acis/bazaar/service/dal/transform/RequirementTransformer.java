@@ -95,100 +95,107 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(REQUIREMENT.CREATION_DATE.desc());
+            return Collections.singletonList(REQUIREMENT.CREATION_DATE.desc());
         }
         List<SortField<?>> sortFields = new ArrayList<>();
         for (Pageable.SortField sort : sorts) {
-            if (sort.getField().equals("date")) {
-                switch (sort.getSortDirection()) {
-                    case ASC:
-                        sortFields.add(REQUIREMENT.CREATION_DATE.asc());
-                        break;
-                    case DESC:
-                        sortFields.add(REQUIREMENT.CREATION_DATE.desc());
-                        break;
-                    default:
-                        sortFields.add(REQUIREMENT.CREATION_DATE.desc());
-                        break;
-                }
-            } else if (sort.getField().equals("name")) {
-                switch (sort.getSortDirection()) {
-                    case ASC:
-                        sortFields.add(REQUIREMENT.NAME.asc());
-                        break;
-                    case DESC:
-                        sortFields.add(REQUIREMENT.NAME.desc());
-                        break;
-                    default:
-                        sortFields.add(REQUIREMENT.NAME.asc());
-                        break;
-                }
-            } else if (sort.getField().equals("vote")) {
+            switch (sort.getField()) {
+                case "date":
+                    switch (sort.getSortDirection()) {
+                        case ASC:
+                            sortFields.add(REQUIREMENT.CREATION_DATE.asc());
+                            break;
+                        case DESC:
+                            sortFields.add(REQUIREMENT.CREATION_DATE.desc());
+                            break;
+                        default:
+                            sortFields.add(REQUIREMENT.CREATION_DATE.desc());
+                            break;
+                    }
+                    break;
+                case "name":
+                    switch (sort.getSortDirection()) {
+                        case ASC:
+                            sortFields.add(REQUIREMENT.NAME.asc());
+                            break;
+                        case DESC:
+                            sortFields.add(REQUIREMENT.NAME.desc());
+                            break;
+                        default:
+                            sortFields.add(REQUIREMENT.NAME.asc());
+                            break;
+                    }
+                    break;
+                case "vote":
 
-                Field<Object> voteCount = DSL.select(DSL.count(DSL.nullif(VOTE.IS_UPVOTE, 0)))
-                        .from(VOTE)
-                        .where(VOTE.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                        .asField("voteCount");
+                    Field<Object> voteCount = DSL.select(DSL.count(DSL.nullif(VOTE.IS_UPVOTE, 0)))
+                            .from(VOTE)
+                            .where(VOTE.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+                            .asField("voteCount");
 
-                switch (sort.getSortDirection()) {
-                    case ASC:
-                        sortFields.add(voteCount.asc());
-                        break;
-                    case DESC:
-                        sortFields.add(voteCount.desc());
-                        break;
-                    default:
-                        sortFields.add(voteCount.desc());
-                        break;
-                }
-            } else if (sort.getField().equals("comment")) {
+                    switch (sort.getSortDirection()) {
+                        case ASC:
+                            sortFields.add(voteCount.asc());
+                            break;
+                        case DESC:
+                            sortFields.add(voteCount.desc());
+                            break;
+                        default:
+                            sortFields.add(voteCount.desc());
+                            break;
+                    }
+                    break;
+                case "comment":
 
-                Field<Object> commentCount = DSL.select(DSL.count())
-                        .from(COMMENT)
-                        .where(COMMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                        .asField("commentCount");
+                    Field<Object> commentCount = DSL.select(DSL.count())
+                            .from(COMMENT)
+                            .where(COMMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+                            .asField("commentCount");
 
-                switch (sort.getSortDirection()) {
-                    case ASC:
-                        sortFields.add(commentCount.asc());
-                        break;
-                    case DESC:
-                        sortFields.add(commentCount.desc());
-                        break;
-                    default:
-                        sortFields.add(commentCount.desc());
-                        break;
-                }
-            } else if (sort.getField().equals("follower")) {
+                    switch (sort.getSortDirection()) {
+                        case ASC:
+                            sortFields.add(commentCount.asc());
+                            break;
+                        case DESC:
+                            sortFields.add(commentCount.desc());
+                            break;
+                        default:
+                            sortFields.add(commentCount.desc());
+                            break;
+                    }
+                    break;
+                case "follower":
 
-                Field<Object> followerCount = DSL.select(DSL.count())
-                        .from(REQUIREMENT_FOLLOWER_MAP)
-                        .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                        .asField("followerCount");
+                    Field<Object> followerCount = DSL.select(DSL.count())
+                            .from(REQUIREMENT_FOLLOWER_MAP)
+                            .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+                            .asField("followerCount");
 
-                switch (sort.getSortDirection()) {
-                    case ASC:
-                        sortFields.add(followerCount.asc());
-                        break;
-                    case DESC:
-                        sortFields.add(followerCount.desc());
-                        break;
-                    default:
-                        sortFields.add(followerCount.desc());
-                        break;
-                }
-            } else if (sort.getField().equals("realized")) {
-                switch (sort.getSortDirection()) {
-                    case ASC:
-                        sortFields.add(REQUIREMENT.REALIZED.asc());
-                        break;
-                    case DESC:
-                        sortFields.add(REQUIREMENT.REALIZED.desc());
-                        break;
-                    default:
-                        sortFields.add(REQUIREMENT.REALIZED.desc());
-                        break;
-                }
+                    switch (sort.getSortDirection()) {
+                        case ASC:
+                            sortFields.add(followerCount.asc());
+                            break;
+                        case DESC:
+                            sortFields.add(followerCount.desc());
+                            break;
+                        default:
+                            sortFields.add(followerCount.desc());
+                            break;
+                    }
+                    break;
+                case "realized":
+                    switch (sort.getSortDirection()) {
+                        case ASC:
+                            sortFields.add(REQUIREMENT.REALIZED.asc());
+                            break;
+                        case DESC:
+                            sortFields.add(REQUIREMENT.REALIZED.desc());
+                            break;
+                        default:
+                            sortFields.add(REQUIREMENT.REALIZED.desc());
+                            break;
+                    }
+                    break;
             }
         }
         return sortFields;
@@ -216,7 +223,7 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
         return conditions;
     }
 
-    public Requirement cleanEntity(Requirement requirement) {
+    private Requirement cleanEntity(Requirement requirement) {
         if (requirement.getName() != null) {
             requirement.setName(EmojiParser.parseToAliases(requirement.getName()));
         }

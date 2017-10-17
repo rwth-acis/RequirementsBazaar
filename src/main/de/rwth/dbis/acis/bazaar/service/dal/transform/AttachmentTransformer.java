@@ -52,7 +52,7 @@ public class AttachmentTransformer implements Transformer<Attachment, Attachment
 
     @Override
     public Attachment getEntityFromTableRecord(AttachmentRecord record) {
-        Attachment entity = Attachment.getBuilder()
+        return Attachment.getBuilder()
                 .id(record.getId())
                 .requirementId(record.getRequirementId())
                 .name(record.getName())
@@ -63,7 +63,6 @@ public class AttachmentTransformer implements Transformer<Attachment, Attachment
                 .creationDate(record.getCreationDate())
                 .lastUpdatedDate(record.getLastUpdatedDate())
                 .build();
-        return entity;
     }
 
     @Override
@@ -94,7 +93,7 @@ public class AttachmentTransformer implements Transformer<Attachment, Attachment
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(ATTACHMENT.CREATION_DATE.asc());
+            return Collections.singletonList(ATTACHMENT.CREATION_DATE.asc());
         }
         return null;
     }
@@ -109,7 +108,7 @@ public class AttachmentTransformer implements Transformer<Attachment, Attachment
         return new ArrayList<>();
     }
 
-    public Attachment cleanEntry(Attachment attachment) {
+    private Attachment cleanEntry(Attachment attachment) {
         if (attachment.getName() != null) {
             attachment.setName(EmojiParser.parseToAliases(attachment.getName()));
         }

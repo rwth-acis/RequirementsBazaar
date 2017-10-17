@@ -3,8 +3,6 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.Date;
 
@@ -25,7 +23,7 @@ public class Activity extends EntityBase {
 
     private AdditionalObject additionalObject;
 
-    protected Activity(Builder builder) {
+    private Activity(Builder builder) {
         this.id = builder.id;
         this.creationDate = builder.creationDate;
         this.activityAction = builder.activityAction;
@@ -182,8 +180,7 @@ public class Activity extends EntityBase {
         }
 
         public Activity build() {
-            Activity created = new Activity(this);
-            return created;
+            return new Activity(this);
         }
     }
 

@@ -30,7 +30,7 @@ public class RequirementCategory extends EntityBase {
     private final int categoryId;
     private final int requirementId;
 
-    public RequirementCategory(Builder builder) {
+    private RequirementCategory(Builder builder) {
         this.id = builder.id;
         this.categoryId = builder.categoryId;
         this.requirementId = builder.requirementId;

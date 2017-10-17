@@ -122,8 +122,7 @@ public class Statistic {
         }
 
         public Statistic build() {
-            Statistic created = new Statistic(this);
-            return created;
+            return new Statistic(this);
         }
     }
 

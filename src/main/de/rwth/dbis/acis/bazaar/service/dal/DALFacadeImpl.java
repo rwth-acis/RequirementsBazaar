@@ -89,8 +89,7 @@ public class DALFacadeImpl implements DALFacade {
     @Override
     public User createUser(User user) throws BazaarException {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
-        User newUser = userRepository.add(user);
-        return newUser;
+        return userRepository.add(user);
     }
 
     @Override
@@ -400,8 +399,7 @@ public class DALFacadeImpl implements DALFacade {
             }
         }
 
-        Category deletedCategory = categoryRepository.delete(categoryId);
-        return deletedCategory;
+        return categoryRepository.delete(categoryId);
     }
 
     @Override

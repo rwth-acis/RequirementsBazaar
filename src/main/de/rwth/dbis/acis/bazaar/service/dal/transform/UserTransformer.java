@@ -48,7 +48,7 @@ public class UserTransformer implements Transformer<User, UserRecord> {
 
     @Override
     public User getEntityFromTableRecord(UserRecord record) {
-        User user = User.geBuilder(record.getEmail())
+        return User.geBuilder(record.getEmail())
                 .id(record.getId())
                 .admin(record.getAdmin() != 0)
                 .firstName(record.getFirstName())
@@ -62,7 +62,6 @@ public class UserTransformer implements Transformer<User, UserRecord> {
                 .lastUpdatedDate(record.getLastUpdatedDate())
                 .lastLoginDate(record.getLastLoginDate())
                 .build();
-        return user;
     }
 
     public User getEntityFromQueryResult(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User user, Result<Record> queryResult) {
@@ -128,7 +127,7 @@ public class UserTransformer implements Transformer<User, UserRecord> {
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(USER.USER_NAME.asc());
+            return Collections.singletonList(USER.USER_NAME.asc());
         }
         return null;
     }

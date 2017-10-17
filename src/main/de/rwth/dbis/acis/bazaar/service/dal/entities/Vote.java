@@ -31,7 +31,7 @@ public class Vote extends EntityBase {
     private final int RequirementId;
     private final int UserId;
 
-    public Vote(Builder builder) {
+    private Vote(Builder builder) {
         Id = builder.id;
         this.isUpvote = builder.isUpvote;
         RequirementId = builder.requirementId;

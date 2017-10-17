@@ -77,7 +77,7 @@ public class RequirementDeveloperTransformer implements Transformer<RequirementD
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(REQUIREMENT_DEVELOPER_MAP.ID.asc());
+            return Collections.singletonList(REQUIREMENT_DEVELOPER_MAP.ID.asc());
         }
         return null;
     }

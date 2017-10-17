@@ -115,8 +115,7 @@ public class ProjectContributors extends EntityBase {
         }
 
         public ProjectContributors build() {
-            ProjectContributors created = new ProjectContributors(this);
-            return created;
+            return new ProjectContributors(this);
         }
     }
 }

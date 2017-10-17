@@ -49,7 +49,7 @@ import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
  * @since 6/23/2014
  */
 public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> implements UserRepository {
-    final byte ONE = 1;
+    private final byte ONE = 1;
 
     /**
      * @param jooq DSLContext for JOOQ connection

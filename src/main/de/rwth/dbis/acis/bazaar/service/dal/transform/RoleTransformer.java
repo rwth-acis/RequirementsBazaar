@@ -75,7 +75,7 @@ public class RoleTransformer implements Transformer<Role, RoleRecord> {
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Arrays.asList(ROLE.ID.asc());
+            return Collections.singletonList(ROLE.ID.asc());
         }
         return null;
     }

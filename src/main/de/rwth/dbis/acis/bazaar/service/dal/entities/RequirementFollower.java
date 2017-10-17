@@ -29,7 +29,7 @@ public class RequirementFollower extends EntityBase {
     private final int RequirementId;
     private final int UserId;
 
-    public RequirementFollower(Builder builder) {
+    private RequirementFollower(Builder builder) {
         Id = builder.id;
         RequirementId = builder.requirementId;
         UserId = builder.userId;
@@ -52,9 +52,9 @@ public class RequirementFollower extends EntityBase {
     }
 
     public static class Builder {
-        public int userId;
-        public int requirementId;
-        public int id;
+        int userId;
+        int requirementId;
+        int id;
 
         public Builder userId(int userId) {
             this.userId = userId;
