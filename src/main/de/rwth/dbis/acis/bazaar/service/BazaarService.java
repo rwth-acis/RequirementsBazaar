@@ -42,6 +42,7 @@ import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Context;
 import i5.las2peer.logging.L2pLogger;
 import i5.las2peer.logging.NodeObserver;
+import i5.las2peer.p2p.AgentNotKnownException;
 import i5.las2peer.restMapper.RESTService;
 import i5.las2peer.restMapper.annotations.ServicePath;
 import i5.las2peer.security.UserAgent;
@@ -189,6 +190,31 @@ public class BazaarService extends RESTService {
     public static class Resource {
 
         private final BazaarService bazaarService = (BazaarService) Context.getCurrent().getService();
+
+        /**
+         * This method allows to retrieve the service name version.
+         *
+         * @return Response with service name version as a JSON object.
+         */
+        @GET
+        @Path("/version")
+        @Produces(MediaType.APPLICATION_JSON)
+        @ApiOperation(value = "This method allows to retrieve the service name version.")
+        @ApiResponses(value = {
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns service name version"),
+                @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+        })
+        public Response getServiceNameVersion() {
+            try {
+                String serviceNameVersion = Context.getCurrent().getService().getAgent().getServiceNameVersion().toString();
+                return Response.ok("{\"version\": \"" + serviceNameVersion + "\"}").build();
+            } catch (AgentNotKnownException ex) {
+                BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get service name version failed");
+                bazaarService.logger.warning(bex.getMessage());
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            }
+        }
 
         /**
          * This method allows to retrieve statistics over all projects.
