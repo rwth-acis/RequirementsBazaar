@@ -31,10 +31,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
-import org.jooq.DSLContext;
-import org.jooq.Field;
-import org.jooq.Record;
-import org.jooq.Result;
+import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 
@@ -47,6 +44,37 @@ import static org.jooq.impl.DSL.*;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
 
 public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, RequirementRecord> implements RequirementRepository {
+
+    // derived table for activities inside requirement
+    public static final Table<?> ACTIVITY = table(
+            select(REQUIREMENT.ID, REQUIREMENT.CREATION_DATE)
+                    .from(REQUIREMENT)
+                    .unionAll(
+                            select(REQUIREMENT.ID, REQUIREMENT.LAST_UPDATED_DATE)
+                                    .from(REQUIREMENT))
+                    .unionAll(
+                            select(COMMENT.REQUIREMENT_ID, COMMENT.CREATION_DATE)
+                                    .from(COMMENT))
+                    .unionAll(
+                            select(COMMENT.REQUIREMENT_ID, COMMENT.LAST_UPDATED_DATE)
+                                    .from(COMMENT))
+                    .unionAll(
+                            select(ATTACHMENT.REQUIREMENT_ID, ATTACHMENT.CREATION_DATE)
+                                    .from(ATTACHMENT))
+                    .unionAll(
+                            select(ATTACHMENT.REQUIREMENT_ID, ATTACHMENT.LAST_UPDATED_DATE)
+                                    .from(ATTACHMENT))
+    ).as("ACTIVITY");
+
+    // derived table for last activity inside requirement
+    public static final Table<?> LAST_ACTIVITY = table(
+            select(
+                    ACTIVITY.field(REQUIREMENT.ID),
+                    max(ACTIVITY.field(REQUIREMENT.CREATION_DATE)).as("last_activity"))
+                    .from(ACTIVITY)
+                    .groupBy(ACTIVITY.field(REQUIREMENT.ID)))
+            .as("last_activity");
+
     /**
      * @param jooq DSLContext object to initialize JOOQ connection. For more see JOOQ documentation.
      */
@@ -89,6 +117,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .select(commentCount)
                     .select(followerCount)
                     .from(REQUIREMENT)
+                    .leftOuterJoin(LAST_ACTIVITY).on(REQUIREMENT.ID.eq(LAST_ACTIVITY.field(REQUIREMENT.ID)))
                     .where(transformer.getFilterConditions(pageable.getFilters()))
                     .and(transformer.getSearchCondition(pageable.getSearch()))
                     .and(REQUIREMENT.PROJECT_ID.eq(projectId))
@@ -159,14 +188,15 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .from(REQUIREMENT_FOLLOWER_MAP)
                     .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
                     .asField("followerCount");
-
+            
             List<Record> queryResults = jooq.select(REQUIREMENT.fields())
                     .select(idCount)
                     .select(voteCount)
                     .select(commentCount)
                     .select(followerCount)
                     .from(REQUIREMENT)
-                    .join(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.eq(REQUIREMENT.ID))
+                    .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.eq(REQUIREMENT.ID))
+                    .leftOuterJoin(LAST_ACTIVITY).on(REQUIREMENT.ID.eq(LAST_ACTIVITY.field(REQUIREMENT.ID)))
                     .where(transformer.getFilterConditions(pageable.getFilters()))
                     .and(transformer.getSearchCondition(pageable.getSearch()))
                     .and(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.eq(categoryId))

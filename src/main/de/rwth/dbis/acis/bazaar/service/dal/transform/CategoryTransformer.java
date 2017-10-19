@@ -27,6 +27,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.CategoryFollowerMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementCategoryMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CategoryRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.repositories.CategoryRepositoryImpl;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
@@ -128,6 +129,19 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
                             break;
                         default:
                             sortFields.add(CATEGORY.CREATION_DATE.desc());
+                            break;
+                    }
+                    break;
+                case "last_activity":
+                    switch (sort.getSortDirection()) {
+                        case ASC:
+                            sortFields.add(CategoryRepositoryImpl.LAST_ACTIVITY.field("last_activity").asc());
+                            break;
+                        case DESC:
+                            sortFields.add(CategoryRepositoryImpl.LAST_ACTIVITY.field("last_activity").desc());
+                            break;
+                        default:
+                            sortFields.add(CategoryRepositoryImpl.LAST_ACTIVITY.field("last_activity").desc());
                             break;
                     }
                     break;

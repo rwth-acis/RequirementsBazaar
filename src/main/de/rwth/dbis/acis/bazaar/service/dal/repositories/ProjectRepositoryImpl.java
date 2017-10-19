@@ -33,10 +33,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
-import org.jooq.DSLContext;
-import org.jooq.Field;
-import org.jooq.Record;
-import org.jooq.Result;
+import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 
@@ -44,12 +41,62 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
+import static org.jooq.impl.DSL.max;
+import static org.jooq.impl.DSL.select;
+import static org.jooq.impl.DSL.table;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
  */
 public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord> implements ProjectRepository {
+
+    // derived table for activities inside project
+    public static final Table<?> ACTIVITY = table(
+            select(PROJECT.ID, PROJECT.CREATION_DATE)
+                    .from(PROJECT)
+                    .unionAll(
+                            select(PROJECT.ID, PROJECT.LAST_UPDATED_DATE)
+                                    .from(PROJECT))
+                    .unionAll(
+                            select(CATEGORY.PROJECT_ID, CATEGORY.CREATION_DATE)
+                                    .from(CATEGORY))
+                    .unionAll(
+                            select(CATEGORY.PROJECT_ID, CATEGORY.LAST_UPDATED_DATE)
+                                    .from(CATEGORY))
+                    .unionAll(
+                            select(REQUIREMENT.PROJECT_ID, REQUIREMENT.LAST_UPDATED_DATE)
+                                    .from(REQUIREMENT))
+                    .unionAll(
+                            select(REQUIREMENT.PROJECT_ID, REQUIREMENT.LAST_UPDATED_DATE)
+                                    .from(REQUIREMENT))
+                    .unionAll(
+                            select(REQUIREMENT.PROJECT_ID, COMMENT.CREATION_DATE)
+                                    .from(COMMENT)
+                                    .leftOuterJoin(REQUIREMENT).on(REQUIREMENT.ID.equal(COMMENT.REQUIREMENT_ID)))
+                    .unionAll(
+                            select(REQUIREMENT.PROJECT_ID, COMMENT.LAST_UPDATED_DATE)
+                                    .from(COMMENT)
+                                    .leftOuterJoin(REQUIREMENT).on(REQUIREMENT.ID.equal(COMMENT.REQUIREMENT_ID)))
+                    .unionAll(
+                            select(REQUIREMENT.PROJECT_ID, ATTACHMENT.CREATION_DATE)
+                                    .from(ATTACHMENT)
+                                    .leftOuterJoin(REQUIREMENT).on(REQUIREMENT.ID.equal(ATTACHMENT.REQUIREMENT_ID)))
+                    .unionAll(
+                            select(REQUIREMENT.PROJECT_ID, ATTACHMENT.LAST_UPDATED_DATE)
+                                    .from(ATTACHMENT)
+                                    .leftOuterJoin(REQUIREMENT).on(REQUIREMENT.ID.equal(ATTACHMENT.REQUIREMENT_ID)))
+    ).as("ACTIVITY");
+
+    // derived table for last activity inside project
+    public static final Table<?> LAST_ACTIVITY = table(
+            select(
+                    ACTIVITY.field(PROJECT.ID),
+                    max(ACTIVITY.field(PROJECT.CREATION_DATE)).as("last_activity"))
+                    .from(ACTIVITY)
+                    .groupBy(ACTIVITY.field(PROJECT.ID)))
+            .as("last_activity");
+
     /**
      * @param jooq DSLContext object to initialize JOOQ connection. For more see JOOQ documentation.
      */
@@ -173,6 +220,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .select(leaderUser.fields())
                     .from(PROJECT)
                     .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(PROJECT.LEADER_ID))
+                    .leftOuterJoin(LAST_ACTIVITY).on(PROJECT.ID.eq(LAST_ACTIVITY.field(PROJECT.ID)))
                     .where(PROJECT.VISIBILITY.isTrue())
                     .and(transformer.getSearchCondition(pageable.getSearch()))
                     .orderBy(transformer.getSortFields(pageable.getSorts()))
@@ -245,6 +293,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .select(leaderUser.fields())
                     .from(PROJECT)
                     .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(PROJECT.LEADER_ID))
+                    .leftOuterJoin(LAST_ACTIVITY).on(PROJECT.ID.eq(LAST_ACTIVITY.field(PROJECT.ID)))
 //                    .leftOuterJoin(AUTHORIZATIONS).on(AUTHORIZATIONS.PROJECT_ID.equal(PROJECTS.ID))
 //                    .join(USERS).on(AUTHORIZATIONS.USER_ID.equal(USERS.ID))
 //                    .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar())
@@ -301,7 +350,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .select(DSL.countDistinct(PROJECT.ID).as("numberOfProjects"))
                     .from(PROJECT)
                     .where(PROJECT.VISIBILITY.isTrue())
-                            .and(PROJECT.CREATION_DATE.greaterOrEqual(timestamp)
+                    .and(PROJECT.CREATION_DATE.greaterOrEqual(timestamp)
                             .or(PROJECT.LAST_UPDATED_DATE.greaterOrEqual(timestamp)))
                     .fetchOne();
 
