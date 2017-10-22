@@ -82,7 +82,7 @@ public class RoleTransformer implements Transformer<Role, RoleRecord> {
 
     @Override
     public Condition getSearchCondition(String search) throws Exception {
-        return null;
+        throw new Exception("Search is not supported!");
     }
 
     @Override
