@@ -23,13 +23,9 @@ package de.rwth.dbis.acis.bazaar.service.dal.transform;
 import com.vdurmont.emoji.EmojiParser;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Category;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.CategoryFollowerMap;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirement;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementCategoryMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CategoryRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.repositories.CategoryRepositoryImpl;
 import org.jooq.*;
-import org.jooq.impl.DSL;
 
 import java.util.*;
 
@@ -146,41 +142,28 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
                     }
                     break;
                 case "requirement":
-
-                    Field<Object> requirementCount = DSL.select(DSL.count())
-                            .from(Requirement.REQUIREMENT)
-                            .leftJoin(RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP).on(Requirement.REQUIREMENT.ID.equal(RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID))
-                            .where(RequirementCategoryMap.REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.equal(CATEGORY.ID))
-                            .asField("requirementCount");
-
                     switch (sort.getSortDirection()) {
                         case ASC:
-                            sortFields.add(requirementCount.asc());
+                            sortFields.add(CategoryRepositoryImpl.REQUIREMENT_COUNT.asc());
                             break;
                         case DESC:
-                            sortFields.add(requirementCount.desc());
+                            sortFields.add(CategoryRepositoryImpl.REQUIREMENT_COUNT.desc());
                             break;
                         default:
-                            sortFields.add(requirementCount.desc());
+                            sortFields.add(CategoryRepositoryImpl.REQUIREMENT_COUNT.desc());
                             break;
                     }
                     break;
                 case "follower":
-
-                    Field<Object> followerCount = DSL.select(DSL.count())
-                            .from(CategoryFollowerMap.CATEGORY_FOLLOWER_MAP)
-                            .where(CategoryFollowerMap.CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID))
-                            .asField("followerCount");
-
                     switch (sort.getSortDirection()) {
                         case ASC:
-                            sortFields.add(followerCount.asc());
+                            sortFields.add(CategoryRepositoryImpl.FOLLOWER_COUNT.asc());
                             break;
                         case DESC:
-                            sortFields.add(followerCount.desc());
+                            sortFields.add(CategoryRepositoryImpl.FOLLOWER_COUNT.desc());
                             break;
                         default:
-                            sortFields.add(followerCount.desc());
+                            sortFields.add(CategoryRepositoryImpl.FOLLOWER_COUNT.desc());
                             break;
                     }
                     break;

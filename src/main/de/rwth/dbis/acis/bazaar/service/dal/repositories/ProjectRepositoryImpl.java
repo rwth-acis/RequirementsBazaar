@@ -97,6 +97,21 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .groupBy(ACTIVITY.field(PROJECT.ID)))
             .as("last_activity");
 
+    public static final Field<Object> CATEGORY_COUNT = select(DSL.count())
+            .from(CATEGORY)
+            .where(CATEGORY.PROJECT_ID.equal(PROJECT.ID))
+            .asField("categoryCount");
+
+    public final static Field<Object> REQUIREMENT_COUNT = select(DSL.count())
+            .from(REQUIREMENT)
+            .where(REQUIREMENT.PROJECT_ID.equal(PROJECT.ID))
+            .asField("requirementCount");
+
+    public final static Field<Object> FOLLOWER_COUNT = DSL.select(DSL.count())
+            .from(PROJECT_FOLLOWER_MAP)
+            .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID))
+            .asField("followerCount");
+
     /**
      * @param jooq DSLContext object to initialize JOOQ connection. For more see JOOQ documentation.
      */
@@ -110,30 +125,15 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
         try {
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User leaderUser = USER.as("leaderUser");
 
-            Field<Object> categoryCount = jooq.select(DSL.count())
-                    .from(CATEGORY)
-                    .where(CATEGORY.PROJECT_ID.equal(PROJECT.ID))
-                    .asField("categoryCount");
-
-            Field<Object> requirementCount = jooq.select(DSL.count())
-                    .from(REQUIREMENT)
-                    .where(REQUIREMENT.PROJECT_ID.equal(PROJECT.ID))
-                    .asField("requirementCount");
-
-            Field<Object> followerCount = DSL.select(DSL.count())
-                    .from(PROJECT_FOLLOWER_MAP)
-                    .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID))
-                    .asField("followerCount");
-
             Field<Object> isFollower = DSL.select(DSL.count())
                     .from(PROJECT_FOLLOWER_MAP)
                     .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID).and(PROJECT_FOLLOWER_MAP.USER_ID.equal(userId)))
                     .asField("isFollower");
 
             Result<Record> queryResult = jooq.select(PROJECT.fields())
-                    .select(categoryCount)
-                    .select(requirementCount)
-                    .select(followerCount)
+                    .select(CATEGORY_COUNT)
+                    .select(REQUIREMENT_COUNT)
+                    .select(FOLLOWER_COUNT)
                     .select(isFollower)
                     .select(leaderUser.fields())
                     .from(PROJECT)
@@ -162,9 +162,9 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
             project = builder.build();
 
             // Filling additional information
-            project.setNumberOfCategories((Integer) queryResult.getValues(categoryCount).get(0));
-            project.setNumberOfRequirements((Integer) queryResult.getValues(requirementCount).get(0));
-            project.setNumberOfFollowers((Integer) queryResult.getValues(followerCount).get(0));
+            project.setNumberOfCategories((Integer) queryResult.getValues(CATEGORY_COUNT).get(0));
+            project.setNumberOfRequirements((Integer) queryResult.getValues(REQUIREMENT_COUNT).get(0));
+            project.setNumberOfFollowers((Integer) queryResult.getValues(FOLLOWER_COUNT).get(0));
             if (userId != 1) {
                 project.setFollower((Integer) queryResult.getValues(isFollower).get(0) == 0 ? false : true);
             }
@@ -191,21 +191,6 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .and(transformer.getSearchCondition(pageable.getSearch()))
                     .asField("idCount");
 
-            Field<Object> categoryCount = jooq.select(DSL.count())
-                    .from(CATEGORY)
-                    .where(CATEGORY.PROJECT_ID.equal(PROJECT.ID))
-                    .asField("categoryCount");
-
-            Field<Object> requirementCount = jooq.select(DSL.count())
-                    .from(REQUIREMENT)
-                    .where(REQUIREMENT.PROJECT_ID.equal(PROJECT.ID))
-                    .asField("requirementCount");
-
-            Field<Object> followerCount = DSL.select(DSL.count())
-                    .from(PROJECT_FOLLOWER_MAP)
-                    .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID))
-                    .asField("followerCount");
-
             Field<Object> isFollower = DSL.select(DSL.count())
                     .from(PROJECT_FOLLOWER_MAP)
                     .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID).and(PROJECT_FOLLOWER_MAP.USER_ID.equal(userId)))
@@ -213,9 +198,9 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
 
             Result<Record> queryResults = jooq.select(PROJECT.fields())
                     .select(idCount)
-                    .select(categoryCount)
-                    .select(requirementCount)
-                    .select(followerCount)
+                    .select(CATEGORY_COUNT)
+                    .select(REQUIREMENT_COUNT)
+                    .select(FOLLOWER_COUNT)
                     .select(isFollower)
                     .select(leaderUser.fields())
                     .from(PROJECT)
@@ -234,9 +219,9 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                 UserTransformer userTransformer = new UserTransformer();
                 UserRecord userRecord = queryResult.into(leaderUser);
                 project.setLeader(userTransformer.getEntityFromTableRecord(userRecord));
-                project.setNumberOfCategories((Integer) queryResult.getValue(categoryCount));
-                project.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
-                project.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
+                project.setNumberOfCategories((Integer) queryResult.getValue(CATEGORY_COUNT));
+                project.setNumberOfRequirements((Integer) queryResult.getValue(REQUIREMENT_COUNT));
+                project.setNumberOfFollowers((Integer) queryResult.getValue(FOLLOWER_COUNT));
                 if (userId != 1) {
                     project.setFollower((Integer) queryResult.getValue(isFollower) == 0 ? false : true);
                 }
@@ -263,21 +248,6 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .where(transformer.getSearchCondition(pageable.getSearch()))
                     .asField("idCount");
 
-            Field<Object> categoryCount = jooq.select(DSL.count())
-                    .from(CATEGORY)
-                    .where(CATEGORY.PROJECT_ID.equal(PROJECT.ID))
-                    .asField("categoryCount");
-
-            Field<Object> requirementCount = jooq.select(DSL.count())
-                    .from(REQUIREMENT)
-                    .where(REQUIREMENT.PROJECT_ID.equal(PROJECT.ID))
-                    .asField("requirementCount");
-
-            Field<Object> followerCount = DSL.select(DSL.count())
-                    .from(PROJECT_FOLLOWER_MAP)
-                    .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID))
-                    .asField("followerCount");
-
             Field<Object> isFollower = DSL.select(DSL.count())
                     .from(PROJECT_FOLLOWER_MAP)
                     .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID).and(PROJECT_FOLLOWER_MAP.USER_ID.equal(userId)))
@@ -286,9 +256,9 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
             //TODO only authorized projects?
             List<Record> queryResults = jooq.select(PROJECT.fields())
                     .select(idCount)
-                    .select(categoryCount)
-                    .select(requirementCount)
-                    .select(followerCount)
+                    .select(CATEGORY_COUNT)
+                    .select(REQUIREMENT_COUNT)
+                    .select(FOLLOWER_COUNT)
                     .select(isFollower)
                     .select(leaderUser.fields())
                     .from(PROJECT)
@@ -310,9 +280,9 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                 UserTransformer userTransformer = new UserTransformer();
                 UserRecord userRecord = queryResult.into(leaderUser);
                 project.setLeader(userTransformer.getEntityFromTableRecord(userRecord));
-                project.setNumberOfCategories((Integer) queryResult.getValue(categoryCount));
-                project.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
-                project.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
+                project.setNumberOfCategories((Integer) queryResult.getValue(CATEGORY_COUNT));
+                project.setNumberOfRequirements((Integer) queryResult.getValue(REQUIREMENT_COUNT));
+                project.setNumberOfFollowers((Integer) queryResult.getValue(FOLLOWER_COUNT));
                 if (userId != 1) {
                     project.setFollower((Integer) queryResult.getValue(isFollower) == 0 ? false : true);
                 }
