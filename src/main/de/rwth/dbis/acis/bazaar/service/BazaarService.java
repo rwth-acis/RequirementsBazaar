@@ -171,7 +171,7 @@ public class BazaarService extends RESTService {
     @SwaggerDefinition(
             info = @Info(
                     title = "Requirements Bazaar",
-                    version = "0.7.1",
+                    version = "0.7.2",
                     description = "Requirements Bazaar project",
                     termsOfService = "http://requirements-bazaar.org",
                     contact = @Contact(
