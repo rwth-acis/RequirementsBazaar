@@ -158,8 +158,11 @@ public class EmailDispatcher {
                     + Localization.getInstance().getResourceBundle().getString("email.bodyText.for") + " "
                     + Localization.getInstance().getResourceBundle().getString("email.bodyText.requirement") + ": " + (objectName.length() > 40 ? objectName.substring(0, 39) : objectName));
             bodyText = bodyText.concat(Localization.getInstance().getResourceBundle().getString("email.bodyText.user") + " " + additionalObject.getUser().getUserName());
-            bodyText = bodyText.concat(" " + activity + " " + Localization.getInstance().getResourceBundle().getString("email.bodyText.comment") + " \"" + comment.getMessage() + "\"");
+            bodyText = bodyText.concat(" " + activity);
+            bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.the"));
+            bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.comment") + " \"" + comment.getMessage() + "\"");
             bodyText = bodyText.concat("\r\n" + Localization.getInstance().getResourceBundle().getString("email.bodyText.for"));
+            bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.the"));
             bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.requirement") + " \"" + objectName + "\".");
         } else if (dataType == Activity.DataType.ATTACHMENT) {
             Attachment attachment = dalFacade.getAttachmentById(dataId);
@@ -175,6 +178,7 @@ public class EmailDispatcher {
             bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.the"));
             bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.attachment") + " \"" + attachment.getName() + "\"");
             bodyText = bodyText.concat("\r\n" + Localization.getInstance().getResourceBundle().getString("email.bodyText.for"));
+            bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.the"));
             bodyText = bodyText.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.requirement") + " \"" + objectName + "\".");
         }
         String dataUrl = frontendBaseURL.concat(resourcePath);

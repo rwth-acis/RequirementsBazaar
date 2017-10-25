@@ -77,7 +77,7 @@ public class ProjectsResource {
             @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
             @ApiParam(value = "Elements of project by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
             @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
-            @ApiParam(value = "Sort", required = false, allowableValues = "name,date,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort) {
+            @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort) {
 
         DALFacade dalFacade = null;
         try {
@@ -456,7 +456,7 @@ public class ProjectsResource {
      * This method allows to retrieve statistics for one project.
      *
      * @param projectId
-     * @param since     timestamp since filter
+     * @param since     timestamp since filter, ISO-8601 e.g. 2017-12-30 or 2017-12-30T18:30:00Z
      * @return Response with statistics as a JSON object.
      */
     @GET
@@ -471,7 +471,7 @@ public class ProjectsResource {
     })
     public Response getStatisticsForProject(
             @PathParam("projectId") int projectId,
-            @ApiParam(value = "Since timestamp", required = false) @QueryParam("since") String since) {
+            @ApiParam(value = "Since timestamp, ISO-8601 e.g. 2017-12-30 or 2017-12-30T18:30:00Z", required = false) @QueryParam("since") String since) {
         DALFacade dalFacade = null;
         try {
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -658,7 +658,7 @@ public class ProjectsResource {
             @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
             @ApiParam(value = "Elements of categories by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
             @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
-            @ApiParam(value = "Sort", required = false, allowableValues = "name,date,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort) throws Exception {
+            @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort) throws Exception {
         CategoryResource categoryResource = new CategoryResource();
         return categoryResource.getCategoriesForProject(projectId, page, perPage, search, sort);
     }
@@ -689,7 +689,7 @@ public class ProjectsResource {
                                               @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
                                               @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
                                               @ApiParam(value = "State filter", required = false, allowableValues = "all,open,realized") @DefaultValue("all") @QueryParam("state") String stateFilter,
-                                              @ApiParam(value = "Sort", required = false, allowableValues = "date,name,vote,comment,follower,realized") @DefaultValue("date") @QueryParam("sort") List<String> sort) throws Exception {
+                                              @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "date,last_activity,name,vote,comment,follower,realized") @DefaultValue("date") @QueryParam("sort") List<String> sort) throws Exception {
         RequirementsResource requirementsResource = new RequirementsResource();
         return requirementsResource.getRequirementsForProject(projectId, page, perPage, search, stateFilter, sort);
     }

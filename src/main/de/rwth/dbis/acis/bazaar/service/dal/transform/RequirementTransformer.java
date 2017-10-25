@@ -24,6 +24,7 @@ import com.vdurmont.emoji.EmojiParser;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.repositories.RequirementRepositoryImpl;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
@@ -95,11 +96,24 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Collections.singletonList(REQUIREMENT.CREATION_DATE.desc());
+            return Collections.singletonList(RequirementRepositoryImpl.LAST_ACTIVITY.field("last_activity").desc());
         }
         List<SortField<?>> sortFields = new ArrayList<>();
         for (Pageable.SortField sort : sorts) {
             switch (sort.getField()) {
+                case "last_activity":
+                    switch (sort.getSortDirection()) {
+                        case ASC:
+                            sortFields.add(RequirementRepositoryImpl.LAST_ACTIVITY.field("last_activity").asc());
+                            break;
+                        case DESC:
+                            sortFields.add(RequirementRepositoryImpl.LAST_ACTIVITY.field("last_activity").desc());
+                            break;
+                        default:
+                            sortFields.add(RequirementRepositoryImpl.LAST_ACTIVITY.field("last_activity").desc());
+                            break;
+                    }
+                    break;
                 case "date":
                     switch (sort.getSortDirection()) {
                         case ASC:
