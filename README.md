@@ -86,8 +86,8 @@ How to run
  1. First please make sure you have already [set up the database](#how-to-set-up-the-database)
  2. Make sure your [config settings](#configuration) are properly set.
  3. [Build](#build)
- 4. Open a console/terminal window and navigate to the `\bin` directory
- 5. Run the `start_network.bat` or `start_network.sh` script
+ 4. Open a console/terminal window and navigate to the project directory
+ 5. Run the `bin\start_network.bat` or `bin/start_network.sh` script
 
  How to run using Docker
  -------------------
