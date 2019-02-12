@@ -86,16 +86,17 @@ How to run
  1. First please make sure you have already [set up the database](#how-to-set-up-the-database)
  2. Make sure your [config settings](#configuration) are properly set.
  3. [Build](#build)
- 4. Open a console/terminal window and navigate to the `\bin` directory
- 5. Run the `start_network.bat` or `start_network.sh` script
+ 4. Open a console/terminal window and navigate to the project directory
+ 5. Run the `bin\start_network.bat` or `bin/start_network.sh` script
 
  How to run using Docker
  -------------------
  Docker is providing the simplest way to run the Requirement Bazaar back-end. Just follow the following steps if Docker is already installed on your system:
 
   1. `git clone` this repo
-  2. `docker build -t rwthacis/reqbaz-service`
-  3. `docker run -i -t --rm -v "pwd":/build rwthacis/reqbaz-service`
+  2. `cd` into the cloned repo
+  3. `docker build -t rwthacis/reqbaz-service .`
+  4. `docker run -i -t --rm -v "$(pwd)":/build rwthacis/reqbaz-service`
 
 ----------
 
