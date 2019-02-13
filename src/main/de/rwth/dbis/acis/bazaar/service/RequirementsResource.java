@@ -12,9 +12,9 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Context;
+import i5.las2peer.api.logging.MonitoringEvent;
+import i5.las2peer.api.security.Agent;
 import i5.las2peer.logging.L2pLogger;
-import i5.las2peer.logging.NodeObserver;
-import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
 import jodd.vtor.Violation;
 import jodd.vtor.Vtor;
@@ -70,8 +70,8 @@ public class RequirementsResource {
     public Response getRequirementsForProject(int projectId, int page, int perPage, String search, String stateFilter, List<String> sort) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -117,7 +117,7 @@ public class RequirementsResource {
                 }
             }
             PaginationResult<Requirement> requirementsResult = dalFacade.listRequirementsByProject(projectId, pageInfo, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_14,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_14,
                     projectId, Activity.DataType.PROJECT, internalUserId);
 
             Map<String, List<String>> parameter = new HashMap<>();
@@ -150,13 +150,13 @@ public class RequirementsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get requirements for project " + projectId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get requirements for project " + projectId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get requirements for project " + projectId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get requirements for project " + projectId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -177,8 +177,8 @@ public class RequirementsResource {
     public Response getRequirementsForCategory(int categoryId, int page, int perPage, String search, String stateFilter, List<String> sort) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -226,7 +226,7 @@ public class RequirementsResource {
                 }
             }
             PaginationResult<Requirement> requirementsResult = dalFacade.listRequirementsByCategory(categoryId, pageInfo, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_24,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_24,
                     categoryId, Activity.DataType.CATEGORY, internalUserId);
 
             Map<String, List<String>> parameter = new HashMap<>();
@@ -259,13 +259,13 @@ public class RequirementsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get requirements for category " + categoryId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get requirements for category " + categoryId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get requirements for category " + categoryId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get requirements for category " + categoryId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -291,8 +291,8 @@ public class RequirementsResource {
     public Response getRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -300,7 +300,7 @@ public class RequirementsResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_25,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_25,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             if (dalFacade.isRequirementPublic(requirementId)) {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, String.valueOf(requirement.getProjectId()), dalFacade);
@@ -321,13 +321,13 @@ public class RequirementsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get requirement " + requirementId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get requirement " + requirementId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get requirement " + requirementId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get requirement " + requirementId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -353,15 +353,15 @@ public class RequirementsResource {
     public Response createRequirement(@ApiParam(value = "Requirement entity", required = true) Requirement requirementToCreate) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
             // TODO: check whether the current user may create a new requirement
             dalFacade = bazaarService.getDBConnection();
-            
+
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             requirementToCreate.setCreator(dalFacade.getUserById(internalUserId));
             Vtor vtor = bazaarService.getValidators();
@@ -399,7 +399,7 @@ public class RequirementsResource {
                 }
             }
             createdRequirement = dalFacade.getRequirementById(createdRequirement.getId(), internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.CREATE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_26,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_26,
                     createdRequirement.getId(), Activity.DataType.REQUIREMENT, internalUserId);
             return Response.status(Response.Status.CREATED).entity(createdRequirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -407,13 +407,13 @@ public class RequirementsResource {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Create requirement");
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Create requirement");
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Create requirement" );
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Create requirement");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -446,8 +446,8 @@ public class RequirementsResource {
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             Vtor vtor = bazaarService.getValidators();
             vtor.validate(requirementToUpdate);
             if (vtor.hasViolations()) {
@@ -464,7 +464,7 @@ public class RequirementsResource {
             }
             dalFacade.followRequirement(internalUserId, requirementToUpdate.getId());
             Requirement updatedRequirement = dalFacade.modifyRequirement(requirementToUpdate, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UPDATE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_27,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_27,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(updatedRequirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -474,13 +474,13 @@ public class RequirementsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Update requirement " + requirementId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Update requirement " + requirementId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Update requirement " + requirementId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Update requirement " + requirementId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -506,8 +506,8 @@ public class RequirementsResource {
     public Response deleteRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -521,7 +521,7 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.delete"));
             }
             Requirement deletedRequirement = dalFacade.deleteRequirementById(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.DELETE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_28,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.DELETE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_28,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(deletedRequirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -531,12 +531,12 @@ public class RequirementsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Delete requirement " + requirementId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Delete requirement " + requirementId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Delete requirement " + requirementId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Delete requirement " + requirementId);
             logger.warning(bex.getMessage());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
@@ -563,8 +563,8 @@ public class RequirementsResource {
     public Response leaddevelopRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -576,7 +576,7 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.create"));
             }
             Requirement requirement = dalFacade.setUserAsLeadDeveloper(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.LEADDEVELOP, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_29,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.LEADDEVELOP, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_29,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -586,13 +586,13 @@ public class RequirementsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Leaddevelop requirement " + requirementId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Leaddevelop requirement " + requirementId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Leaddevelop requirement " + requirementId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Leaddevelop requirement " + requirementId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -618,8 +618,8 @@ public class RequirementsResource {
     public Response unleaddevelopRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -635,7 +635,7 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "You are not lead developer.");
             }
             requirement = dalFacade.deleteUserAsLeadDeveloper(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNLEADDEVELOP, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_30,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNLEADDEVELOP, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_30,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -645,13 +645,13 @@ public class RequirementsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Unleaddevelop requirement " + requirementId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unleaddevelop requirement " + requirementId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Unleaddevelop requirement " + requirementId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unleaddevelop requirement " + requirementId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -677,8 +677,8 @@ public class RequirementsResource {
     public Response developRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -692,7 +692,7 @@ public class RequirementsResource {
             dalFacade.wantToDevelop(internalUserId, requirementId);
             dalFacade.followRequirement(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.DEVELOP, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_31,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.DEVELOP, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_31,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -702,13 +702,13 @@ public class RequirementsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Develop requirement " + requirementId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Develop requirement " + requirementId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Develop requirement " + requirementId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Develop requirement " + requirementId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -734,8 +734,8 @@ public class RequirementsResource {
     public Response undevelopRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -748,7 +748,7 @@ public class RequirementsResource {
             }
             dalFacade.notWantToDevelop(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNDEVELOP, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_32,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNDEVELOP, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_32,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -758,13 +758,13 @@ public class RequirementsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Undevelop requirement " + requirementId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Undevelop requirement " + requirementId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Undevelop requirement " + requirementId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Undevelop requirement " + requirementId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -790,8 +790,8 @@ public class RequirementsResource {
     public Response followRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -804,7 +804,7 @@ public class RequirementsResource {
             }
             dalFacade.followRequirement(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.FOLLOW, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_33,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.FOLLOW, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_33,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -814,13 +814,13 @@ public class RequirementsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Follow requirement " + requirementId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Follow requirement " + requirementId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Follow requirement " + requirementId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Follow requirement " + requirementId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -846,8 +846,8 @@ public class RequirementsResource {
     public Response unfollowRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -860,7 +860,7 @@ public class RequirementsResource {
             }
             dalFacade.unFollowRequirement(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNFOLLOW, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_34,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNFOLLOW, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_34,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -870,13 +870,13 @@ public class RequirementsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Unfollow requirement " + requirementId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unfollow requirement " + requirementId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Unfollow requirement " + requirementId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unfollow requirement " + requirementId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -904,8 +904,8 @@ public class RequirementsResource {
                          @ApiParam(value = "Vote direction", allowableValues = "up, down") @DefaultValue("up") @QueryParam("direction") String direction) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -926,7 +926,7 @@ public class RequirementsResource {
                 dalFacade.followRequirement(internalUserId, requirementId);
             }
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.VOTE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_35,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.VOTE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_35,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -936,13 +936,13 @@ public class RequirementsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Unfollow requirement " + requirementId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unfollow requirement " + requirementId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Unfollow requirement " + requirementId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unfollow requirement " + requirementId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -968,8 +968,8 @@ public class RequirementsResource {
     public Response unvote(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -982,7 +982,7 @@ public class RequirementsResource {
             }
             dalFacade.unVote(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNVOTE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_36,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNVOTE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_36,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -992,13 +992,13 @@ public class RequirementsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Unvote requirement " + requirementId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unvote requirement " + requirementId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Unvote requirement " + requirementId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unvote requirement " + requirementId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -1024,8 +1024,8 @@ public class RequirementsResource {
     public Response realize(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -1037,7 +1037,7 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.create"));
             }
             Requirement requirement = dalFacade.setRequirementToRealized(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.REALIZE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_37,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.REALIZE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_37,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -1047,13 +1047,13 @@ public class RequirementsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Realize requirement " + requirementId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Realize requirement " + requirementId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Realize requirement " + requirementId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Realize requirement " + requirementId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -1079,8 +1079,8 @@ public class RequirementsResource {
     public Response unrealize(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -1092,7 +1092,7 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.delete"));
             }
             Requirement requirement = dalFacade.setRequirementToUnRealized(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNREALIZE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_38,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNREALIZE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_38,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -1102,13 +1102,13 @@ public class RequirementsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Unrealize requirement " + requirementId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unrealize requirement " + requirementId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Unrealize requirement " + requirementId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unrealize requirement " + requirementId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -1141,13 +1141,13 @@ public class RequirementsResource {
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
             Statistic requirementStatistics = dalFacade.getStatisticsForRequirement(internalUserId, requirementId, sinceCal);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_39,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_39,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirementStatistics.toJSON()).build();
         } catch (BazaarException bex) {
@@ -1157,13 +1157,13 @@ public class RequirementsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get statistics for requirement " + requirementId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get statistics for requirement " + requirementId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get statistics for requirement " + requirementId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get statistics for requirement " + requirementId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -1193,8 +1193,8 @@ public class RequirementsResource {
                                                 @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) throws Exception {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -1208,7 +1208,7 @@ public class RequirementsResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             PaginationResult<User> requirementDevelopers = dalFacade.listDevelopersForRequirement(requirementId, pageInfo);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_40,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_40,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
 
             Map<String, List<String>> parameter = new HashMap<>();
@@ -1232,13 +1232,13 @@ public class RequirementsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get developers for requirement " + requirementId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get developers for requirement " + requirementId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get developers for requirement " + requirementId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get developers for requirement " + requirementId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -1264,8 +1264,8 @@ public class RequirementsResource {
     public Response getContributorsForRequirement(@PathParam("requirementId") int requirementId) throws Exception {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -1273,7 +1273,7 @@ public class RequirementsResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             RequirementContributors requirementContributors = dalFacade.listContributorsForRequirement(requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_41,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_41,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirementContributors.toJSON()).build();
         } catch (BazaarException bex) {
@@ -1283,13 +1283,13 @@ public class RequirementsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get contributors for requirement " + requirementId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get contributors for requirement " + requirementId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get contributors for requirement " + requirementId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get contributors for requirement " + requirementId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -1315,12 +1315,12 @@ public class RequirementsResource {
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public Response getFollowersForRequirement(@PathParam("requirementId") int requirementId,
-                                                @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
-                                                @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) throws Exception {
+                                               @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
+                                               @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) throws Exception {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -1334,7 +1334,7 @@ public class RequirementsResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             PaginationResult<User> requirementFollowers = dalFacade.listFollowersForRequirement(requirementId, pageInfo);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_42,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_42,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
 
             Map<String, List<String>> parameter = new HashMap<>();
@@ -1344,7 +1344,7 @@ public class RequirementsResource {
             parameter.put("per_page", new ArrayList() {{
                 add(String.valueOf(perPage));
             }});
-            
+
             Response.ResponseBuilder responseBuilder = Response.ok();
             responseBuilder = responseBuilder.entity(requirementFollowers.toJSON());
             responseBuilder = bazaarService.paginationLinks(responseBuilder, requirementFollowers, "requirements/" + String.valueOf(requirementId) + "/followers", parameter);
@@ -1358,13 +1358,13 @@ public class RequirementsResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get followers for requirement " + requirementId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get followers for requirement " + requirementId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get followers for requirement " + requirementId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get followers for requirement " + requirementId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);

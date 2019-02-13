@@ -1,6 +1,8 @@
 <project name="RequirementsBazaar" default="all" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant"
          xmlns:flyway="antlib:org.flywaydb.ant">
 
+    <property name="core.version" value="0.7.6"/>
+
     <property file="etc/ant_configuration/user.properties"/>
     <property file="etc/ant_configuration/service.properties"/>
 

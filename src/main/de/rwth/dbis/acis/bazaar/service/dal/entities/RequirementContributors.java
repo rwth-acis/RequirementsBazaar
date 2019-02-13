@@ -2,8 +2,9 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-// import javax.ws.rs.core.Link;
 import java.util.List;
+
+// import javax.ws.rs.core.Link;
 
 /**
  * Created by Martin on 12.06.2017.

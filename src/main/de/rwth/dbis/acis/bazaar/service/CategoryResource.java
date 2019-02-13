@@ -12,9 +12,9 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Context;
+import i5.las2peer.api.logging.MonitoringEvent;
+import i5.las2peer.api.security.Agent;
 import i5.las2peer.logging.L2pLogger;
-import i5.las2peer.logging.NodeObserver;
-import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
 import jodd.vtor.Vtor;
 
@@ -70,8 +70,8 @@ public class CategoryResource {
     public Response getCategoriesForProject(int projectId, int page, int perPage, String search, List<String> sort) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -113,7 +113,7 @@ public class CategoryResource {
                 }
             }
             PaginationResult<Category> categoriesResult = dalFacade.listCategoriesByProjectId(projectId, pageInfo, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_13,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_13,
                     projectId, Activity.DataType.PROJECT, internalUserId);
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{
@@ -142,13 +142,13 @@ public class CategoryResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get categories for project " + projectId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get categories for project " + projectId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get categories for project " + projectId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get categories for project " + projectId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -174,8 +174,8 @@ public class CategoryResource {
     public Response getCategory(@PathParam("categoryId") int categoryId) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -183,7 +183,7 @@ public class CategoryResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Category categoryToReturn = dalFacade.getCategoryById(categoryId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_15,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_15,
                     categoryId, Activity.DataType.CATEGORY, internalUserId);
             if (dalFacade.isCategoryPublic(categoryId)) {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_CATEGORY, String.valueOf(categoryId), dalFacade);
@@ -204,13 +204,13 @@ public class CategoryResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get projects");
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get projects");
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get projects");
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get projects");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -236,8 +236,8 @@ public class CategoryResource {
     public Response createCategory(@ApiParam(value = "Category entity", required = true) Category categoryToCreate) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             // TODO: check whether the current user may create a new project
             // TODO: check whether all required parameters are entered
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -258,7 +258,7 @@ public class CategoryResource {
             }
             categoryToCreate.setLeader(dalFacade.getUserById(internalUserId));
             Category createdCategory = dalFacade.createCategory(categoryToCreate, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(createdCategory.getCreationDate(), Activity.ActivityAction.CREATE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_16,
+            bazaarService.getNotificationDispatcher().dispatchNotification(createdCategory.getCreationDate(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_16,
                     createdCategory.getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.status(Response.Status.CREATED).entity(createdCategory.toJSON()).build();
         } catch (BazaarException bex) {
@@ -266,13 +266,13 @@ public class CategoryResource {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Create category");
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Create category");
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Create category");
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Create category");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -306,8 +306,8 @@ public class CategoryResource {
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             Vtor vtor = bazaarService.getValidators();
             vtor.validate(categoryToUpdate);
             if (vtor.hasViolations()) {
@@ -323,7 +323,7 @@ public class CategoryResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
             }
             Category updatedCategory = dalFacade.modifyCategory(categoryToUpdate);
-            bazaarService.getNotificationDispatcher().dispatchNotification(updatedCategory.getLastUpdatedDate(), Activity.ActivityAction.UPDATE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_17,
+            bazaarService.getNotificationDispatcher().dispatchNotification(updatedCategory.getLastUpdatedDate(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_17,
                     updatedCategory.getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.ok(updatedCategory.toJSON()).build();
         } catch (BazaarException bex) {
@@ -333,13 +333,13 @@ public class CategoryResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Update category " + categoryId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Update category " + categoryId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Update category " + categoryId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Update category " + categoryId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -365,8 +365,8 @@ public class CategoryResource {
     public Response deleteCategory(@PathParam("categoryId") int categoryId) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -388,7 +388,7 @@ public class CategoryResource {
                 );
             }
             Category deletedCategory = dalFacade.deleteCategoryById(categoryId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(deletedCategory.getLastUpdatedDate(), Activity.ActivityAction.DELETE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_18,
+            bazaarService.getNotificationDispatcher().dispatchNotification(deletedCategory.getLastUpdatedDate(), Activity.ActivityAction.DELETE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_18,
                     deletedCategory.getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.ok(deletedCategory.toJSON()).build();
         } catch (BazaarException bex) {
@@ -398,13 +398,13 @@ public class CategoryResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Delete category " + categoryId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Delete category " + categoryId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Delete category " + categoryId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Delete category " + categoryId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -430,8 +430,8 @@ public class CategoryResource {
     public Response followCategory(@PathParam("categoryId") int categoryId) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -444,7 +444,7 @@ public class CategoryResource {
             }
             dalFacade.followCategory(internalUserId, categoryId);
             Category category = dalFacade.getCategoryById(categoryId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.FOLLOW, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_19,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.FOLLOW, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_19,
                     category.getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.status(Response.Status.CREATED).entity(category.toJSON()).build();
         } catch (BazaarException bex) {
@@ -454,13 +454,13 @@ public class CategoryResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Follow category " + categoryId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Follow category " + categoryId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Follow category " + categoryId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Follow category " + categoryId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -486,8 +486,8 @@ public class CategoryResource {
     public Response unfollowCategory(@PathParam("categoryId") int categoryId) {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -500,7 +500,7 @@ public class CategoryResource {
             }
             dalFacade.unFollowCategory(internalUserId, categoryId);
             Category category = dalFacade.getCategoryById(categoryId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNFOLLOW, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_20,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UNFOLLOW, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_20,
                     category.getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.ok(category.toJSON()).build();
         } catch (BazaarException bex) {
@@ -510,13 +510,13 @@ public class CategoryResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Unfollow category " + categoryId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unfollow category " + categoryId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Unfollow category " + categoryId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unfollow category " + categoryId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -527,7 +527,7 @@ public class CategoryResource {
      * This method allows to retrieve statistics for one category.
      *
      * @param categoryId
-     * @param since timestamp since filter, ISO-8601 e.g. 2017-12-30 or 2017-12-30T18:30:00Z
+     * @param since      timestamp since filter, ISO-8601 e.g. 2017-12-30 or 2017-12-30T18:30:00Z
      * @return Response with statistics as a JSON object.
      */
     @GET
@@ -549,14 +549,14 @@ public class CategoryResource {
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Category category = dalFacade.getCategoryById(categoryId, internalUserId);
             Statistic categoryStatistics = dalFacade.getStatisticsForCategory(internalUserId, categoryId, sinceCal);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_21,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_21,
                     categoryId, Activity.DataType.CATEGORY, internalUserId);
             return Response.ok(categoryStatistics.toJSON()).build();
         } catch (BazaarException bex) {
@@ -566,13 +566,13 @@ public class CategoryResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get statistics for category " + categoryId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get statistics for category " + categoryId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get statistics for category " + categoryId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get statistics for category " + categoryId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -598,8 +598,8 @@ public class CategoryResource {
     public Response getContributorsForCategory(@PathParam("categoryId") int categoryId) throws Exception {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -608,7 +608,7 @@ public class CategoryResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Category category = dalFacade.getCategoryById(categoryId, internalUserId);
             CategoryContributors categoryContributors = dalFacade.listContributorsForCategory(categoryId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_22,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_22,
                     categoryId, Activity.DataType.CATEGORY, internalUserId);
             return Response.ok(categoryContributors.toJSON()).build();
         } catch (BazaarException bex) {
@@ -618,13 +618,13 @@ public class CategoryResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get contributors for category " + categoryId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get contributors for category " + categoryId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get contributors for category " + categoryId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get contributors for category " + categoryId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
@@ -635,8 +635,8 @@ public class CategoryResource {
      * This method returns the list of followers for a specific category.
      *
      * @param categoryId id of the category
-     * @param page          page number
-     * @param perPage       number of projects by page
+     * @param page       page number
+     * @param perPage    number of projects by page
      * @return Response with followers as a JSON array.
      */
     @GET
@@ -654,8 +654,8 @@ public class CategoryResource {
                                             @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) throws Exception {
         DALFacade dalFacade = null;
         try {
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -670,7 +670,7 @@ public class CategoryResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Category category = dalFacade.getCategoryById(categoryId, internalUserId);
             PaginationResult<User> categoryFollowers = dalFacade.listFollowersForCategory(categoryId, pageInfo);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_23,
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_23,
                     categoryId, Activity.DataType.CATEGORY, internalUserId);
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{
@@ -693,13 +693,13 @@ public class CategoryResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get followers for category " + categoryId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get followers for category " + categoryId);
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get followers for category " + categoryId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get followers for category " + categoryId);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);

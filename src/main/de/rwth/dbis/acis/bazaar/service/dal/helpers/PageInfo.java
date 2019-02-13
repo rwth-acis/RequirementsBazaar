@@ -82,5 +82,7 @@ public class PageInfo implements Pageable {
     }
 
     @Override
-    public String getSearch() {return search;}
+    public String getSearch() {
+        return search;
+    }
 }

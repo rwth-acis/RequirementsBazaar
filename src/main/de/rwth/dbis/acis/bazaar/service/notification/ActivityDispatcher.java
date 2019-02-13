@@ -11,11 +11,10 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
+import i5.las2peer.api.Context;
 import i5.las2peer.logging.L2pLogger;
 
-
 import javax.ws.rs.core.Response;
-import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -120,7 +119,7 @@ public class ActivityDispatcher {
             mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             mapper.setFilters(filters);
 
-            Object result = bazaarService.getContext().invoke(activityTrackerService, "createActivity", mapper.writeValueAsString(activity));
+            Object result = Context.get().invoke(activityTrackerService, "createActivity", mapper.writeValueAsString(activity));
             if (!(result).equals(Integer.toString(Response.Status.CREATED.getStatusCode()))) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.NETWORK, ErrorCode.RMI_ERROR, "ActivityTracker RMI call failed");
             }

@@ -20,7 +20,9 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Category;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.UserVote;
@@ -37,11 +39,13 @@ import org.jooq.impl.DSL;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.util.*;
-
-import static org.jooq.impl.DSL.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Map;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
+import static org.jooq.impl.DSL.*;
 
 public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, RequirementRecord> implements RequirementRepository {
 
@@ -188,7 +192,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .from(REQUIREMENT_FOLLOWER_MAP)
                     .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
                     .asField("followerCount");
-            
+
             List<Record> queryResults = jooq.select(REQUIREMENT.fields())
                     .select(idCount)
                     .select(voteCount)

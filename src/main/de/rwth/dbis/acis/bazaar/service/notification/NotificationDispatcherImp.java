@@ -10,8 +10,8 @@ import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import i5.las2peer.api.Context;
+import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.logging.L2pLogger;
-import i5.las2peer.logging.NodeObserver;
 
 import java.util.Date;
 import java.util.TimerTask;
@@ -40,7 +40,7 @@ public class NotificationDispatcherImp extends TimerTask implements Notification
     }
 
     @Override
-    public void dispatchNotification(final Date creationDate, final Activity.ActivityAction activityAction, final NodeObserver.Event mobSOSEvent,
+    public void dispatchNotification(final Date creationDate, final Activity.ActivityAction activityAction, final MonitoringEvent mobSOSEvent,
                                      final int dataId, final Activity.DataType dataType, final int userId) {
 
         // Filters to generate JSON elements
@@ -69,7 +69,7 @@ public class NotificationDispatcherImp extends TimerTask implements Notification
             }
             if (mobSOSEvent != null) {
                 // dispatch mobSOS log call
-                L2pLogger.logEvent(mobSOSEvent, Context.getCurrent().getMainAgent(), mapper.writeValueAsString(additionalObject));
+                Context.get().monitorEvent(mobSOSEvent, mapper.writeValueAsString(additionalObject));
             }
         } catch (JsonProcessingException e) {
             logger.warning(e.getMessage());
