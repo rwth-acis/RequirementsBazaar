@@ -29,8 +29,8 @@ export MYSQL_DATABASE='reqbaz'
 [[ -z "${MYSQL_PORT}" ]] && export MYSQL_PORT='3306'
 
 [[ -z "${SERVICE_PASSPHRASE}" ]] && export SERVICE_PASSPHRASE='Passphrase'
-[[ -z "${LANG}" ]] && export LANG='en'
-[[ -z "${COUNTRY}" ]] && export COUNTRY='us'
+[[ -z "${BAZAAR_LANG}" ]] && export BAZAAR_LANG='en'
+[[ -z "${BAZAAR_COUNTRY}" ]] && export BAZAAR_COUNTRY='us'
 [[ -z "${BASE_URL}" ]] && export BASE_URL='http://localhost:8080/bazaar/'
 [[ -z "${FRONTEND_BASE_URL}" ]] && export FRONTEND_BASE_URL='http://localhost:5000/'
 [[ -z "${ACTIVITY_TRACKER_SERVICE}" ]] && export ACTIVITY_TRACKER_SERVICE=''
@@ -57,8 +57,8 @@ function set_in_service_config {
 set_in_service_config dbUserName ${MYSQL_USER}
 set_in_service_config dbPassword ${MYSQL_PASSWORD}
 set_in_service_config dbUrl "jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}"
-set_in_service_config lang ${LANG}
-set_in_service_config country ${COUNTRY}
+set_in_service_config lang ${BAZAAR_LANG}
+set_in_service_config country ${BAZAAR_COUNTRY}
 set_in_service_config baseURL ${BASE_URL}
 set_in_service_config frontendBaseURL ${FRONTEND_BASE_URL}
 set_in_service_config activityTrackerService ${ACTIVITY_TRACKER_SERVICE}
@@ -120,7 +120,7 @@ fi
 
 # prevent glob expansion in lib/*
 set -f
-LAUNCH_COMMAND='java -cp lib/* i5.las2peer.tools.L2pNodeLauncher -s service -p '"${LAS2PEER_PORT}"
+LAUNCH_COMMAND='java -cp lib/*:service/* i5.las2peer.tools.L2pNodeLauncher -s service -p '"${LAS2PEER_PORT}"
 if [[ ! -z "${BOOTSTRAP}" ]]; then
     LAUNCH_COMMAND="${LAUNCH_COMMAND} -b ${BOOTSTRAP}"
 fi
