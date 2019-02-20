@@ -1,28 +1,21 @@
-FROM ubuntu:14.04
-MAINTAINER István Koren <koren ÄT dbis.rwth-aachen.de>
+FROM openjdk:8-jdk-alpine
 
-# Let the container know that there is no tty
-ENV DEBIAN_FRONTEND noninteractive
+ENV HTTP_PORT=8080
+ENV HTTPS_PORT=8443
+ENV LAS2PEER_PORT=9011
 
-# Update base image
-RUN sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list
-RUN apt-get update -y
-RUN apt-get upgrade -y
+RUN apk add --update bash mysql-client apache-ant && rm -f /var/cache/apk/*
+RUN addgroup -g 1000 -S las2peer && \
+    adduser -u 1000 -S las2peer -G las2peer
 
-# Install build tools
-RUN apt-get install -y \
-                     openjdk-7-jdk \
-                     ant
+COPY --chown=las2peer:las2peer . /src
+WORKDIR /src
 
-# Set jdk7 as the default JDK
-RUN ln -fs /usr/lib/jvm/java-7-openjdk-amd64/jre/bin/java /etc/alternatives/java
+# run the rest as unprivileged user
+USER las2peer
+RUN ant jar
 
-# create mount point
-RUN mkdir /build
-WORKDIR /build
-VOLUME ["/build"]
-
-# Build code on run
-CMD ant clean_all && \
-    ant generate_configs  && \
-    ant jar
+EXPOSE $HTTP_PORT
+EXPOSE $HTTPS_PORT
+EXPOSE $LAS2PEER_PORT
+ENTRYPOINT ["/src/docker-entrypoint.sh"]
