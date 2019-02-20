@@ -91,7 +91,7 @@
         <mkdir dir="${log}"/>
     </target>
 
-    <target name="init_compile" depends="init_general">
+    <target name="init_compile" depends="init_general, get_deps">
         <mkdir dir="${tmp.classes}"/>
         <mkdir dir="${tmp.junit}"/>
     </target>
@@ -168,7 +168,7 @@
     </target>
 
     <!-- Generate Jars -->
-    <target name="jar" description="--> jar">
+    <target name="jar" depends="compile_main" description="--> jar">
         <jar jarfile="${export.jars}/${service.name}-${service.version}.jar">
             <fileset dir="${tmp.classes}" includes="${service.path}/**"/>
             <fileset dir="src" includes="i18n/**"/>
