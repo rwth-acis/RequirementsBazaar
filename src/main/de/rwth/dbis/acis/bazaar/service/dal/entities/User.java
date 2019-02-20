@@ -53,7 +53,7 @@ public class User extends EntityBase {
     private Boolean admin;
 
     @Min(value = 1, profiles = {"create"})
-    private long las2peerId;
+    private String las2peerId;
 
     private String profileImage;
 
@@ -110,7 +110,7 @@ public class User extends EntityBase {
         return admin;
     }
 
-    public long getLas2peerId() {
+    public String getLas2peerId() {
         return las2peerId;
     }
 
@@ -156,7 +156,7 @@ public class User extends EntityBase {
         private String lastName;
         private String eMail;
         private Boolean admin;
-        private long las2peerId;
+        private String las2peerId;
         private String userName;
         private String profileImage;
         private Boolean emailLeadSubscription;
@@ -194,7 +194,7 @@ public class User extends EntityBase {
             return this;
         }
 
-        public Builder las2peerId(long userId) {
+        public Builder las2peerId(String userId) {
             this.las2peerId = userId;
             return this;
         }
