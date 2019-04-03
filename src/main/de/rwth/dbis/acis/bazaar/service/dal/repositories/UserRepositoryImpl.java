@@ -59,7 +59,8 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
     }
 
     @Override
-    public Integer getIdByLas2PeerId(long las2PeerId) throws BazaarException {
+    public Integer getIdByLas2PeerId(String las2PeerId) throws BazaarException {
+        if ("anonymous".equals(las2PeerId)) las2PeerId = "-1722613621014065292";
         Integer id = null;
         try {
             id = jooq.selectFrom(USER).where(USER.LAS2PEER_ID.equal(las2PeerId)).fetchOne(USER.ID);

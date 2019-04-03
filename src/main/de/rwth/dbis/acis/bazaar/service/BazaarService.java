@@ -21,7 +21,6 @@
 package de.rwth.dbis.acis.bazaar.service;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
@@ -40,15 +39,18 @@ import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcherImp;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Context;
+import i5.las2peer.api.ManualDeployment;
+import i5.las2peer.api.ServiceException;
+import i5.las2peer.api.logging.MonitoringEvent;
+import i5.las2peer.api.security.Agent;
+import i5.las2peer.api.security.AnonymousAgent;
+import i5.las2peer.api.security.UserAgent;
 import i5.las2peer.logging.L2pLogger;
-import i5.las2peer.logging.NodeObserver;
-import i5.las2peer.p2p.AgentNotKnownException;
 import i5.las2peer.restMapper.RESTService;
 import i5.las2peer.restMapper.annotations.ServicePath;
-import i5.las2peer.security.UserAgent;
 import io.swagger.annotations.*;
 import jodd.vtor.Vtor;
-import org.apache.commons.dbcp2.*;
+import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.http.client.utils.URIBuilder;
 import org.jooq.SQLDialect;
 
@@ -70,6 +72,7 @@ import java.util.*;
  *
  * @author István Koren
  */
+@ManualDeployment
 @ServicePath("/bazaar")
 public class BazaarService extends RESTService {
 
@@ -107,7 +110,6 @@ public class BazaarService extends RESTService {
     }
 
     public BazaarService() throws Exception {
-
         setFieldValues();
         Locale locale = new Locale(lang, country);
         Localization.getInstance().setResourceBundle(ResourceBundle.getBundle("i18n.Translation", locale));
@@ -147,6 +149,7 @@ public class BazaarService extends RESTService {
         if (!activityTrackerService.isEmpty()) {
             notificationDispatcher.setActivityDispatcher(new ActivityDispatcher(this, activityTrackerService, activityOrigin, baseURL, frontendBaseURL));
         }
+
         if (!smtpServer.isEmpty()) {
             Properties props = System.getProperties();
             props.put("mail.smtp.host", smtpServer);
@@ -208,9 +211,9 @@ public class BazaarService extends RESTService {
             try {
                 String serviceNameVersion = Context.getCurrent().getService().getAgent().getServiceNameVersion().toString();
                 return Response.ok("{\"version\": \"" + serviceNameVersion + "\"}").build();
-            } catch (AgentNotKnownException ex) {
+            } catch (ServiceException ex) {
                 BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get service name version failed");
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get service name version failed");
                 bazaarService.logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
@@ -219,7 +222,7 @@ public class BazaarService extends RESTService {
         /**
          * This method allows to retrieve statistics over all projects.
          *
-         * @param since      timestamp since filter, ISO-8601 e.g. 2017-12-30 or 2017-12-30T18:30:00Z
+         * @param since timestamp since filter, ISO-8601 e.g. 2017-12-30 or 2017-12-30T18:30:00Z
          * @return Response with statistics as a JSON object.
          */
         @GET
@@ -239,13 +242,13 @@ public class BazaarService extends RESTService {
                 if (registrarErrors != null) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
                 }
-                UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-                long userId = agent.getId();
+                Agent agent = Context.getCurrent().getMainAgent();
+                String userId = agent.getIdentifier();
                 dalFacade = bazaarService.getDBConnection();
                 Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
                 Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
                 Statistic platformStatistics = dalFacade.getStatisticsForAllProjects(internalUserId, sinceCal);
-                bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_2,
+                bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_2,
                         0, Activity.DataType.STATISTIC, internalUserId);
                 return Response.ok(platformStatistics.toJSON()).build();
             } catch (BazaarException bex) {
@@ -259,7 +262,7 @@ public class BazaarService extends RESTService {
                 }
             } catch (Exception ex) {
                 BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get statistics failed");
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get statistics failed");
                 bazaarService.logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } finally {
@@ -287,7 +290,7 @@ public class BazaarService extends RESTService {
                 return Response.status(Response.Status.CREATED).build();
             } catch (Exception ex) {
                 BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-                L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Send Notifications failed");
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Send Notifications failed");
                 bazaarService.logger.warning(bex.getMessage());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
@@ -322,52 +325,36 @@ public class BazaarService extends RESTService {
     }
 
     private void registerUserAtFirstLogin() throws Exception {
-        UserAgent agent = (UserAgent) getActiveAgent();
+        Agent agent = Context.getCurrent().getMainAgent();
 
-        if (agent.getEmail() == null) agent.setEmail("NO.EMAIL@WARNING.COM");
-
+        String loginName = null;
+        String email = null;
         String profileImage = "https://api.learning-layers.eu/profile.png";
-        String givenName = null;
-        String familyName = null;
 
-        //TODO how to check if the user is anonymous?
-        if (agent.getLoginName().equals("anonymous")) {
-            agent.setEmail("anonymous@requirements-bazaar.org");
-        } else if (agent.getUserData() != null) {
-            JsonNode userDataJson = mapper.readTree(agent.getUserData().toString());
-            JsonNode pictureJson = userDataJson.get("picture");
-            String agentPicture;
-
-            if (pictureJson == null)
-                agentPicture = profileImage;
-            else
-                agentPicture = pictureJson.textValue();
-
-            if (agentPicture != null && !agentPicture.isEmpty())
-                profileImage = agentPicture;
-            String givenNameData = userDataJson.get("given_name").textValue();
-            if (givenNameData != null && !givenNameData.isEmpty())
-                givenName = givenNameData;
-            String familyNameData = userDataJson.get("family_name").textValue();
-            if (familyNameData != null && !familyNameData.isEmpty())
-                familyName = familyNameData;
+        if (agent instanceof AnonymousAgent) {
+            loginName = ((AnonymousAgent) agent).LOGIN_NAME;
+            email = "NO.EMAIL@WARNING.COM";
+        } else if (agent instanceof UserAgent) {
+            loginName = ((UserAgent) agent).getLoginName();
+            if (((UserAgent) agent).getEmail() == null) {
+                email = "NO.EMAIL@WARNING.COM";
+            } else {
+                email = ((UserAgent) agent).getEmail();
+            }
         }
 
         DALFacade dalFacade = null;
         try {
             dalFacade = getDBConnection();
-            Integer userIdByLAS2PeerId = dalFacade.getUserIdByLAS2PeerId(agent.getId());
+            Integer userIdByLAS2PeerId = dalFacade.getUserIdByLAS2PeerId(agent.getIdentifier());
             if (userIdByLAS2PeerId == null) {
                 // create user
-                User.Builder userBuilder = User.geBuilder(agent.getEmail());
-                if (givenName != null)
-                    userBuilder = userBuilder.firstName(givenName);
-                if (familyName != null)
-                    userBuilder = userBuilder.lastName(familyName);
-                User user = userBuilder.admin(false).las2peerId(agent.getId()).userName(agent.getLoginName()).profileImage(profileImage)
+                User.Builder userBuilder = User.geBuilder(email);
+                User user = userBuilder.admin(false).las2peerId(agent.getIdentifier()).userName(loginName).profileImage(profileImage)
                         .emailLeadSubscription(true).emailFollowSubscription(true).build();
-                int userId = dalFacade.createUser(user).getId();
-                this.getNotificationDispatcher().dispatchNotification(user.getCreationDate(), Activity.ActivityAction.CREATE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_55,
+                user = dalFacade.createUser(user);
+                int userId = user.getId();
+                this.getNotificationDispatcher().dispatchNotification(user.getCreationDate(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_55,
                         userId, Activity.DataType.USER, userId);
                 dalFacade.addUserToRole(userId, "SystemAdmin", null);
             } else {

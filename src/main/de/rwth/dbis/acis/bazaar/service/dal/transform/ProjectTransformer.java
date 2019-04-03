@@ -26,10 +26,11 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.repositories.ProjectRepositoryImpl;
 import org.jooq.*;
+import org.jooq.impl.DSL;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.PROJECT;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
 
 public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
 
@@ -41,7 +42,7 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
         record.setDescription(entry.getDescription());
         record.setName(entry.getName());
         record.setLeaderId(entry.getLeader().getId());
-        record.setVisibility((byte) (entry.getVisibility() ? 1 : 0 ));
+        record.setVisibility((byte) (entry.getVisibility() ? 1 : 0));
         record.setDefaultCategoryId(entry.getDefaultCategoryId());
         record.setCreationDate(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         return record;
@@ -147,28 +148,40 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
                     }
                     break;
                 case "requirement":
+
+                    Field<Object> requirementCount = DSL.select(DSL.count())
+                            .from(REQUIREMENT)
+                            .where(REQUIREMENT.PROJECT_ID.equal(PROJECT.ID))
+                            .asField("requirementCount");
+
                     switch (sort.getSortDirection()) {
                         case ASC:
-                            sortFields.add(ProjectRepositoryImpl.REQUIREMENT_COUNT.asc());
+                            sortFields.add(requirementCount.asc());
                             break;
                         case DESC:
-                            sortFields.add(ProjectRepositoryImpl.REQUIREMENT_COUNT.desc());
+                            sortFields.add(requirementCount.desc());
                             break;
                         default:
-                            sortFields.add(ProjectRepositoryImpl.REQUIREMENT_COUNT.desc());
+                            sortFields.add(requirementCount.desc());
                             break;
                     }
                     break;
                 case "follower":
+
+                    Field<Object> followerCount = DSL.select(DSL.count())
+                            .from(PROJECT_FOLLOWER_MAP)
+                            .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID))
+                            .asField("followerCount");
+
                     switch (sort.getSortDirection()) {
                         case ASC:
-                            sortFields.add(ProjectRepositoryImpl.FOLLOWER_COUNT.asc());
+                            sortFields.add(followerCount.asc());
                             break;
                         case DESC:
-                            sortFields.add(ProjectRepositoryImpl.FOLLOWER_COUNT.desc());
+                            sortFields.add(followerCount.desc());
                             break;
                         default:
-                            sortFields.add(ProjectRepositoryImpl.FOLLOWER_COUNT.desc());
+                            sortFields.add(followerCount.desc());
                             break;
                     }
                     break;
