@@ -32,6 +32,8 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
+import i5.las2peer.api.security.AgentLockedException;
+import i5.las2peer.security.PassphraseAgentImpl;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
@@ -60,7 +62,6 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
 
     @Override
     public Integer getIdByLas2PeerId(String las2PeerId) throws BazaarException {
-        if ("anonymous".equals(las2PeerId)) las2PeerId = "-1722613621014065292";
         Integer id = null;
         try {
             id = jooq.selectFrom(USER).where(USER.LAS2PEER_ID.equal(las2PeerId)).fetchOne(USER.ID);
@@ -68,6 +69,41 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return id;
+    }
+
+    /**
+     * Hash agent sub field. This was needed to update from las2peer 0.6.* to 0.7.*.
+     * The las2peer id changed, and with the hashAgentSub method the old las2peer id can be generated.
+     * @param agent
+     * @return hashed agent sub
+     * @throws BazaarException
+     */
+    @Override
+    public long hashAgentSub(PassphraseAgentImpl agent) throws BazaarException {
+        long h = 1125899906842597L;
+        try {
+            String string = agent.getPassphrase();
+
+            int len = string.length();
+
+            for (int i = 0; i < len; ++i) {
+                h = 31L * h + (long) string.charAt(i);
+            }
+        } catch (AgentLockedException alEx) {
+            ExceptionHandler.getInstance().convertAndThrowException(alEx, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return h;
+    }
+
+    @Override
+    public void updateLas2peerId(int userId, String las2PeerId) throws BazaarException {
+        try {
+            jooq.update(USER).set(USER.LAS2PEER_ID, las2PeerId)
+                    .where(USER.ID.equal(userId))
+                    .execute();
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
     }
 
     @Override

@@ -29,6 +29,9 @@ import de.rwth.dbis.acis.bazaar.service.dal.repositories.*;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.PrivilegeEnumConverter;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
+import i5.las2peer.api.Context;
+import i5.las2peer.api.security.Agent;
+import i5.las2peer.security.PassphraseAgentImpl;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
@@ -112,8 +115,20 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public Integer getUserIdByLAS2PeerId(String las2PeerId) throws Exception {
+        Integer userId;
+
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
-        return userRepository.getIdByLas2PeerId(las2PeerId);
+        userId = userRepository.getIdByLas2PeerId(las2PeerId);
+
+        if (userId == null) {
+            PassphraseAgentImpl agent = (PassphraseAgentImpl) Context.getCurrent().getMainAgent();
+            String oldLas2peerId = String.valueOf(userRepository.hashAgentSub(agent));
+            userId = userRepository.getIdByLas2PeerId(oldLas2peerId);
+            if (userId != null) {
+                userRepository.updateLas2peerId(userId, las2PeerId);
+            }
+        }
+        return userId;
     }
 
     @Override
