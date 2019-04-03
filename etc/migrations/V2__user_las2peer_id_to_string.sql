@@ -1,3 +1,7 @@
-set sql_mode = 'STRICT_ALL_TABLES';
+SET FOREIGN_KEY_CHECKS = 0;
 
-alter table reqbaz.user change las2peer_id las2peer_id varchar(128);
+ALTER TABLE reqbaz.user change las2peer_id las2peer_id VARCHAR(128);
+
+UPDATE reqbaz.user SET las2peer_id = "anonymous" where id = 1;
+
+SET FOREIGN_KEY_CHECKS = 1;

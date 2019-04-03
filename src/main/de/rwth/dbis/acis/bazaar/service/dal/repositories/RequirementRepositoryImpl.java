@@ -79,6 +79,26 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .groupBy(ACTIVITY.field(REQUIREMENT.ID)))
             .as("last_activity");
 
+    public static final Field<Object> VOTE_COUNT = select(DSL.count(DSL.nullif(VOTE.IS_UPVOTE, 0)))
+            .from(VOTE)
+            .where(VOTE.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+            .asField("voteCount");
+
+    public static final Field<Object> COMMENT_COUNT = select(DSL.count())
+            .from(COMMENT)
+            .where(COMMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+            .asField("commentCount");
+
+    public static final Field<Object> ATTACHMENT_COUNT = select(DSL.count())
+            .from(ATTACHMENT)
+            .where(ATTACHMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+            .asField("attachmentCount");
+
+    public static final Field<Object> FOLLOWER_COUNT = select(DSL.count())
+            .from(REQUIREMENT_FOLLOWER_MAP)
+            .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+            .asField("followerCount");
+
     /**
      * @param jooq DSLContext object to initialize JOOQ connection. For more see JOOQ documentation.
      */
@@ -100,26 +120,11 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .and(REQUIREMENT.PROJECT_ID.eq(projectId))
                     .asField("idCount");
 
-            Field<Object> voteCount = jooq.select(DSL.count(DSL.nullif(VOTE.IS_UPVOTE, 0)))
-                    .from(VOTE)
-                    .where(VOTE.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .asField("voteCount");
-
-            Field<Object> commentCount = DSL.select(DSL.count())
-                    .from(COMMENT)
-                    .where(COMMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .asField("commentCount");
-
-            Field<Object> followerCount = DSL.select(DSL.count())
-                    .from(REQUIREMENT_FOLLOWER_MAP)
-                    .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .asField("followerCount");
-
             List<Record> queryResults = jooq.select(REQUIREMENT.fields())
                     .select(idCount)
-                    .select(voteCount)
-                    .select(commentCount)
-                    .select(followerCount)
+                    .select(VOTE_COUNT)
+                    .select(COMMENT_COUNT)
+                    .select(FOLLOWER_COUNT)
                     .from(REQUIREMENT)
                     .leftOuterJoin(LAST_ACTIVITY).on(REQUIREMENT.ID.eq(LAST_ACTIVITY.field(REQUIREMENT.ID)))
                     .where(transformer.getFilterConditions(pageable.getFilters()))
@@ -195,9 +200,9 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
             List<Record> queryResults = jooq.select(REQUIREMENT.fields())
                     .select(idCount)
-                    .select(voteCount)
-                    .select(commentCount)
-                    .select(followerCount)
+                    .select(VOTE_COUNT)
+                    .select(COMMENT_COUNT)
+                    .select(FOLLOWER_COUNT)
                     .from(REQUIREMENT)
                     .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.eq(REQUIREMENT.ID))
                     .leftOuterJoin(LAST_ACTIVITY).on(REQUIREMENT.ID.eq(LAST_ACTIVITY.field(REQUIREMENT.ID)))
@@ -246,21 +251,6 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Vote vote = VOTE.as("vote");
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Vote userVote = VOTE.as("userVote");
 
-            Field<Object> commentCount = jooq.select(DSL.count())
-                    .from(COMMENT)
-                    .where(COMMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .asField("commentCount");
-
-            Field<Object> attachmentCount = jooq.select(DSL.count())
-                    .from(ATTACHMENT)
-                    .where(ATTACHMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .asField("attachmentCount");
-
-            Field<Object> followerCount = jooq.select(DSL.count())
-                    .from(REQUIREMENT_FOLLOWER_MAP)
-                    .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .asField("followerCount");
-
             Field<Object> isFollower = DSL.select(DSL.count())
                     .from(REQUIREMENT_FOLLOWER_MAP)
                     .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID).and(REQUIREMENT_FOLLOWER_MAP.USER_ID.equal(userId)))
@@ -291,9 +281,9 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .asField("isContributor");
 
             Result<Record> queryResult = jooq.select(REQUIREMENT.fields())
-                    .select(commentCount)
-                    .select(attachmentCount)
-                    .select(followerCount)
+                    .select(COMMENT_COUNT)
+                    .select(ATTACHMENT_COUNT)
+                    .select(FOLLOWER_COUNT)
                     .select(isFollower)
                     .select(isDeveloper)
                     .select(isContributor)
@@ -370,9 +360,9 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             requirement.setCategories(categories);
 
             //Filling up additional information
-            requirement.setNumberOfComments((Integer) queryResult.getValues(commentCount).get(0));
-            requirement.setNumberOfAttachments((Integer) queryResult.getValues(attachmentCount).get(0));
-            requirement.setNumberOfFollowers((Integer) queryResult.getValues(followerCount).get(0));
+            requirement.setNumberOfComments((Integer) queryResult.getValues(COMMENT_COUNT).get(0));
+            requirement.setNumberOfAttachments((Integer) queryResult.getValues(ATTACHMENT_COUNT).get(0));
+            requirement.setNumberOfFollowers((Integer) queryResult.getValues(FOLLOWER_COUNT).get(0));
             if (userId != 1) {
                 requirement.setFollower((Integer) queryResult.getValues(isFollower).get(0) == 0 ? false : true);
                 requirement.setDeveloper((Integer) queryResult.getValues(isDeveloper).get(0) == 0 ? false : true);
