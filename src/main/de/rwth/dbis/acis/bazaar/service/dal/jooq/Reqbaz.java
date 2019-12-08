@@ -8,6 +8,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachment;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Category;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.CategoryFollowerMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.PersonalisationData;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privilege;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ProjectFollowerMap;
@@ -18,6 +19,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementFollowerMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Role;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RolePrivilegeMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RoleRoleMap;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.SchemaVersion;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.UserRoleMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Vote;
@@ -46,7 +48,7 @@ import org.jooq.impl.SchemaImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Reqbaz extends SchemaImpl {
 
-    private static final long serialVersionUID = -786831443;
+    private static final long serialVersionUID = 1110546097;
 
     /**
      * The reference instance of <code>reqbaz</code>
@@ -72,6 +74,11 @@ public class Reqbaz extends SchemaImpl {
      * The table <code>reqbaz.comment</code>.
      */
     public final Comment COMMENT = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment.COMMENT;
+
+    /**
+     * The table <code>reqbaz.personalisation_data</code>.
+     */
+    public final PersonalisationData PERSONALISATION_DATA = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.PersonalisationData.PERSONALISATION_DATA;
 
     /**
      * The table <code>reqbaz.privilege</code>.
@@ -124,6 +131,11 @@ public class Reqbaz extends SchemaImpl {
     public final RoleRoleMap ROLE_ROLE_MAP = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RoleRoleMap.ROLE_ROLE_MAP;
 
     /**
+     * The table <code>reqbaz.schema_version</code>.
+     */
+    public final SchemaVersion SCHEMA_VERSION = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.SchemaVersion.SCHEMA_VERSION;
+
+    /**
      * The table <code>reqbaz.user</code>.
      */
     public final User USER = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User.USER;
@@ -167,6 +179,7 @@ public class Reqbaz extends SchemaImpl {
             Category.CATEGORY,
             CategoryFollowerMap.CATEGORY_FOLLOWER_MAP,
             Comment.COMMENT,
+            PersonalisationData.PERSONALISATION_DATA,
             Privilege.PRIVILEGE,
             Project.PROJECT,
             ProjectFollowerMap.PROJECT_FOLLOWER_MAP,
@@ -177,6 +190,7 @@ public class Reqbaz extends SchemaImpl {
             Role.ROLE,
             RolePrivilegeMap.ROLE_PRIVILEGE_MAP,
             RoleRoleMap.ROLE_ROLE_MAP,
+            SchemaVersion.SCHEMA_VERSION,
             User.USER,
             UserRoleMap.USER_ROLE_MAP,
             Vote.VOTE);

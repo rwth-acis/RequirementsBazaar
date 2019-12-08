@@ -8,6 +8,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachment;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Category;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.CategoryFollowerMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.PersonalisationData;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privilege;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ProjectFollowerMap;
@@ -18,6 +19,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementFollowerMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Role;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RolePrivilegeMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RoleRoleMap;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.SchemaVersion;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.UserRoleMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Vote;
@@ -57,6 +59,11 @@ public class Tables {
      * The table <code>reqbaz.comment</code>.
      */
     public static final Comment COMMENT = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment.COMMENT;
+
+    /**
+     * The table <code>reqbaz.personalisation_data</code>.
+     */
+    public static final PersonalisationData PERSONALISATION_DATA = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.PersonalisationData.PERSONALISATION_DATA;
 
     /**
      * The table <code>reqbaz.privilege</code>.
@@ -107,6 +114,11 @@ public class Tables {
      * The table <code>reqbaz.role_role_map</code>.
      */
     public static final RoleRoleMap ROLE_ROLE_MAP = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RoleRoleMap.ROLE_ROLE_MAP;
+
+    /**
+     * The table <code>reqbaz.schema_version</code>.
+     */
+    public static final SchemaVersion SCHEMA_VERSION = de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.SchemaVersion.SCHEMA_VERSION;
 
     /**
      * The table <code>reqbaz.user</code>.

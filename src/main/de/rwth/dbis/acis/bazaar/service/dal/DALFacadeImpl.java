@@ -61,6 +61,7 @@ public class DALFacadeImpl implements DALFacade {
     private VoteRepository voteRepository;
     private RoleRepository roleRepository;
     private PrivilegeRepository privilegeRepository;
+    private PersonalisationDataRepository personalisationDataRepository;
 
     public DALFacadeImpl(DataSource dataSource, SQLDialect dialect) {
         dslContext = DSL.using(dataSource, dialect);
@@ -605,5 +606,16 @@ public class DALFacadeImpl implements DALFacade {
     public void addUserToRole(int userId, String roleName, String context) throws BazaarException {
         roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
         roleRepository.addUserToRole(userId, roleName, context);
+    }
+    @Override
+    public PersonalisationData getPersonalisationData(int userId, String key, int version) throws BazaarException {
+        personalisationDataRepository = (personalisationDataRepository != null) ? personalisationDataRepository : new PersonalisationDataRepositoryImpl(dslContext);
+        return personalisationDataRepository.findByKey(userId,version,key);
+    }
+    @Override
+    public void setPersonalisationData(PersonalisationData personalisationData) throws BazaarException {
+        personalisationDataRepository = (personalisationDataRepository != null) ? personalisationDataRepository : new PersonalisationDataRepositoryImpl(dslContext);
+        personalisationDataRepository.insertOrUpdate(personalisationData);
+
     }
 }

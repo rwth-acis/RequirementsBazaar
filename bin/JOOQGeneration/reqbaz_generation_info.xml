@@ -11,7 +11,7 @@
 	<generator>
 		<!-- The default code generator. You can override this one, to generate your own code style
          Defaults to org.jooq.util.DefaultGenerator -->
-		<name>org.jooq.util.DefaultGenerator</name>
+		<name>org.jooq.util.JavaGenerator</name>
 
 		<database>
 			<!-- The database type. The format here is:
@@ -43,7 +43,7 @@
 			<packageName>de.rwth.dbis.acis.bazaar.service.dal.jooq</packageName>
 
 			<!-- The destination directory of your generated classes -->
-			<directory>..\..\src\main</directory>
+			<directory>../../src/main</directory>
 		</target>
 	</generator>
 </configuration>

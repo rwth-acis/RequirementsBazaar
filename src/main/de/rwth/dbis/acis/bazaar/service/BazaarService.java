@@ -104,6 +104,7 @@ public class BazaarService extends RESTService {
         getResourceConfig().register(CommentsResource.class);
         getResourceConfig().register(AttachmentsResource.class);
         getResourceConfig().register(UsersResource.class);
+        getResourceConfig().register(PersonalisationDataResource.class);
     }
 
     public BazaarService() throws Exception {

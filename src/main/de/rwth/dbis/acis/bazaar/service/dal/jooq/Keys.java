@@ -8,6 +8,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Attachment;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Category;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.CategoryFollowerMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.PersonalisationData;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Privilege;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.ProjectFollowerMap;
@@ -18,6 +19,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RequirementFollowerMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Role;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RolePrivilegeMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.RoleRoleMap;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.SchemaVersion;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.UserRoleMap;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Vote;
@@ -25,6 +27,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.AttachmentRecord
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CategoryFollowerMapRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CategoryRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.PersonalisationDataRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.PrivilegeRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectFollowerMapRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectRecord;
@@ -35,6 +38,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementRecor
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RolePrivilegeMapRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RoleRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RoleRoleMapRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.SchemaVersionRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.UserRoleMapRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.VoteRecord;
@@ -69,6 +73,7 @@ public class Keys {
     public static final Identity<CategoryRecord, Integer> IDENTITY_CATEGORY = Identities0.IDENTITY_CATEGORY;
     public static final Identity<CategoryFollowerMapRecord, Integer> IDENTITY_CATEGORY_FOLLOWER_MAP = Identities0.IDENTITY_CATEGORY_FOLLOWER_MAP;
     public static final Identity<CommentRecord, Integer> IDENTITY_COMMENT = Identities0.IDENTITY_COMMENT;
+    public static final Identity<PersonalisationDataRecord, Integer> IDENTITY_PERSONALISATION_DATA = Identities0.IDENTITY_PERSONALISATION_DATA;
     public static final Identity<PrivilegeRecord, Integer> IDENTITY_PRIVILEGE = Identities0.IDENTITY_PRIVILEGE;
     public static final Identity<ProjectRecord, Integer> IDENTITY_PROJECT = Identities0.IDENTITY_PROJECT;
     public static final Identity<ProjectFollowerMapRecord, Integer> IDENTITY_PROJECT_FOLLOWER_MAP = Identities0.IDENTITY_PROJECT_FOLLOWER_MAP;
@@ -91,6 +96,8 @@ public class Keys {
     public static final UniqueKey<CategoryRecord> KEY_CATEGORY_PRIMARY = UniqueKeys0.KEY_CATEGORY_PRIMARY;
     public static final UniqueKey<CategoryFollowerMapRecord> KEY_CATEGORY_FOLLOWER_MAP_PRIMARY = UniqueKeys0.KEY_CATEGORY_FOLLOWER_MAP_PRIMARY;
     public static final UniqueKey<CommentRecord> KEY_COMMENT_PRIMARY = UniqueKeys0.KEY_COMMENT_PRIMARY;
+    public static final UniqueKey<PersonalisationDataRecord> KEY_PERSONALISATION_DATA_PRIMARY = UniqueKeys0.KEY_PERSONALISATION_DATA_PRIMARY;
+    public static final UniqueKey<PersonalisationDataRecord> KEY_PERSONALISATION_DATA_PERSONALISATION_KEY = UniqueKeys0.KEY_PERSONALISATION_DATA_PERSONALISATION_KEY;
     public static final UniqueKey<PrivilegeRecord> KEY_PRIVILEGE_PRIMARY = UniqueKeys0.KEY_PRIVILEGE_PRIMARY;
     public static final UniqueKey<ProjectRecord> KEY_PROJECT_PRIMARY = UniqueKeys0.KEY_PROJECT_PRIMARY;
     public static final UniqueKey<ProjectFollowerMapRecord> KEY_PROJECT_FOLLOWER_MAP_PRIMARY = UniqueKeys0.KEY_PROJECT_FOLLOWER_MAP_PRIMARY;
@@ -102,7 +109,9 @@ public class Keys {
     public static final UniqueKey<RoleRecord> KEY_ROLE_ROLE_IDX_1 = UniqueKeys0.KEY_ROLE_ROLE_IDX_1;
     public static final UniqueKey<RolePrivilegeMapRecord> KEY_ROLE_PRIVILEGE_MAP_PRIMARY = UniqueKeys0.KEY_ROLE_PRIVILEGE_MAP_PRIMARY;
     public static final UniqueKey<RoleRoleMapRecord> KEY_ROLE_ROLE_MAP_PRIMARY = UniqueKeys0.KEY_ROLE_ROLE_MAP_PRIMARY;
+    public static final UniqueKey<SchemaVersionRecord> KEY_SCHEMA_VERSION_PRIMARY = UniqueKeys0.KEY_SCHEMA_VERSION_PRIMARY;
     public static final UniqueKey<UserRecord> KEY_USER_PRIMARY = UniqueKeys0.KEY_USER_PRIMARY;
+    public static final UniqueKey<UserRecord> KEY_USER_LAS2PEER_IDX = UniqueKeys0.KEY_USER_LAS2PEER_IDX;
     public static final UniqueKey<UserRoleMapRecord> KEY_USER_ROLE_MAP_PRIMARY = UniqueKeys0.KEY_USER_ROLE_MAP_PRIMARY;
     public static final UniqueKey<VoteRecord> KEY_VOTE_PRIMARY = UniqueKeys0.KEY_VOTE_PRIMARY;
 
@@ -119,6 +128,7 @@ public class Keys {
     public static final ForeignKey<CommentRecord, RequirementRecord> COMMENT_REQUIREMENT = ForeignKeys0.COMMENT_REQUIREMENT;
     public static final ForeignKey<CommentRecord, UserRecord> COMMENT_USER = ForeignKeys0.COMMENT_USER;
     public static final ForeignKey<CommentRecord, CommentRecord> REPLY_COMMENT = ForeignKeys0.REPLY_COMMENT;
+    public static final ForeignKey<PersonalisationDataRecord, UserRecord> PERSONALISATION_USER = ForeignKeys0.PERSONALISATION_USER;
     public static final ForeignKey<ProjectRecord, UserRecord> PROJECT_USER = ForeignKeys0.PROJECT_USER;
     public static final ForeignKey<ProjectRecord, CategoryRecord> PROJECT_CATEGORY = ForeignKeys0.PROJECT_CATEGORY;
     public static final ForeignKey<ProjectFollowerMapRecord, ProjectRecord> PROJECT_FOLLOWER_MAP_PROJECT = ForeignKeys0.PROJECT_FOLLOWER_MAP_PROJECT;
@@ -150,6 +160,7 @@ public class Keys {
         public static Identity<CategoryRecord, Integer> IDENTITY_CATEGORY = createIdentity(Category.CATEGORY, Category.CATEGORY.ID);
         public static Identity<CategoryFollowerMapRecord, Integer> IDENTITY_CATEGORY_FOLLOWER_MAP = createIdentity(CategoryFollowerMap.CATEGORY_FOLLOWER_MAP, CategoryFollowerMap.CATEGORY_FOLLOWER_MAP.ID);
         public static Identity<CommentRecord, Integer> IDENTITY_COMMENT = createIdentity(Comment.COMMENT, Comment.COMMENT.ID);
+        public static Identity<PersonalisationDataRecord, Integer> IDENTITY_PERSONALISATION_DATA = createIdentity(PersonalisationData.PERSONALISATION_DATA, PersonalisationData.PERSONALISATION_DATA.ID);
         public static Identity<PrivilegeRecord, Integer> IDENTITY_PRIVILEGE = createIdentity(Privilege.PRIVILEGE, Privilege.PRIVILEGE.ID);
         public static Identity<ProjectRecord, Integer> IDENTITY_PROJECT = createIdentity(Project.PROJECT, Project.PROJECT.ID);
         public static Identity<ProjectFollowerMapRecord, Integer> IDENTITY_PROJECT_FOLLOWER_MAP = createIdentity(ProjectFollowerMap.PROJECT_FOLLOWER_MAP, ProjectFollowerMap.PROJECT_FOLLOWER_MAP.ID);
@@ -170,6 +181,8 @@ public class Keys {
         public static final UniqueKey<CategoryRecord> KEY_CATEGORY_PRIMARY = createUniqueKey(Category.CATEGORY, "KEY_category_PRIMARY", Category.CATEGORY.ID);
         public static final UniqueKey<CategoryFollowerMapRecord> KEY_CATEGORY_FOLLOWER_MAP_PRIMARY = createUniqueKey(CategoryFollowerMap.CATEGORY_FOLLOWER_MAP, "KEY_category_follower_map_PRIMARY", CategoryFollowerMap.CATEGORY_FOLLOWER_MAP.ID);
         public static final UniqueKey<CommentRecord> KEY_COMMENT_PRIMARY = createUniqueKey(Comment.COMMENT, "KEY_comment_PRIMARY", Comment.COMMENT.ID);
+        public static final UniqueKey<PersonalisationDataRecord> KEY_PERSONALISATION_DATA_PRIMARY = createUniqueKey(PersonalisationData.PERSONALISATION_DATA, "KEY_personalisation_data_PRIMARY", PersonalisationData.PERSONALISATION_DATA.ID);
+        public static final UniqueKey<PersonalisationDataRecord> KEY_PERSONALISATION_DATA_PERSONALISATION_KEY = createUniqueKey(PersonalisationData.PERSONALISATION_DATA, "KEY_personalisation_data_personalisation_key", PersonalisationData.PERSONALISATION_DATA.IDENTIFIER, PersonalisationData.PERSONALISATION_DATA.USER_ID, PersonalisationData.PERSONALISATION_DATA.VERSION);
         public static final UniqueKey<PrivilegeRecord> KEY_PRIVILEGE_PRIMARY = createUniqueKey(Privilege.PRIVILEGE, "KEY_privilege_PRIMARY", Privilege.PRIVILEGE.ID);
         public static final UniqueKey<ProjectRecord> KEY_PROJECT_PRIMARY = createUniqueKey(Project.PROJECT, "KEY_project_PRIMARY", Project.PROJECT.ID);
         public static final UniqueKey<ProjectFollowerMapRecord> KEY_PROJECT_FOLLOWER_MAP_PRIMARY = createUniqueKey(ProjectFollowerMap.PROJECT_FOLLOWER_MAP, "KEY_project_follower_map_PRIMARY", ProjectFollowerMap.PROJECT_FOLLOWER_MAP.ID);
@@ -181,7 +194,9 @@ public class Keys {
         public static final UniqueKey<RoleRecord> KEY_ROLE_ROLE_IDX_1 = createUniqueKey(Role.ROLE, "KEY_role_role_idx_1", Role.ROLE.NAME);
         public static final UniqueKey<RolePrivilegeMapRecord> KEY_ROLE_PRIVILEGE_MAP_PRIMARY = createUniqueKey(RolePrivilegeMap.ROLE_PRIVILEGE_MAP, "KEY_role_privilege_map_PRIMARY", RolePrivilegeMap.ROLE_PRIVILEGE_MAP.ID);
         public static final UniqueKey<RoleRoleMapRecord> KEY_ROLE_ROLE_MAP_PRIMARY = createUniqueKey(RoleRoleMap.ROLE_ROLE_MAP, "KEY_role_role_map_PRIMARY", RoleRoleMap.ROLE_ROLE_MAP.ID);
+        public static final UniqueKey<SchemaVersionRecord> KEY_SCHEMA_VERSION_PRIMARY = createUniqueKey(SchemaVersion.SCHEMA_VERSION, "KEY_schema_version_PRIMARY", SchemaVersion.SCHEMA_VERSION.INSTALLED_RANK);
         public static final UniqueKey<UserRecord> KEY_USER_PRIMARY = createUniqueKey(User.USER, "KEY_user_PRIMARY", User.USER.ID);
+        public static final UniqueKey<UserRecord> KEY_USER_LAS2PEER_IDX = createUniqueKey(User.USER, "KEY_user_las2peer_idx", User.USER.LAS2PEER_ID);
         public static final UniqueKey<UserRoleMapRecord> KEY_USER_ROLE_MAP_PRIMARY = createUniqueKey(UserRoleMap.USER_ROLE_MAP, "KEY_user_role_map_PRIMARY", UserRoleMap.USER_ROLE_MAP.ID);
         public static final UniqueKey<VoteRecord> KEY_VOTE_PRIMARY = createUniqueKey(Vote.VOTE, "KEY_vote_PRIMARY", Vote.VOTE.ID);
     }
@@ -196,6 +211,7 @@ public class Keys {
         public static final ForeignKey<CommentRecord, RequirementRecord> COMMENT_REQUIREMENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_REQUIREMENT_PRIMARY, Comment.COMMENT, "comment_requirement", Comment.COMMENT.REQUIREMENT_ID);
         public static final ForeignKey<CommentRecord, UserRecord> COMMENT_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, Comment.COMMENT, "comment_user", Comment.COMMENT.USER_ID);
         public static final ForeignKey<CommentRecord, CommentRecord> REPLY_COMMENT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_COMMENT_PRIMARY, Comment.COMMENT, "reply_comment", Comment.COMMENT.REPLY_TO_COMMENT_ID);
+        public static final ForeignKey<PersonalisationDataRecord, UserRecord> PERSONALISATION_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, PersonalisationData.PERSONALISATION_DATA, "personalisation_user", PersonalisationData.PERSONALISATION_DATA.USER_ID);
         public static final ForeignKey<ProjectRecord, UserRecord> PROJECT_USER = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_USER_PRIMARY, Project.PROJECT, "project_user", Project.PROJECT.LEADER_ID);
         public static final ForeignKey<ProjectRecord, CategoryRecord> PROJECT_CATEGORY = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_CATEGORY_PRIMARY, Project.PROJECT, "project_category", Project.PROJECT.DEFAULT_CATEGORY_ID);
         public static final ForeignKey<ProjectFollowerMapRecord, ProjectRecord> PROJECT_FOLLOWER_MAP_PROJECT = createForeignKey(de.rwth.dbis.acis.bazaar.service.dal.jooq.Keys.KEY_PROJECT_PRIMARY, ProjectFollowerMap.PROJECT_FOLLOWER_MAP, "project_follower_map_project", ProjectFollowerMap.PROJECT_FOLLOWER_MAP.PROJECT_ID);
