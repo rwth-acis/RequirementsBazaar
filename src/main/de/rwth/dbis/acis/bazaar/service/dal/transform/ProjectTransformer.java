@@ -30,6 +30,8 @@ import org.jooq.impl.DSL;
 
 import java.util.*;
 
+
+
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.REQUIREMENT;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.PROJECT;
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.PROJECT_FOLLOWER_MAP;
@@ -200,7 +202,28 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
 
     @Override
     public Collection<? extends Condition> getFilterConditions(Map<String, String> filters) throws Exception {
-        return new ArrayList<>();
+        List<Condition> conditions = new ArrayList<>();
+        for (Map.Entry<String, String> filterEntry : filters.entrySet()) {
+            if(filterEntry.getKey().equals("all")){
+                conditions.add(
+                        DSL.trueCondition()
+                );
+            }else
+            if (filterEntry.getKey().equals("own")) {
+                conditions.add(
+                        PROJECT.LEADER_ID.eq(Integer.parseInt(filterEntry.getValue()))
+                );
+            }else if(filterEntry.getKey().equals("following")){
+                conditions.add(
+                        PROJECT.ID.in(
+                                DSL.<Integer>select(PROJECT_FOLLOWER_MAP.PROJECT_ID)
+                                        .from(PROJECT_FOLLOWER_MAP)
+                                        .where(PROJECT_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue())))
+                        )
+                );
+            }
+        }
+        return conditions;
     }
 
     private Project cleanEntry(Project project) {
