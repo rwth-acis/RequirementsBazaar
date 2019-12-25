@@ -78,9 +78,10 @@ public class ProjectsResource {
             @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
             @ApiParam(value = "Elements of project by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
             @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
-            @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort) {
+            @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort,
+            @ApiParam(value = "Filter", required = false, allowMultiple = true, allowableValues = "all, own, following") @QueryParam("filters") List<String> filters) {
 
-        DALFacade dalFacade = null;
+            DALFacade dalFacade = null;
         try {
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
@@ -102,14 +103,23 @@ public class ProjectsResource {
                 Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
                 sortList.add(sortField);
             }
-            PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>(), sortList, search);
+
+            dalFacade = bazaarService.getDBConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+            HashMap<String, String> filterMap = new HashMap<>();
+            for(String filterOption : filters) {
+                filterMap.put(filterOption,internalUserId.toString());
+            }
+            PageInfo pageInfo = new PageInfo(page, perPage, filterMap, sortList, search);
+            
+
             Vtor vtor = bazaarService.getValidators();
             vtor.validate(pageInfo);
             if (vtor.hasViolations()) {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
-            dalFacade = bazaarService.getDBConnection();
-            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
             PaginationResult<Project> projectsResult;
             if (agent instanceof AnonymousAgent) {
                 // return only public projects
