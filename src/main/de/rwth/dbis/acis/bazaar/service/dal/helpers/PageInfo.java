@@ -39,21 +39,26 @@ public class PageInfo implements Pageable {
     private final Map<String, String> filters;
     private final List<SortField> sorts;
     private final String search;
+    private final List<Integer> ids;
 
     public PageInfo(int pageNumber, int pageSize) {
-        this(pageNumber, pageSize, new HashMap<>(), new ArrayList<>(), null);
+        this(pageNumber, pageSize, new HashMap<>(), new ArrayList<>(), null, null);
     }
 
     public PageInfo(int pageNumber, int pageSize, Map<String, String> filters) {
-        this(pageNumber, pageSize, filters, new ArrayList<>(), null);
+        this(pageNumber, pageSize, filters, new ArrayList<>(), null,null);
+    }
+    public PageInfo(int pageNumber, int pageSize, Map<String, String> filters, List<SortField> sorts, String search){
+        this(pageNumber, pageSize, filters, sorts, search,null);
     }
 
-    public PageInfo(int pageNumber, int pageSize, Map<String, String> filters, List<SortField> sorts, String search) {
+    public PageInfo(int pageNumber, int pageSize, Map<String, String> filters, List<SortField> sorts, String search, List<Integer> ids) {
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
         this.filters = filters;
         this.sorts = sorts;
         this.search = search != null ? search : "";
+        this.ids = ids;
     }
 
     @Override
@@ -79,6 +84,11 @@ public class PageInfo implements Pageable {
     @Override
     public List<SortField> getSorts() {
         return sorts;
+    }
+
+    @Override
+    public List<Integer> getIds() {
+        return ids;
     }
 
     @Override
