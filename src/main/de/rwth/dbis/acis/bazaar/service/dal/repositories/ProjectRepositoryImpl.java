@@ -206,6 +206,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .leftOuterJoin(LAST_ACTIVITY).on(PROJECT.ID.eq(LAST_ACTIVITY.field(PROJECT.ID)))
                     .where(PROJECT.VISIBILITY.isTrue())
                     .and(transformer.getSearchCondition(pageable.getSearch()))
+                    .and((pageable.getIds().size() > 0)?PROJECT.ID.in(pageable.getIds()):trueCondition())       //If list of ids parsed, add in condition
                     .orderBy(transformer.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
@@ -266,8 +267,13 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
 //                    .join(USERS).on(AUTHORIZATIONS.USER_ID.equal(USERS.ID))
 //                    .where(PROJECTS.VISIBILITY.eq(Project.ProjectVisibility.PUBLIC.asChar())
                     .where(transformer.getFilterConditions(pageable.getFilters()))
-                    .and(PROJECT.VISIBILITY.isTrue().or(leaderUser.ID.equal(userId))
-                            .and(transformer.getSearchCondition(pageable.getSearch())))
+                    .and(
+                            (pageable.getIds().size() > 0)?(PROJECT.ID.in(pageable.getIds())):trueCondition()
+                    .and(
+                            PROJECT.VISIBILITY.isTrue().or(leaderUser.ID.equal(userId))
+                    ).and(
+                            transformer.getSearchCondition(pageable.getSearch()))
+                    )
                     .orderBy(transformer.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
                     .offset(pageable.getOffset())
