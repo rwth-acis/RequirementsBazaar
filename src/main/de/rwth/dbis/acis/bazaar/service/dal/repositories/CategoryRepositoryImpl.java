@@ -311,6 +311,96 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
 
 
     @Override
+    public PaginationResult<Category> findAll(Pageable pageable, int userId) throws BazaarException {
+        PaginationResult<Category> result = null;
+        List<Category> categories;
+        try {
+            categories = new ArrayList<>();
+            de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User leaderUser = USER.as("leaderUser");
+
+            Field<Object> idCount = jooq.selectCount()
+                    .from(CATEGORY)
+                    .where(transformer.getFilterConditions(pageable.getFilters()))
+                    .and(transformer.getSearchCondition(pageable.getSearch()))
+                    .asField("idCount");
+
+            Field<Object> requirementCount = jooq.select(DSL.count())
+                    .from(REQUIREMENT)
+                    .leftJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT.ID.equal(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID))
+                    .where(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.equal(CATEGORY.ID))
+                    .asField("requirementCount");
+
+            Field<Object> followerCount = jooq.select(DSL.count())
+                    .from(CATEGORY_FOLLOWER_MAP)
+                    .where(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID))
+                    .asField("followerCount");
+
+            Field<Object> isFollower = DSL.select(DSL.count())
+                    .from(CATEGORY_FOLLOWER_MAP)
+                    .where(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID).and(CATEGORY_FOLLOWER_MAP.USER_ID.equal(userId)))
+                    .asField("isFollower");
+
+            List<Record> queryResults = jooq.select(CATEGORY.fields())
+                    .select(idCount)
+                    .select(requirementCount)
+                    .select(followerCount)
+                    .select(isFollower)
+                    .select(leaderUser.fields())
+                    .from(CATEGORY)
+                    .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(CATEGORY.LEADER_ID))
+                    .leftOuterJoin(LAST_ACTIVITY).on(CATEGORY.ID.eq(LAST_ACTIVITY.field(CATEGORY.ID)))
+                    .where(transformer.getFilterConditions(pageable.getFilters()))
+                    .and(transformer.getSearchCondition(pageable.getSearch()))
+                    .orderBy(transformer.getSortFields(pageable.getSorts()))
+                    .limit(pageable.getPageSize())
+                    .offset(pageable.getOffset())
+                    .fetch();
+
+            for (Record queryResult : queryResults) {
+                CategoryRecord categoryRecord = queryResult.into(CATEGORY);
+                Category category = transformer.getEntityFromTableRecord(categoryRecord);
+                UserTransformer userTransformer = new UserTransformer();
+                UserRecord userRecord = queryResult.into(leaderUser);
+                category.setLeader(userTransformer.getEntityFromTableRecord(userRecord));
+                category.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
+                category.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
+                if (userId != 1) {
+                    category.setFollower((Integer) queryResult.getValue(isFollower) == 0 ? false : true);
+                }
+                categories.add(category);
+            }
+            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
+            result = new PaginationResult<>(total, pageable, categories);
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return result;
+    }
+
+
+    @Override
+    public List<Integer> listCategoryIds(Pageable pageable, int userId) throws BazaarException {
+        List<Integer> categoryIds = new ArrayList<>();
+        try {
+            categoryIds = jooq.select()
+                    .from(CATEGORY)
+                    .where(transformer.getFilterConditions(pageable.getFilters()))
+                    .and(transformer.getSearchCondition(pageable.getSearch()))
+                    .orderBy(transformer.getSortFields(pageable.getSorts()))
+                    //       .limit(pageable.getPageSize())
+                    //       .offset(pageable.getOffset())
+                    .fetch(CATEGORY.ID);
+
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return categoryIds;
+    }
+
+
+
+
+    @Override
     public PaginationResult<Category> findByRequirementId(int requirementId, Pageable pageable, int userId) throws BazaarException {
         PaginationResult<Category> result = null;
         List<Category> categories;
