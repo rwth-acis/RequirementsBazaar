@@ -209,7 +209,7 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
                         DSL.trueCondition()
                 );
             }else
-            if (filterEntry.getKey().equals("own")) {
+            if (filterEntry.getKey().equals("created")) {
                 conditions.add(
                         PROJECT.LEADER_ID.eq(Integer.parseInt(filterEntry.getValue()))
                 );
@@ -221,6 +221,9 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
                                         .where(PROJECT_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue())))
                         )
                 );
+            }
+            else{
+                conditions.add(DSL.falseCondition());
             }
         }
         return conditions;

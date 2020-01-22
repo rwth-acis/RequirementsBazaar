@@ -78,7 +78,7 @@ public class ProjectsResource {
             @ApiParam(value = "Elements of project by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
             @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
             @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort,
-            @ApiParam(value = "Filter", required = false, allowMultiple = true, allowableValues = "all, own, following") @QueryParam("filters") List<String> filters,
+            @ApiParam(value = "Filter", required = false, allowMultiple = true, allowableValues = "all, created, following") @QueryParam("filters") List<String> filters,
             @ApiParam(value = "Ids", required = false, allowMultiple = true) @QueryParam("ids") List<Integer> ids) {
 
             DALFacade dalFacade = null;

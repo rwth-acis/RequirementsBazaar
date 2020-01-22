@@ -579,4 +579,12 @@ public interface DALFacade {
      * @param personalisationData which holds the data to be saved
      */
     void setPersonalisationData(PersonalisationData personalisationData) throws BazaarException;
+
+    /**
+     * Creates an Entity-Overview for a given user
+     * @param includes List of entities to include values: [projects, categories, requirements]
+     * @param pageable Used for search-term, filters and sorting
+     * @param userId   userId for privilege-check
+     */
+    EntityOverview getEntitiesForUser(List<String> includes, Pageable pageable, int userId) throws BazaarException;
 }

@@ -250,7 +250,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
     }
 
     @Override
-    public PaginationResult<Project> findAllPublicAndAuthorized(PageInfo pageable, int userId) throws BazaarException {
+    public PaginationResult<Project> findAllPublicAndAuthorized(Pageable pageable, int userId) throws BazaarException {
         PaginationResult<Project> result = null;
         List<Project> projects;
         try {
@@ -330,6 +330,27 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
         }
         return result;
     }
+
+    @Override
+    public List<Integer> listProjectIds(Pageable pageable, int userId) throws BazaarException {
+        List<Integer> projectIds = new ArrayList<>();
+        try {
+            projectIds = jooq.select()
+                    .from(PROJECT)
+                    .where(transformer.getFilterConditions(pageable.getFilters()))
+                            .and(PROJECT.VISIBILITY.isTrue().or(PROJECT.LEADER_ID.equal(userId))
+                            .and(transformer.getSearchCondition(pageable.getSearch())))
+                    .orderBy(transformer.getSortFields(pageable.getSorts()))
+             //       .limit(pageable.getPageSize())
+             //       .offset(pageable.getOffset())
+                    .fetch(PROJECT.ID);
+
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return projectIds;
+    }
+
 
     @Override
     public boolean belongsToPublicProject(int id) throws BazaarException {

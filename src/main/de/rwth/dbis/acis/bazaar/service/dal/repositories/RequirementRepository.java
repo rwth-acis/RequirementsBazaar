@@ -27,12 +27,17 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 public interface RequirementRepository extends Repository<Requirement> {
 
     PaginationResult<Requirement> findAllByProject(int projectId, Pageable pageable, int userId) throws BazaarException;
 
     PaginationResult<Requirement> findAllByCategory(int categoryId, Pageable pageable, int userId) throws BazaarException;
+
+    PaginationResult<Requirement> findAll(Pageable pageable, int userId) throws BazaarException;
+
+    List<Integer> listRequirementIds(Pageable pageable, int userId) throws BazaarException;
 
     boolean belongsToPublicProject(int id) throws BazaarException;
 
@@ -43,4 +48,6 @@ public interface RequirementRepository extends Repository<Requirement> {
     void setLeadDeveloper(int id, Integer userId) throws BazaarException;
 
     Statistic getStatisticsForRequirement(int userId, int requirementId, Timestamp timestamp) throws BazaarException;
+
+
 }

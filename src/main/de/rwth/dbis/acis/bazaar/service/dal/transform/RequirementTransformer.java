@@ -232,6 +232,38 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
                 if (filterEntry.getValue().equals("open")) {
                     conditions.add(REQUIREMENT.REALIZED.isNull());
                 }
+            }else
+
+            if (filterEntry.getKey().equals("created")) {
+                conditions.add(
+                        REQUIREMENT.CREATOR_ID.eq(Integer.parseInt(filterEntry.getValue()))
+                );
+            }else
+
+            if(filterEntry.getKey().equals("following")){
+                conditions.add(
+                        REQUIREMENT.ID.in(
+                                DSL.<Integer>select(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID)
+                                        .from(REQUIREMENT_FOLLOWER_MAP)
+                                        .where(REQUIREMENT_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue())))
+                        )
+                );
+            }else
+
+            if(filterEntry.getKey().equals("developing")){
+                conditions.add(
+                        REQUIREMENT.ID.in(
+                                DSL.<Integer>select(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID)
+                                        .from(REQUIREMENT_DEVELOPER_MAP)
+                                        .where(REQUIREMENT_DEVELOPER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue())))
+                        ).or(
+                                REQUIREMENT.LEAD_DEVELOPER_ID.eq(Integer.parseInt(filterEntry.getValue()))
+                        )
+                );
+            }else{
+                conditions.add(
+                        DSL.falseCondition()
+                );
             }
         }
         return conditions;

@@ -34,6 +34,7 @@ import org.jooq.impl.DSL;
 import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.CATEGORY;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.CATEGORY_FOLLOWER_MAP;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -197,7 +198,30 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
 
     @Override
     public Collection<? extends Condition> getFilterConditions(Map<String, String> filters) throws Exception {
-        return new ArrayList<>();
+        List<Condition> conditions = new ArrayList<>();
+        for (Map.Entry<String, String> filterEntry : filters.entrySet()) {
+
+
+            if (filterEntry.getKey().equals("created")) {
+                conditions.add(
+                        CATEGORY.LEADER_ID.eq(Integer.parseInt(filterEntry.getValue()))
+                );
+            }else
+
+            if(filterEntry.getKey().equals("following")){
+                conditions.add(
+                        CATEGORY.ID.in(
+                                DSL.<Integer>select(CATEGORY_FOLLOWER_MAP.CATEGORY_ID)
+                                        .from(CATEGORY_FOLLOWER_MAP)
+                                        .where(CATEGORY_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue())))
+                        )
+                );
+            }
+            else{
+                conditions.add(DSL.falseCondition());
+            }
+        }
+        return conditions;
     }
 
     private Category cleanEntry(Category category) {
