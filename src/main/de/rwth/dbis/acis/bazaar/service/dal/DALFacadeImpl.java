@@ -633,4 +633,28 @@ public class DALFacadeImpl implements DALFacade {
         personalisationDataRepository.insertOrUpdate(personalisationData);
 
     }
+
+    @Override
+    public EntityOverview getEntitiesForUser(List<String> includes, Pageable pageable, int userId) throws BazaarException {
+        //categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
+        EntityOverview.Builder result =  EntityOverview.getBuilder();
+        for(String include : includes) {
+            if(include.equals("projects")){
+                projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
+                result.projects(projectRepository.listProjectIds(pageable, userId));
+            } else
+            if(include.equals("requirements")){
+                requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+                result.requirements(requirementRepository.listRequirementIds(pageable, userId));
+            }else
+            if(include.equals("categories")){
+                categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
+                result.categories(categoryRepository.listCategoryIds(pageable, userId));
+            }
+
+        }
+        return result.build();
+
+    }
+
 }

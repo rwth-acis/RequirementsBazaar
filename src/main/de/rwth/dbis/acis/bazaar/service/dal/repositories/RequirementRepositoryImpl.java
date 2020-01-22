@@ -107,6 +107,85 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     }
 
     @Override
+    public List<Integer> listRequirementIds(Pageable pageable, int userId) throws BazaarException {
+        List<Integer> requirementIds = new ArrayList<>();
+        try {
+            requirementIds = jooq.select()
+                    .from(REQUIREMENT)
+                    .where(transformer.getFilterConditions(pageable.getFilters()))
+                            .and(transformer.getSearchCondition(pageable.getSearch()))
+                    .orderBy(transformer.getSortFields(pageable.getSorts()))
+                    //       .limit(pageable.getPageSize())
+                    //       .offset(pageable.getOffset())
+                    .fetch(REQUIREMENT.ID);
+
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return requirementIds;
+    }
+
+    @Override
+    public PaginationResult<Requirement> findAll(Pageable pageable, int userId) throws BazaarException {
+        PaginationResult<Requirement> result = null;
+        List<Requirement> requirements;
+        try {
+            requirements = new ArrayList<>();
+
+            Field<Object> idCount = jooq.selectCount()
+                    .from(REQUIREMENT)
+                    .where(transformer.getFilterConditions(pageable.getFilters()))
+                    .and(transformer.getSearchCondition(pageable.getSearch()))
+                    .asField("idCount");
+
+            Field<Object> voteCount = jooq.select(DSL.count(DSL.nullif(VOTE.IS_UPVOTE, 0)))
+                    .from(VOTE)
+                    .where(VOTE.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+                    .asField("voteCount");
+
+            Field<Object> commentCount = DSL.select(DSL.count())
+                    .from(COMMENT)
+                    .where(COMMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+                    .asField("commentCount");
+
+            Field<Object> followerCount = DSL.select(DSL.count())
+                    .from(REQUIREMENT_FOLLOWER_MAP)
+                    .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+                    .asField("followerCount");
+
+            List<Record> queryResults = jooq.select(REQUIREMENT.fields())
+                    .select(idCount)
+                    .select(voteCount)
+                    .select(commentCount)
+                    .select(followerCount)
+                    .from(REQUIREMENT)
+                    .leftOuterJoin(LAST_ACTIVITY).on(REQUIREMENT.ID.eq(LAST_ACTIVITY.field(REQUIREMENT.ID)))
+                    .where(transformer.getFilterConditions(pageable.getFilters()))
+                    .and(transformer.getSearchCondition(pageable.getSearch()))
+                //    .and(REQUIREMENT.PROJECT_ID.eq(projectId)) TODO ? Add check if project visible or leader == user
+                    .groupBy(REQUIREMENT.ID)
+                    .orderBy(transformer.getSortFields(pageable.getSorts()))
+                    .limit(pageable.getPageSize())
+                    .offset(pageable.getOffset())
+                    .fetch();
+
+            for (Record queryResult : queryResults) {
+                RequirementRecord requirementRecord = queryResult.into(REQUIREMENT);
+                Requirement requirement = transformer.getEntityFromTableRecord(requirementRecord);
+                requirements.add(findById(requirement.getId(), userId)); // TODO: Remove the getId call and create the objects themself here
+            }
+            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
+            result = new PaginationResult<>(total, pageable, requirements);
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return result;
+
+    }
+
+    @Override
     public PaginationResult<Requirement> findAllByProject(int projectId, Pageable pageable, int userId) throws BazaarException {
         PaginationResult<Requirement> result = null;
         List<Requirement> requirements;
