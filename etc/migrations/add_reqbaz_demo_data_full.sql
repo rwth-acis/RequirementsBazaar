@@ -21,7 +21,7 @@ TRUNCATE TABLE reqbaz.user_role_map;
 REPLACE INTO reqbaz.user
 (id, first_name, last_name, email, admin, las2peer_id, user_name, profile_image, email_lead_subscription, email_follow_subscription)
 VALUES
-  (1, NULL, NULL, 'anonymous@requirements-bazaar.org', 0, '-1722613621014065292', 'anonymous',
+  (1, NULL, NULL, 'anonymous@requirements-bazaar.org', 0, 'anonymous', 'anonymous',
    'https://api.learning-layers.eu/profile.png', 0, 0),
   (2, 'Max1', 'Mustermann1', 'Max@Mustermann1.de', 0, 1, 'MaxMustermann1', 'https://api.learning-layers.eu/profile.png', 0, 0),
   (3, 'Max2', 'Mustermann2', 'Max@Mustermann2.de', 0, 2, 'MaxMustermann2', 'https://api.learning-layers.eu/profile.png', 0, 0),

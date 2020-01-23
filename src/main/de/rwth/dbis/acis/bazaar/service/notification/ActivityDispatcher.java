@@ -89,7 +89,10 @@ public class ActivityDispatcher {
                         requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
                 parentDataId = requirement.getId();
                 parentDataTyp = Activity.DataType.REQUIREMENT;
-            }
+            } else if (dataType.equals(Activity.DataType.USER)) {
+                resourcePath = "users";
+                frontendResourcePath = "users" + "/" + dataId;
+             }
             resourcePath = resourcePath + "/" + String.valueOf(dataId);
             if (parentResourcePath != null) {
                 parentResourcePath = parentResourcePath + "/" + String.valueOf(parentDataId);
