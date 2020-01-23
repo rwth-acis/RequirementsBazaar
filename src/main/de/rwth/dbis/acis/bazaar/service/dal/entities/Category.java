@@ -40,14 +40,14 @@ public class Category extends EntityBase {
 
     @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
-    @MaxLength(value= 50, profiles = {"*"})
+    @MaxLength(value = 50, profiles = {"*"})
     private String name;
 
     @NotBlank(profiles = {"*"})
     @NotNull(profiles = {"create"})
     private String description;
 
-    @Min(value= 0, profiles = {"create"})
+    @Min(value = 0, profiles = {"create"})
     private int projectId;
 
     private User leader;

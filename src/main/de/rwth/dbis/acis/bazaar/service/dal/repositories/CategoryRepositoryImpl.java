@@ -41,9 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
-import static org.jooq.impl.DSL.max;
-import static org.jooq.impl.DSL.select;
-import static org.jooq.impl.DSL.table;
+import static org.jooq.impl.DSL.*;
 
 public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRecord> implements CategoryRepository {
 
@@ -93,6 +91,17 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                     .groupBy(ACTIVITY.field(CATEGORY.ID)))
             .as("last_activity");
 
+    public static final Field<Object> REQUIREMENT_COUNT = select(DSL.count())
+            .from(REQUIREMENT)
+            .leftJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT.ID.equal(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID))
+            .where(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.equal(CATEGORY.ID))
+            .asField("requirementCount");
+
+    public static final Field<Object> FOLLOWER_COUNT = select(DSL.count())
+            .from(CATEGORY_FOLLOWER_MAP)
+            .where(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID))
+            .asField("followerCount");
+
     /**
      * @param jooq DSLContext object to initialize JOOQ connection. For more see JOOQ documentation.
      */
@@ -106,25 +115,14 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
         try {
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User leaderUser = USER.as("leaderUser");
 
-            Field<Object> requirementCount = jooq.select(DSL.count())
-                    .from(REQUIREMENT)
-                    .leftJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT.ID.equal(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID))
-                    .where(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.equal(CATEGORY.ID))
-                    .asField("requirementCount");
-
-            Field<Object> followerCount = DSL.select(DSL.count())
-                    .from(CATEGORY_FOLLOWER_MAP)
-                    .where(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID))
-                    .asField("followerCount");
-
             Field<Object> isFollower = DSL.select(DSL.count())
                     .from(CATEGORY_FOLLOWER_MAP)
                     .where(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID).and(CATEGORY_FOLLOWER_MAP.USER_ID.equal(userId)))
                     .asField("isFollower");
 
             Result<Record> queryResult = jooq.select(CATEGORY.fields())
-                    .select(requirementCount)
-                    .select(followerCount)
+                    .select(REQUIREMENT_COUNT)
+                    .select(FOLLOWER_COUNT)
                     .select(isFollower)
                     .select(leaderUser.fields())
                     .from(CATEGORY)
@@ -152,8 +150,8 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
             category = builder.build();
 
             // Filling additional information
-            category.setNumberOfRequirements((Integer) queryResult.getValues(requirementCount).get(0));
-            category.setNumberOfFollowers((Integer) queryResult.getValues(followerCount).get(0));
+            category.setNumberOfRequirements((Integer) queryResult.getValues(REQUIREMENT_COUNT).get(0));
+            category.setNumberOfFollowers((Integer) queryResult.getValues(FOLLOWER_COUNT).get(0));
             if (userId != 1) {
                 category.setFollower((Integer) queryResult.getValues(isFollower).get(0) == 0 ? false : true);
             }
@@ -180,17 +178,6 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                     .and(transformer.getSearchCondition(pageable.getSearch()))
                     .asField("idCount");
 
-            Field<Object> requirementCount = jooq.select(DSL.count())
-                    .from(REQUIREMENT)
-                    .leftJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT.ID.equal(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID))
-                    .where(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.equal(CATEGORY.ID))
-                    .asField("requirementCount");
-
-            Field<Object> followerCount = jooq.select(DSL.count())
-                    .from(CATEGORY_FOLLOWER_MAP)
-                    .where(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID))
-                    .asField("followerCount");
-
             Field<Object> isFollower = DSL.select(DSL.count())
                     .from(CATEGORY_FOLLOWER_MAP)
                     .where(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID).and(CATEGORY_FOLLOWER_MAP.USER_ID.equal(userId)))
@@ -198,8 +185,8 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
 
             List<Record> queryResults = jooq.select(CATEGORY.fields())
                     .select(idCount)
-                    .select(requirementCount)
-                    .select(followerCount)
+                    .select(REQUIREMENT_COUNT)
+                    .select(FOLLOWER_COUNT)
                     .select(isFollower)
                     .select(leaderUser.fields())
                     .from(CATEGORY)
@@ -218,8 +205,8 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                 UserTransformer userTransformer = new UserTransformer();
                 UserRecord userRecord = queryResult.into(leaderUser);
                 category.setLeader(userTransformer.getEntityFromTableRecord(userRecord));
-                category.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
-                category.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
+                category.setNumberOfRequirements((Integer) queryResult.getValue(REQUIREMENT_COUNT));
+                category.setNumberOfFollowers((Integer) queryResult.getValue(FOLLOWER_COUNT));
                 if (userId != 1) {
                     category.setFollower((Integer) queryResult.getValue(isFollower) == 0 ? false : true);
                 }
@@ -247,17 +234,6 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                     .where(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.equal(requirementId))
                     .asField("idCount");
 
-            Field<Object> requirementCount = jooq.select(DSL.count())
-                    .from(REQUIREMENT)
-                    .leftJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT.ID.equal(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID))
-                    .where(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.equal(CATEGORY.ID))
-                    .asField("requirementCount");
-
-            Field<Object> followerCount = jooq.select(DSL.count())
-                    .from(CATEGORY_FOLLOWER_MAP)
-                    .where(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID))
-                    .asField("followerCount");
-
             Field<Object> isFollower = DSL.select(DSL.count())
                     .from(CATEGORY_FOLLOWER_MAP)
                     .where(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.equal(CATEGORY.ID).and(CATEGORY_FOLLOWER_MAP.USER_ID.equal(userId)))
@@ -265,8 +241,8 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
 
             List<Record> queryResults = jooq.select(CATEGORY.fields())
                     .select(idCount)
-                    .select(requirementCount)
-                    .select(followerCount)
+                    .select(REQUIREMENT_COUNT)
+                    .select(FOLLOWER_COUNT)
                     .select(isFollower)
                     .select(leaderUser.fields())
                     .from(CATEGORY)
@@ -284,8 +260,8 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                 UserTransformer userTransformer = new UserTransformer();
                 UserRecord userRecord = queryResult.into(leaderUser);
                 category.setLeader(userTransformer.getEntityFromTableRecord(userRecord));
-                category.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
-                category.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
+                category.setNumberOfRequirements((Integer) queryResult.getValue(REQUIREMENT_COUNT));
+                category.setNumberOfFollowers((Integer) queryResult.getValue(FOLLOWER_COUNT));
                 if (userId != 1) {
                     category.setFollower((Integer) queryResult.getValue(isFollower) == 0 ? false : true);
                 }

@@ -29,6 +29,9 @@ import de.rwth.dbis.acis.bazaar.service.dal.repositories.*;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.PrivilegeEnumConverter;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
+import i5.las2peer.api.Context;
+import i5.las2peer.api.security.Agent;
+import i5.las2peer.security.PassphraseAgentImpl;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
 import org.jooq.impl.DSL;
@@ -111,9 +114,21 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public Integer getUserIdByLAS2PeerId(long las2PeerId) throws Exception {
+    public Integer getUserIdByLAS2PeerId(String las2PeerId) throws Exception {
+        Integer userId;
+
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
-        return userRepository.getIdByLas2PeerId(las2PeerId);
+        userId = userRepository.getIdByLas2PeerId(las2PeerId);
+
+        if (userId == null) {
+            PassphraseAgentImpl agent = (PassphraseAgentImpl) Context.getCurrent().getMainAgent();
+            String oldLas2peerId = String.valueOf(userRepository.hashAgentSub(agent));
+            userId = userRepository.getIdByLas2PeerId(oldLas2peerId);
+            if (userId != null) {
+                userRepository.updateLas2peerId(userId, las2PeerId);
+            }
+        }
+        return userId;
     }
 
     @Override
@@ -135,7 +150,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public PaginationResult<User> listDevelopersForRequirement( int requirementId, Pageable pageable) throws BazaarException {
+    public PaginationResult<User> listDevelopersForRequirement(int requirementId, Pageable pageable) throws BazaarException {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
         return userRepository.findAllByDeveloping(requirementId, pageable);
     }
@@ -183,7 +198,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public Project createProject(Project project,  int userId) throws Exception {
+    public Project createProject(Project project, int userId) throws Exception {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         project.setDefaultCategoryId(null);
         Project newProject = projectRepository.add(project);
@@ -213,14 +228,14 @@ public class DALFacadeImpl implements DALFacade {
     @Override
     public Statistic getStatisticsForAllProjects(int userId, Calendar since) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
-        Timestamp timestamp  = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
+        Timestamp timestamp = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
         return projectRepository.getStatisticsForVisibleProjects(userId, timestamp);
     }
 
     @Override
     public Statistic getStatisticsForProject(int userId, int projectId, Calendar since) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
-        Timestamp timestamp  = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
+        Timestamp timestamp = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
         return projectRepository.getStatisticsForProject(userId, projectId, timestamp);
     }
 
@@ -344,7 +359,7 @@ public class DALFacadeImpl implements DALFacade {
     @Override
     public Statistic getStatisticsForRequirement(int userId, int requirementId, Calendar since) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
-        Timestamp timestamp  = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
+        Timestamp timestamp = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
         return requirementRepository.getStatisticsForRequirement(userId, requirementId, timestamp);
     }
 
@@ -411,7 +426,7 @@ public class DALFacadeImpl implements DALFacade {
     @Override
     public Statistic getStatisticsForCategory(int userId, int categoryId, Calendar since) throws BazaarException {
         categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
-        Timestamp timestamp  = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
+        Timestamp timestamp = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
         return categoryRepository.getStatisticsForCategory(userId, categoryId, timestamp);
     }
 

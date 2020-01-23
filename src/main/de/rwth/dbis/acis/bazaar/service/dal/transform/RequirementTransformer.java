@@ -141,59 +141,41 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
                     }
                     break;
                 case "vote":
-
-                    Field<Object> voteCount = DSL.select(DSL.count(DSL.nullif(VOTE.IS_UPVOTE, 0)))
-                            .from(VOTE)
-                            .where(VOTE.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                            .asField("voteCount");
-
                     switch (sort.getSortDirection()) {
                         case ASC:
-                            sortFields.add(voteCount.asc());
+                            sortFields.add(RequirementRepositoryImpl.VOTE_COUNT.asc());
                             break;
                         case DESC:
-                            sortFields.add(voteCount.desc());
+                            sortFields.add(RequirementRepositoryImpl.VOTE_COUNT.desc());
                             break;
                         default:
-                            sortFields.add(voteCount.desc());
+                            sortFields.add(RequirementRepositoryImpl.VOTE_COUNT.desc());
                             break;
                     }
                     break;
                 case "comment":
-
-                    Field<Object> commentCount = DSL.select(DSL.count())
-                            .from(COMMENT)
-                            .where(COMMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                            .asField("commentCount");
-
                     switch (sort.getSortDirection()) {
                         case ASC:
-                            sortFields.add(commentCount.asc());
+                            sortFields.add(RequirementRepositoryImpl.COMMENT_COUNT.asc());
                             break;
                         case DESC:
-                            sortFields.add(commentCount.desc());
+                            sortFields.add(RequirementRepositoryImpl.COMMENT_COUNT.desc());
                             break;
                         default:
-                            sortFields.add(commentCount.desc());
+                            sortFields.add(RequirementRepositoryImpl.COMMENT_COUNT.desc());
                             break;
                     }
                     break;
                 case "follower":
-
-                    Field<Object> followerCount = DSL.select(DSL.count())
-                            .from(REQUIREMENT_FOLLOWER_MAP)
-                            .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                            .asField("followerCount");
-
                     switch (sort.getSortDirection()) {
                         case ASC:
-                            sortFields.add(followerCount.asc());
+                            sortFields.add(RequirementRepositoryImpl.FOLLOWER_COUNT.asc());
                             break;
                         case DESC:
-                            sortFields.add(followerCount.desc());
+                            sortFields.add(RequirementRepositoryImpl.FOLLOWER_COUNT.desc());
                             break;
                         default:
-                            sortFields.add(followerCount.desc());
+                            sortFields.add(RequirementRepositoryImpl.FOLLOWER_COUNT.desc());
                             break;
                     }
                     break;

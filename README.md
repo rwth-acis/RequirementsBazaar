@@ -94,8 +94,9 @@ How to run
  Docker is providing the simplest way to run the Requirement Bazaar back-end. Just follow the following steps if Docker is already installed on your system:
 
   1. `git clone` this repo
-  2. `docker build -t rwthacis/reqbaz-service`
-  3. `docker run -i -t --rm -v "pwd":/build rwthacis/reqbaz-service`
+  2. `cd` into the cloned repo
+  3. `docker build -t rwthacis/reqbaz-service .`
+  4. `docker run -i -t --rm -v "$(pwd)":/build rwthacis/reqbaz-service`
 
 ----------
 

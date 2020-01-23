@@ -97,7 +97,7 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
 
     @Override
     public Condition getSearchCondition(String search) throws Exception {
-        return null;
+        throw new Exception("Search is not supported!");
     }
 
     @Override

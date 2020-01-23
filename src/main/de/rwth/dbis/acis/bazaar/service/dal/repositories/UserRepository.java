@@ -27,6 +27,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+import i5.las2peer.security.PassphraseAgentImpl;
 
 import java.util.List;
 
@@ -36,7 +37,11 @@ import java.util.List;
  */
 public interface UserRepository extends Repository<User> {
 
-    Integer getIdByLas2PeerId(long las2PeerId) throws BazaarException;
+    Integer getIdByLas2PeerId(String las2PeerId) throws BazaarException;
+
+    long hashAgentSub(PassphraseAgentImpl agent) throws BazaarException;
+
+    void updateLas2peerId(int userId, String las2PeerId) throws BazaarException;
 
     void updateLastLoginDate(int userId) throws Exception;
 
