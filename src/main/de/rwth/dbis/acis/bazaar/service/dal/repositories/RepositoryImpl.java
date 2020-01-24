@@ -45,7 +45,7 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
 
 
     /**
-     * @param jooq          DSLContext for JOOQ connection
+     * @param jooq        DSLContext for JOOQ connection
      * @param transformer Transformer object to create mapping between JOOQ record and our entities
      */
     public RepositoryImpl(DSLContext jooq, Transformer<E, R> transformer) {

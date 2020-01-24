@@ -57,7 +57,7 @@ public interface DALFacade {
      */
     void updateLastLoginDate(int userId) throws Exception;
 
-     /* TODO delete? Should it delete its projects? What should happen after deletion? */
+    /* TODO delete? Should it delete its projects? What should happen after deletion? */
 
     /**
      * @param userId the identifier of the user, which should be retrieved
@@ -69,7 +69,7 @@ public interface DALFacade {
      * @param las2PeerId the identifier of the user
      * @return the reqbaz userId of the las2Peer user
      */
-    Integer getUserIdByLAS2PeerId(long las2PeerId) throws Exception;
+    Integer getUserIdByLAS2PeerId(String las2PeerId) throws Exception;
 
     /**
      * Get all contributors for a requirement

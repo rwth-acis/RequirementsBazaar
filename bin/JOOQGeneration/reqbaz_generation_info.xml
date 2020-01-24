@@ -31,11 +31,12 @@
            (A Java regular expression. Use the pipe to separate several expressions).
            Excludes match before includes -->
 			<excludes/>
-
-			<forcedType>
-				<name>BOOLEAN</name>
-				<expression>.*\.admin</expression>
-			</forcedType>
+			<forcedTypes>
+				<forcedType>
+					<name>BOOLEAN</name>
+					<expression>.*\.admin</expression>
+				</forcedType>
+			</forcedTypes>
 		</database>
 
 		<target>

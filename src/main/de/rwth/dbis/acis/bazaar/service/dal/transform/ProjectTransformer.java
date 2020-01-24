@@ -30,9 +30,7 @@ import org.jooq.impl.DSL;
 
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.REQUIREMENT;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.PROJECT;
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.PROJECT_FOLLOWER_MAP;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
 
 public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
 
@@ -44,7 +42,7 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
         record.setDescription(entry.getDescription());
         record.setName(entry.getName());
         record.setLeaderId(entry.getLeader().getId());
-        record.setVisibility((byte) (entry.getVisibility() ? 1 : 0 ));
+        record.setVisibility((byte) (entry.getVisibility() ? 1 : 0));
         record.setDefaultCategoryId(entry.getDefaultCategoryId());
         record.setCreationDate(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
         return record;

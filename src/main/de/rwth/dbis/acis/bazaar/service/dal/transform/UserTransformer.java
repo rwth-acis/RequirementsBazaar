@@ -34,7 +34,7 @@ public class UserTransformer implements Transformer<User, UserRecord> {
     public UserRecord createRecord(User entity) {
         UserRecord record = new UserRecord();
         record.setLas2peerId(entity.getLas2peerId());
-        record.setAdmin((byte) (entity.getAdmin() ? 1 : 0));
+        record.setAdmin(entity.getAdmin());
         record.setEmail(entity.getEMail());
         record.setFirstName(entity.getFirstName());
         record.setLastName(entity.getLastName());
@@ -50,7 +50,7 @@ public class UserTransformer implements Transformer<User, UserRecord> {
     public User getEntityFromTableRecord(UserRecord record) {
         return User.geBuilder(record.getEmail())
                 .id(record.getId())
-                .admin(record.getAdmin() != 0)
+                .admin(record.getAdmin())
                 .firstName(record.getFirstName())
                 .lastName(record.getLastName())
                 .las2peerId(record.getLas2peerId())
@@ -67,7 +67,7 @@ public class UserTransformer implements Transformer<User, UserRecord> {
     public User getEntityFromQueryResult(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User user, Result<Record> queryResult) {
         return User.geBuilder(queryResult.getValues(user.EMAIL).get(0))
                 .id(queryResult.getValues(user.ID).get(0))
-                .admin(queryResult.getValues(user.ADMIN).get(0) != 0)
+                .admin(queryResult.getValues(user.ADMIN).get(0))
                 .firstName(queryResult.getValues(user.FIRST_NAME).get(0))
                 .lastName(queryResult.getValues(user.LAST_NAME).get(0))
                 .las2peerId(queryResult.getValues(user.LAS2PEER_ID).get(0))
