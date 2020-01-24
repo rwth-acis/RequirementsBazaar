@@ -247,8 +247,8 @@ public class UsersResource {
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
-            UserAgent agent = (UserAgent) Context.getCurrent().getMainAgent();
-            long userId = agent.getId();
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
             List<Pageable.SortField> sortList = new ArrayList<>();
             for (String sortOption : sort) {
                 Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
@@ -275,8 +275,8 @@ public class UsersResource {
 
 
             EntityOverview result =  dalFacade.getEntitiesForUser(include, pageInfo, internalUserId);
-
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, NodeObserver.Event.SERVICE_CUSTOM_MESSAGE_3,
+            // Wrong SERVICE_CUSTOM_MESSAGE_3 ?
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_3,
                     0, Activity.DataType.USER, internalUserId);
 
 
@@ -287,12 +287,12 @@ public class UsersResource {
             return responseBuilder.build();
         } catch (BazaarException bex) {
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get entityOverview failed");
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get entityOverview failed" );
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            L2pLogger.logEvent(NodeObserver.Event.SERVICE_ERROR, Context.getCurrent().getMainAgent(), "Get entityOverview failed");
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get entityOverview failed" );
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
