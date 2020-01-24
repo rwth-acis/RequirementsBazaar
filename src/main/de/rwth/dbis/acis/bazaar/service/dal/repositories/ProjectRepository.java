@@ -48,7 +48,7 @@ public interface ProjectRepository extends Repository<Project> {
 
     Statistic getStatisticsForProject(int userId, int projectId, Timestamp timestamp) throws BazaarException;
 
-    List<Integer> listProjectIds(Pageable pageable, int userId) throws BazaarException;
+    List<Integer> listAllProjectIds(Pageable pageable, int userId) throws BazaarException;
 
 
 

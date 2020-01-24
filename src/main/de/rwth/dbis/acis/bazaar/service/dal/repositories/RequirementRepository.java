@@ -37,7 +37,7 @@ public interface RequirementRepository extends Repository<Requirement> {
 
     PaginationResult<Requirement> findAll(Pageable pageable, int userId) throws BazaarException;
 
-    List<Integer> listRequirementIds(Pageable pageable, int userId) throws BazaarException;
+    List<Integer> listAllRequirementIds(Pageable pageable, int userId) throws BazaarException;
 
     boolean belongsToPublicProject(int id) throws BazaarException;
 

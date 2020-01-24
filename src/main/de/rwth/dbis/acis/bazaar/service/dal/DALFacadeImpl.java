@@ -641,16 +641,17 @@ public class DALFacadeImpl implements DALFacade {
         for(String include : includes) {
             if(include.equals("projects")){
                 projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
-                result.projects(projectRepository.listProjectIds(pageable, userId));
+                result.projects(projectRepository.listAllProjectIds(pageable, userId));
             } else
             if(include.equals("requirements")){
                 requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
-                result.requirements(requirementRepository.listRequirementIds(pageable, userId));
+                result.requirements(requirementRepository.listAllRequirementIds(pageable, userId));
             }else
             if(include.equals("categories")){
                 categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
-                result.categories(categoryRepository.listCategoryIds(pageable, userId));
+                result.categories(categoryRepository.listAllCategoryIds(pageable, userId));
             }
+            //TODO Add Comments/Attachments
 
         }
         return result.build();

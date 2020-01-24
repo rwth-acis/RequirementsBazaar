@@ -289,7 +289,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
 
 
     @Override
-    public List<Integer> listCategoryIds(Pageable pageable, int userId) throws BazaarException {
+    public List<Integer> listAllCategoryIds(Pageable pageable, int userId) throws BazaarException {
         List<Integer> categoryIds = new ArrayList<>();
         try {
             categoryIds = jooq.select()

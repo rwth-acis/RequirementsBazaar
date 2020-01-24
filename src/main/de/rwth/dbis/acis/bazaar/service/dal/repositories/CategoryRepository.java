@@ -43,7 +43,7 @@ public interface CategoryRepository extends Repository<Category> {
 
     PaginationResult<Category> findAll(Pageable pageable, int userId) throws BazaarException;
 
-    List<Integer> listCategoryIds(Pageable pageable, int userId) throws BazaarException;
+    List<Integer> listAllCategoryIds(Pageable pageable, int userId) throws BazaarException;
 
     boolean belongsToPublicProject(int id) throws BazaarException;
 

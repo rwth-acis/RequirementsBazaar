@@ -107,7 +107,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     }
 
     @Override
-    public List<Integer> listRequirementIds(Pageable pageable, int userId) throws BazaarException {
+    public List<Integer> listAllRequirementIds(Pageable pageable, int userId) throws BazaarException {
         List<Integer> requirementIds = new ArrayList<>();
         try {
             requirementIds = jooq.select()

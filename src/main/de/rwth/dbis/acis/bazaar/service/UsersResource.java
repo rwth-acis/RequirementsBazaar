@@ -219,11 +219,13 @@ public class UsersResource {
         }
     }
     /**
-     * This method returns the list of projects on the server.
+     * This method returns an entityOverview for the logged in user
      *
      * @param search  search string
+     * @param include which entities to include in the overview             //TODO Add Comments/Attachments
      * @param sort    sort order
-     * @return Response with list of all projects
+     * @param filters set of entities that should be returned
+     * @return Response as EntityOverview including the entities selected in include
      */
     @GET
     @Path("/me/entities")
@@ -282,7 +284,6 @@ public class UsersResource {
 
             Response.ResponseBuilder responseBuilder = Response.ok();
             responseBuilder = responseBuilder.entity(result.toJSON());
-            //responseBuilder = bazaarService.xHeaderFields(responseBuilder, result);
 
             return responseBuilder.build();
         } catch (BazaarException bex) {

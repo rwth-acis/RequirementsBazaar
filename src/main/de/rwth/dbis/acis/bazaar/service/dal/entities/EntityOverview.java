@@ -37,6 +37,7 @@ public class EntityOverview {
     private List<Integer> categories;
     private List<Integer> requirements;
     private List<Integer> comments;
+    private List<Integer> attachments;
 
     public EntityOverview() {
     }
@@ -46,6 +47,8 @@ public class EntityOverview {
         this.categories = builder.categories;
         this.requirements = builder.requirements;
         this.comments = builder.comments;
+        this.attachments = builder.attachments;
+
     }
 
 
@@ -79,6 +82,7 @@ public class EntityOverview {
         private List<Integer> categories;
         private List<Integer> requirements;
         private List<Integer> comments;
+        private List<Integer> attachments;
 
 
         public Builder projects(List<Integer> projects) {
@@ -93,6 +97,10 @@ public class EntityOverview {
 
         public Builder requirements(List<Integer> requirements) {
             this.requirements = requirements;
+            return this;
+        }
+        public Builder attachments(List<Integer> attachments) {
+            this.attachments = attachments;
             return this;
         }
 

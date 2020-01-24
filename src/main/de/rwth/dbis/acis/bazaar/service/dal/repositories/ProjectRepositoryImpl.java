@@ -302,7 +302,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
     }
 
     @Override
-    public List<Integer> listProjectIds(Pageable pageable, int userId) throws BazaarException {
+    public List<Integer> listAllProjectIds(Pageable pageable, int userId) throws BazaarException {
         List<Integer> projectIds = new ArrayList<>();
         try {
             projectIds = jooq.select()
