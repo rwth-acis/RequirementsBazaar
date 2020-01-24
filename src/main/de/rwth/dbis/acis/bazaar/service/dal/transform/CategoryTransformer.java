@@ -26,6 +26,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CategoryRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.repositories.CategoryRepositoryImpl;
 import org.jooq.*;
+import org.jooq.impl.DSL;
 
 import java.util.*;
 
