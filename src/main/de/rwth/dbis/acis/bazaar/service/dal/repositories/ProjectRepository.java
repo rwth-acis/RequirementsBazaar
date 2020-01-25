@@ -28,6 +28,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -39,11 +40,16 @@ public interface ProjectRepository extends Repository<Project> {
 
     PaginationResult<Project> findAllPublic(Pageable pageable, int userId) throws BazaarException;
 
-    PaginationResult<Project> findAllPublicAndAuthorized(PageInfo pageable, int userId) throws BazaarException;
+    PaginationResult<Project> findAllPublicAndAuthorized(Pageable pageable, int userId) throws BazaarException;
 
     boolean belongsToPublicProject(int id) throws BazaarException;
 
     Statistic getStatisticsForVisibleProjects(int userId, Timestamp timestamp) throws BazaarException;
 
     Statistic getStatisticsForProject(int userId, int projectId, Timestamp timestamp) throws BazaarException;
+
+    List<Integer> listAllProjectIds(Pageable pageable, int userId) throws BazaarException;
+
+
+
 }

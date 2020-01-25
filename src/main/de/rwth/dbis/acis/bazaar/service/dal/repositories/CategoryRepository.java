@@ -27,6 +27,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -39,6 +40,10 @@ public interface CategoryRepository extends Repository<Category> {
     PaginationResult<Category> findByProjectId(int projectId, Pageable pageable, int userId) throws BazaarException;
 
     PaginationResult<Category> findByRequirementId(int requirementId, Pageable pageable, int userId) throws BazaarException;
+
+    PaginationResult<Category> findAll(Pageable pageable, int userId) throws BazaarException;
+
+    List<Integer> listAllCategoryIds(Pageable pageable, int userId) throws BazaarException;
 
     boolean belongsToPublicProject(int id) throws BazaarException;
 

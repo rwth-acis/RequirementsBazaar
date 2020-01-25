@@ -54,4 +54,5 @@ public enum PrivilegeEnum {
     Create_FOLLOW, Delete_FOLLOW,
 
     Create_DEVELOP, Delete_DEVELOP,
+    Read_PERSONALISATION_DATA, Create_PERSONALISATION_DATA        //Create covers "PUT" Operation
 }

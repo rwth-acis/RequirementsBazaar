@@ -2,7 +2,10 @@ package de.rwth.dbis.acis.bazaar.service;
 
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.EntityOverview;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -15,11 +18,11 @@ import io.swagger.annotations.*;
 import jodd.vtor.Vtor;
 
 import javax.ws.rs.*;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
-import java.util.Date;
-import java.util.EnumSet;
+import java.util.*;
 
 
 @Api(value = "users", description = "Users resource")
@@ -215,4 +218,87 @@ public class UsersResource {
             bazaarService.closeDBConnection(dalFacade);
         }
     }
+    /**
+     * This method returns an entityOverview for the logged in user
+     *
+     * @param search  search string
+     * @param include which entities to include in the overview             //TODO Add Comments/Attachments
+     * @param sort    sort order
+     * @param filters set of entities that should be returned
+     * @return Response as EntityOverview including the entities selected in include
+     */
+    @GET
+    @Path("/me/entities")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "This method allows to receive an overview of entities related to the user")
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the updated user", response = EntityOverview.class),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+    })
+    public Response getEntityOverview(
+            @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
+            @ApiParam(value = "Types of entities to include", required = true, allowMultiple = true, allowableValues = "projects,categories,requirements")  @QueryParam("include") List<String> include,
+            @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("date") @QueryParam("sort") List<String> sort,
+            @ApiParam(value = "Filter", required = false, allowMultiple = true, allowableValues = "created, following, developing") @DefaultValue("created") @QueryParam("filters") List<String> filters){
+            //Possibly allow filtertype "all"?
+        DALFacade dalFacade = null;
+        try {
+            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registrarErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
+            }
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
+            List<Pageable.SortField> sortList = new ArrayList<>();
+            for (String sortOption : sort) {
+                Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
+                if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { // " " is needed because jersey does not pass "+"
+                    direction = Pageable.SortDirection.ASC;
+                    sortOption = sortOption.substring(1);
+
+                } else if (sortOption.startsWith("-")) {
+                    direction = Pageable.SortDirection.DESC;
+                    sortOption = sortOption.substring(1);
+                }
+                Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
+                sortList.add(sortField);
+            }
+
+            dalFacade = bazaarService.getDBConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+            HashMap<String, String> filterMap = new HashMap<>();
+            for(String filterOption : filters) {
+                filterMap.put(filterOption,internalUserId.toString());
+            }
+            PageInfo pageInfo = new PageInfo(0, 0, filterMap, sortList, search);
+
+
+            EntityOverview result =  dalFacade.getEntitiesForUser(include, pageInfo, internalUserId);
+            // Wrong SERVICE_CUSTOM_MESSAGE_3 ?
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_3,
+                    0, Activity.DataType.USER, internalUserId);
+
+
+            Response.ResponseBuilder responseBuilder = Response.ok();
+            responseBuilder = responseBuilder.entity(result.toJSON());
+
+            return responseBuilder.build();
+        } catch (BazaarException bex) {
+            logger.warning(bex.getMessage());
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get entityOverview failed" );
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+        } catch (Exception ex) {
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get entityOverview failed" );
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+        } finally {
+            bazaarService.closeDBConnection(dalFacade);
+        }
+    }
+
+
 }

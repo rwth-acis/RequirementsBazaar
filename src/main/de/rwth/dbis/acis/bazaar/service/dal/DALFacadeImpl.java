@@ -64,6 +64,7 @@ public class DALFacadeImpl implements DALFacade {
     private VoteRepository voteRepository;
     private RoleRepository roleRepository;
     private PrivilegeRepository privilegeRepository;
+    private PersonalisationDataRepository personalisationDataRepository;
 
     public DALFacadeImpl(DataSource dataSource, SQLDialect dialect) {
         dslContext = DSL.using(dataSource, dialect);
@@ -621,4 +622,40 @@ public class DALFacadeImpl implements DALFacade {
         roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
         roleRepository.addUserToRole(userId, roleName, context);
     }
+    @Override
+    public PersonalisationData getPersonalisationData(int userId, String key, int version) throws BazaarException {
+        personalisationDataRepository = (personalisationDataRepository != null) ? personalisationDataRepository : new PersonalisationDataRepositoryImpl(dslContext);
+        return personalisationDataRepository.findByKey(userId,version,key);
+    }
+    @Override
+    public void setPersonalisationData(PersonalisationData personalisationData) throws BazaarException {
+        personalisationDataRepository = (personalisationDataRepository != null) ? personalisationDataRepository : new PersonalisationDataRepositoryImpl(dslContext);
+        personalisationDataRepository.insertOrUpdate(personalisationData);
+
+    }
+
+    @Override
+    public EntityOverview getEntitiesForUser(List<String> includes, Pageable pageable, int userId) throws BazaarException {
+        //categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
+        EntityOverview.Builder result =  EntityOverview.getBuilder();
+        for(String include : includes) {
+            if(include.equals("projects")){
+                projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
+                result.projects(projectRepository.listAllProjectIds(pageable, userId));
+            } else
+            if(include.equals("requirements")){
+                requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+                result.requirements(requirementRepository.listAllRequirementIds(pageable, userId));
+            }else
+            if(include.equals("categories")){
+                categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
+                result.categories(categoryRepository.listAllCategoryIds(pageable, userId));
+            }
+            //TODO Add Comments/Attachments
+
+        }
+        return result.build();
+
+    }
+
 }

@@ -40,6 +40,8 @@ public interface Pageable {
 
     String getSearch();
 
+    List<Integer> getIds();
+
     class SortField {
         String field;
         SortDirection sortDirection;
