@@ -21,12 +21,17 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Category;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.EntityContext;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.UserVote;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CategoryRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.ProjectRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.RequirementRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.CategoryTransformer;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.ProjectTransformer;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementTransformer;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -136,33 +141,27 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .from(REQUIREMENT)
                     .where(transformer.getFilterConditions(pageable.getFilters()))
                     .and(transformer.getSearchCondition(pageable.getSearch()))
+                    //.and(REQUIREMENT.PROJECT_ID.eq(projectId))
                     .asField("idCount");
 
-            Field<Object> voteCount = jooq.select(DSL.count(DSL.nullif(VOTE.IS_UPVOTE, 0)))
-                    .from(VOTE)
-                    .where(VOTE.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .asField("voteCount");
 
-            Field<Object> commentCount = DSL.select(DSL.count())
-                    .from(COMMENT)
-                    .where(COMMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .asField("commentCount");
-
-            Field<Object> followerCount = DSL.select(DSL.count())
-                    .from(REQUIREMENT_FOLLOWER_MAP)
-                    .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .asField("followerCount");
+            Condition isAuthorizedCondition = REQUIREMENT.PROJECT_ID.in(
+                            DSL.<Integer>select(PROJECT.ID)
+                                    .from(PROJECT)
+                                    .where(PROJECT.ID.eq(REQUIREMENT.PROJECT_ID))
+                                    .and(PROJECT.VISIBILITY.isTrue().or(PROJECT.LEADER_ID.eq(userId)))
+                    );
 
             List<Record> queryResults = jooq.select(REQUIREMENT.fields())
                     .select(idCount)
-                    .select(voteCount)
-                    .select(commentCount)
-                    .select(followerCount)
+                    .select(VOTE_COUNT)
+                    .select(COMMENT_COUNT)
+                    .select(FOLLOWER_COUNT)
                     .from(REQUIREMENT)
                     .leftOuterJoin(LAST_ACTIVITY).on(REQUIREMENT.ID.eq(LAST_ACTIVITY.field(REQUIREMENT.ID)))
                     .where(transformer.getFilterConditions(pageable.getFilters()))
                     .and(transformer.getSearchCondition(pageable.getSearch()))
-                //    .and(REQUIREMENT.PROJECT_ID.eq(projectId)) TODO ? Add check if project visible or leader == user
+                    .and(isAuthorizedCondition)
                     .groupBy(REQUIREMENT.ID)
                     .orderBy(transformer.getSortFields(pageable.getSorts()))
                     .limit(pageable.getPageSize())
@@ -172,7 +171,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             for (Record queryResult : queryResults) {
                 RequirementRecord requirementRecord = queryResult.into(REQUIREMENT);
                 Requirement requirement = transformer.getEntityFromTableRecord(requirementRecord);
-                requirements.add(findById(requirement.getId(), userId)); // TODO: Remove the getId call and create the objects themself here
+                requirements.add(findById(requirement.getId(), userId, true)); // TODO: Remove the getId call and create the objects themself here
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
             result = new PaginationResult<>(total, pageable, requirements);
@@ -182,7 +181,6 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return result;
-
     }
 
     @Override
@@ -320,9 +318,12 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
         }
         return false;
     }
-
     @Override
     public Requirement findById(int id, int userId) throws Exception {
+        return findById(id, userId, false);
+    }
+    @Override
+    public Requirement findById(int id, int userId, boolean includeContext) throws Exception {
         Requirement requirement = null;
         try {
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User creatorUser = USER.as("creatorUser");
@@ -369,11 +370,13 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .select(creatorUser.fields())
                     .select(leadDeveloperUser.fields())
                     .select(CATEGORY.fields())
+                    .select(PROJECT.fields())
                     .from(REQUIREMENT)
                     .join(creatorUser).on(creatorUser.ID.equal(REQUIREMENT.CREATOR_ID))
                     .leftOuterJoin(leadDeveloperUser).on(leadDeveloperUser.ID.equal(REQUIREMENT.LEAD_DEVELOPER_ID))
                     .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
                     .leftOuterJoin(CATEGORY).on(CATEGORY.ID.equal(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID))
+                    .leftOuterJoin(PROJECT).on(PROJECT.ID.equal(REQUIREMENT.PROJECT_ID))
                     .where(transformer.getTableId().equal(id))
                     .fetch();
 
@@ -420,6 +423,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             builder.downVotes(voteQueryResult.get(0).getValue("downVotes", Integer.class));
             builder.userVoted(transformToUserVoted(voteQueryResult.get(0).getValue("userVoted", Integer.class)));
 
+
+
             requirement = builder.build();
 
             //Filling up categories
@@ -446,6 +451,15 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 requirement.setFollower((Integer) queryResult.getValues(isFollower).get(0) == 0 ? false : true);
                 requirement.setDeveloper((Integer) queryResult.getValues(isDeveloper).get(0) == 0 ? false : true);
                 requirement.setContributor(queryResult.getValues(isContributor).get(0).equals(new BigDecimal(0)) ? false : true);
+            }
+
+            if(includeContext){
+                ProjectRecord projectRecord =  queryResult.get(0).into(ProjectRecord.class);
+                ProjectTransformer projectTransformer = new ProjectTransformer();
+                de.rwth.dbis.acis.bazaar.service.dal.entities.Project contextProject = projectTransformer.getEntityFromTableRecord(projectRecord);
+
+                EntityContext context = EntityContext.getBuilder().project(contextProject).build();
+                requirement.setContext(context);
             }
 
         } catch (BazaarException be) {

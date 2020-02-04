@@ -265,6 +265,12 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public PaginationResult<Requirement> listAllRequirements( Pageable pageable, int userId) throws BazaarException {
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        return requirementRepository.findAll(pageable, userId);
+    }
+
+    @Override
     public Requirement getRequirementById(int requirementId, int userId) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         return requirementRepository.findById(requirementId, userId);
@@ -468,6 +474,17 @@ public class DALFacadeImpl implements DALFacade {
     public PaginationResult<Comment> listCommentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
         commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
         return commentRepository.findAllByRequirementId(requirementId, pageable);
+    }
+
+    @Override
+    public PaginationResult<Comment> listAllComments(Pageable pageable, boolean includeContext) throws BazaarException {
+        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
+        return commentRepository.findAllComments(pageable, includeContext);
+    }
+    @Override
+    public PaginationResult<Comment> listAllAnswers(Pageable pageable, int userId) throws BazaarException {
+        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
+        return commentRepository.findAllAnswers(pageable, userId);
     }
 
     @Override

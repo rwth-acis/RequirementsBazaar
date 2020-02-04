@@ -14,6 +14,7 @@ import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Context;
 import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.api.security.Agent;
+import i5.las2peer.api.security.AnonymousAgent;
 import i5.las2peer.logging.L2pLogger;
 import io.swagger.annotations.*;
 import jodd.vtor.Violation;
@@ -55,6 +56,125 @@ public class RequirementsResource {
     public RequirementsResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
     }
+
+
+    /**
+     * This method returns the list of requirements on the server.
+     *
+     * @param page    page number
+     * @param perPage number of requirements by page
+     * @param search  search string
+     * @param sort    sort order
+     * @return Response with list of all requirements
+     */
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "This method returns the list of requirements on the server.")
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "List of requirements", response = Requirement.class, responseContainer = "List"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+    })
+    public Response getRequirements(
+            @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
+            @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
+            @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
+            @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort,
+            @ApiParam(value = "Filter", required = true, allowMultiple = true, allowableValues = "created, following") @QueryParam("filters") List<String> filters) {
+
+        DALFacade dalFacade = null;
+        try {
+            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registrarErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
+            }
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
+            List<Pageable.SortField> sortList = new ArrayList<>();
+            for (String sortOption : sort) {
+                Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
+                if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { // " " is needed because jersey does not pass "+"
+                    direction = Pageable.SortDirection.ASC;
+                    sortOption = sortOption.substring(1);
+
+                } else if (sortOption.startsWith("-")) {
+                    direction = Pageable.SortDirection.DESC;
+                    sortOption = sortOption.substring(1);
+                }
+                Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
+                sortList.add(sortField);
+            }
+
+            dalFacade = bazaarService.getDBConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+            HashMap<String, String> filterMap = new HashMap<>();
+            for(String filterOption : filters) {
+                filterMap.put(filterOption,internalUserId.toString());
+            }
+            PageInfo pageInfo = new PageInfo(page, perPage, filterMap, sortList, search);
+
+
+            Vtor vtor = bazaarService.getValidators();
+            vtor.validate(pageInfo);
+            if (vtor.hasViolations()) {
+                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+            }
+
+            PaginationResult<Requirement> requirementsResult = null;
+
+            //Might want to change this to allow anonymous agents to get all public requirements?
+            if (agent instanceof AnonymousAgent) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirements.read"));
+            } else {
+                requirementsResult = dalFacade.listAllRequirements(pageInfo, internalUserId);
+            }
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_3,
+                    0, Activity.DataType.REQUIREMENT, internalUserId);
+
+            Map<String, List<String>> parameter = new HashMap<>();
+            parameter.put("page", new ArrayList() {{
+                add(String.valueOf(page));
+            }});
+            parameter.put("per_page", new ArrayList() {{
+                add(String.valueOf(perPage));
+            }});
+            if (search != null) {
+                parameter.put("search", new ArrayList() {{
+                    add(String.valueOf(search));
+                }});
+            }
+            parameter.put("sort", sort);
+
+            Response.ResponseBuilder responseBuilder = Response.ok();
+            responseBuilder = responseBuilder.entity(requirementsResult.toJSON());
+            responseBuilder = bazaarService.paginationLinks(responseBuilder, requirementsResult, "requirements", parameter);
+            responseBuilder = bazaarService.xHeaderFields(responseBuilder, requirementsResult);
+
+            return responseBuilder.build();
+        } catch (BazaarException bex) {
+            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } else {
+                logger.warning(bex.getMessage());
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get all requirements");
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            }
+        } catch (Exception ex) {
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get all requirements");
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+        } finally {
+            bazaarService.closeDBConnection(dalFacade);
+        }
+    }
+
+
+
+
 
     /**
      * This method returns the list of requirements for a specific project.
@@ -271,6 +391,11 @@ public class RequirementsResource {
             bazaarService.closeDBConnection(dalFacade);
         }
     }
+
+
+
+
+
 
     /**
      * This method returns a specific requirement.

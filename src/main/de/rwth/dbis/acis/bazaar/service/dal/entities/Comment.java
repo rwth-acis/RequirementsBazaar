@@ -53,6 +53,9 @@ public class Comment extends EntityBase {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
     private Date lastUpdatedDate;
 
+    private EntityContext context;
+
+
     public Comment() {
     }
 
@@ -64,6 +67,7 @@ public class Comment extends EntityBase {
         this.creator = builder.creator;
         this.creationDate = builder.creationDate;
         this.lastUpdatedDate = builder.lastUpdatedDate;
+        this.context = builder.context;
     }
 
     public int getId() {
@@ -98,8 +102,16 @@ public class Comment extends EntityBase {
         return creator;
     }
 
+    public EntityContext getContext() {
+        return context;
+    }
+
     public void setCreator(User creator) {
         this.creator = creator;
+    }
+
+    public void setContext(EntityContext context) {
+        this.context = context;
     }
 
     public static Builder getBuilder(String message) {
@@ -114,6 +126,10 @@ public class Comment extends EntityBase {
         Date creationDate;
         Date lastUpdatedDate;
         User creator;
+        EntityContext context;
+     /*   private Project project;
+        private Category category;
+        private Requirement requirement; */
 
 
         public Builder(String message) {
@@ -149,9 +165,29 @@ public class Comment extends EntityBase {
             this.requirementId = requirementId;
             return this;
         }
+/*
+        public Builder requirement(Requirement requirement) {
+            this.requirement = requirement;
+            return this;
+        }
+
+        public Builder project(Project project) {
+            this.project = project;
+            return this;
+        }
+
+        public Builder category(Category category) {
+            this.requirementId = requirementId;
+            return this;
+        } */
+
 
         public Builder creator(User creator) {
             this.creator = creator;
+            return this;
+        }
+        public Builder context(EntityContext context) {
+            this.context = context;
             return this;
         }
 
