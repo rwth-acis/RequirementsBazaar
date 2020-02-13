@@ -68,7 +68,7 @@ public class PersonalisationDataResource {
     @ApiResponses(value = {
             @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain personalisationData", response = PersonalisationData.class),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
-            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NO_CONTENT, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public Response getPersonalisationData(@PathParam("key") String key, @PathParam("version") int version) {
@@ -93,7 +93,7 @@ public class PersonalisationDataResource {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                return Response.status(Response.Status.NO_CONTENT).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
                 Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get personalisationData " + key+" version:"+version );
