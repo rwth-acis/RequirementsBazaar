@@ -24,6 +24,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Category;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.EntityContext;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.EntityContextFactory;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.UserVote;
@@ -171,7 +172,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             for (Record queryResult : queryResults) {
                 RequirementRecord requirementRecord = queryResult.into(REQUIREMENT);
                 Requirement requirement = transformer.getEntityFromTableRecord(requirementRecord);
-                requirements.add(findById(requirement.getId(), userId, true)); // TODO: Remove the getId call and create the objects themself here
+                requirements.add(findById(requirement.getId(), userId, pageable.getEmbed())); // TODO: Remove the getId call and create the objects themself here
             }
             int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
             result = new PaginationResult<>(total, pageable, requirements);
@@ -320,10 +321,10 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     }
     @Override
     public Requirement findById(int id, int userId) throws Exception {
-        return findById(id, userId, false);
+        return findById(id, userId, null);
     }
     @Override
-    public Requirement findById(int id, int userId, boolean includeContext) throws Exception {
+    public Requirement findById(int id, int userId, List<String> embed) throws Exception {
         Requirement requirement = null;
         try {
             de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User creatorUser = USER.as("creatorUser");
@@ -453,14 +454,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 requirement.setContributor(queryResult.getValues(isContributor).get(0).equals(new BigDecimal(0)) ? false : true);
             }
 
-            if(includeContext){
-                ProjectRecord projectRecord =  queryResult.get(0).into(ProjectRecord.class);
-                ProjectTransformer projectTransformer = new ProjectTransformer();
-                de.rwth.dbis.acis.bazaar.service.dal.entities.Project contextProject = projectTransformer.getEntityFromTableRecord(projectRecord);
-
-                EntityContext context = EntityContext.getBuilder().project(contextProject).build();
-                requirement.setContext(context);
-            }
+            requirement.setContext(EntityContextFactory.create(embed, queryResult.get(0)));
 
         } catch (BazaarException be) {
             ExceptionHandler.getInstance().convertAndThrowException(be);

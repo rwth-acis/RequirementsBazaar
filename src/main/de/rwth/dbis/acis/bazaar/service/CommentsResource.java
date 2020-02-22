@@ -65,7 +65,7 @@ public class CommentsResource {
      *
      * @param page    page number
      * @param perPage number of comments by page
-     * @param includeContext include context of project (project, categories, requirement)
+     * @param embedParents embed context/parents of comment (project, requirement)
      * @param search  search string
      * @param sort    sort order
      * @return Response with list of all requirements
@@ -81,10 +81,10 @@ public class CommentsResource {
     public Response getAllComments(
             @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
             @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
-            @ApiParam(value = "Include context of comment", required = false) @DefaultValue("false") @QueryParam("includeContext") boolean includeContext,
             @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
             @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date") @DefaultValue("name") @QueryParam("sort") List<String> sort,
-            @ApiParam(value = "Filter", required = true, allowMultiple = false, allowableValues = "created, following, replies") @QueryParam("filters") List<String> filters)
+            @ApiParam(value = "Filter", required = true, allowMultiple = false, allowableValues = "created, following, replies") @QueryParam("filters") List<String> filters,
+            @ApiParam(value = "Embed parents", required = true, allowMultiple = true, allowableValues = "project, requirement") @QueryParam("embedParents") List<String> embedParents)
     {
 
         DALFacade dalFacade = null;
@@ -117,7 +117,7 @@ public class CommentsResource {
             for(String filterOption : filters) {
                 filterMap.put(filterOption,internalUserId.toString());
             }
-            PageInfo pageInfo = new PageInfo(page, perPage, filterMap, sortList, search);
+            PageInfo pageInfo = new PageInfo(page, perPage, filterMap, sortList, search, null, embedParents);
 
 
             Vtor vtor = bazaarService.getValidators();
@@ -132,10 +132,12 @@ public class CommentsResource {
             if (agent instanceof AnonymousAgent) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comments.read"));
             } else {
-                commentResult = dalFacade.listAllComments(pageInfo, includeContext);
+                commentResult = dalFacade.listAllComments(pageInfo);
             }
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_3,
-                    0, Activity.DataType.COMMENT, internalUserId);
+
+            //TODO Results in "No CommentRecord found with id: 0"
+            //bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_3,
+            //        0, Activity.DataType.COMMENT, internalUserId);
 
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{
@@ -144,15 +146,12 @@ public class CommentsResource {
             parameter.put("per_page", new ArrayList() {{
                 add(String.valueOf(perPage));
             }});
-            parameter.put("includeContext", new ArrayList() {{
-                add(String.valueOf(includeContext));
-            }});
             if (search != null) {
                 parameter.put("search", new ArrayList() {{
                     add(String.valueOf(search));
                 }});
             }
-
+            parameter.put("embedParents", embedParents);
             parameter.put("sort", sort);
             parameter.put("filters", filters);
 

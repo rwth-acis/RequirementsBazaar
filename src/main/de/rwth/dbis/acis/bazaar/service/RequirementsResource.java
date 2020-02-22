@@ -80,7 +80,8 @@ public class RequirementsResource {
             @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
             @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
             @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort,
-            @ApiParam(value = "Filter", required = true, allowMultiple = true, allowableValues = "created, following") @QueryParam("filters") List<String> filters) {
+            @ApiParam(value = "Filter", required = true, allowMultiple = true, allowableValues = "created, following") @QueryParam("filters") List<String> filters,
+            @ApiParam(value = "Embed parents", required = true, allowMultiple = true, allowableValues = "project") @QueryParam("embedParents") List<String> embedParents) {
 
         DALFacade dalFacade = null;
         try {
@@ -112,7 +113,7 @@ public class RequirementsResource {
             for(String filterOption : filters) {
                 filterMap.put(filterOption,internalUserId.toString());
             }
-            PageInfo pageInfo = new PageInfo(page, perPage, filterMap, sortList, search);
+            PageInfo pageInfo = new PageInfo(page, perPage, filterMap, sortList, search, null, embedParents);
 
 
             Vtor vtor = bazaarService.getValidators();
@@ -129,8 +130,9 @@ public class RequirementsResource {
             } else {
                 requirementsResult = dalFacade.listAllRequirements(pageInfo, internalUserId);
             }
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_3,
-                    0, Activity.DataType.REQUIREMENT, internalUserId);
+            //TODO NotificationDispatcher tries to find Requirement with id 0 as additional Object, need to implement logic for multiple
+            //bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_3,
+            //       0, Activity.DataType.REQUIREMENT, internalUserId);
 
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{

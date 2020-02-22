@@ -34,7 +34,7 @@ import java.util.List;
 public class EntityContext {
     private User user;
     private Project project;
-    private Category category;
+    private Category[] categories;
     private Requirement requirement;
     private Comment comment;
 
@@ -44,7 +44,7 @@ public class EntityContext {
     public EntityContext(Builder builder) {
         this.user           = builder.user;
         this.project        = builder.project;
-        this.category       = builder.category;
+        this.categories       = builder.categories;
         this.requirement    = builder.requirement;
         this.comment        = builder.comment;
     }
@@ -52,8 +52,8 @@ public class EntityContext {
 
     public Project getProject() { return project; }
 
-    public Category getCategory() {
-        return category;
+    public Category[] getCategory() {
+        return categories;
     }
 
     public Requirement getRequirement() {
@@ -76,7 +76,7 @@ public class EntityContext {
     public static class Builder {
         private User user;
         private Project project;
-        private Category category;
+        private Category[] categories;
         private Requirement requirement;
         private Comment comment;
 
@@ -86,16 +86,16 @@ public class EntityContext {
             return this;
         }
 
-        public Builder category(Category category) {
-            this.category = category;
+        public Builder category(Category[] categories) {
+            this.categories = categories;
             return this;
         }
 
-        public Builder requirements(Requirement requirement) {
+        public Builder requirement(Requirement requirement) {
             this.requirement = requirement;
             return this;
         }
-        public Builder attachments(User user) {
+        public Builder attachment(User user) {
             this.user = user;
             return this;
         }

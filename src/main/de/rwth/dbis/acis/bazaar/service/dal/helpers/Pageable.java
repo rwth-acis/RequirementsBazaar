@@ -42,6 +42,8 @@ public interface Pageable {
 
     List<Integer> getIds();
 
+    List<String> getEmbed();
+
     class SortField {
         String field;
         SortDirection sortDirection;

@@ -60,6 +60,7 @@ public class Requirement extends EntityBase {
     private Boolean isDeveloper;
     private Boolean isContributor;
 
+    @JsonProperty("_context")
     private EntityContext context;
 
     public Requirement() {

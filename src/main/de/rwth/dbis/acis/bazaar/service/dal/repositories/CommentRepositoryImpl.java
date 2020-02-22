@@ -21,12 +21,9 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.EntityContext;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.EntityContextFactory;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Category;
-import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.*;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.*;
@@ -113,7 +110,7 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord
 
 
     @Override
-    public PaginationResult<Comment> findAllComments(Pageable pageable, boolean includeContext) throws BazaarException {
+    public PaginationResult<Comment> findAllComments(Pageable pageable) throws BazaarException {
         PaginationResult<Comment> result = null;
         List<Comment> comments;
         try {
@@ -151,9 +148,7 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord
             for (Record record : queryResults) {
                 if (entry == null || transformer.getEntityFromTableRecord(record.into(CommentRecord.class)).getId() != entry.getId()) {
                     entry = convertToCommentWithUser(record, creatorUser);
-                    if(includeContext) {
-                        entry.setContext(convertToContext(record));
-                    }
+                    entry.setContext(EntityContextFactory.create(pageable.getEmbed(), record));
                     comments.add(entry);
                 }
             }
@@ -215,21 +210,6 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord
         return result;
     }
 
-    private EntityContext convertToContext(Record record){
-        ProjectRecord projectRecord = record.into(ProjectRecord.class);
-        RequirementRecord requirementRecord = record.into(RequirementRecord.class);
-        CategoryRecord categoryRecord = record.into(CategoryRecord.class);
-
-        ProjectTransformer projectTransformer = new ProjectTransformer();
-        RequirementTransformer requirementTransformer = new RequirementTransformer();
-        CategoryTransformer categoryTransformer = new CategoryTransformer();
-
-        de.rwth.dbis.acis.bazaar.service.dal.entities.Project contextProject = projectTransformer.getEntityFromTableRecord(projectRecord);
-        de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement contextRequirement = requirementTransformer.getEntityFromTableRecord(requirementRecord);
-        de.rwth.dbis.acis.bazaar.service.dal.entities.Category contextCategory = categoryTransformer.getEntityFromTableRecord(categoryRecord);
-
-        return EntityContext.getBuilder().project(contextProject).requirements(contextRequirement).category(contextCategory).build();
-    }
 
     private Comment convertToCommentWithUser(Record record, de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User creatorUser) {
         CommentRecord commentRecord = record.into(CommentRecord.class);

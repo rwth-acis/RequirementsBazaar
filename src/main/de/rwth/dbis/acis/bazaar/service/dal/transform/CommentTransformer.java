@@ -155,6 +155,19 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
                                 DSL.<Integer>select(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID)
                                         .from(REQUIREMENT_FOLLOWER_MAP)
                                         .where(REQUIREMENT_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue())))
+                                .union(
+                                        DSL.select(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID)
+                                                .from(REQUIREMENT_CATEGORY_MAP)
+                                                .join(CATEGORY_FOLLOWER_MAP)
+                                                .on(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.eq(CATEGORY_FOLLOWER_MAP.CATEGORY_ID)
+                                                .and(CATEGORY_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue()))))
+                                ).union(
+                                        DSL.<Integer>select(REQUIREMENT.ID)
+                                                .from(REQUIREMENT)
+                                                .join(PROJECT_FOLLOWER_MAP)
+                                                .on(REQUIREMENT.PROJECT_ID.eq(PROJECT_FOLLOWER_MAP.PROJECT_ID)
+                                                        .and(PROJECT_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue()))))
+                                )
                         )
                 );
 
