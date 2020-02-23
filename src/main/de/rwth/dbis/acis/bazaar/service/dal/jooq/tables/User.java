@@ -36,7 +36,7 @@ import org.jooq.impl.TableImpl;
 @SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class User extends TableImpl<UserRecord> {
 
-    private static final long serialVersionUID = 952606792;
+    private static final long serialVersionUID = 1645407206;
 
     /**
      * The reference instance of <code>reqbaz.user</code>
@@ -115,6 +115,11 @@ public class User extends TableImpl<UserRecord> {
      * The column <code>reqbaz.user.last_login_date</code>.
      */
     public final TableField<UserRecord, Timestamp> LAST_LOGIN_DATE = createField("last_login_date", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
+
+    /**
+     * The column <code>reqbaz.user.personalization_enabled</code>.
+     */
+    public final TableField<UserRecord, Byte> PERSONALIZATION_ENABLED = createField("personalization_enabled", org.jooq.impl.SQLDataType.TINYINT.defaultValue(org.jooq.impl.DSL.inline("1", org.jooq.impl.SQLDataType.TINYINT)), this, "");
 
     /**
      * Create a <code>reqbaz.user</code> table reference
