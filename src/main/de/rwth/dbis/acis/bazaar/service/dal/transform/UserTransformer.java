@@ -42,7 +42,9 @@ public class UserTransformer implements Transformer<User, UserRecord> {
         record.setProfileImage(entity.getProfileImage());
         record.setEmailLeadSubscription((byte) (entity.isEmailLeadSubscription() ? 1 : 0));
         record.setEmailFollowSubscription((byte) (entity.isEmailFollowSubscription() ? 1 : 0));
+        record.setPersonalizationEnabled((byte) (entity.isPersonalizationEnabled() ? 1:0));
         record.setCreationDate(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+
         return record;
     }
 
@@ -61,6 +63,7 @@ public class UserTransformer implements Transformer<User, UserRecord> {
                 .creationDate(record.getCreationDate())
                 .lastUpdatedDate(record.getLastUpdatedDate())
                 .lastLoginDate(record.getLastLoginDate())
+                .personalizationEnabled(record.getPersonalizationEnabled() != 0)
                 .build();
     }
 
@@ -75,6 +78,7 @@ public class UserTransformer implements Transformer<User, UserRecord> {
                 .profileImage(queryResult.getValues(user.PROFILE_IMAGE).get(0))
                 .emailLeadSubscription(queryResult.getValues(user.EMAIL_LEAD_SUBSCRIPTION).get(0) != 0)
                 .emailFollowSubscription(queryResult.getValues(user.EMAIL_FOLLOW_SUBSCRIPTION).get(0) != 0)
+                .personalizationEnabled(queryResult.getValues(user.PERSONALIZATION_ENABLED).get(0) != 0)
                 .build();
     }
 
@@ -116,6 +120,9 @@ public class UserTransformer implements Transformer<User, UserRecord> {
             }
             if (entity.isEmailFollowSubscription() != null) {
                 put(USER.EMAIL_FOLLOW_SUBSCRIPTION, entity.isEmailFollowSubscription());
+            }
+            if (entity.isPersonalizationEnabled() != null) {
+                put(USER.PERSONALIZATION_ENABLED, entity.isPersonalizationEnabled());
             }
         }};
         if (!updateMap.isEmpty()) {

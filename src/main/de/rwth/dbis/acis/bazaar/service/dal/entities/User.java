@@ -61,6 +61,8 @@ public class User extends EntityBase {
 
     private Boolean emailFollowSubscription;
 
+    private Boolean personalizationEnabled;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ")
     private Date creationDate;
 
@@ -87,6 +89,7 @@ public class User extends EntityBase {
         this.creationDate = builder.creationDate;
         this.lastUpdatedDate = builder.lastUpdatedDate;
         this.lastLoginDate = builder.lastLoginDate;
+        this.personalizationEnabled = builder.personalizationEnabled;
     }
 
     public int getId() {
@@ -130,6 +133,8 @@ public class User extends EntityBase {
         return emailFollowSubscription;
     }
 
+    public Boolean isPersonalizationEnabled(){ return personalizationEnabled; }
+
     public Date getCreationDate() {
         return creationDate;
     }
@@ -150,6 +155,8 @@ public class User extends EntityBase {
         return admin;
     }
 
+
+
     public static class Builder {
         private int id;
         private String firstName;
@@ -161,9 +168,11 @@ public class User extends EntityBase {
         private String profileImage;
         private Boolean emailLeadSubscription;
         private Boolean emailFollowSubscription;
+        private Boolean personalizationEnabled;
         private Date creationDate;
         private Date lastUpdatedDate;
         private Date lastLoginDate;
+
 
         public Builder(String eMail) {
             this.eMail = eMail;
@@ -231,6 +240,10 @@ public class User extends EntityBase {
 
         public Builder lastLoginDate(Date lastLoginDate) {
             this.lastLoginDate = lastLoginDate;
+            return this;
+        }
+        public Builder personalizationEnabled(Boolean personalizationEnabled){
+            this.personalizationEnabled = personalizationEnabled;
             return this;
         }
 

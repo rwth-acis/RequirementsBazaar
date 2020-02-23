@@ -62,13 +62,13 @@ public class PersonalisationDataResource {
      * @return Response with attachment as a JSON object.
      */
     @GET
-    @Path("/{key}/{version}")
+    @Path("/{key}-{version}/")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to retrieve a certain personalisationData value")
     @ApiResponses(value = {
             @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a certain personalisationData", response = PersonalisationData.class),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
-            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NO_CONTENT, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public Response getPersonalisationData(@PathParam("key") String key, @PathParam("version") int version) {
@@ -93,7 +93,7 @@ public class PersonalisationDataResource {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                return Response.status(Response.Status.NO_CONTENT).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
                 Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get personalisationData " + key+" version:"+version );
@@ -116,17 +116,17 @@ public class PersonalisationDataResource {
      * @return Response with the created attachment as JSON object.
      */
     @PUT
-    @Path("/")
+    @Path("/{key}-{version}/")
     @Consumes(MediaType.APPLICATION_JSON)
     //@Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to save a personalisationData item")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Success"),
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Success", response = PersonalisationData.class),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response setPersonalisationData(@ApiParam(value = "PersonalisationData as JSON", required = true) PersonalisationData data) {
+    public Response setPersonalisationData(@PathParam("key") String key, @PathParam("version") int version, @ApiParam(value = "PersonalisationData as JSON", required = true) PersonalisationData data) {
         DALFacade dalFacade = null;
         try {
             Agent agent = Context.getCurrent().getMainAgent();
@@ -146,19 +146,19 @@ public class PersonalisationDataResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.create"));
             }
 
-            PersonalisationData fullData = PersonalisationData.getBuilder().key(data.getKey()).userId(internalUserId).version(data.getVersion()).value(data.getValue()).build();
+            PersonalisationData fullData = PersonalisationData.getBuilder().key(key).userId(internalUserId).version(version).value(data.getValue()).build();
 
 
             Vtor vtor = bazaarService.getValidators();
             vtor.useProfiles("create");
-            vtor.validate(data);
+            vtor.validate(fullData);
             if (vtor.hasViolations()) {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
             dalFacade.setPersonalisationData(fullData);
 
 
-            return Response.status(Response.Status.OK).build();
+            return Response.ok(fullData.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();

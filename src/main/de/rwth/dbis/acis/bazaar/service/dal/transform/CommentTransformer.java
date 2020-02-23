@@ -24,12 +24,14 @@ import com.vdurmont.emoji.EmojiParser;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.records.CommentRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.repositories.ProjectRepositoryImpl;
 import org.jooq.*;
+import org.jooq.impl.DSL;
 
 import java.sql.Timestamp;
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.COMMENT;
+import static de.rwth.dbis.acis.bazaar.service.dal.jooq.Tables.*;
 
 /**
  * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
@@ -92,17 +94,129 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
         if (sorts.isEmpty()) {
             return Collections.singletonList(COMMENT.CREATION_DATE.asc());
         }
-        return null;
+
+
+        List<SortField<?>> sortFields = new ArrayList<>();
+        for (Pageable.SortField sort : sorts) {
+            switch (sort.getField()) {
+                case "date":
+                    switch (sort.getSortDirection()) {
+                        case ASC:
+                            sortFields.add(COMMENT.CREATION_DATE.asc());
+                            break;
+                        case DESC:
+                            sortFields.add(COMMENT.CREATION_DATE.desc());
+                            break;
+                        default:
+                            sortFields.add(COMMENT.CREATION_DATE.desc());
+                            break;
+                    }
+                    break;
+                case "last_activity":
+                    switch (sort.getSortDirection()) {
+                        case ASC:
+                            sortFields.add(COMMENT.LAST_UPDATED_DATE.asc());
+                            break;
+                        case DESC:
+                            sortFields.add(COMMENT.LAST_UPDATED_DATE.desc());
+                            break;
+                        default:
+                            sortFields.add(COMMENT.LAST_UPDATED_DATE.desc());
+                            break;
+                    }
+                    break;
+            }
+        }
+        return sortFields;
     }
 
     @Override
     public Condition getSearchCondition(String search) throws Exception {
-        throw new Exception("Search is not supported!");
+        //throw new Exception("Search is not supported!");
+        if(search != "")  return COMMENT.MESSAGE.likeIgnoreCase("%" + search + "%");
+        return DSL.trueCondition();
     }
 
     @Override
     public Collection<? extends Condition> getFilterConditions(Map<String, String> filters) throws Exception {
-        return new ArrayList<>();
+        List<Condition> conditions = new ArrayList<>();
+
+        for (Map.Entry<String, String> filterEntry : filters.entrySet()) {
+
+            if (filterEntry.getKey().equals("created")) {
+                conditions.add(
+                        COMMENT.USER_ID.eq(Integer.parseInt(filterEntry.getValue()))
+                );
+            }else
+
+            if(filterEntry.getKey().equals("following")){
+                conditions.add(
+                        COMMENT.REQUIREMENT_ID.in(
+                                DSL.<Integer>select(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID)
+                                        .from(REQUIREMENT_FOLLOWER_MAP)
+                                        .where(REQUIREMENT_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue())))
+                                .union(
+                                        DSL.select(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID)
+                                                .from(REQUIREMENT_CATEGORY_MAP)
+                                                .join(CATEGORY_FOLLOWER_MAP)
+                                                .on(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.eq(CATEGORY_FOLLOWER_MAP.CATEGORY_ID)
+                                                .and(CATEGORY_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue()))))
+                                ).union(
+                                        DSL.<Integer>select(REQUIREMENT.ID)
+                                                .from(REQUIREMENT)
+                                                .join(PROJECT_FOLLOWER_MAP)
+                                                .on(REQUIREMENT.PROJECT_ID.eq(PROJECT_FOLLOWER_MAP.PROJECT_ID)
+                                                        .and(PROJECT_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue()))))
+                                )
+                        )
+                );
+
+            }else
+            if(filterEntry.getKey().equals("replies")) {
+                de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment SUB_COMMENTS = COMMENT.as("sub_comments");
+                de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment IN_COMMENTS = COMMENT.as("in_comments");
+                conditions.add(
+                        COMMENT.ID.in(
+                                DSL.select(IN_COMMENTS.ID)
+                                        .from(IN_COMMENTS)
+                                        .leftSemiJoin(SUB_COMMENTS).on(
+                                        (
+                                                IN_COMMENTS.REPLY_TO_COMMENT_ID.eq(SUB_COMMENTS.REPLY_TO_COMMENT_ID)                //Refering same thread/base-comment
+                                                        .and(
+                                                                IN_COMMENTS.CREATION_DATE.greaterThan(SUB_COMMENTS.CREATION_DATE)   //replies have greater timestamp than the users comment
+                                                        ).and(
+                                                        SUB_COMMENTS.USER_ID.eq(Integer.parseInt(filterEntry.getValue()))       //Comments the user wrote
+                                                )
+                                        ).or(
+                                                IN_COMMENTS.REPLY_TO_COMMENT_ID.eq(SUB_COMMENTS.ID).and(SUB_COMMENTS.USER_ID.eq(Integer.parseInt(filterEntry.getValue())))   //User is Thread-Owner
+                                        )
+                                ).where(IN_COMMENTS.USER_ID.notEqual(Integer.parseInt(filterEntry.getValue())))             // Remove Users "Own" Comments
+                        )
+                );
+            }
+
+/*
+            if(filterEntry.getKey().equals("developing")){
+                conditions.add(
+                        COMMENT.REQUIREMENT_ID.in(
+                                DSL.<Integer>select(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID)
+                                        .from(REQUIREMENT_DEVELOPER_MAP)
+                                        .where(REQUIREMENT_DEVELOPER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue())))
+                                .or(REQUIREMENT.LEAD_DEVELOPER_ID.eq(Integer.parseInt(filterEntry.getValue())))
+                        )
+               );
+
+
+            }else
+  */
+            else{
+
+                conditions.add(
+                        DSL.falseCondition()
+                );
+            }
+        }
+        return conditions;
     }
 
     private Comment cleanEntity(Comment comment) {

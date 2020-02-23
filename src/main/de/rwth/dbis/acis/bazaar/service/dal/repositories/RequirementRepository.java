@@ -42,6 +42,7 @@ public interface RequirementRepository extends Repository<Requirement> {
     boolean belongsToPublicProject(int id) throws BazaarException;
 
     Requirement findById(int id, int userId) throws Exception;
+    Requirement findById(int id, int userId, List<String> embed) throws Exception;
 
     void setRealized(int id, Timestamp realized) throws BazaarException;
 

@@ -249,6 +249,13 @@ public interface DALFacade {
     PaginationResult<Requirement> listRequirementsByCategory(int categoryId, Pageable pageable, int userId) throws BazaarException;
 
     /**
+     * @param pageable   pagination information
+     * @param userId
+     * @return the requirements filtered by pageable
+     */
+    PaginationResult<Requirement> listAllRequirements(Pageable pageable, int userId) throws BazaarException;
+
+    /**
      * @param requirementId the identifier of the requirement should be returned
      * @return the requirement identified by the given id and all of its assets: comments,attachments,followers,developers,creator
      */
@@ -443,6 +450,20 @@ public interface DALFacade {
      * @return the comments for a given requirement
      */
     PaginationResult<Comment> listCommentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
+
+    /**
+     * @param pageable      pagination information
+     * @param includeContext include context of comment
+     * @return the set of comments
+     */
+    PaginationResult<Comment> listAllComments(Pageable pageable) throws BazaarException;
+
+    /**
+     *  @param userId the identifier of user we are looking at
+     * @param pageable      pagination information
+     * @return the answers for a given user
+     */
+    PaginationResult<Comment> listAllAnswers(Pageable pageable, int userId) throws BazaarException;
 
     /**
      * @param commentId

@@ -60,6 +60,9 @@ public class Requirement extends EntityBase {
     private Boolean isDeveloper;
     private Boolean isContributor;
 
+    @JsonProperty("_context")
+    private EntityContext context;
+
     public Requirement() {
     }
 
@@ -79,6 +82,7 @@ public class Requirement extends EntityBase {
         this.isFollower = builder.isFollower;
         this.isDeveloper = builder.isDeveloper;
         this.isContributor = builder.isContributor;
+        this.context = builder.context;
     }
 
     /**
@@ -218,6 +222,11 @@ public class Requirement extends EntityBase {
         return isContributor;
     }
 
+    public EntityContext getContext() { return context; }
+    public void setContext(EntityContext context){
+        this.context = context;
+    }
+
     public static class Builder {
         private int id;
         private String description;
@@ -234,6 +243,7 @@ public class Requirement extends EntityBase {
         private Boolean isFollower;
         private Boolean isDeveloper;
         private Boolean isContributor;
+        private EntityContext context;
 
         public Builder(String name) {
             this.name = name;
@@ -323,6 +333,10 @@ public class Requirement extends EntityBase {
 
         public Requirement.Builder isContributor(Boolean isContributor) {
             this.isContributor = isContributor;
+            return this;
+        }
+        public Builder context(EntityContext context){
+            this.context = context;
             return this;
         }
     }
