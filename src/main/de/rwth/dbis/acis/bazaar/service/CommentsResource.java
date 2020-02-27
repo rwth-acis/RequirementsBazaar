@@ -135,9 +135,8 @@ public class CommentsResource {
                 commentResult = dalFacade.listAllComments(pageInfo);
             }
 
-            //TODO Results in "No CommentRecord found with id: 0"
-            //bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_3,
-            //        0, Activity.DataType.COMMENT, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_LIST, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_60,
+                    0, Activity.DataType.COMMENT, internalUserId);
 
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{

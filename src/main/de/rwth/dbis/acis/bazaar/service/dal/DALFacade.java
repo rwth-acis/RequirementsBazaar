@@ -586,8 +586,11 @@ public interface DALFacade {
     void addUserToRole(int userId, String roleName, String context) throws BazaarException;
     //endregion
 
-
-
+    /**
+     * Receives the PersonalisationData with a given id
+     * @param id which identifies the personalisationData.
+     */
+    PersonalisationData getPersonalisationData(int id) throws Exception;
     /**
      * Receives the PersonalisationData for a given userid, key and version
      * @param userId which owns the personalisationData.

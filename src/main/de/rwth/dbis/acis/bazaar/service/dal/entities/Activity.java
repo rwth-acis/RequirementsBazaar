@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
+import javax.ws.rs.container.ContainerRequestContext;
+
 import java.util.Date;
 
 public class Activity extends EntityBase {
@@ -89,16 +91,18 @@ public class Activity extends EntityBase {
 
     public enum DataType {
         STATISTIC,
+        PERSONALISATION,
         PROJECT,
         CATEGORY,
         REQUIREMENT,
         COMMENT,
         ATTACHMENT,
-        USER
+        USER;
     }
 
     public enum ActivityAction {
         RETRIEVE,
+        RETRIEVE_LIST,
         RETRIEVE_CHILD,
         CREATE,
         UPDATE,
@@ -184,6 +188,7 @@ public class Activity extends EntityBase {
         }
     }
 
+    @JsonFilter("AdditionalObjectFilter")
     public static class AdditionalObject {
         @JsonFilter("ActivityFilter")
         private Project project;
@@ -196,6 +201,16 @@ public class Activity extends EntityBase {
 
         @JsonFilter("ActivityFilter")
         private User user;
+
+        private PersonalisationData personalisationData;
+
+        private RequestInformation request;
+
+
+
+
+
+
 
         public Project getProject() {
             return project;
@@ -213,11 +228,82 @@ public class Activity extends EntityBase {
             return user;
         }
 
-        public AdditionalObject(Project project, Category category, Requirement requirement, User user) {
+        public PersonalisationData getPersonalisationData(){ return personalisationData;}
+
+        public  RequestInformation getRequest(){ return request; }
+
+        public void setProject(Project project) {
+            this.project = project;
+        }
+
+        public void setCategory(Category category) {
+            this.category = category;
+        }
+
+        public void setRequirement(Requirement requirement) {
+            this.requirement = requirement;
+        }
+
+        public void setUser(User user) {
+            this.user = user;
+        }
+
+        public void setPersonalisationData(PersonalisationData personalisationData) {
+            this.personalisationData = personalisationData;
+        }
+        public void setRequest(RequestInformation request){
+            this.request = request;
+        }
+
+
+
+
+
+        public AdditionalObject(Project project, Category category, Requirement requirement, User user, PersonalisationData personalisationData, RequestInformation request) {
             this.project = project;
             this.category = category;
             this.requirement = requirement;
             this.user = user;
+            this.personalisationData = personalisationData;
+            this.request = request;
         }
+        public AdditionalObject(Project project, Category category, Requirement requirement, User user, PersonalisationData personalisationData) {
+            this(project, category, requirement, user, personalisationData, null);
+        }
+        public AdditionalObject(Project project, Category category, Requirement requirement, User user) {
+            this(project, category, requirement, user, null, null);
+        }
+        public AdditionalObject(RequestInformation request) {
+            this(null, null, null, null, null, request);
+        }
+        public AdditionalObject(PersonalisationData data) {
+            this(null, null, null, null, data, null);
+        }
+
+
+    }
+    public static class RequestInformation {
+         private String requestUri;
+         private String referer;
+         private String userAgent;
+
+         public String getRequestUri() { return requestUri; }
+         public String getReferer() { return referer; }
+         public String getUserAgent() { return userAgent; }
+
+         public RequestInformation(String requestUri, String referer, String userAgent){
+             this.referer = referer;
+             this.requestUri = requestUri;
+             this.userAgent = userAgent;
+         }
+         public RequestInformation(ContainerRequestContext context){
+             this(null,null,null);
+             this.referer = context.getHeaderString("referer");
+             //this.userAgent = context.getHeaderString("user-agent");          //Commented out for now since not used
+             this.requestUri = context.getUriInfo().getRequestUri().toString();
+
+
+
+         }
     }
 }

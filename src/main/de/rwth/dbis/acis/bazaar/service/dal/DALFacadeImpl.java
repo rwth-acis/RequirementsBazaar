@@ -645,6 +645,11 @@ public class DALFacadeImpl implements DALFacade {
         return personalisationDataRepository.findByKey(userId,version,key);
     }
     @Override
+    public PersonalisationData getPersonalisationData(int id) throws Exception {
+        personalisationDataRepository = (personalisationDataRepository != null) ? personalisationDataRepository : new PersonalisationDataRepositoryImpl(dslContext);
+        return personalisationDataRepository.findById(id);
+    }
+    @Override
     public void setPersonalisationData(PersonalisationData personalisationData) throws BazaarException {
         personalisationDataRepository = (personalisationDataRepository != null) ? personalisationDataRepository : new PersonalisationDataRepositoryImpl(dslContext);
         personalisationDataRepository.insertOrUpdate(personalisationData);
@@ -653,7 +658,6 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public EntityOverview getEntitiesForUser(List<String> includes, Pageable pageable, int userId) throws BazaarException {
-        //categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
         EntityOverview.Builder result =  EntityOverview.getBuilder();
         for(String include : includes) {
             if(include.equals("projects")){
