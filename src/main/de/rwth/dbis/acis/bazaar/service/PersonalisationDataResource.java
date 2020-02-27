@@ -115,8 +115,10 @@ public class PersonalisationDataResource {
 
     /**
      * This method allows to save a personalisationData
-     *
+     * @param key The plugins identifier
+     * @param version The plugins identifier
      * @param data as JSON object
+     *
      * @return Response with the created attachment as JSON object.
      */
     @PUT

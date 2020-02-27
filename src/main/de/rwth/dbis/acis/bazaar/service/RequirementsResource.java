@@ -65,6 +65,8 @@ public class RequirementsResource {
      * @param perPage number of requirements by page
      * @param search  search string
      * @param sort    sort order
+     * @param filters set of element returned
+     * @param embedParents list of parents to embed with the response
      * @return Response with list of all requirements
      */
     @GET
@@ -80,7 +82,7 @@ public class RequirementsResource {
             @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
             @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
             @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort,
-            @ApiParam(value = "Filter", required = true, allowMultiple = true, allowableValues = "created, following") @QueryParam("filters") List<String> filters,
+            @ApiParam(value = "Filter", required = true, allowMultiple = false, allowableValues = "created, following") @DefaultValue("created") @QueryParam("filters") List<String> filters,
             @ApiParam(value = "Embed parents", required = true, allowMultiple = true, allowableValues = "project") @QueryParam("embedParents") List<String> embedParents) {
 
         DALFacade dalFacade = null;
@@ -130,7 +132,7 @@ public class RequirementsResource {
             } else {
                 requirementsResult = dalFacade.listAllRequirements(pageInfo, internalUserId);
             }
-            //TODO NotificationDispatcher tries to find Requirement with id 0 as additional Object, need to implement logic for multiple
+
             bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_LIST, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_61,
                     0, Activity.DataType.REQUIREMENT, internalUserId);
 
@@ -147,6 +149,8 @@ public class RequirementsResource {
                     add(String.valueOf(search));
                 }});
             }
+            parameter.put("filters", filters);
+            parameter.put("embedParents", embedParents);
             parameter.put("sort", sort);
 
             Response.ResponseBuilder responseBuilder = Response.ok();

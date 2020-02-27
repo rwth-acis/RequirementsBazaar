@@ -65,9 +65,10 @@ public class CommentsResource {
      *
      * @param page    page number
      * @param perPage number of comments by page
-     * @param embedParents embed context/parents of comment (project, requirement)
      * @param search  search string
      * @param sort    sort order
+     * @param filters  set of comments to return
+     * @param embedParents embed context/parents of comment (project, requirement)
      * @return Response with list of all requirements
      */
     @GET

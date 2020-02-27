@@ -65,6 +65,10 @@ public class ProjectsResource {
      * @param perPage number of projects by page
      * @param search  search string
      * @param sort    sort order
+     * @param filters set of projects to return
+     * @param ids     list of ids for projects that should be returned
+     * @param context java rs context used for logging
+     *
      * @return Response with list of all projects
      */
     @GET

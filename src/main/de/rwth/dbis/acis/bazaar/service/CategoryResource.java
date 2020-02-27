@@ -224,7 +224,6 @@ public class CategoryResource {
      * @return Response with the created project as a JSON object.
      */
     @POST
-    @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to create a new category under a given a project.")
