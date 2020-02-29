@@ -107,22 +107,22 @@ public class NotificationDispatcherImp extends TimerTask implements Notification
             } else if (dataType.equals(Activity.DataType.PROJECT) && dataId != 0) {
                 Project project = dalFacade.getProjectById(dataId, userId);
                 additionalObject = new Activity.AdditionalObject(project, null, null, user);
-            } else if (dataType.equals(Activity.DataType.CATEGORY)) {
+            } else if (dataType.equals(Activity.DataType.CATEGORY) && dataId != 0) {
                 Category category = dalFacade.getCategoryById(dataId, userId);
                 Project project = dalFacade.getProjectById(category.getProjectId(), userId);
                 additionalObject = new Activity.AdditionalObject(project, category, null, user);
-            } else if (dataType.equals(Activity.DataType.REQUIREMENT)) {
+            } else if (dataType.equals(Activity.DataType.REQUIREMENT) && dataId != 0) {
                 Requirement requirement = dalFacade.getRequirementById(dataId, userId);
                 Category category = dalFacade.getCategoryById(requirement.getCategories().get(0).getId(), userId);
                 Project project = dalFacade.getProjectById(requirement.getProjectId(), userId);
                 additionalObject = new Activity.AdditionalObject(project, category, requirement, user);
-            } else if (dataType.equals(Activity.DataType.COMMENT)) {
+            } else if (dataType.equals(Activity.DataType.COMMENT) && dataId != 0) {
                 Comment comment = dalFacade.getCommentById(dataId);
                 Requirement requirement = dalFacade.getRequirementById(comment.getRequirementId(), userId);
                 Category category = dalFacade.getCategoryById(requirement.getCategories().get(0).getId(), userId);
                 Project project = dalFacade.getProjectById(requirement.getProjectId(), userId);
                 additionalObject = new Activity.AdditionalObject(project, category, requirement, user);
-            } else if (dataType.equals(Activity.DataType.ATTACHMENT)) {
+            } else if (dataType.equals(Activity.DataType.ATTACHMENT) && dataId != 0) {
                 Attachment attachment = dalFacade.getAttachmentById(dataId);
                 Requirement requirement = dalFacade.getRequirementById(attachment.getRequirementId(), userId);
                 Category category = dalFacade.getCategoryById(requirement.getCategories().get(0).getId(), userId);

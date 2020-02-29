@@ -95,7 +95,6 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
             return Collections.singletonList(COMMENT.CREATION_DATE.asc());
         }
 
-
         List<SortField<?>> sortFields = new ArrayList<>();
         for (Pageable.SortField sort : sorts) {
             switch (sort.getField()) {
@@ -148,20 +147,22 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
                         COMMENT.USER_ID.eq(Integer.parseInt(filterEntry.getValue()))
                 );
             }else
-
             if(filterEntry.getKey().equals("following")){
                 conditions.add(
                         COMMENT.REQUIREMENT_ID.in(
+                                //Requirement Follows
                                 DSL.<Integer>select(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID)
                                         .from(REQUIREMENT_FOLLOWER_MAP)
                                         .where(REQUIREMENT_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue())))
                                 .union(
+                                        //Category Follows
                                         DSL.select(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID)
                                                 .from(REQUIREMENT_CATEGORY_MAP)
                                                 .join(CATEGORY_FOLLOWER_MAP)
                                                 .on(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.eq(CATEGORY_FOLLOWER_MAP.CATEGORY_ID)
                                                 .and(CATEGORY_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue()))))
                                 ).union(
+                                        //Project Follows
                                         DSL.<Integer>select(REQUIREMENT.ID)
                                                 .from(REQUIREMENT)
                                                 .join(PROJECT_FOLLOWER_MAP)

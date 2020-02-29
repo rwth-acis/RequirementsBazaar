@@ -298,7 +298,7 @@ public class Activity extends EntityBase {
          }
          public RequestInformation(ContainerRequestContext context){
              this(null,null,null);
-             //this.referer = context.getHeaderString("referer");               //Commented out to save storage & not used
+             this.referer = context.getHeaderString("referer");
              //this.userAgent = context.getHeaderString("user-agent");          //Commented out for now since not used
              this.requestUri = context.getUriInfo().getRequestUri().toString();
 

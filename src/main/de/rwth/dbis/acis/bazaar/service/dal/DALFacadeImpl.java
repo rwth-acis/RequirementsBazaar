@@ -481,11 +481,6 @@ public class DALFacadeImpl implements DALFacade {
         commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
         return commentRepository.findAllComments(pageable);
     }
-    @Override
-    public PaginationResult<Comment> listAllAnswers(Pageable pageable, int userId) throws BazaarException {
-        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
-        return commentRepository.findAllAnswers(pageable, userId);
-    }
 
     @Override
     public Comment getCommentById(int commentId) throws Exception {
@@ -656,8 +651,10 @@ public class DALFacadeImpl implements DALFacade {
 
     }
 
+
     @Override
     public EntityOverview getEntitiesForUser(List<String> includes, Pageable pageable, int userId) throws BazaarException {
+        /* Combines required Entities from the different Repositories */
         EntityOverview.Builder result =  EntityOverview.getBuilder();
         for(String include : includes) {
             if(include.equals("projects")){

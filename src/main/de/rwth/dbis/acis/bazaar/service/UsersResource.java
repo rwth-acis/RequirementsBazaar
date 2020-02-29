@@ -273,6 +273,7 @@ public class UsersResource {
             for(String filterOption : filters) {
                 filterMap.put(filterOption,internalUserId.toString());
             }
+            //Only used as wrapper for filter, sort & search
             PageInfo pageInfo = new PageInfo(0, 0, filterMap, sortList, search);
 
 

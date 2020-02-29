@@ -27,6 +27,7 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
 import java.net.HttpURLConnection;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Api(value = "projects", description = "Projects resource")
 @SwaggerDefinition(
@@ -153,6 +154,8 @@ public class ProjectsResource {
                 }});
             }
             parameter.put("sort", sort);
+            parameter.put("filters", filters);
+            parameter.put("ids", ids.stream().map(Object::toString).collect(Collectors.toList())); //List<String> from List<Integer>, thanks to https://stackoverflow.com/a/23024375/3567992
 
             Response.ResponseBuilder responseBuilder = Response.ok();
             responseBuilder = responseBuilder.entity(projectsResult.toJSON());

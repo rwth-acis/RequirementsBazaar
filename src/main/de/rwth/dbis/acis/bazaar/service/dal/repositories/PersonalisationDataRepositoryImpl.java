@@ -23,7 +23,13 @@ public class PersonalisationDataRepositoryImpl  extends RepositoryImpl<Personali
         super(jooq, new PersonalisationDataTransformer());
     }
 
-
+    /**
+     * Finds the Entry for a given userId, Key and Version (all part of composite key)
+     * @param  userId userId for the PersonalisationData Entry
+     * @param  version userId for the PersonalisationData Entry
+     * @param  key key for the PersonalisationData Entry
+     * @return Entry if found, Throws bazaarException otherwise.
+     * **/
     @Override
     public PersonalisationData findByKey(int userId, int version, String key) throws BazaarException{
         PersonalisationData data = null;
@@ -44,6 +50,11 @@ public class PersonalisationDataRepositoryImpl  extends RepositoryImpl<Personali
         }
         return data;
     }
+
+    /**
+     * CREATES if does not exist or UPDATES if exists
+     * @param  data PersonalisationData to insert/Update
+     * **/
     @Override
     public void insertOrUpdate(PersonalisationData data) throws BazaarException{
          jooq.insertInto(PERSONALISATION_DATA, PERSONALISATION_DATA.IDENTIFIER, PERSONALISATION_DATA.USER_ID, PERSONALISATION_DATA.VERSION, PERSONALISATION_DATA.SETTING)
