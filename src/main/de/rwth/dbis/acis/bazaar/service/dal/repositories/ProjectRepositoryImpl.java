@@ -279,6 +279,9 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .offset(pageable.getOffset())
                     .fetch();
 
+
+
+
             for (Record queryResult : queryResults) {
                 ProjectRecord projectRecord = queryResult.into(PROJECT);
                 Project project = transformer.getEntityFromTableRecord(projectRecord);
@@ -301,6 +304,9 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
         return result;
     }
 
+    /**
+     * @return List of Integers (Project-Ids) matching the filters & sorts from pageable. Page-Size/Offset is ignored
+     * **/
     @Override
     public List<Integer> listAllProjectIds(Pageable pageable, int userId) throws BazaarException {
         List<Integer> projectIds = new ArrayList<>();
