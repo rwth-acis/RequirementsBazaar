@@ -82,7 +82,7 @@ public class RequirementsResource {
             @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
             @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
             @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort,
-            @ApiParam(value = "Filter", required = true, allowMultiple = false, allowableValues = "created, following") @DefaultValue("created") @QueryParam("filters") List<String> filters,
+            @ApiParam(value = "Filter", required = true, allowMultiple = false, allowableValues = "created, following, contributed") @DefaultValue("created") @QueryParam("filters") List<String> filters,
             @ApiParam(value = "Embed parents", required = true, allowMultiple = true, allowableValues = "project") @QueryParam("embedParents") List<String> embedParents) {
 
         DALFacade dalFacade = null;
