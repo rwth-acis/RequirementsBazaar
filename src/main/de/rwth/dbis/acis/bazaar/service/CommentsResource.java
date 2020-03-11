@@ -84,7 +84,7 @@ public class CommentsResource {
             @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
             @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
             @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date") @DefaultValue("name") @QueryParam("sort") List<String> sort,
-            @ApiParam(value = "Filter", required = true, allowMultiple = false, allowableValues = "created, following, replies") @QueryParam("filters") List<String> filters,
+            @ApiParam(value = "Filter", required = true, allowMultiple = false, allowableValues = "created, following, replies, developing") @QueryParam("filters") List<String> filters,
             @ApiParam(value = "Embed parents", required = true, allowMultiple = true, allowableValues = "project, requirement") @QueryParam("embedParents") List<String> embedParents)
     {
 

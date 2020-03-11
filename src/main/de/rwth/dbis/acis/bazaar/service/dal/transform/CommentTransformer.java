@@ -194,9 +194,9 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
                                 ).where(IN_COMMENTS.USER_ID.notEqual(Integer.parseInt(filterEntry.getValue())))             // Remove Users "Own" Comments
                         )
                 );
-            }
+            }else
 
-/*
+
             if(filterEntry.getKey().equals("developing")){
                 conditions.add(
                         COMMENT.REQUIREMENT_ID.in(
@@ -208,8 +208,8 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
                );
 
 
-            }else
-  */
+            }
+
             else{
 
                 conditions.add(
