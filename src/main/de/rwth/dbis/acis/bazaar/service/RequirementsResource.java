@@ -65,6 +65,8 @@ public class RequirementsResource {
      * @param perPage number of requirements by page
      * @param search  search string
      * @param sort    sort order
+     * @param filters set of element returned
+     * @param embedParents list of parents to embed with the response
      * @return Response with list of all requirements
      */
     @GET
@@ -80,7 +82,7 @@ public class RequirementsResource {
             @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
             @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
             @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort,
-            @ApiParam(value = "Filter", required = true, allowMultiple = true, allowableValues = "created, following") @QueryParam("filters") List<String> filters,
+            @ApiParam(value = "Filter", required = true, allowMultiple = false, allowableValues = "created, following, contributed") @DefaultValue("created") @QueryParam("filters") List<String> filters,
             @ApiParam(value = "Embed parents", required = true, allowMultiple = true, allowableValues = "project") @QueryParam("embedParents") List<String> embedParents) {
 
         DALFacade dalFacade = null;
@@ -130,9 +132,10 @@ public class RequirementsResource {
             } else {
                 requirementsResult = dalFacade.listAllRequirements(pageInfo, internalUserId);
             }
-            //TODO NotificationDispatcher tries to find Requirement with id 0 as additional Object, need to implement logic for multiple
-            //bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_3,
-            //       0, Activity.DataType.REQUIREMENT, internalUserId);
+
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_LIST, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_61,
+                    0, Activity.DataType.REQUIREMENT, internalUserId);
+
 
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{
@@ -146,6 +149,8 @@ public class RequirementsResource {
                     add(String.valueOf(search));
                 }});
             }
+            parameter.put("filters", filters);
+            parameter.put("embedParents", embedParents);
             parameter.put("sort", sort);
 
             Response.ResponseBuilder responseBuilder = Response.ok();
@@ -415,7 +420,7 @@ public class RequirementsResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response getRequirement(@PathParam("requirementId") int requirementId) {
+    public Response getRequirement(@PathParam("requirementId") int requirementId, @javax.ws.rs.core.Context javax.ws.rs.container.ContainerRequestContext context) {
         DALFacade dalFacade = null;
         try {
             Agent agent = Context.getCurrent().getMainAgent();
@@ -428,7 +433,7 @@ public class RequirementsResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_25,
-                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId, new Activity.AdditionalObject(new Activity.RequestInformation(context)));
             if (dalFacade.isRequirementPublic(requirementId)) {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, String.valueOf(requirement.getProjectId()), dalFacade);
                 if (!authorized) {

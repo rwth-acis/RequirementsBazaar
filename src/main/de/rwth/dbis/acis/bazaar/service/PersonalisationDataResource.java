@@ -1,6 +1,7 @@
 package de.rwth.dbis.acis.bazaar.service;
 
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.PersonalisationData;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.PrivilegeEnum;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -88,6 +89,9 @@ public class PersonalisationDataResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.personalisationData.read"));
             }
             PersonalisationData data = dalFacade.getPersonalisationData(internalUserId, key, version);
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_59,
+                    0, Activity.DataType.PERSONALISATION, internalUserId, new Activity.AdditionalObject(data));
+
             return Response.ok(data.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -111,8 +115,10 @@ public class PersonalisationDataResource {
 
     /**
      * This method allows to save a personalisationData
-     *
+     * @param key The plugins identifier
+     * @param version The plugins identifier
      * @param data as JSON object
+     *
      * @return Response with the created attachment as JSON object.
      */
     @PUT
@@ -156,6 +162,9 @@ public class PersonalisationDataResource {
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
             }
             dalFacade.setPersonalisationData(fullData);
+
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_58,
+                    0, Activity.DataType.PERSONALISATION, internalUserId, new Activity.AdditionalObject(fullData));
 
 
             return Response.ok(fullData.toJSON()).build();

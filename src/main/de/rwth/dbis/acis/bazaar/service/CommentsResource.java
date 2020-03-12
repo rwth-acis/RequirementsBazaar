@@ -65,9 +65,10 @@ public class CommentsResource {
      *
      * @param page    page number
      * @param perPage number of comments by page
-     * @param embedParents embed context/parents of comment (project, requirement)
      * @param search  search string
      * @param sort    sort order
+     * @param filters  set of comments to return
+     * @param embedParents embed context/parents of comment (project, requirement)
      * @return Response with list of all requirements
      */
     @GET
@@ -83,7 +84,7 @@ public class CommentsResource {
             @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
             @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
             @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date") @DefaultValue("name") @QueryParam("sort") List<String> sort,
-            @ApiParam(value = "Filter", required = true, allowMultiple = false, allowableValues = "created, following, replies") @QueryParam("filters") List<String> filters,
+            @ApiParam(value = "Filter", required = true, allowMultiple = false, allowableValues = "created, following, replies, developing") @QueryParam("filters") List<String> filters,
             @ApiParam(value = "Embed parents", required = true, allowMultiple = true, allowableValues = "project, requirement") @QueryParam("embedParents") List<String> embedParents)
     {
 
@@ -135,9 +136,8 @@ public class CommentsResource {
                 commentResult = dalFacade.listAllComments(pageInfo);
             }
 
-            //TODO Results in "No CommentRecord found with id: 0"
-            //bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_3,
-            //        0, Activity.DataType.COMMENT, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_LIST, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_60,
+                    0, Activity.DataType.COMMENT, internalUserId);
 
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{

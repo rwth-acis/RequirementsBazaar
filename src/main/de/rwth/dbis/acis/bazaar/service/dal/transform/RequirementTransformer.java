@@ -242,7 +242,31 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
                                 REQUIREMENT.LEAD_DEVELOPER_ID.eq(Integer.parseInt(filterEntry.getValue()))
                         )
                 );
-            }else{
+
+            }else if(filterEntry.getKey().equals("contributed")){
+                Integer userId = Integer.parseInt(filterEntry.getValue());
+                conditions.add(
+                        REQUIREMENT.ID.in(
+                                        DSL.select(REQUIREMENT.ID).from(REQUIREMENT)
+                                                .leftOuterJoin(ATTACHMENT).on(REQUIREMENT.ID.equal(ATTACHMENT.REQUIREMENT_ID))
+                                                .leftOuterJoin(COMMENT).on(REQUIREMENT.ID.equal(COMMENT.REQUIREMENT_ID))
+                                                .leftOuterJoin(REQUIREMENT_DEVELOPER_MAP).on(REQUIREMENT.ID.equal(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID))
+                                                .leftOuterJoin(VOTE).on(VOTE.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+                                                .where(
+                                                        REQUIREMENT.CREATOR_ID.eq(userId)
+                                                                .or(REQUIREMENT.LEAD_DEVELOPER_ID.eq(userId))
+                                                                .or(COMMENT.USER_ID.eq(userId))
+                                                                .or(REQUIREMENT_DEVELOPER_MAP.USER_ID.eq(userId))
+                                                                .or(REQUIREMENT.ID.equal(VOTE.REQUIREMENT_ID).and(VOTE.USER_ID.eq(userId)))
+                                                                .or(VOTE.USER_ID.eq(userId))
+                                                                .or(ATTACHMENT.USER_ID.eq(userId))
+                                                )
+
+                        )
+                );
+            }
+
+            else{
                 conditions.add(
                         DSL.falseCondition()
                 );

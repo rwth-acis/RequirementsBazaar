@@ -221,6 +221,29 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
                                         .where(PROJECT_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue())))
                         )
                 );
+            }else if(filterEntry.getKey().equals("contributed")){
+                Integer userId = Integer.parseInt(filterEntry.getValue());
+                conditions.add(
+                        PROJECT.ID.in(
+                                DSL.select(PROJECT.ID).from(PROJECT).where(PROJECT.LEADER_ID.eq(userId)).union(
+                                        DSL.select(CATEGORY.PROJECT_ID).from(CATEGORY).where(CATEGORY.LEADER_ID.eq(userId))).union(
+                                        DSL.select(REQUIREMENT.PROJECT_ID).from(REQUIREMENT)
+                                                .leftOuterJoin(ATTACHMENT).on(REQUIREMENT.ID.equal(ATTACHMENT.REQUIREMENT_ID))
+                                                .leftOuterJoin(COMMENT).on(REQUIREMENT.ID.equal(COMMENT.REQUIREMENT_ID))
+                                                .leftOuterJoin(REQUIREMENT_DEVELOPER_MAP).on(REQUIREMENT.ID.equal(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID))
+                                                .leftOuterJoin(VOTE).on(VOTE.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+                                                .where(
+                                                        REQUIREMENT.CREATOR_ID.eq(userId)
+                                                                .or(REQUIREMENT.LEAD_DEVELOPER_ID.eq(userId))
+                                                                .or(COMMENT.USER_ID.eq(userId))
+                                                                .or(REQUIREMENT_DEVELOPER_MAP.USER_ID.eq(userId))
+                                                                .or(REQUIREMENT.ID.equal(VOTE.REQUIREMENT_ID).and(VOTE.USER_ID.eq(userId)))
+                                                                .or(VOTE.USER_ID.eq(userId))
+                                                                .or(ATTACHMENT.USER_ID.eq(userId))
+                                                )
+                                )
+                        )
+                );
             }
             else{
                 conditions.add(DSL.falseCondition());

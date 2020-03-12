@@ -19,12 +19,15 @@ import i5.las2peer.logging.L2pLogger;
 import io.swagger.annotations.*;
 import jodd.vtor.Vtor;
 
+
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
 import java.net.HttpURLConnection;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Api(value = "projects", description = "Projects resource")
 @SwaggerDefinition(
@@ -63,10 +66,13 @@ public class ProjectsResource {
      * @param perPage number of projects by page
      * @param search  search string
      * @param sort    sort order
+     * @param filters set of projects to return
+     * @param ids     list of ids for projects that should be returned
+     * @param context java rs context used for logging
+     *
      * @return Response with list of all projects
      */
     @GET
-    @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method returns the list of projects on the server.")
     @ApiResponses(value = {
@@ -79,8 +85,9 @@ public class ProjectsResource {
             @ApiParam(value = "Elements of project by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
             @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
             @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort,
-            @ApiParam(value = "Filter", required = false, allowMultiple = true, allowableValues = "all, created, following") @QueryParam("filters") List<String> filters,
-            @ApiParam(value = "Ids", required = false, allowMultiple = true) @QueryParam("ids") List<Integer> ids) {
+            @ApiParam(value = "Filter", required = false, allowMultiple = true, allowableValues = "all, created, following, contributed") @QueryParam("filters") List<String> filters,
+            @ApiParam(value = "Ids", required = false, allowMultiple = true) @QueryParam("ids") List<Integer> ids,
+            @javax.ws.rs.core.Context javax.ws.rs.container.ContainerRequestContext context) {
 
             DALFacade dalFacade = null;
         try {
@@ -104,6 +111,8 @@ public class ProjectsResource {
                 Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
                 sortList.add(sortField);
             }
+
+
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
@@ -129,8 +138,8 @@ public class ProjectsResource {
                 // return public projects and the ones the user belongs to
                 projectsResult = dalFacade.listPublicAndAuthorizedProjects(pageInfo, internalUserId);
             }
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_3,
-                    0, Activity.DataType.PROJECT, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_LIST, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_3,
+                    0, Activity.DataType.PROJECT, internalUserId, new Activity.AdditionalObject(new Activity.RequestInformation(context)));
 
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{
@@ -145,6 +154,8 @@ public class ProjectsResource {
                 }});
             }
             parameter.put("sort", sort);
+            parameter.put("filters", filters);
+            parameter.put("ids", ids.stream().map(Object::toString).collect(Collectors.toList())); //List<String> from List<Integer>, thanks to https://stackoverflow.com/a/23024375/3567992
 
             Response.ResponseBuilder responseBuilder = Response.ok();
             responseBuilder = responseBuilder.entity(projectsResult.toJSON());
@@ -182,7 +193,7 @@ public class ProjectsResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response getProject(@PathParam("projectId") int projectId) {
+    public Response getProject(@PathParam("projectId") int projectId, @javax.ws.rs.core.Context javax.ws.rs.container.ContainerRequestContext context) {
         DALFacade dalFacade = null;
         try {
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -206,7 +217,7 @@ public class ProjectsResource {
             }
             Project projectToReturn = dalFacade.getProjectById(projectId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_4,
-                    projectId, Activity.DataType.PROJECT, internalUserId);
+                    projectId, Activity.DataType.PROJECT, internalUserId, new Activity.AdditionalObject(new Activity.RequestInformation(context)));
             return Response.ok(projectToReturn.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -235,7 +246,6 @@ public class ProjectsResource {
      * @return Response with the created project as a JSON object.
      */
     @POST
-    @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to create a new project.")

@@ -241,8 +241,8 @@ public class UsersResource {
             @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
             @ApiParam(value = "Types of entities to include", required = true, allowMultiple = true, allowableValues = "projects,categories,requirements")  @QueryParam("include") List<String> include,
             @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("date") @QueryParam("sort") List<String> sort,
-            @ApiParam(value = "Filter", required = false, allowMultiple = true, allowableValues = "created, following, developing") @DefaultValue("created") @QueryParam("filters") List<String> filters){
-            //Possibly allow filtertype "all"?
+            @ApiParam(value = "Filter", required = false, allowMultiple = true, allowableValues = "created, following, developing") @DefaultValue("created") @QueryParam("filters") List<String> filters,
+            @javax.ws.rs.core.Context javax.ws.rs.container.ContainerRequestContext context){
         DALFacade dalFacade = null;
         try {
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -273,13 +273,13 @@ public class UsersResource {
             for(String filterOption : filters) {
                 filterMap.put(filterOption,internalUserId.toString());
             }
+            //Only used as wrapper for filter, sort & search
             PageInfo pageInfo = new PageInfo(0, 0, filterMap, sortList, search);
 
 
             EntityOverview result =  dalFacade.getEntitiesForUser(include, pageInfo, internalUserId);
-            // Wrong SERVICE_CUSTOM_MESSAGE_3 ?
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_3,
-                    0, Activity.DataType.USER, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_62,
+                    0, Activity.DataType.USER, internalUserId, new Activity.AdditionalObject(new Activity.RequestInformation(context)));
 
 
             Response.ResponseBuilder responseBuilder = Response.ok();

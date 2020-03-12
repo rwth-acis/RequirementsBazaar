@@ -52,63 +52,6 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord
     }
 
 
-
-    @Override
-    public PaginationResult<Comment> findAllAnswers(Pageable pageable, int userId) throws BazaarException {
-        PaginationResult<Comment> result = null;
-        List<Comment> comments;
-        try {
-            comments = new ArrayList<>();
-            de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User creatorUser = USER.as("creatorUser");
-            de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.Comment SUB_COMMENTS = COMMENT.as("sub_comments");
-
-            Field<Object> idCount = jooq.selectCount()
-                    .from(COMMENT)
-                    .where(
-                            //               transformer.getFilterConditions(pageable.getFilters()))
-                            //       .and(
-                            transformer.getSearchCondition(pageable.getSearch())
-                    )
-                    .asField("idCount");
-
-
-            List<Record> queryResults = jooq.select(COMMENT.fields())
-                    .select(creatorUser.fields()).select(idCount)
-                    .from(COMMENT)
-                    .leftSemiJoin(SUB_COMMENTS).on((
-                                    COMMENT.REPLY_TO_COMMENT_ID.eq(SUB_COMMENTS.REPLY_TO_COMMENT_ID)                //Refering same thread/base-comment
-                                            .and(
-                                                    COMMENT.CREATION_DATE.greaterThan(SUB_COMMENTS.CREATION_DATE)   //replies have greater timestamp than the users comment
-                                            ).and(
-                                            SUB_COMMENTS.USER_ID.eq(userId)                                         //Comments the user wrote
-                                    )).or(
-                            COMMENT.REPLY_TO_COMMENT_ID.eq(SUB_COMMENTS.ID).and(SUB_COMMENTS.USER_ID.eq(userId))
-                            )
-                    )
-                    .join(creatorUser).on(creatorUser.ID.equal(COMMENT.USER_ID))
-                    .where(COMMENT.USER_ID.notEqual(userId))                                                        //Hide "own" answers
-                    .orderBy(transformer.getSortFields(pageable.getSorts()))
-                    .limit(pageable.getPageSize())
-                    .offset(pageable.getOffset())
-                    .fetch();
-
-            Comment entry = null;
-            for (Record record : queryResults) {
-                if (entry == null || transformer.getEntityFromTableRecord(record.into(CommentRecord.class)).getId() != entry.getId()) {
-                    entry = convertToCommentWithUser(record, creatorUser);
-                    comments.add(entry);
-                }
-            }
-            int total = (queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount")));
-            result = new PaginationResult<>(total, pageable, comments);
-        } catch (Exception e) {
-            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
-        }
-
-        return result;
-    }
-
-
     @Override
     public PaginationResult<Comment> findAllComments(Pageable pageable) throws BazaarException {
         PaginationResult<Comment> result = null;

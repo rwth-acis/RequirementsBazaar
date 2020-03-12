@@ -114,9 +114,9 @@ public class ActivityDispatcher {
             Activity activity = activityBuilder.build();
 
             FilterProvider filters =
-                    new SimpleFilterProvider().addFilter(
-                            "ActivityFilter",
-                            SimpleBeanPropertyFilter.filterOutAllExcept("id", "name"));
+                    new SimpleFilterProvider()
+                            .addFilter("ActivityFilter", SimpleBeanPropertyFilter.filterOutAllExcept("id", "name"))
+                            .addFilter("AdditionalObjectFilter", SimpleBeanPropertyFilter.serializeAllExcept("request", "personalisationData"));
 
             ObjectMapper mapper = new ObjectMapper();
             mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);

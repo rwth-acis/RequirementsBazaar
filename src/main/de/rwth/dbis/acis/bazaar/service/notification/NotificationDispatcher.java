@@ -12,6 +12,8 @@ import java.util.Date;
 public interface NotificationDispatcher extends Runnable {
     void dispatchNotification(Date creationDate, Activity.ActivityAction activityAction, final MonitoringEvent mobSOSEvent,
                               int dataId, Activity.DataType dataType, int userId);
+    void dispatchNotification(Date creationDate, Activity.ActivityAction activityAction, final MonitoringEvent mobSOSEvent,
+                              int dataId, Activity.DataType dataType, int userId, Activity.AdditionalObject additionalObject);
 
     void setBazaarService(BazaarService service);
 

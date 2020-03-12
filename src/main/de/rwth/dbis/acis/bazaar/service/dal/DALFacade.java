@@ -135,6 +135,15 @@ public interface DALFacade {
      * @return list of users to receive email notification
      */
     List<User> getRecipientListForRequirement(int requirementId) throws BazaarException;
+
+    /**
+     * Creates an Entity-Overview for a given user
+     * @param includes List of entities to include values: [projects, categories, requirements]
+     * @param pageable Used for search-term, filters and sorting
+     * @param userId   userId for privilege-check
+     */
+    EntityOverview getEntitiesForUser(List<String> includes, Pageable pageable, int userId) throws BazaarException;
+
     //endregion
 
     //region Project
@@ -452,18 +461,11 @@ public interface DALFacade {
     PaginationResult<Comment> listCommentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
 
     /**
+     *  Lists all Comments, filtered according to pagination information
      * @param pageable      pagination information
-     * @param includeContext include context of comment
      * @return the set of comments
      */
     PaginationResult<Comment> listAllComments(Pageable pageable) throws BazaarException;
-
-    /**
-     *  @param userId the identifier of user we are looking at
-     * @param pageable      pagination information
-     * @return the answers for a given user
-     */
-    PaginationResult<Comment> listAllAnswers(Pageable pageable, int userId) throws BazaarException;
 
     /**
      * @param commentId
@@ -586,26 +588,27 @@ public interface DALFacade {
     void addUserToRole(int userId, String roleName, String context) throws BazaarException;
     //endregion
 
+    //region Personalisation
 
-
+    /**
+     * Receives the PersonalisationData with a given id
+     * @param id which identifies the personalisationData.
+     */
+    PersonalisationData getPersonalisationData(int id) throws Exception;
     /**
      * Receives the PersonalisationData for a given userid, key and version
      * @param userId which owns the personalisationData.
      * @param key which identifies the personalisationData.
-     * @param version of the key's plugin
+     * @param version which identifies the personalisationData
      */
     PersonalisationData getPersonalisationData(int userId, String key, int version) throws BazaarException;
     /**
      * Creates a new record or alters the existing record to save a given personalisationData
-     * @param personalisationData which holds the data to be saved
+     * @param personalisationData changed personalisationData record
      */
     void setPersonalisationData(PersonalisationData personalisationData) throws BazaarException;
 
-    /**
-     * Creates an Entity-Overview for a given user
-     * @param includes List of entities to include values: [projects, categories, requirements]
-     * @param pageable Used for search-term, filters and sorting
-     * @param userId   userId for privilege-check
-     */
-    EntityOverview getEntitiesForUser(List<String> includes, Pageable pageable, int userId) throws BazaarException;
+    //endregion
+
+
 }
