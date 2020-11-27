@@ -21,6 +21,7 @@ etc/ivy/ivy.jar
 restMapping.xml
 /out
 /output/
+/servicebundle
 
 # IntelliJ
 .idea/
