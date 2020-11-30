@@ -1,7 +1,7 @@
 <ivy-module version="2.0">
-    <info organisation="i5" module="las2peer-service"/>
+    <info organisation="i5" module="${ant.project.name}"/>
     <configurations defaultconf="bundle">
-        <conf name="bundle" description="Additional dependencies loaded dynamically"/>
+        <conf name="bundle" description="Additional dependencies loaded dynamically" visibility="private"/>
         <conf name="platform" description="Jars needded for the las2peer platform" visibility="private"/>
     </configurations>
     <publications>
@@ -12,19 +12,21 @@
         <!-- platform dependencies -->
         <dependency org="i5" name="las2peer-bundle" rev="${core.version}" changing="true" conf="platform->*" />
         <dependency org="junit" name="junit" rev="4.13.1" conf="platform->*"/>
+        <dependency org="org.jacoco" name="org.jacoco.ant" rev="0.8.5" conf="platform->default" />
+
         <!-- service dependencies -->
-        <dependency org="mysql" name="mysql-connector-java" rev="${mysql.version}" conf="platform->*"/>
-        <dependency org="org.flywaydb" name="flyway-ant" rev="4.2.0" conf="platform->*"/>
-        <dependency org="com.h2database" name="h2" rev="1.4.191" conf="platform->*"/>
-        <dependency org="org.apache.commons" name="commons-pool2" rev="2.9.0" conf="platform->*"/>
-        <dependency org="org.apache.commons" name="commons-dbcp2" rev="2.8.0" conf="platform->*"/>
-        <dependency org="org.jooq" name="jooq" rev="3.14.4" conf="platform->*"/>
-        <dependency org="org.jooq" name="jooq-codegen" rev="3.14.4" conf="platform->*"/>
-        <dependency org="org.jooq" name="jooq-meta" rev="3.14.4" conf="platform->*"/>
-        <dependency org="com.google.code.gson" name="gson" rev="2.8.6" conf="platform->*"/>
-        <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.13" conf="platform->*"/>
-        <dependency org="commons-io" name="commons-io" rev="2.8.0" conf="platform->*"/>
-        <dependency org="org.jodd" name="jodd-vtor" rev="5.3.0" conf="platform->*"/>
-        <dependency org="com.vdurmont" name="emoji-java" rev="5.1.1" conf="platform->*"/>
+        <dependency org="mysql" name="mysql-connector-java" rev="${mysql.version}" conf="bundle->*"/>
+        <dependency org="org.flywaydb" name="flyway-ant" rev="4.2.0" conf="bundle->*"/>
+        <dependency org="com.h2database" name="h2" rev="1.4.191" conf="bundle->*"/>
+        <dependency org="org.apache.commons" name="commons-pool2" rev="2.9.0" conf="bundle->*"/>
+        <dependency org="org.apache.commons" name="commons-dbcp2" rev="2.8.0" conf="bundle->*"/>
+        <dependency org="org.jooq" name="jooq" rev="3.9.1" conf="bundle->*"/>
+        <dependency org="org.jooq" name="jooq-codegen" rev="3.9.1" conf="bundle->*"/>
+        <dependency org="org.jooq" name="jooq-meta" rev="3.9.1" conf="bundle->*"/>
+        <dependency org="com.google.code.gson" name="gson" rev="2.8.6" conf="bundle->*"/>
+        <dependency org="org.apache.httpcomponents" name="httpclient" rev="4.5.13" conf="bundle->*"/>
+        <dependency org="commons-io" name="commons-io" rev="2.8.0" conf="bundle->*"/>
+        <dependency org="org.jodd" name="jodd-vtor" rev="5.3.0" conf="bundle->*"/>
+        <dependency org="com.vdurmont" name="emoji-java" rev="5.1.1" conf="bundle->*"/>
     </dependencies>
 </ivy-module>

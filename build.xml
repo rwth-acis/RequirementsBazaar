@@ -1,5 +1,4 @@
-<project name="RequirementsBazaar" default="all" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant"
-         xmlns:flyway="antlib:org.flywaydb.ant">
+<project name="RequirementsBazaar" default="all" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:flyway="antlib:org.flywaydb.ant">
 
     <property name="core.version" value="1.0.0"/>
     <property name="mysql.version" value="8.0.22"/>
@@ -81,6 +80,7 @@
 
     <!-- Initialization (Folder Creation)-->
     <target name="init_deps">
+        <mkdir dir="${service}" />
         <mkdir dir="${lib}"/>
         <mkdir dir="${servicelib}" />
     </target>
