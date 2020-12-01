@@ -26,8 +26,8 @@ import de.rwth.dbis.acis.bazaar.service.BazaarRequestParams;
 import de.rwth.dbis.acis.bazaar.service.TestBase;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import i5.las2peer.testing.MockAgentFactory;
-import i5.las2peer.webConnector.client.ClientResponse;
-import i5.las2peer.webConnector.client.MiniClient;
+import i5.las2peer.connectors.webConnector.client.ClientResponse;
+import i5.las2peer.connectors.webConnector.client.MiniClient;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
