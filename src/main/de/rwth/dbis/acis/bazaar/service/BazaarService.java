@@ -115,8 +115,6 @@ public class BazaarService extends RESTService {
         Locale locale = new Locale(lang, country);
         Localization.getInstance().setResourceBundle(ResourceBundle.getBundle("i18n.Translation", locale));
 
-        Class.forName("com.mysql.jdbc.Driver").newInstance();
-
         dataSource = setupDataSource(dbUrl, dbUserName, dbPassword);
 
         functionRegistrar = new ArrayList<>();
