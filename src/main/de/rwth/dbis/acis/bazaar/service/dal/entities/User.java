@@ -147,7 +147,7 @@ public class User extends EntityBase {
         return lastLoginDate;
     }
 
-    public static Builder geBuilder(String eMail) {
+    public static Builder getBuilder(String eMail) {
         return new Builder(eMail);
     }
 

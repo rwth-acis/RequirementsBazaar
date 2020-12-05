@@ -50,7 +50,7 @@ public class UserTransformer implements Transformer<User, UserRecord> {
 
     @Override
     public User getEntityFromTableRecord(UserRecord record) {
-        return User.geBuilder(record.getEmail())
+        return User.getBuilder(record.getEmail())
                 .id(record.getId())
                 .admin(record.getAdmin())
                 .firstName(record.getFirstName())
@@ -68,7 +68,7 @@ public class UserTransformer implements Transformer<User, UserRecord> {
     }
 
     public User getEntityFromQueryResult(de.rwth.dbis.acis.bazaar.service.dal.jooq.tables.User user, Result<Record> queryResult) {
-        return User.geBuilder(queryResult.getValues(user.EMAIL).get(0))
+        return User.getBuilder(queryResult.getValues(user.EMAIL).get(0))
                 .id(queryResult.getValues(user.ID).get(0))
                 .admin(queryResult.getValues(user.ADMIN).get(0))
                 .firstName(queryResult.getValues(user.FIRST_NAME).get(0))
