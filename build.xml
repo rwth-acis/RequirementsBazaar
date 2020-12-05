@@ -316,7 +316,7 @@ pause
               fork="true">
             <jvmarg value="-Xdebug"/>
             <jvmarg
-                    value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5432"/>
+                    value="-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=5433"/>
             <arg value='-p'/>
             <arg value='9011'/>
             <arg value='uploadStartupDirectory'/>

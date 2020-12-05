@@ -15,8 +15,8 @@
         <dependency org="org.jacoco" name="org.jacoco.ant" rev="0.8.5" conf="platform->default" />
 
         <!-- service dependencies -->
-        <dependency org="mysql" name="mysql-connector-java" rev="${mysql.version}" conf="bundle->*"/>
-        <dependency org="org.flywaydb" name="flyway-ant" rev="4.2.0" conf="bundle->*"/>
+        <dependency org="mysql" name="mysql-connector-java" rev="${mysql.version}" conf="platform->*"/>
+        <dependency org="org.flywaydb" name="flyway-ant" rev="4.2.0" conf="platform->*"/>
         <dependency org="com.h2database" name="h2" rev="1.4.191" conf="bundle->*"/>
         <dependency org="org.apache.commons" name="commons-pool2" rev="2.9.0" conf="bundle->*"/>
         <dependency org="org.apache.commons" name="commons-dbcp2" rev="2.8.0" conf="bundle->*"/>

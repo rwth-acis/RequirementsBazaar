@@ -348,9 +348,9 @@ public class BazaarService extends RESTService {
             Integer userIdByLAS2PeerId = dalFacade.getUserIdByLAS2PeerId(agent.getIdentifier());
             if (userIdByLAS2PeerId == null) {
                 // create user
-                User.Builder userBuilder = User.geBuilder(email);
+                User.Builder userBuilder = User.getBuilder(email);
                 User user = userBuilder.admin(false).las2peerId(agent.getIdentifier()).userName(loginName).profileImage(profileImage)
-                        .emailLeadSubscription(true).emailFollowSubscription(true).build();
+                        .emailLeadSubscription(true).emailFollowSubscription(true).personalizationEnabled(false).build();
                 user = dalFacade.createUser(user);
                 int userId = user.getId();
                 this.getNotificationDispatcher().dispatchNotification(user.getCreationDate(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_55,
