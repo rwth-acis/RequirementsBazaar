@@ -63,3 +63,8 @@ Temporary Items
 .apdisk
 
 # End of https://www.gitignore.io/api/macos
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
