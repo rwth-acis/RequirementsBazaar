@@ -92,7 +92,7 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
             }
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(CATEGORY.LAST_UPDATED_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+            updateMap.put(CATEGORY.LAST_UPDATED_DATE, LocalDateTime.now());
         }
         return updateMap;
     }

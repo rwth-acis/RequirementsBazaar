@@ -85,7 +85,7 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
             put(COMMENT.MESSAGE, entity.getMessage());
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(COMMENT.LAST_UPDATED_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+            updateMap.put(COMMENT.LAST_UPDATED_DATE, LocalDateTime.now());
         }
         return updateMap;
     }

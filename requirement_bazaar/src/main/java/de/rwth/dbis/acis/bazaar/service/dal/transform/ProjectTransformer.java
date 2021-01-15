@@ -100,7 +100,7 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
             }
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(PROJECT.LAST_UPDATED_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+            updateMap.put(PROJECT.LAST_UPDATED_DATE, LocalDateTime.now());
         }
         return updateMap;
     }

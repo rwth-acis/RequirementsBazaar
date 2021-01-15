@@ -26,6 +26,7 @@ import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UserRecord;
 import org.jooq.*;
 import org.jooq.Record;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.USER;
@@ -44,7 +45,7 @@ public class UserTransformer implements Transformer<User, UserRecord> {
         record.setEmailLeadSubscription((byte) (entity.isEmailLeadSubscription() ? 1 : 0));
         record.setEmailFollowSubscription((byte) (entity.isEmailFollowSubscription() ? 1 : 0));
         record.setPersonalizationEnabled((byte) (entity.isPersonalizationEnabled() ? 1:0));
-        record.setCreationDate(new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+        record.setCreationDate(LocalDateTime.now());
 
         return record;
     }
@@ -127,7 +128,7 @@ public class UserTransformer implements Transformer<User, UserRecord> {
             }
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(USER.LAST_UPDATED_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+            updateMap.put(USER.LAST_UPDATED_DATE, LocalDateTime.now());
         }
         return updateMap;
     }

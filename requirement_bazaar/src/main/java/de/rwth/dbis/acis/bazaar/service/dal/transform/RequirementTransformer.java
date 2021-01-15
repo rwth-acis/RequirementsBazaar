@@ -89,7 +89,7 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
             }
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(REQUIREMENT.LAST_UPDATED_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+            updateMap.put(REQUIREMENT.LAST_UPDATED_DATE, LocalDateTime.now());
         }
         return updateMap;
     }

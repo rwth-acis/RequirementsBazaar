@@ -86,7 +86,7 @@ public class AttachmentTransformer implements Transformer<Attachment, Attachment
         HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(ATTACHMENT.LAST_UPDATED_DATE, new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()));
+            updateMap.put(ATTACHMENT.LAST_UPDATED_DATE, LocalDateTime.now());
         }
         return updateMap;
     }

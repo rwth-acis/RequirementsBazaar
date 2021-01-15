@@ -23,6 +23,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
+import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -136,7 +137,7 @@ public class CommentsResource {
             }
 
             //TODO Results in "No CommentRecord found with id: 0"
-            //bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_3,
+            //bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_3,
             //        0, Activity.DataType.COMMENT, internalUserId);
 
             Map<String, List<String>> parameter = new HashMap<>();
@@ -220,7 +221,7 @@ public class CommentsResource {
                 }
             }
             PaginationResult<Comment> commentsResult = dalFacade.listCommentsByRequirementId(requirementId, pageInfo);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_43,
+            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_43,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{
@@ -285,7 +286,7 @@ public class CommentsResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Comment comment = dalFacade.getCommentById(commentId);
             Requirement requirement = dalFacade.getRequirementById(comment.getRequirementId(), internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(new Date(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_45,
+            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_45,
                     commentId, Activity.DataType.COMMENT, internalUserId);
             if (dalFacade.isProjectPublic(requirement.getProjectId())) {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT, String.valueOf(requirement.getProjectId()), dalFacade);
