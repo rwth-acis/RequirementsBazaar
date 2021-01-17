@@ -1,0 +1,197 @@
+2021 Jan 17 03:52:08 FINER i5.las2peer.p2p.LocalNode: NODE_STATUS_CHANGE (300)	-	-	-	-	CONFIGURED	
+2021 Jan 17 03:52:08 FINER i5.las2peer.p2p.LocalNode: NODE_STATUS_CHANGE (300)	-	-	-	-	RUNNING	
+2021 Jan 17 03:52:09 FINER i5.las2peer.p2p.LocalNode: AGENT_REGISTERED (3000)	-2865038555733856225 (java.lang.Long)	286b15cf69815e8a4e0ae37845e662c2de9a7fd3f074d03080eabaaec253f369c02739009d7e0c63096660709746feb22cf8f63c3810b5f878d728690a248463	-	-	ServiceAgent	
+2021 Jan 17 03:52:09 FINER i5.las2peer.p2p.LocalNode: AGENT_LOAD_FAILED (-3000)	i5.las2peer.p2p.LocalNode@5f781ec1 (i5.las2peer.p2p.LocalNode)	286b15cf69815e8a4e0ae37845e662c2de9a7fd3f074d03080eabaaec253f369c02739009d7e0c63096660709746feb22cf8f63c3810b5f878d728690a248463	-	-	i5.las2peer.api.security.AgentException: Exception in service constructor	
+2021 Jan 17 03:52:09 FINER i5.las2peer.p2p.LocalNode: NODE_SHUTDOWN (200)	-2865038555733856225 (java.lang.Long)	-	-	-	-	
+2021 Jan 17 03:55:29 FINER i5.las2peer.p2p.LocalNode: NODE_STATUS_CHANGE (300)	-	-	-	-	CONFIGURED	
+2021 Jan 17 03:55:29 FINER i5.las2peer.p2p.LocalNode: NODE_STATUS_CHANGE (300)	-	-	-	-	RUNNING	
+2021 Jan 17 03:55:29 FINER i5.las2peer.p2p.LocalNode: AGENT_REGISTERED (3000)	8154462497441101399 (java.lang.Long)	0c895f915b064fe0caa23e0339668d4fc2b6cb7d2bdad916957590f1d6269559d24fa3342a852548ef1e5eba98038fbf4f14a9ac70e3246416227405fda2d53b	-	-	ServiceAgent	
+2021 Jan 17 03:55:30 FINER i5.las2peer.p2p.LocalNode: SERVICE_ADD_TO_MONITORING (7300)	8154462497441101399 (java.lang.Long)	0c895f915b064fe0caa23e0339668d4fc2b6cb7d2bdad916957590f1d6269559d24fa3342a852548ef1e5eba98038fbf4f14a9ac70e3246416227405fda2d53b	-	-	{"serviceName":"de.rwth.dbis.acis.bazaar.service.BazaarService@1.0.0","serviceAlias":"bazaar"}	
+2021 Jan 17 03:55:30 FINER i5.las2peer.p2p.LocalNode: SERVICE_STARTUP (7000)	8154462497441101399 (java.lang.Long)	0c895f915b064fe0caa23e0339668d4fc2b6cb7d2bdad916957590f1d6269559d24fa3342a852548ef1e5eba98038fbf4f14a9ac70e3246416227405fda2d53b	-	-	de.rwth.dbis.acis.bazaar.service.BazaarService@1.0.0	
+2021 Jan 17 03:55:31 INFO i5.las2peer.connectors.webConnector.WebConnector: Web-Connector in HTTP mode running at http://localhost:38423
+2021 Jan 17 03:55:31 FINER i5.las2peer.p2p.LocalNode: CONNECTOR_MESSAGE (9000)	8154462497441101399 (java.lang.Long)	-	-	-	WebConnector: Web-Connector in HTTP mode running at http://localhost:38423	
+2021 Jan 17 03:55:31 INFO i5.las2peer.connectors.webConnector.util.AuthenticationManager: attempting login with id: 86109d17e62c60cf01fa1e4e968e8cdc69219d59a04587648f253d71d49a3af51eea113ac37be9501cb196126b56d24de638e0d3f3c8cf1991aab89e215a3cb9
+2021 Jan 17 03:55:31 FINE i5.las2peer.connectors.webConnector.util.AuthenticationManager: passphrase accepted. Agent unlocked
+2021 Jan 17 03:55:31 SEVERE i5.las2peer.connectors.webConnector.WebConnector: not found: Could not resolve /activities/version to a service name.
+javax.ws.rs.NotFoundException: Could not resolve /activities/version to a service name.
+	at i5.las2peer.connectors.webConnector.WebConnectorRequestHandler.resolveServiceAndInvoke(WebConnectorRequestHandler.java:194)
+	at i5.las2peer.connectors.webConnector.WebConnectorRequestHandler.handle(WebConnectorRequestHandler.java:154)
+	at i5.las2peer.connectors.webConnector.WebConnectorRequestHandler.handleGET(WebConnectorRequestHandler.java:119)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.glassfish.jersey.server.model.internal.ResourceMethodInvocationHandlerFactory$1.invoke(ResourceMethodInvocationHandlerFactory.java:81)
+	at org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher$1.run(AbstractJavaResourceMethodDispatcher.java:144)
+	at org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.invoke(AbstractJavaResourceMethodDispatcher.java:161)
+	at org.glassfish.jersey.server.model.internal.JavaResourceMethodDispatcherProvider$ResponseOutInvoker.doDispatch(JavaResourceMethodDispatcherProvider.java:160)
+	at org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.dispatch(AbstractJavaResourceMethodDispatcher.java:99)
+	at org.glassfish.jersey.server.model.ResourceMethodInvoker.invoke(ResourceMethodInvoker.java:389)
+	at org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:347)
+	at org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:102)
+	at org.glassfish.jersey.server.ServerRuntime$2.run(ServerRuntime.java:326)
+	at org.glassfish.jersey.internal.Errors$1.call(Errors.java:271)
+	at org.glassfish.jersey.internal.Errors$1.call(Errors.java:267)
+	at org.glassfish.jersey.internal.Errors.process(Errors.java:315)
+	at org.glassfish.jersey.internal.Errors.process(Errors.java:297)
+	at org.glassfish.jersey.internal.Errors.process(Errors.java:267)
+	at org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:317)
+	at org.glassfish.jersey.server.ServerRuntime.process(ServerRuntime.java:305)
+	at org.glassfish.jersey.server.ApplicationHandler.handle(ApplicationHandler.java:1154)
+	at org.glassfish.jersey.jdkhttp.JdkHttpHandlerContainer.handle(JdkHttpHandlerContainer.java:161)
+	at com.sun.net.httpserver.Filter$Chain.doFilter(Filter.java:79)
+	at sun.net.httpserver.AuthFilter.doFilter(AuthFilter.java:83)
+	at com.sun.net.httpserver.Filter$Chain.doFilter(Filter.java:82)
+	at sun.net.httpserver.ServerImpl$Exchange$LinkHandler.handle(ServerImpl.java:675)
+	at com.sun.net.httpserver.Filter$Chain.doFilter(Filter.java:79)
+	at sun.net.httpserver.ServerImpl$Exchange.run(ServerImpl.java:647)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+2021 Jan 17 03:55:31 FINER i5.las2peer.p2p.LocalNode: CONNECTOR_ERROR (-9100)	8154462497441101399 (java.lang.Long)	-	-	-	WebConnector: not found: Could not resolve /activities/version to a service name.	
+2021 Jan 17 03:55:31 INFO i5.las2peer.connectors.webConnector.WebConnector: Web-Connector has been stopped
+2021 Jan 17 03:55:31 FINER i5.las2peer.p2p.LocalNode: CONNECTOR_MESSAGE (9000)	8154462497441101399 (java.lang.Long)	-	-	-	WebConnector: Web-Connector has been stopped	
+2021 Jan 17 03:55:31 FINER i5.las2peer.p2p.LocalNode: SERVICE_SHUTDOWN (7100)	8154462497441101399 (java.lang.Long)	0c895f915b064fe0caa23e0339668d4fc2b6cb7d2bdad916957590f1d6269559d24fa3342a852548ef1e5eba98038fbf4f14a9ac70e3246416227405fda2d53b	-	-	de.rwth.dbis.acis.bazaar.service.BazaarService@1.0.0	
+2021 Jan 17 03:55:31 FINER i5.las2peer.p2p.LocalNode: NODE_SHUTDOWN (200)	8154462497441101399 (java.lang.Long)	-	-	-	-	
+2021 Jan 17 03:55:39 FINER i5.las2peer.p2p.LocalNode: NODE_STATUS_CHANGE (300)	-	-	-	-	CONFIGURED	
+2021 Jan 17 03:55:39 FINER i5.las2peer.p2p.LocalNode: NODE_STATUS_CHANGE (300)	-	-	-	-	RUNNING	
+2021 Jan 17 03:55:40 FINER i5.las2peer.p2p.LocalNode: AGENT_REGISTERED (3000)	-5138140134614255441 (java.lang.Long)	e094adeeb708e37c4c3a7c37a8a8f5f8c43389d153efbb9b316e45c5aa9fe43f88f8fd016701209b9c975d520472244bf5b19da2bb78119b9206f15d643a7ada	-	-	ServiceAgent	
+2021 Jan 17 03:55:40 FINER i5.las2peer.p2p.LocalNode: SERVICE_ADD_TO_MONITORING (7300)	-5138140134614255441 (java.lang.Long)	e094adeeb708e37c4c3a7c37a8a8f5f8c43389d153efbb9b316e45c5aa9fe43f88f8fd016701209b9c975d520472244bf5b19da2bb78119b9206f15d643a7ada	-	-	{"serviceName":"de.rwth.dbis.acis.bazaar.service.BazaarService@1.0.0","serviceAlias":"bazaar"}	
+2021 Jan 17 03:55:40 FINER i5.las2peer.p2p.LocalNode: SERVICE_STARTUP (7000)	-5138140134614255441 (java.lang.Long)	e094adeeb708e37c4c3a7c37a8a8f5f8c43389d153efbb9b316e45c5aa9fe43f88f8fd016701209b9c975d520472244bf5b19da2bb78119b9206f15d643a7ada	-	-	de.rwth.dbis.acis.bazaar.service.BazaarService@1.0.0	
+2021 Jan 17 03:55:41 INFO i5.las2peer.connectors.webConnector.WebConnector: Web-Connector in HTTP mode running at http://localhost:40887
+2021 Jan 17 03:55:41 FINER i5.las2peer.p2p.LocalNode: CONNECTOR_MESSAGE (9000)	-5138140134614255441 (java.lang.Long)	-	-	-	WebConnector: Web-Connector in HTTP mode running at http://localhost:40887	
+2021 Jan 17 03:55:41 INFO i5.las2peer.connectors.webConnector.util.AuthenticationManager: attempting login with id: 86109d17e62c60cf01fa1e4e968e8cdc69219d59a04587648f253d71d49a3af51eea113ac37be9501cb196126b56d24de638e0d3f3c8cf1991aab89e215a3cb9
+2021 Jan 17 03:55:41 FINE i5.las2peer.connectors.webConnector.util.AuthenticationManager: passphrase accepted. Agent unlocked
+2021 Jan 17 03:55:41 SEVERE i5.las2peer.connectors.webConnector.WebConnector: not found: Could not resolve /activities/version to a service name.
+javax.ws.rs.NotFoundException: Could not resolve /activities/version to a service name.
+	at i5.las2peer.connectors.webConnector.WebConnectorRequestHandler.resolveServiceAndInvoke(WebConnectorRequestHandler.java:194)
+	at i5.las2peer.connectors.webConnector.WebConnectorRequestHandler.handle(WebConnectorRequestHandler.java:154)
+	at i5.las2peer.connectors.webConnector.WebConnectorRequestHandler.handleGET(WebConnectorRequestHandler.java:119)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.glassfish.jersey.server.model.internal.ResourceMethodInvocationHandlerFactory$1.invoke(ResourceMethodInvocationHandlerFactory.java:81)
+	at org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher$1.run(AbstractJavaResourceMethodDispatcher.java:144)
+	at org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.invoke(AbstractJavaResourceMethodDispatcher.java:161)
+	at org.glassfish.jersey.server.model.internal.JavaResourceMethodDispatcherProvider$ResponseOutInvoker.doDispatch(JavaResourceMethodDispatcherProvider.java:160)
+	at org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.dispatch(AbstractJavaResourceMethodDispatcher.java:99)
+	at org.glassfish.jersey.server.model.ResourceMethodInvoker.invoke(ResourceMethodInvoker.java:389)
+	at org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:347)
+	at org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:102)
+	at org.glassfish.jersey.server.ServerRuntime$2.run(ServerRuntime.java:326)
+	at org.glassfish.jersey.internal.Errors$1.call(Errors.java:271)
+	at org.glassfish.jersey.internal.Errors$1.call(Errors.java:267)
+	at org.glassfish.jersey.internal.Errors.process(Errors.java:315)
+	at org.glassfish.jersey.internal.Errors.process(Errors.java:297)
+	at org.glassfish.jersey.internal.Errors.process(Errors.java:267)
+	at org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:317)
+	at org.glassfish.jersey.server.ServerRuntime.process(ServerRuntime.java:305)
+	at org.glassfish.jersey.server.ApplicationHandler.handle(ApplicationHandler.java:1154)
+	at org.glassfish.jersey.jdkhttp.JdkHttpHandlerContainer.handle(JdkHttpHandlerContainer.java:161)
+	at com.sun.net.httpserver.Filter$Chain.doFilter(Filter.java:79)
+	at sun.net.httpserver.AuthFilter.doFilter(AuthFilter.java:83)
+	at com.sun.net.httpserver.Filter$Chain.doFilter(Filter.java:82)
+	at sun.net.httpserver.ServerImpl$Exchange$LinkHandler.handle(ServerImpl.java:675)
+	at com.sun.net.httpserver.Filter$Chain.doFilter(Filter.java:79)
+	at sun.net.httpserver.ServerImpl$Exchange.run(ServerImpl.java:647)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+2021 Jan 17 03:55:41 FINER i5.las2peer.p2p.LocalNode: CONNECTOR_ERROR (-9100)	-5138140134614255441 (java.lang.Long)	-	-	-	WebConnector: not found: Could not resolve /activities/version to a service name.	
+2021 Jan 17 03:55:41 INFO i5.las2peer.connectors.webConnector.WebConnector: Web-Connector has been stopped
+2021 Jan 17 03:55:41 FINER i5.las2peer.p2p.LocalNode: CONNECTOR_MESSAGE (9000)	-5138140134614255441 (java.lang.Long)	-	-	-	WebConnector: Web-Connector has been stopped	
+2021 Jan 17 03:55:41 FINER i5.las2peer.p2p.LocalNode: SERVICE_SHUTDOWN (7100)	-5138140134614255441 (java.lang.Long)	e094adeeb708e37c4c3a7c37a8a8f5f8c43389d153efbb9b316e45c5aa9fe43f88f8fd016701209b9c975d520472244bf5b19da2bb78119b9206f15d643a7ada	-	-	de.rwth.dbis.acis.bazaar.service.BazaarService@1.0.0	
+2021 Jan 17 03:55:41 FINER i5.las2peer.p2p.LocalNode: NODE_SHUTDOWN (200)	-5138140134614255441 (java.lang.Long)	-	-	-	-	
+2021 Jan 17 03:57:56 FINER i5.las2peer.p2p.LocalNode: NODE_STATUS_CHANGE (300)	-	-	-	-	CONFIGURED	
+2021 Jan 17 03:57:56 FINER i5.las2peer.p2p.LocalNode: NODE_STATUS_CHANGE (300)	-	-	-	-	RUNNING	
+2021 Jan 17 03:57:56 FINER i5.las2peer.p2p.LocalNode: AGENT_REGISTERED (3000)	5419993283417427128 (java.lang.Long)	9623a0d68303cde3b46c29fe3475f2fc9b61902579fbdc7932a1c4a4d01965fb78df37ff7df8c1c987f74d0daf6defba91d5472106e0f5c0cfff5df3bb811601	-	-	ServiceAgent	
+2021 Jan 17 03:57:57 FINER i5.las2peer.p2p.LocalNode: SERVICE_ADD_TO_MONITORING (7300)	5419993283417427128 (java.lang.Long)	9623a0d68303cde3b46c29fe3475f2fc9b61902579fbdc7932a1c4a4d01965fb78df37ff7df8c1c987f74d0daf6defba91d5472106e0f5c0cfff5df3bb811601	-	-	{"serviceName":"de.rwth.dbis.acis.bazaar.service.BazaarService@1.0.0","serviceAlias":"bazaar"}	
+2021 Jan 17 03:57:57 FINER i5.las2peer.p2p.LocalNode: SERVICE_STARTUP (7000)	5419993283417427128 (java.lang.Long)	9623a0d68303cde3b46c29fe3475f2fc9b61902579fbdc7932a1c4a4d01965fb78df37ff7df8c1c987f74d0daf6defba91d5472106e0f5c0cfff5df3bb811601	-	-	de.rwth.dbis.acis.bazaar.service.BazaarService@1.0.0	
+2021 Jan 17 03:57:58 INFO i5.las2peer.connectors.webConnector.WebConnector: Web-Connector in HTTP mode running at http://localhost:35339
+2021 Jan 17 03:57:58 FINER i5.las2peer.p2p.LocalNode: CONNECTOR_MESSAGE (9000)	5419993283417427128 (java.lang.Long)	-	-	-	WebConnector: Web-Connector in HTTP mode running at http://localhost:35339	
+2021 Jan 17 03:57:58 INFO i5.las2peer.connectors.webConnector.util.AuthenticationManager: attempting login with id: 86109d17e62c60cf01fa1e4e968e8cdc69219d59a04587648f253d71d49a3af51eea113ac37be9501cb196126b56d24de638e0d3f3c8cf1991aab89e215a3cb9
+2021 Jan 17 03:57:58 FINE i5.las2peer.connectors.webConnector.util.AuthenticationManager: passphrase accepted. Agent unlocked
+2021 Jan 17 03:57:58 SEVERE i5.las2peer.connectors.webConnector.WebConnector: not found: Could not resolve /activities/version to a service name.
+javax.ws.rs.NotFoundException: Could not resolve /activities/version to a service name.
+	at i5.las2peer.connectors.webConnector.WebConnectorRequestHandler.resolveServiceAndInvoke(WebConnectorRequestHandler.java:194)
+	at i5.las2peer.connectors.webConnector.WebConnectorRequestHandler.handle(WebConnectorRequestHandler.java:154)
+	at i5.las2peer.connectors.webConnector.WebConnectorRequestHandler.handleGET(WebConnectorRequestHandler.java:119)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.glassfish.jersey.server.model.internal.ResourceMethodInvocationHandlerFactory$1.invoke(ResourceMethodInvocationHandlerFactory.java:81)
+	at org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher$1.run(AbstractJavaResourceMethodDispatcher.java:144)
+	at org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.invoke(AbstractJavaResourceMethodDispatcher.java:161)
+	at org.glassfish.jersey.server.model.internal.JavaResourceMethodDispatcherProvider$ResponseOutInvoker.doDispatch(JavaResourceMethodDispatcherProvider.java:160)
+	at org.glassfish.jersey.server.model.internal.AbstractJavaResourceMethodDispatcher.dispatch(AbstractJavaResourceMethodDispatcher.java:99)
+	at org.glassfish.jersey.server.model.ResourceMethodInvoker.invoke(ResourceMethodInvoker.java:389)
+	at org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:347)
+	at org.glassfish.jersey.server.model.ResourceMethodInvoker.apply(ResourceMethodInvoker.java:102)
+	at org.glassfish.jersey.server.ServerRuntime$2.run(ServerRuntime.java:326)
+	at org.glassfish.jersey.internal.Errors$1.call(Errors.java:271)
+	at org.glassfish.jersey.internal.Errors$1.call(Errors.java:267)
+	at org.glassfish.jersey.internal.Errors.process(Errors.java:315)
+	at org.glassfish.jersey.internal.Errors.process(Errors.java:297)
+	at org.glassfish.jersey.internal.Errors.process(Errors.java:267)
+	at org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:317)
+	at org.glassfish.jersey.server.ServerRuntime.process(ServerRuntime.java:305)
+	at org.glassfish.jersey.server.ApplicationHandler.handle(ApplicationHandler.java:1154)
+	at org.glassfish.jersey.jdkhttp.JdkHttpHandlerContainer.handle(JdkHttpHandlerContainer.java:161)
+	at com.sun.net.httpserver.Filter$Chain.doFilter(Filter.java:79)
+	at sun.net.httpserver.AuthFilter.doFilter(AuthFilter.java:83)
+	at com.sun.net.httpserver.Filter$Chain.doFilter(Filter.java:82)
+	at sun.net.httpserver.ServerImpl$Exchange$LinkHandler.handle(ServerImpl.java:675)
+	at com.sun.net.httpserver.Filter$Chain.doFilter(Filter.java:79)
+	at sun.net.httpserver.ServerImpl$Exchange.run(ServerImpl.java:647)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+2021 Jan 17 03:57:58 FINER i5.las2peer.p2p.LocalNode: CONNECTOR_ERROR (-9100)	5419993283417427128 (java.lang.Long)	-	-	-	WebConnector: not found: Could not resolve /activities/version to a service name.	
+2021 Jan 17 03:57:58 INFO i5.las2peer.connectors.webConnector.WebConnector: Web-Connector has been stopped
+2021 Jan 17 03:57:58 FINER i5.las2peer.p2p.LocalNode: CONNECTOR_MESSAGE (9000)	5419993283417427128 (java.lang.Long)	-	-	-	WebConnector: Web-Connector has been stopped	
+2021 Jan 17 03:57:58 FINER i5.las2peer.p2p.LocalNode: SERVICE_SHUTDOWN (7100)	5419993283417427128 (java.lang.Long)	9623a0d68303cde3b46c29fe3475f2fc9b61902579fbdc7932a1c4a4d01965fb78df37ff7df8c1c987f74d0daf6defba91d5472106e0f5c0cfff5df3bb811601	-	-	de.rwth.dbis.acis.bazaar.service.BazaarService@1.0.0	
+2021 Jan 17 03:57:58 FINER i5.las2peer.p2p.LocalNode: NODE_SHUTDOWN (200)	5419993283417427128 (java.lang.Long)	-	-	-	-	
+2021 Jan 17 03:58:33 FINER i5.las2peer.p2p.LocalNode: NODE_STATUS_CHANGE (300)	-	-	-	-	CONFIGURED	
+2021 Jan 17 03:58:33 FINER i5.las2peer.p2p.LocalNode: NODE_STATUS_CHANGE (300)	-	-	-	-	RUNNING	
+2021 Jan 17 03:58:34 FINER i5.las2peer.p2p.LocalNode: AGENT_REGISTERED (3000)	-4273426718411292372 (java.lang.Long)	453ffa2339538b75533164f1c6f46ae4d3c1a967a0251681604335dd462c983ac43e4faf075c1fa0dbe10d41286968d3792512c2dea59d9911752c2f99675bb6	-	-	ServiceAgent	
+2021 Jan 17 03:58:35 FINER i5.las2peer.p2p.LocalNode: SERVICE_ADD_TO_MONITORING (7300)	-4273426718411292372 (java.lang.Long)	453ffa2339538b75533164f1c6f46ae4d3c1a967a0251681604335dd462c983ac43e4faf075c1fa0dbe10d41286968d3792512c2dea59d9911752c2f99675bb6	-	-	{"serviceName":"de.rwth.dbis.acis.bazaar.service.BazaarService@1.0.0","serviceAlias":"bazaar"}	
+2021 Jan 17 03:58:35 FINER i5.las2peer.p2p.LocalNode: SERVICE_STARTUP (7000)	-4273426718411292372 (java.lang.Long)	453ffa2339538b75533164f1c6f46ae4d3c1a967a0251681604335dd462c983ac43e4faf075c1fa0dbe10d41286968d3792512c2dea59d9911752c2f99675bb6	-	-	de.rwth.dbis.acis.bazaar.service.BazaarService@1.0.0	
+2021 Jan 17 03:58:35 INFO i5.las2peer.connectors.webConnector.WebConnector: Web-Connector in HTTP mode running at http://localhost:34005
+2021 Jan 17 03:58:35 FINER i5.las2peer.p2p.LocalNode: CONNECTOR_MESSAGE (9000)	-4273426718411292372 (java.lang.Long)	-	-	-	WebConnector: Web-Connector in HTTP mode running at http://localhost:34005	
+2021 Jan 17 03:58:35 INFO i5.las2peer.connectors.webConnector.util.AuthenticationManager: attempting login with id: 86109d17e62c60cf01fa1e4e968e8cdc69219d59a04587648f253d71d49a3af51eea113ac37be9501cb196126b56d24de638e0d3f3c8cf1991aab89e215a3cb9
+2021 Jan 17 03:58:35 FINE i5.las2peer.connectors.webConnector.util.AuthenticationManager: passphrase accepted. Agent unlocked
+2021 Jan 17 03:58:35 FINER i5.las2peer.persistency.EnvelopeVersion: Could not get service class loader using default. java.lang.IllegalStateException: Not executed in a ServiceThread environment!
+2021 Jan 17 03:58:35 INFO i5.las2peer.connectors.webConnector.WebConnector: Web-Connector has been stopped
+2021 Jan 17 03:58:35 FINER i5.las2peer.p2p.LocalNode: CONNECTOR_MESSAGE (9000)	-4273426718411292372 (java.lang.Long)	-	-	-	WebConnector: Web-Connector has been stopped	
+2021 Jan 17 03:58:35 FINER i5.las2peer.p2p.LocalNode: SERVICE_SHUTDOWN (7100)	-4273426718411292372 (java.lang.Long)	453ffa2339538b75533164f1c6f46ae4d3c1a967a0251681604335dd462c983ac43e4faf075c1fa0dbe10d41286968d3792512c2dea59d9911752c2f99675bb6	-	-	de.rwth.dbis.acis.bazaar.service.BazaarService@1.0.0	
+2021 Jan 17 03:58:35 FINER i5.las2peer.p2p.LocalNode: NODE_SHUTDOWN (200)	-4273426718411292372 (java.lang.Long)	-	-	-	-	
+2021 Jan 17 04:02:08 FINER i5.las2peer.p2p.LocalNode: NODE_STATUS_CHANGE (300)	-	-	-	-	CONFIGURED	
+2021 Jan 17 04:02:08 FINER i5.las2peer.p2p.LocalNode: NODE_STATUS_CHANGE (300)	-	-	-	-	RUNNING	
+2021 Jan 17 04:02:08 FINER i5.las2peer.p2p.LocalNode: AGENT_REGISTERED (3000)	-1807525047774611694 (java.lang.Long)	785feedd3f21d35dcdf8709bd226e58442eaff46a4765b98213440007b9d06d4602dd398de673226dce31660fffa779bc50866e27ec89ba9e51203452db75368	-	-	ServiceAgent	
+2021 Jan 17 04:02:09 FINER i5.las2peer.p2p.LocalNode: SERVICE_ADD_TO_MONITORING (7300)	-1807525047774611694 (java.lang.Long)	785feedd3f21d35dcdf8709bd226e58442eaff46a4765b98213440007b9d06d4602dd398de673226dce31660fffa779bc50866e27ec89ba9e51203452db75368	-	-	{"serviceName":"de.rwth.dbis.acis.bazaar.service.BazaarService@1.0.0","serviceAlias":"bazaar"}	
+2021 Jan 17 04:02:09 FINER i5.las2peer.p2p.LocalNode: SERVICE_STARTUP (7000)	-1807525047774611694 (java.lang.Long)	785feedd3f21d35dcdf8709bd226e58442eaff46a4765b98213440007b9d06d4602dd398de673226dce31660fffa779bc50866e27ec89ba9e51203452db75368	-	-	de.rwth.dbis.acis.bazaar.service.BazaarService@1.0.0	
+2021 Jan 17 04:02:10 INFO i5.las2peer.connectors.webConnector.WebConnector: Web-Connector in HTTP mode running at http://localhost:33785
+2021 Jan 17 04:02:10 FINER i5.las2peer.p2p.LocalNode: CONNECTOR_MESSAGE (9000)	-1807525047774611694 (java.lang.Long)	-	-	-	WebConnector: Web-Connector in HTTP mode running at http://localhost:33785	
+2021 Jan 17 04:02:10 INFO i5.las2peer.connectors.webConnector.util.AuthenticationManager: attempting login with id: 86109d17e62c60cf01fa1e4e968e8cdc69219d59a04587648f253d71d49a3af51eea113ac37be9501cb196126b56d24de638e0d3f3c8cf1991aab89e215a3cb9
+2021 Jan 17 04:02:10 FINE i5.las2peer.connectors.webConnector.util.AuthenticationManager: passphrase accepted. Agent unlocked
+2021 Jan 17 04:02:10 FINER i5.las2peer.persistency.EnvelopeVersion: Could not get service class loader using default. java.lang.IllegalStateException: Not executed in a ServiceThread environment!
+2021 Jan 17 04:02:10 INFO i5.las2peer.connectors.webConnector.WebConnector: Web-Connector has been stopped
+2021 Jan 17 04:02:10 FINER i5.las2peer.p2p.LocalNode: CONNECTOR_MESSAGE (9000)	-1807525047774611694 (java.lang.Long)	-	-	-	WebConnector: Web-Connector has been stopped	
+2021 Jan 17 04:02:10 FINER i5.las2peer.p2p.LocalNode: SERVICE_SHUTDOWN (7100)	-1807525047774611694 (java.lang.Long)	785feedd3f21d35dcdf8709bd226e58442eaff46a4765b98213440007b9d06d4602dd398de673226dce31660fffa779bc50866e27ec89ba9e51203452db75368	-	-	de.rwth.dbis.acis.bazaar.service.BazaarService@1.0.0	
+2021 Jan 17 04:02:10 FINER i5.las2peer.p2p.LocalNode: NODE_SHUTDOWN (200)	-1807525047774611694 (java.lang.Long)	-	-	-	-	
+2021 Jan 17 04:02:40 FINER i5.las2peer.p2p.LocalNode: NODE_STATUS_CHANGE (300)	-	-	-	-	CONFIGURED	
+2021 Jan 17 04:02:40 FINER i5.las2peer.p2p.LocalNode: NODE_STATUS_CHANGE (300)	-	-	-	-	RUNNING	
+2021 Jan 17 04:02:41 FINER i5.las2peer.p2p.LocalNode: AGENT_REGISTERED (3000)	-707842752454908406 (java.lang.Long)	a8a219b94e6a30122e959785a434cea38001e6f96c7a89a5a26ac4d7b8ce037625cd2680099b2f14195ec43972d32fe326e15513ba01a8c7daf63407136aaee4	-	-	ServiceAgent	
+2021 Jan 17 04:02:42 FINER i5.las2peer.p2p.LocalNode: SERVICE_ADD_TO_MONITORING (7300)	-707842752454908406 (java.lang.Long)	a8a219b94e6a30122e959785a434cea38001e6f96c7a89a5a26ac4d7b8ce037625cd2680099b2f14195ec43972d32fe326e15513ba01a8c7daf63407136aaee4	-	-	{"serviceName":"de.rwth.dbis.acis.bazaar.service.BazaarService@1.0.0","serviceAlias":"bazaar"}	
+2021 Jan 17 04:02:42 FINER i5.las2peer.p2p.LocalNode: SERVICE_STARTUP (7000)	-707842752454908406 (java.lang.Long)	a8a219b94e6a30122e959785a434cea38001e6f96c7a89a5a26ac4d7b8ce037625cd2680099b2f14195ec43972d32fe326e15513ba01a8c7daf63407136aaee4	-	-	de.rwth.dbis.acis.bazaar.service.BazaarService@1.0.0	
+2021 Jan 17 04:02:42 INFO i5.las2peer.connectors.webConnector.WebConnector: Web-Connector in HTTP mode running at http://localhost:36147
+2021 Jan 17 04:02:42 FINER i5.las2peer.p2p.LocalNode: CONNECTOR_MESSAGE (9000)	-707842752454908406 (java.lang.Long)	-	-	-	WebConnector: Web-Connector in HTTP mode running at http://localhost:36147	
+2021 Jan 17 04:02:42 INFO i5.las2peer.connectors.webConnector.util.AuthenticationManager: attempting login with id: 86109d17e62c60cf01fa1e4e968e8cdc69219d59a04587648f253d71d49a3af51eea113ac37be9501cb196126b56d24de638e0d3f3c8cf1991aab89e215a3cb9
+2021 Jan 17 04:02:42 FINE i5.las2peer.connectors.webConnector.util.AuthenticationManager: passphrase accepted. Agent unlocked
+2021 Jan 17 04:02:42 FINER i5.las2peer.persistency.EnvelopeVersion: Could not get service class loader using default. java.lang.IllegalStateException: Not executed in a ServiceThread environment!
+2021 Jan 17 04:02:43 INFO i5.las2peer.connectors.webConnector.WebConnector: Web-Connector has been stopped
+2021 Jan 17 04:02:43 FINER i5.las2peer.p2p.LocalNode: CONNECTOR_MESSAGE (9000)	-707842752454908406 (java.lang.Long)	-	-	-	WebConnector: Web-Connector has been stopped	
+2021 Jan 17 04:02:43 FINER i5.las2peer.p2p.LocalNode: SERVICE_SHUTDOWN (7100)	-707842752454908406 (java.lang.Long)	a8a219b94e6a30122e959785a434cea38001e6f96c7a89a5a26ac4d7b8ce037625cd2680099b2f14195ec43972d32fe326e15513ba01a8c7daf63407136aaee4	-	-	de.rwth.dbis.acis.bazaar.service.BazaarService@1.0.0	
+2021 Jan 17 04:02:43 FINER i5.las2peer.p2p.LocalNode: NODE_SHUTDOWN (200)	-707842752454908406 (java.lang.Long)	-	-	-	-	

@@ -24,9 +24,9 @@ plugins {
 
 group = 'de.rwth.dbis.acis.bazaar.service'
 archivesBaseName = group
-version = "0.8.1"
+version = "${project.property('service.name')}"
 mainClassName = "de.rwth.dbis.acis.bazaar.service.BazaarService"
-sourceCompatibility = 14
+sourceCompatibility = 1.8
 
 repositories {
     // Use JCenter for resolving dependencies.
@@ -60,7 +60,7 @@ dependencies {
     implementation "org.jooq:jooq-meta:${project.property('jooq.version')}"
     implementation 'org.apache.httpcomponents:httpclient:4.5.13'
     implementation 'commons-io:commons-io:2.8.0'
-    implementation 'org.jodd:jodd-vtor:3.6.1'
+    implementation 'org.jodd:jodd-vtor:5.3.0'
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.8.9'
     implementation 'com.vdurmont:emoji-java:5.1.1'
 }
