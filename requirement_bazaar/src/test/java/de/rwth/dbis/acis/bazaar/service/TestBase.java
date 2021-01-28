@@ -12,6 +12,8 @@ import org.junit.Before;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 /**
  * Example Test Class demonstrating a basic JUnit test structure.
@@ -84,5 +86,15 @@ public abstract class TestBase {
 
         client.setLogin(testAgent.getIdentifier(), testPass);
         return client;
+    }
+
+    boolean isValidISO8601(String dateStr) {
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        try {
+            dateFormatter.parse(dateStr);
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+        return true;
     }
 }

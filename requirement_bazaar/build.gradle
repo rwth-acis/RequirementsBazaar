@@ -26,7 +26,7 @@ group = 'de.rwth.dbis.acis.bazaar.service'
 archivesBaseName = group
 version = "${project.property('service.name')}"
 mainClassName = "de.rwth.dbis.acis.bazaar.service.BazaarService"
-sourceCompatibility = 1.8
+sourceCompatibility = 14
 
 repositories {
     // Use JCenter for resolving dependencies.
@@ -50,8 +50,6 @@ dependencies {
     // This is for the jooq generation only
     jooqGenerator "mysql:mysql-connector-java:${project.property('mysql.version')}"
     jooqGenerator "org.jooq:jooq-codegen:${project.property('jooq.version')}"
-
-    // These dependencies are used by the application.
     implementation "org.flywaydb:flyway-core:7.3.2"
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'org.apache.commons:commons-pool2:2.9.0'
@@ -149,7 +147,7 @@ flyway {
     schemas = ['reqbaz']
     // Flyway now uses 'flyway_schema_history' to retain compatibility override this
     table = 'schema_version'
-    locations = ["filesystem:$project.projectDir/../etc/migrations"]
+    locations = ["filesystem:$project.projectDir/src/main/resources/migrations"]
 }
 
 generateJooq.dependsOn flywayMigrate

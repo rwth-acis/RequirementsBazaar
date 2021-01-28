@@ -30,7 +30,6 @@ import de.rwth.dbis.acis.bazaar.service.dal.transform.PrivilegeEnumConverter;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 import i5.las2peer.api.Context;
-import i5.las2peer.api.security.Agent;
 import i5.las2peer.security.PassphraseAgentImpl;
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
@@ -658,20 +657,21 @@ public class DALFacadeImpl implements DALFacade {
         //categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
         EntityOverview.Builder result =  EntityOverview.getBuilder();
         for(String include : includes) {
-            if(include.equals("projects")){
-                projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
-                result.projects(projectRepository.listAllProjectIds(pageable, userId));
-            } else
-            if(include.equals("requirements")){
-                requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
-                result.requirements(requirementRepository.listAllRequirementIds(pageable, userId));
-            }else
-            if(include.equals("categories")){
-                categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
-                result.categories(categoryRepository.listAllCategoryIds(pageable, userId));
+            switch (include) {
+                case "projects":
+                    projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
+                    result.projects(projectRepository.listAllProjectIds(pageable, userId));
+                    break;
+                case "requirements":
+                    requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+                    result.requirements(requirementRepository.listAllRequirementIds(pageable, userId));
+                    break;
+                case "categories":
+                    categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
+                    result.categories(categoryRepository.listAllCategoryIds(pageable, userId));
+                    break;
             }
             //TODO Add Comments/Attachments
-
         }
         return result.build();
 

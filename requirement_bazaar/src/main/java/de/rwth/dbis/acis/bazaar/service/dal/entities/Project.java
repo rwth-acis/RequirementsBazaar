@@ -46,16 +46,16 @@ public class Project extends EntityBase {
     @NotNull(profiles = {"create"})
     private String description;
 
-    private Boolean visibility;
+    private Boolean visibility = true;
 
     private Integer defaultCategoryId;
 
     private User leader;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone="Europe/Berlin")
     private LocalDateTime creationDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone="Europe/Berlin")
     private LocalDateTime lastUpdatedDate;
 
     private Integer numberOfCategories;
