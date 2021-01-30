@@ -26,7 +26,6 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 

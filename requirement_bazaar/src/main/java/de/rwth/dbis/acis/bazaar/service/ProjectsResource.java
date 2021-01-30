@@ -24,7 +24,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
 import java.net.HttpURLConnection;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 

@@ -1,9 +1,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.PersonalisationData;
-
-
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.PersonalisationDataRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.PersonalisationData;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.PersonalisationDataTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
@@ -13,8 +11,7 @@ import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.exception.DataAccessException;
 
-
-import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
+import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.PERSONALISATION_DATA;
 
 public class PersonalisationDataRepositoryImpl  extends RepositoryImpl<PersonalisationData, PersonalisationDataRecord> implements PersonalisationDataRepository {
 

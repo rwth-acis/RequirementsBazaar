@@ -2,7 +2,6 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Set;
 
 public class Email extends EntityBase {

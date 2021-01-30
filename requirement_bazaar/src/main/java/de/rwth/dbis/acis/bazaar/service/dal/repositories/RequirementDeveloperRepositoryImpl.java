@@ -20,9 +20,9 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementDeveloperMapRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementDeveloper;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreationStatus;
-import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementDeveloperMapRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementDeveloperTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;

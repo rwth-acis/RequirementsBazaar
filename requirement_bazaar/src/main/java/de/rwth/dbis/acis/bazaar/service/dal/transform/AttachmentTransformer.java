@@ -21,12 +21,11 @@
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import com.vdurmont.emoji.EmojiParser;
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.AttachmentRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.AttachmentRecord;
 import org.jooq.*;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -119,5 +118,3 @@ public class AttachmentTransformer implements Transformer<Attachment, Attachment
         return attachment;
     }
 }
-
-

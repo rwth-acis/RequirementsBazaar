@@ -31,7 +31,6 @@ import jodd.vtor.constraint.NotBlank;
 import jodd.vtor.constraint.NotNull;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 public class Attachment extends EntityBase {
 

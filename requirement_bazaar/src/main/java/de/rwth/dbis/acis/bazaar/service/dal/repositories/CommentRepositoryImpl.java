@@ -20,13 +20,15 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.User;
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.CommentRecord;
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UserRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.EntityContextFactory;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
-import de.rwth.dbis.acis.bazaar.dal.jooq.tables.User;
-import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.*;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.*;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.CommentTransformer;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
@@ -34,7 +36,6 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
-import org.jooq.Require;
 import org.jooq.exception.DataAccessException;
 
 import java.util.ArrayList;

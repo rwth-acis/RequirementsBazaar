@@ -20,35 +20,28 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Category;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.EntityContext;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.EntityContextFactory;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.UserVote;
-import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.CategoryRecord;
-import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectRecord;
-import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.CategoryTransformer;
-import de.rwth.dbis.acis.bazaar.service.dal.transform.ProjectTransformer;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementTransformer;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
-import org.jooq.*;
 import org.jooq.Record;
+import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 

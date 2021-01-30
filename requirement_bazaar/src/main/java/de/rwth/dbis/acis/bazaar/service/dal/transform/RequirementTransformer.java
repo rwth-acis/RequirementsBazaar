@@ -21,9 +21,9 @@
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import com.vdurmont.emoji.EmojiParser;
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.repositories.RequirementRepositoryImpl;
 import org.jooq.*;
 import org.jooq.impl.DSL;

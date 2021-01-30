@@ -21,8 +21,8 @@
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import org.jooq.*;
 import org.jooq.Record;
+import org.jooq.*;
 
 import java.util.Collection;
 import java.util.List;

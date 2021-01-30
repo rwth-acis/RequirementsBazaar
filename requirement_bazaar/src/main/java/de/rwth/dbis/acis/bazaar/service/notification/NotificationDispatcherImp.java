@@ -14,7 +14,6 @@ import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.logging.L2pLogger;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.TimerTask;
 
 /**

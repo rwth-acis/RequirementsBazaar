@@ -20,13 +20,13 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UserRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.CategoryContributors;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.ProjectContributors;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementContributors;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
-import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UserRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
@@ -41,7 +41,6 @@ import org.jooq.Result;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 

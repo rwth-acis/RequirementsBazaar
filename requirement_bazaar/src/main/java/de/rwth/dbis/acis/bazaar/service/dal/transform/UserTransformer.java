@@ -20,11 +20,11 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UserRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UserRecord;
-import org.jooq.*;
 import org.jooq.Record;
+import org.jooq.*;
 
 import java.time.LocalDateTime;
 import java.util.*;

@@ -21,9 +21,9 @@
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import com.vdurmont.emoji.EmojiParser;
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.repositories.ProjectRepositoryImpl;
 import org.jooq.*;
 import org.jooq.impl.DSL;
@@ -31,10 +31,6 @@ import org.jooq.impl.DSL;
 import java.time.LocalDateTime;
 import java.util.*;
 
-
-
-import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.REQUIREMENT;
-import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.PROJECT;
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
 
 public class ProjectTransformer implements Transformer<Project, ProjectRecord> {

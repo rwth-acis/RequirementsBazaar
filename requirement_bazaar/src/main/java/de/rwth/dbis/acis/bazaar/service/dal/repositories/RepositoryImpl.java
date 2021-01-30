@@ -27,8 +27,8 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
-import org.jooq.*;
 import org.jooq.Record;
+import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 
 import java.util.ArrayList;

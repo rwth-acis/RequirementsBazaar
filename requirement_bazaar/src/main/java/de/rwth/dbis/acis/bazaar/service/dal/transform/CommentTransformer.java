@@ -21,14 +21,12 @@
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
 import com.vdurmont.emoji.EmojiParser;
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.CommentRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.CommentRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.repositories.ProjectRepositoryImpl;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 

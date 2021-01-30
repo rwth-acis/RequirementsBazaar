@@ -20,10 +20,10 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Privilege;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RoleRecord;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UserRoleMapRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Privilege;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.PrivilegeEnumConverter;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.RoleTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;

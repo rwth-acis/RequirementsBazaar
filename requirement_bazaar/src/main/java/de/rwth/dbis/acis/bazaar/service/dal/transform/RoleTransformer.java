@@ -20,9 +20,9 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RoleRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RoleRecord;
 import org.jooq.*;
 
 import java.util.*;

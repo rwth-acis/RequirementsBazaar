@@ -21,13 +21,10 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jodd.vtor.constraint.MaxLength;
 import jodd.vtor.constraint.Min;
 import jodd.vtor.constraint.NotBlank;
 import jodd.vtor.constraint.NotNull;
-
-import javax.validation.constraints.Null;
 
 /**
  * @since 26/11/2019

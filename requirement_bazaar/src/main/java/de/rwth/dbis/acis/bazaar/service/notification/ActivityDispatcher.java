@@ -16,7 +16,6 @@ import i5.las2peer.logging.L2pLogger;
 
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
  * Created by martin on 15.02.2016.

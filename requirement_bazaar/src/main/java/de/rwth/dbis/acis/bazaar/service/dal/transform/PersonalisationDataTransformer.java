@@ -20,17 +20,17 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.PersonalisationData;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Vote;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.PersonalisationDataRecord;
-import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.VoteRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.PersonalisationData;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import org.jooq.*;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.PERSONALISATION_DATA;
-import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.VOTE;
 
 /**
  * @since 6/23/2014

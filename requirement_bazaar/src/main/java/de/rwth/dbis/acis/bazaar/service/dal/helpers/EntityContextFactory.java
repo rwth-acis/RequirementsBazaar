@@ -1,23 +1,17 @@
 package de.rwth.dbis.acis.bazaar.service.dal.helpers;
 
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.CategoryRecord;
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectRecord;
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Category;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.EntityContext;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
-import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.CategoryRecord;
-import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectRecord;
-import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.repositories.UserRepositoryImpl;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.CategoryTransformer;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.ProjectTransformer;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementTransformer;
 import org.jooq.Record;
-import org.jooq.Require;
-import org.jooq.Result;
 
 import java.util.List;
 

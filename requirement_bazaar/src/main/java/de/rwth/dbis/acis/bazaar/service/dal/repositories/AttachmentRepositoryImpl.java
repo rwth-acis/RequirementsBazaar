@@ -20,11 +20,11 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.AttachmentRecord;
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UserRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
-import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.AttachmentRecord;
-import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UserRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.AttachmentTransformer;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;

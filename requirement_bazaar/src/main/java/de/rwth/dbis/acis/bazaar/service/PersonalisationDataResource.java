@@ -20,7 +20,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
-import java.util.*;
+import java.util.EnumSet;
 
 
 @Api(value = "personalisation", description = "Personalisation Data resource")
