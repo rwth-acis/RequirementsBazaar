@@ -11,7 +11,7 @@
 /.las2peer
 /node-storage
 /startup
-/log
+log/
 /lib
 etc/ivy/ivy.jar
 /service
