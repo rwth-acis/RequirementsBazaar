@@ -23,8 +23,8 @@ plugins {
 }
 
 group = 'de.rwth.dbis.acis.bazaar.service'
+version = "${project.property('service.version')}"
 archivesBaseName = group
-version = "${project.property('service.name')}"
 mainClassName = "de.rwth.dbis.acis.bazaar.service.BazaarService"
 sourceCompatibility = 14
 
@@ -50,6 +50,7 @@ dependencies {
     // This is for the jooq generation only
     jooqGenerator "mysql:mysql-connector-java:${project.property('mysql.version')}"
     jooqGenerator "org.jooq:jooq-codegen:${project.property('jooq.version')}"
+
     implementation "org.flywaydb:flyway-core:7.3.2"
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'org.apache.commons:commons-pool2:2.9.0'
