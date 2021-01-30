@@ -31,7 +31,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
  */
 public interface CategoryRepository extends Repository<Category> {

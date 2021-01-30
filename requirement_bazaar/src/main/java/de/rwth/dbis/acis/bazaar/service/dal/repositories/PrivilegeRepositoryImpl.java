@@ -32,7 +32,6 @@ import org.jooq.DSLContext;
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.PRIVILEGE;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 2/18/2015
  */
 public class PrivilegeRepositoryImpl extends RepositoryImpl<Privilege, PrivilegeRecord> implements PrivilegeRepository {

@@ -33,7 +33,6 @@ import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.PERSONALISATION_DATA;
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.VOTE;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
 public class PersonalisationDataTransformer implements Transformer<PersonalisationData, PersonalisationDataRecord> {

@@ -26,7 +26,6 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import java.util.List;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 2/17/2015
  */
 public interface RoleRepository extends Repository<Role> {

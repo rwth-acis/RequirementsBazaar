@@ -25,7 +25,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 9/16/2014
  */
 public abstract class EntityBase implements IdentifiedById {

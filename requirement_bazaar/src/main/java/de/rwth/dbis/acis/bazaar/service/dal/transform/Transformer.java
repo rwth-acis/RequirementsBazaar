@@ -31,7 +31,6 @@ import java.util.Map;
 /**
  * @param <E> type parameter for the entity
  * @param <R> type parameter for the record
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
  */
 public interface Transformer<E, R extends Record> {

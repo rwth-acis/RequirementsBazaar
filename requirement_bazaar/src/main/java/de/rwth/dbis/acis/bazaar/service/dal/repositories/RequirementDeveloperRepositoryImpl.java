@@ -34,7 +34,6 @@ import org.jooq.exception.DataAccessException;
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.REQUIREMENT_DEVELOPER_MAP;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
 public class RequirementDeveloperRepositoryImpl extends RepositoryImpl<RequirementDeveloper, RequirementDeveloperMapRecord> implements RequirementDeveloperRepository {

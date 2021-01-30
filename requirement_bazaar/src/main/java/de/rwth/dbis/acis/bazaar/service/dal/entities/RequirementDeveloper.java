@@ -21,7 +21,6 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/11/2014
  */
 public class RequirementDeveloper extends EntityBase {

@@ -453,7 +453,6 @@ public interface DALFacade {
 
     /**
      * @param pageable      pagination information
-     * @param includeContext include context of comment
      * @return the set of comments
      */
     PaginationResult<Comment> listAllComments(Pageable pageable) throws BazaarException;

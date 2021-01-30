@@ -89,10 +89,11 @@ public abstract class TestBase {
     }
 
     boolean isValidISO8601(String dateStr) {
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         try {
             dateFormatter.parse(dateStr);
         } catch (DateTimeParseException e) {
+            e.printStackTrace();
             return false;
         }
         return true;

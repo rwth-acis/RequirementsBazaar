@@ -21,7 +21,6 @@
 package de.rwth.dbis.acis.bazaar.service;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 1/9/2015
  */
 public enum BazaarFunction {

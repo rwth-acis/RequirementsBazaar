@@ -48,7 +48,6 @@ import java.util.Map;
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
 public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> implements UserRepository {

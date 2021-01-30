@@ -35,7 +35,6 @@ import java.util.*;
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
 public class CommentTransformer implements Transformer<Comment, CommentRecord> {

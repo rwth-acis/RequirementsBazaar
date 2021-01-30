@@ -24,7 +24,6 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Privilege;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 2/18/2015
  */
 public interface PrivilegeRepository extends Repository<Privilege> {

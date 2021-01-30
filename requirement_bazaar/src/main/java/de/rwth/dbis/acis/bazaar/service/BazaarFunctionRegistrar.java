@@ -23,7 +23,6 @@ package de.rwth.dbis.acis.bazaar.service;
 import java.util.EnumSet;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 1/9/2015
  */
 public interface BazaarFunctionRegistrar {

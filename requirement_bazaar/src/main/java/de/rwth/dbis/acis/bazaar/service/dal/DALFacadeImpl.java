@@ -43,7 +43,6 @@ import java.util.HashMap;
 import java.util.List;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/14/2014
  */
 public class DALFacadeImpl implements DALFacade {

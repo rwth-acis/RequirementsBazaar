@@ -21,7 +21,6 @@
 package de.rwth.dbis.acis.bazaar.service.dal.helpers;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 2/27/2015
  */
 public enum CreationStatus {

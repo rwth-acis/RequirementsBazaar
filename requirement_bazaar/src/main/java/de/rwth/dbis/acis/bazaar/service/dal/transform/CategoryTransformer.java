@@ -35,7 +35,6 @@ import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.CATEGORY;
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.CATEGORY_FOLLOWER_MAP;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
  */
 public class CategoryTransformer implements Transformer<Category, CategoryRecord> {

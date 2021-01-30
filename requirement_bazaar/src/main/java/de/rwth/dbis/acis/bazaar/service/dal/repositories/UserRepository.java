@@ -32,7 +32,6 @@ import i5.las2peer.security.PassphraseAgentImpl;
 import java.util.List;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/22/2014
  */
 public interface UserRepository extends Repository<User> {

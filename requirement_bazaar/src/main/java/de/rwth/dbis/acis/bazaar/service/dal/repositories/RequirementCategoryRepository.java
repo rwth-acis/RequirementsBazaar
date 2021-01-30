@@ -24,7 +24,6 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementCategory;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/22/2014
  */
 public interface RequirementCategoryRepository extends Repository<RequirementCategory> {

@@ -23,7 +23,6 @@ package de.rwth.dbis.acis.bazaar.service.internalization;
 import java.util.ResourceBundle;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 3/12/2015
  */
 public class Localization {

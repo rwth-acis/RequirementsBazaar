@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/12/2014
  */
 public interface Pageable {

@@ -30,7 +30,6 @@ import java.util.*;
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.REQUIREMENT_CATEGORY_MAP;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/23/2014
  */
 public class RequirementCategoryTransformer implements Transformer<RequirementCategory, RequirementCategoryMapRecord> {

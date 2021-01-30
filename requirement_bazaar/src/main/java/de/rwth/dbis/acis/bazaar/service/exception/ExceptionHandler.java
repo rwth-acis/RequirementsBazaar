@@ -29,7 +29,6 @@ import jodd.vtor.Violation;
 import java.util.List;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 10/6/2014
  */
 public enum ExceptionHandler {

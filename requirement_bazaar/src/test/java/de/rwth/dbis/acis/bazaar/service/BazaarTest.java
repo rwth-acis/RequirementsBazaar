@@ -70,7 +70,9 @@ public class BazaarTest extends TestBase {
             JsonObject response = JsonParser.parseString(result.getResponse()).getAsJsonObject();
             Assert.assertTrue(response.isJsonObject());
             System.out.println(response.get("creationDate").toString());
-            Assert.assertTrue(isValidISO8601(response.get("creationDate").toString()));
+
+            // gson doesn't remove the quotes
+            Assert.assertTrue(isValidISO8601(response.get("creationDate").toString().replace("\"", "")));
         } catch (Exception e) {
             e.printStackTrace();
             Assert.fail(e.toString());

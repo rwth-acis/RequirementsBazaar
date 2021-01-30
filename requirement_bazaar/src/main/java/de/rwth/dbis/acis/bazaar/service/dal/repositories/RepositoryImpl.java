@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 6/9/2014
  */
 public class RepositoryImpl<E extends EntityBase, R extends Record> implements Repository<E> {

@@ -28,7 +28,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 
 /**
- * @author Milan Deruelle <deruelle@dbis.rwth-aachen.de>
  * @since 30/01/2020
  */
 public class EntityContext {

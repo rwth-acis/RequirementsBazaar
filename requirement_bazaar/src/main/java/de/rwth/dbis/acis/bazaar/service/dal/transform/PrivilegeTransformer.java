@@ -31,7 +31,6 @@ import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.PRIVILEGE;
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.ROLE;
 
 /**
- * @author Adam Gavronek <gavronek@dbis.rwth-aachen.de>
  * @since 2/18/2015
  */
 public class PrivilegeTransformer implements Transformer<Privilege, PrivilegeRecord> {
@@ -90,4 +89,3 @@ public class PrivilegeTransformer implements Transformer<Privilege, PrivilegeRec
         return new ArrayList<>();
     }
 }
-

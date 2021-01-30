@@ -30,7 +30,6 @@ import jodd.vtor.constraint.NotNull;
 import javax.validation.constraints.Null;
 
 /**
- * @author Milan Deruelle <deruelle@dbis.rwth-aachen.de>
  * @since 26/11/2019
  */
 public class PersonalisationData extends EntityBase {

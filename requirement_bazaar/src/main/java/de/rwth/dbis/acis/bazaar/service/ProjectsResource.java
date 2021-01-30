@@ -68,7 +68,7 @@ public class ProjectsResource {
      * @return Response with list of all projects
      */
     @GET
-    //@Path("/")
+    @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method returns the list of projects on the server.")
     @ApiResponses(value = {
@@ -237,7 +237,7 @@ public class ProjectsResource {
      * @return Response with the created project as a JSON object.
      */
     @POST
-    //@Path("/")
+    @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to create a new project.")
