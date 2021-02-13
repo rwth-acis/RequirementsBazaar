@@ -25,45 +25,40 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import jodd.vtor.constraint.MaxLength;
-import jodd.vtor.constraint.Min;
-import jodd.vtor.constraint.NotBlank;
-import jodd.vtor.constraint.NotNull;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 public class Attachment extends EntityBase {
 
     private int id;
 
-    @NotNull(profiles = {"create"})
-    @NotBlank(profiles = {"*"})
-    @MaxLength(value = 50, profiles = {"*"})
+    @NotNull
+    @Size(min = 1, max = 50)
     private String name;
 
     private String description;
 
-    @NotNull(profiles = {"create"})
-    @NotBlank(profiles = {"*"})
-    @MaxLength(value = 1000, profiles = {"*"})
+    @NotNull
+    @Size(min = 1, max = 10)
     private String mimeType;
 
-    @NotNull(profiles = {"create"})
-    @NotBlank(profiles = {"*"})
-    @MaxLength(value = 1000, profiles = {"*"})
+    @NotNull
+    @Size(min = 1, max = 10)
     private String identifier;
 
-    @NotNull(profiles = {"create"})
-    @NotBlank(profiles = {"*"})
-    @MaxLength(value = 1000, profiles = {"*"})
+    @NotNull
+    @Size(min = 1, max = 10)
     private String fileUrl;
 
-    @Min(value = 0, profiles = {"create"})
+    @Min(value = 0)
     private int requirementId;
 
     private User creator;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone="Europe/Berlin")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime creationDate;

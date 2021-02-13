@@ -20,11 +20,9 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
-
-import jodd.vtor.constraint.MaxLength;
-import jodd.vtor.constraint.Min;
-import jodd.vtor.constraint.NotBlank;
-import jodd.vtor.constraint.NotNull;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  * @since 26/11/2019
@@ -32,25 +30,23 @@ import jodd.vtor.constraint.NotNull;
 public class PersonalisationData extends EntityBase {
 
 
-    private  int id;
+    private int id;
 
 
-    @NotBlank(profiles = {"*"})
-    @NotNull(profiles = {"create"})
-    @MaxLength(value = 50, profiles = {"*"})
-    private  String key;
+    @NotNull
+    @Size(min = 1, max = 50, message = "Key must have between 1 and 50 characters")
+    private String key;
 
-    @Min(value = 0, profiles = {"create"})
-    private  int version;
+    @Min(value = 0)
+    private int version;
 
-    private  int userId;
+    private int userId;
 
-    @NotBlank(profiles = {"*"})
-    @NotNull(profiles = {"create"})
-    @MaxLength(value = 10000, profiles = {"*"})
-    private  String value;
+    @NotNull
+    @Size(min = 1, max = 10000)
+    private String value;
 
-    public PersonalisationData(){
+    public PersonalisationData() {
 
     }
 

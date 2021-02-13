@@ -17,8 +17,8 @@ import i5.las2peer.api.security.Agent;
 import i5.las2peer.api.security.AnonymousAgent;
 import i5.las2peer.logging.L2pLogger;
 import io.swagger.annotations.*;
-import jodd.vtor.Vtor;
 
+import javax.validation.ConstraintViolation;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -115,17 +115,14 @@ public class CommentsResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
             HashMap<String, String> filterMap = new HashMap<>();
-            for(String filterOption : filters) {
-                filterMap.put(filterOption,internalUserId.toString());
+            for (String filterOption : filters) {
+                filterMap.put(filterOption, internalUserId.toString());
             }
             PageInfo pageInfo = new PageInfo(page, perPage, filterMap, sortList, search, null, embedParents);
 
-
-            Vtor vtor = bazaarService.getValidators();
-            vtor.validate(pageInfo);
-            if (vtor.hasViolations()) {
-                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            }
+            // Take Object for generic error handling
+            Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
+            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
 
             PaginationResult<Comment> commentResult = null;
 
@@ -201,9 +198,10 @@ public class CommentsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
             PageInfo pageInfo = new PageInfo(page, perPage);
-            Vtor vtor = bazaarService.getValidators();
-            vtor.validate(pageInfo);
-            if (vtor.hasViolations()) ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
+            // Take Object for generic error handling
+            Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
+            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+
             dalFacade = bazaarService.getDBConnection();
             //Todo use requirement's projectId for security context, not the one sent from client
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
@@ -356,12 +354,10 @@ public class CommentsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.create"));
             }
             commentToCreate.setCreator(dalFacade.getUserById(internalUserId));
-            Vtor vtor = bazaarService.getValidators();
-            vtor.useProfiles("create");
-            vtor.validate(commentToCreate);
-            if (vtor.hasViolations()) {
-                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            }
+            // Take Object for generic error handling
+            Set<ConstraintViolation<Object>> violations = bazaarService.validate(commentToCreate);
+            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+
             dalFacade.followRequirement(internalUserId, requirement.getId());
             Comment createdComment = dalFacade.createComment(commentToCreate);
             bazaarService.getNotificationDispatcher().dispatchNotification(createdComment.getCreationDate(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_46,

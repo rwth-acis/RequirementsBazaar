@@ -49,12 +49,15 @@ import i5.las2peer.logging.L2pLogger;
 import i5.las2peer.restMapper.RESTService;
 import i5.las2peer.restMapper.annotations.ServicePath;
 import io.swagger.annotations.*;
-import jodd.vtor.Vtor;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.http.client.utils.URIBuilder;
 import org.jooq.SQLDialect;
 
 import javax.sql.DataSource;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
@@ -91,7 +94,7 @@ public class BazaarService extends RESTService {
     protected String emailFromAddress;
     protected String emailSummaryTimePeriodInMinutes;
 
-    private Vtor vtor;
+    private ValidatorFactory validatorFactory;
     private List<BazaarFunctionRegistrar> functionRegistrar;
     private NotificationDispatcher notificationDispatcher;
     private DataSource dataSource;
@@ -118,6 +121,8 @@ public class BazaarService extends RESTService {
 
         dataSource = setupDataSource(dbUrl, dbUserName, dbPassword);
 
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+
         functionRegistrar = new ArrayList<>();
         functionRegistrar.add(functions -> {
             DALFacade dalFacade = null;
@@ -130,12 +135,6 @@ public class BazaarService extends RESTService {
                 ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.privilege_sync"));
             } finally {
                 closeDBConnection(dalFacade);
-            }
-        });
-
-        functionRegistrar.add(functions -> {
-            if (functions.contains(BazaarFunction.VALIDATION)) {
-                createValidators();
             }
         });
 
@@ -312,12 +311,10 @@ public class BazaarService extends RESTService {
         return resultJSON;
     }
 
-    private void createValidators() {
-        vtor = new Vtor();
-    }
-
-    public Vtor getValidators() {
-        return vtor;
+    public Set<ConstraintViolation<Object>> validate(Object entity) {
+        Validator validator = validatorFactory.getValidator();
+        // Take Object for generic error handling
+        return validator.validate(entity);
     }
 
     public NotificationDispatcher getNotificationDispatcher() {

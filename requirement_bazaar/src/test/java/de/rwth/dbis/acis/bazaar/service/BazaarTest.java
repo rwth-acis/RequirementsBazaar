@@ -32,25 +32,6 @@ public class BazaarTest extends TestBase {
             Assert.fail(e.toString());
         }
     }
-    /**
-     * Test to get a list of projects
-     */
-    @Test
-    public void testGetProjects() {
-        try {
-            MiniClient client = getClient();
-
-            ClientResponse result = client.sendRequest("GET", mainPath + "projects", "");
-
-            Assert.assertEquals(200, result.getHttpCode());
-            JsonElement response = JsonParser.parseString(result.getResponse());
-            System.out.println(response.toString());
-            Assert.assertTrue(response.isJsonArray());
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.fail(e.toString());
-        }
-    }
 
     /**
      * Test to get a list of projects
@@ -79,4 +60,23 @@ public class BazaarTest extends TestBase {
         }
     }
 
+    /**
+     * Test to get a list of projects
+     */
+    @Test
+    public void testGetProjects() {
+        try {
+            MiniClient client = getClient();
+
+            ClientResponse result = client.sendRequest("GET", mainPath + "projects", "");
+
+            Assert.assertEquals(200, result.getHttpCode());
+            JsonElement response = JsonParser.parseString(result.getResponse());
+            System.out.println(response.toString());
+            Assert.assertTrue(response.isJsonArray());
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail(e.toString());
+        }
+    }
 }

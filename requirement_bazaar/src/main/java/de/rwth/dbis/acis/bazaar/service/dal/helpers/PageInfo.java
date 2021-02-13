@@ -20,8 +20,7 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.helpers;
 
-import jodd.vtor.constraint.Min;
-
+import javax.validation.constraints.Min;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,7 +63,7 @@ public class PageInfo implements Pageable {
         this.filters = filters;
         this.sorts = sorts;
         this.search = search != null ? search : "";
-        this.ids = ids;
+        this.ids = ids != null ? ids : new ArrayList<>();
         this.embed = embed;
     }
 

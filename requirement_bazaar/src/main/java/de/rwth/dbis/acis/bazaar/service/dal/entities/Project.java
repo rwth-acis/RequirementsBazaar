@@ -26,10 +26,9 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import jodd.vtor.constraint.MaxLength;
-import jodd.vtor.constraint.NotBlank;
-import jodd.vtor.constraint.NotNull;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 /**
@@ -39,13 +38,11 @@ public class Project extends EntityBase {
 
     private int id;
 
-    @NotBlank(profiles = {"*"})
-    @NotNull(profiles = {"create"})
-    @MaxLength(value = 50, profiles = {"*"})
+    @NotNull(message = "name can not be null")
+    @Size(min = 1, max = 50, message = "name can't have more than 50 characters")
     private String name;
 
-    @NotBlank(profiles = {"*"})
-    @NotNull(profiles = {"create"})
+    @NotNull(message = "description can not be nul")
     private String description;
 
     private Boolean visibility = true;
@@ -54,7 +51,7 @@ public class Project extends EntityBase {
 
     private User leader;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone="Europe/Berlin")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime creationDate;

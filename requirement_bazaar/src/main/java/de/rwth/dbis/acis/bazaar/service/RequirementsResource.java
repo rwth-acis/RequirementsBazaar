@@ -17,9 +17,8 @@ import i5.las2peer.api.security.Agent;
 import i5.las2peer.api.security.AnonymousAgent;
 import i5.las2peer.logging.L2pLogger;
 import io.swagger.annotations.*;
-import jodd.vtor.Violation;
-import jodd.vtor.Vtor;
 
+import javax.validation.ConstraintViolation;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -111,17 +110,14 @@ public class RequirementsResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
             HashMap<String, String> filterMap = new HashMap<>();
-            for(String filterOption : filters) {
-                filterMap.put(filterOption,internalUserId.toString());
+            for (String filterOption : filters) {
+                filterMap.put(filterOption, internalUserId.toString());
             }
             PageInfo pageInfo = new PageInfo(page, perPage, filterMap, sortList, search, null, embedParents);
 
-
-            Vtor vtor = bazaarService.getValidators();
-            vtor.validate(pageInfo);
-            if (vtor.hasViolations()) {
-                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            }
+            // Take Object for generic error handling
+            Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
+            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
 
             PaginationResult<Requirement> requirementsResult = null;
 
@@ -218,11 +214,10 @@ public class RequirementsResource {
                 sortList.add(sortField);
             }
             PageInfo pageInfo = new PageInfo(page, perPage, filters, sortList, search);
-            Vtor vtor = bazaarService.getValidators();
-            vtor.validate(pageInfo);
-            if (vtor.hasViolations()) {
-                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            }
+            // Take Object for generic error handling
+            Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
+            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             if (dalFacade.getProjectById(projectId, internalUserId) == null) {
@@ -325,11 +320,10 @@ public class RequirementsResource {
                 sortList.add(sortField);
             }
             PageInfo pageInfo = new PageInfo(page, perPage, filters, sortList, search);
-            Vtor vtor = bazaarService.getValidators();
-            vtor.validate(pageInfo);
-            if (vtor.hasViolations()) {
-                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            }
+            // Take Object for generic error handling
+            Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
+            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             if (dalFacade.getCategoryById(categoryId, internalUserId) == null) {
@@ -492,13 +486,9 @@ public class RequirementsResource {
 
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             requirementToCreate.setCreator(dalFacade.getUserById(internalUserId));
-            Vtor vtor = bazaarService.getValidators();
-            vtor.useProfiles("create");
-            vtor.validate(requirementToCreate);
-            if (vtor.hasViolations()) {
-                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            }
-            vtor.resetProfiles();
+            // Take Object for generic error handling
+            Set<ConstraintViolation<Object>> violations = bazaarService.validate(requirementToCreate);
+            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
 
             // check if all categories are in the same project
             for (Category category : requirementToCreate.getCategories()) {
@@ -518,11 +508,10 @@ public class RequirementsResource {
                 for (Attachment attachment : requirementToCreate.getAttachments()) {
                     attachment.setCreator(dalFacade.getUserById(internalUserId));
                     attachment.setRequirementId(createdRequirement.getId());
-                    vtor.validate(attachment);
-                    if (vtor.hasViolations()) {
-                        ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-                    }
-                    vtor.resetProfiles();
+                    // Take Object for generic error handling
+                    violations = bazaarService.validate(attachment);
+                    if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+
                     dalFacade.createAttachment(attachment);
                 }
             }
@@ -576,11 +565,10 @@ public class RequirementsResource {
             }
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
-            Vtor vtor = bazaarService.getValidators();
-            vtor.validate(requirementToUpdate);
-            if (vtor.hasViolations()) {
-                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            }
+            // Take Object for generic error handling
+            Set<ConstraintViolation<Object>> violations = bazaarService.validate(requirementToUpdate);
+            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, dalFacade);
@@ -1038,11 +1026,14 @@ public class RequirementsResource {
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
+
+            /* Not sure why this is necessary. Should be handled by swagger
             if (!(direction.equals("up") || direction.equals("down"))) {
                 Vtor vtor = bazaarService.getValidators();
                 vtor.addViolation(new Violation("Direction can only be \"up\" or \"down\"", direction, direction));
                 ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            }
+            }*/
+
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_VOTE, dalFacade);
@@ -1328,11 +1319,10 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
             PageInfo pageInfo = new PageInfo(page, perPage);
-            Vtor vtor = bazaarService.getValidators();
-            vtor.validate(pageInfo);
-            if (vtor.hasViolations()) {
-                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            }
+            // Take Object for generic error handling
+            Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
+            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             PaginationResult<User> requirementDevelopers = dalFacade.listDevelopersForRequirement(requirementId, pageInfo);
@@ -1454,11 +1444,10 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
             PageInfo pageInfo = new PageInfo(page, perPage);
-            Vtor vtor = bazaarService.getValidators();
-            vtor.validate(pageInfo);
-            if (vtor.hasViolations()) {
-                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            }
+            // Take Object for generic error handling
+            Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
+            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             PaginationResult<User> requirementFollowers = dalFacade.listFollowersForRequirement(requirementId, pageInfo);

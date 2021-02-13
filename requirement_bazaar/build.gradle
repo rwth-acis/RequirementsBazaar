@@ -46,6 +46,9 @@ dependencies {
     // compileOnly will be moved into the lib dir afterwards
     compileOnly "i5:las2peer-bundle:${project.property('core.version')}"
     compileOnly "mysql:mysql-connector-java:${project.property('mysql.version')}"
+    compileOnly 'org.hibernate:hibernate-validator:5.4.3.Final'
+    compileOnly 'org.glassfish:jakarta.el:3.0.3'
+    compileOnly 'javax.validation:validation-api:1.1.0.Final'
 
     // This is for the jooq generation only
     jooqGenerator "mysql:mysql-connector-java:${project.property('mysql.version')}"
@@ -151,4 +154,5 @@ flyway {
     locations = ["filesystem:$project.projectDir/src/main/resources/migrations"]
 }
 
+generateJooq.dependsOn flywayClean
 generateJooq.dependsOn flywayMigrate

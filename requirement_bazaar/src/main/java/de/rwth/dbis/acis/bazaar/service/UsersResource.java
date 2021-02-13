@@ -15,17 +15,14 @@ import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.api.security.Agent;
 import i5.las2peer.logging.L2pLogger;
 import io.swagger.annotations.*;
-import jodd.vtor.Vtor;
 
+import javax.validation.ConstraintViolation;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 
 @Api(value = "users", description = "Users resource")
@@ -187,11 +184,10 @@ public class UsersResource {
             }
             Agent agent = Context.getCurrent().getMainAgent();
 
-            Vtor vtor = bazaarService.getValidators();
-            vtor.validate(userToUpdate);
-            if (vtor.hasViolations()) {
-                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            }
+            // Take Object for generic error handling
+            Set<ConstraintViolation<Object>> violations = bazaarService.validate(userToUpdate);
+            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(agent.getIdentifier());
             if (!internalUserId.equals(userId)) {

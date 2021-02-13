@@ -8,8 +8,10 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.UserVote;
-import jodd.vtor.constraint.*;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,35 +22,33 @@ public class Requirement extends EntityBase {
 
     private int id;
 
-    @NotBlank(profiles = {"*"})
-    @NotNull(profiles = {"create"})
-    @MaxLength(value = 50, profiles = {"*"})
+    @Size(min = 1, max = 50, message = "name must be between 1 and 50 characters")
     private String name;
 
-    @NotBlank(profiles = {"*"})
-    @NotNull(profiles = {"create"})
+    @NotNull
+    @Size(min = 1, message = "Description can't be empty")
     private String description;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone="Europe/Berlin")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime realized;
 
-    @Min(value = 0, profiles = {"create"})
+    @Min(value = 0)
     private int projectId;
 
     private User creator;
     private User leadDeveloper;
 
-    @NotNull(profiles = {"create"})
-    @Size(min = 1, profiles = {"create"})
+    @NotNull
+    @Size(min = 1)
     private List<Category> categories;
 
     // This field is not filled because attachments should be not included in requirements response.
     // But the API still allows to create a requirement with attachments at the same time.
     private List<Attachment> attachments;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone="Europe/Berlin")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
     @JsonSerialize(using = LocalDateTimeSerializer.class)
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime creationDate;

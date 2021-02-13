@@ -26,7 +26,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 import jodd.vtor.Violation;
 
+import javax.validation.ConstraintViolation;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @since 10/6/2014
@@ -75,6 +77,17 @@ public enum ExceptionHandler {
         StringBuilder builder = new StringBuilder();
         for (Violation violation : violations) {
             builder.append(String.format(Localization.getInstance().getResourceBundle().getString("error.validation"), violation.getName(), violation.getInvalidValue(), violation.toString()));
+        }
+        bazaarException.setMessage(builder.toString());
+        throw bazaarException;
+    }
+
+    public void handleViolations(Set<ConstraintViolation<Object>> violations) throws BazaarException {
+        BazaarException bazaarException = new BazaarException(ExceptionLocation.BAZAARSERVICE);
+        bazaarException.setErrorCode(ErrorCode.VALIDATION);
+        StringBuilder builder = new StringBuilder();
+        for (ConstraintViolation<Object> violation : violations) {
+            builder.append(String.format(Localization.getInstance().getResourceBundle().getString("error.validation"), violation.getMessage(), violation.getInvalidValue()));
         }
         bazaarException.setMessage(builder.toString());
         throw bazaarException;

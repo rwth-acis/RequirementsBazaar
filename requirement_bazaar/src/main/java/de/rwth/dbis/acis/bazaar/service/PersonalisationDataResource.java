@@ -14,13 +14,14 @@ import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.api.security.Agent;
 import i5.las2peer.logging.L2pLogger;
 import io.swagger.annotations.*;
-import jodd.vtor.Vtor;
 
+import javax.validation.ConstraintViolation;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
 import java.util.EnumSet;
+import java.util.Set;
 
 
 @Api(value = "personalisation", description = "Personalisation Data resource")
@@ -148,15 +149,11 @@ public class PersonalisationDataResource {
 
             PersonalisationData fullData = PersonalisationData.getBuilder().key(key).userId(internalUserId).version(version).value(data.getValue()).build();
 
+            // Take Object for generic error handling
+            Set<ConstraintViolation<Object>> violations = bazaarService.validate(fullData);
+            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
 
-            Vtor vtor = bazaarService.getValidators();
-            vtor.useProfiles("create");
-            vtor.validate(fullData);
-            if (vtor.hasViolations()) {
-                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            }
             dalFacade.setPersonalisationData(fullData);
-
 
             return Response.ok(fullData.toJSON()).build();
         } catch (BazaarException bex) {
