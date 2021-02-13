@@ -9,7 +9,7 @@ jobs:
       mysql:
         image: mysql:latest
         ports:
-          - 3306
+          - 3306:3306
         env:
           MYSQL_USER: reqbaz
           MYSQL_PASSWORD: password
@@ -24,17 +24,15 @@ jobs:
         with:
           java-version: 14
       - name: Verify MySQL connection
-        env:
-          PORT: ${{ job.services.mysql.ports[3306] }}
         run: |
-          while ! mysqladmin ping -h"127.0.0.1" -P"$PORT" --silent; do
+          while ! mysqladmin ping -h"127.0.0.1" -P"3306" --silent; do
             sleep 1
           done
-      - name: Set DB Port in config
-        env:
-          PORT: ${{ job.services.mysql.ports[3306] }}
-        run: sed -i "s/3306/$PORT/g" requirement_bazaar/etc/de.rwth.dbis.acis.bazaar.service.BazaarService.properties && cat requirement_bazaar/etc/de.rwth.dbis.acis.bazaar.service.BazaarService.properties
+      #- name: Set DB Port in config
+      #  env:
+      #    PORT: ${{ job.services.mysql.ports[3306] }}
+      #  run: sed -i "s/3306/$PORT/g" requirement_bazaar/etc/de.rwth.dbis.acis.bazaar.service.BazaarService.properties && cat requirement_bazaar/etc/de.rwth.dbis.acis.bazaar.service.BazaarService.properties
       - name: Build with Gradle
         env:
           PORT: ${{ job.services.mysql.ports[3306] }}
-        run: ./gradlew clean build --info -Pdb.port=$PORT
+        run: ./gradlew clean build --info
