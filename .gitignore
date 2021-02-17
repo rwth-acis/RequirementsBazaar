@@ -11,7 +11,7 @@
 /.las2peer
 /node-storage
 /startup
-/log
+log/
 /lib
 etc/ivy/ivy.jar
 /service
@@ -63,3 +63,10 @@ Temporary Items
 .apdisk
 
 # End of https://www.gitignore.io/api/macos
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+
+.db_data

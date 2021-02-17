@@ -1,0 +1,38 @@
+name: Gradle Build & Test
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:latest
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_USER: reqbaz
+          MYSQL_PASSWORD: password
+          MYSQL_DATABASE: reqbaz
+          MYSQL_ROOT_PASSWORD: rootpw
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 14
+        uses: actions/setup-java@v1
+        with:
+          java-version: 14
+      - name: Verify MySQL connection
+        run: |
+          while ! mysqladmin ping -h"127.0.0.1" -P"3306" --silent; do
+            sleep 1
+          done
+      #- name: Set DB Port in config
+      #  env:
+      #    PORT: ${{ job.services.mysql.ports[3306] }}
+      #  run: sed -i "s/3306/$PORT/g" requirement_bazaar/etc/de.rwth.dbis.acis.bazaar.service.BazaarService.properties && cat requirement_bazaar/etc/de.rwth.dbis.acis.bazaar.service.BazaarService.properties
+      - name: Build with Gradle
+        env:
+          PORT: ${{ job.services.mysql.ports[3306] }}
+        run: ./gradlew clean build --info
