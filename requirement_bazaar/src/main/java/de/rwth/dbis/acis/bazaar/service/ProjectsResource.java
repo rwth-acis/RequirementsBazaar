@@ -253,7 +253,7 @@ public class ProjectsResource {
             String userId = agent.getIdentifier();
 
             // Validate input
-            Set<ConstraintViolation<Object>> violations = bazaarService.validate(projectToCreate);
+            Set<ConstraintViolation<Object>> violations = bazaarService.validateCreate(projectToCreate);
             if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
 
             dalFacade = bazaarService.getDBConnection();

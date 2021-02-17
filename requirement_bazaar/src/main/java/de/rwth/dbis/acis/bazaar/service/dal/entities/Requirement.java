@@ -3,6 +3,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreateValidation;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.UserVote;
 
 import javax.validation.constraints.Min;
@@ -21,7 +22,7 @@ public class Requirement extends EntityBase {
     @Size(min = 1, max = 50, message = "name must be between 1 and 50 characters")
     private String name;
 
-    @NotNull
+    @NotNull(message = "description should not be null", groups = CreateValidation.class)
     @Size(min = 1, message = "Description can't be empty")
     private String description;
 
@@ -34,8 +35,8 @@ public class Requirement extends EntityBase {
     private User creator;
     private User leadDeveloper;
 
-    @NotNull
-    @Size(min = 1)
+    @NotNull(message = "categories should not be null", groups = CreateValidation.class)
+    @Size(min = 1, groups = CreateValidation.class)
     private List<Category> categories;
 
     // This field is not filled because attachments should be not included in requirements response.
@@ -45,7 +46,7 @@ public class Requirement extends EntityBase {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
     private LocalDateTime creationDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone="Europe/Berlin")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
     private LocalDateTime lastUpdatedDate;
 
     private Integer numberOfComments;

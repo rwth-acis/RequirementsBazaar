@@ -150,7 +150,7 @@ public class PersonalisationDataResource {
             PersonalisationData fullData = PersonalisationData.getBuilder().key(key).userId(internalUserId).version(version).value(data.getValue()).build();
 
             // Take Object for generic error handling
-            Set<ConstraintViolation<Object>> violations = bazaarService.validate(fullData);
+            Set<ConstraintViolation<Object>> violations = bazaarService.validateCreate(fullData);
             if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
 
             dalFacade.setPersonalisationData(fullData);

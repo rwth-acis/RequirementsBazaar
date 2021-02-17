@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
@@ -120,7 +121,8 @@ public class ActivityDispatcher {
 
             ObjectMapper mapper = new ObjectMapper();
             mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-            mapper.setFilters(filters);
+            mapper.registerModule(new JavaTimeModule());
+            mapper.setFilterProvider(filters);
 
             Object result = Context.get().invoke(activityTrackerService, "createActivity", mapper.writeValueAsString(activity));
             if (!(result).equals(Integer.toString(Response.Status.CREATED.getStatusCode()))) {

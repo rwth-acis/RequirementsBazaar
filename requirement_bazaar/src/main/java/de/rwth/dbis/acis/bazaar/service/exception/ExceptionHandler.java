@@ -24,10 +24,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
-import jodd.vtor.Violation;
 
 import javax.validation.ConstraintViolation;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -69,17 +67,6 @@ public enum ExceptionHandler {
             // no important error
         }
         return null;
-    }
-
-    public void handleViolations(List<Violation> violations) throws BazaarException {
-        BazaarException bazaarException = new BazaarException(ExceptionLocation.BAZAARSERVICE);
-        bazaarException.setErrorCode(ErrorCode.VALIDATION);
-        StringBuilder builder = new StringBuilder();
-        for (Violation violation : violations) {
-            builder.append(String.format(Localization.getInstance().getResourceBundle().getString("error.validation"), violation.getName(), violation.getInvalidValue(), violation.toString()));
-        }
-        bazaarException.setMessage(builder.toString());
-        throw bazaarException;
     }
 
     public void handleViolations(Set<ConstraintViolation<Object>> violations) throws BazaarException {

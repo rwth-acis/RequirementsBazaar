@@ -23,6 +23,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreateValidation;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -36,15 +37,15 @@ public class Category extends EntityBase {
 
     private int id;
 
-    @NotNull(message = "name can't be null")
+    @NotNull(message = "name can't be null", groups = CreateValidation.class)
     @Size(min = 1, max = 50, message = "name must have between 1 and 50 characters")
     private String name;
 
-    @NotNull
+    @NotNull(groups = CreateValidation.class)
     @Size(min = 1)
     private String description;
 
-    @Min(value = 0)
+    @Min(value = 0, groups = CreateValidation.class)
     private int projectId;
 
     private User leader;

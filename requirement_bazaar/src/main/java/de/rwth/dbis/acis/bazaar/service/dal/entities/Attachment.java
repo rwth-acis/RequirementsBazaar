@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreateValidation;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -31,21 +32,21 @@ public class Attachment extends EntityBase {
 
     private int id;
 
-    @NotNull
+    @NotNull(groups = CreateValidation.class)
     @Size(min = 1, max = 50)
     private String name;
 
     private String description;
 
-    @NotNull
+    @NotNull(groups = CreateValidation.class)
     @Size(min = 1, max = 10)
     private String mimeType;
 
-    @NotNull
+    @NotNull(groups = CreateValidation.class)
     @Size(min = 1, max = 10)
     private String identifier;
 
-    @NotNull
+    @NotNull(groups = CreateValidation.class)
     @Size(min = 1, max = 10)
     private String fileUrl;
 

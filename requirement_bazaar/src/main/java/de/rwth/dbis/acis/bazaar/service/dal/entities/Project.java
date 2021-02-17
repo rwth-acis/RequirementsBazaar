@@ -22,6 +22,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreateValidation;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -34,11 +35,11 @@ public class Project extends EntityBase {
 
     private int id;
 
-    @NotNull(message = "name can not be null")
+    @NotNull(message = "name can not be null", groups = CreateValidation.class)
     @Size(min = 1, max = 50, message = "name can't have more than 50 characters")
     private String name;
 
-    @NotNull(message = "description can not be nul")
+    @NotNull(message = "description can not be nul", groups = CreateValidation.class)
     private String description;
 
     private Boolean visibility = true;

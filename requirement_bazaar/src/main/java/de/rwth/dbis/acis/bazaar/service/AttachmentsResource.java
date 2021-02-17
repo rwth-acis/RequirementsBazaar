@@ -217,7 +217,7 @@ public class AttachmentsResource {
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
-            Set<ConstraintViolation<Object>> violations = bazaarService.validate(attachmentToCreate);
+            Set<ConstraintViolation<Object>> violations = bazaarService.validateCreate(attachmentToCreate);
             if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
 
             dalFacade = bazaarService.getDBConnection();

@@ -487,7 +487,7 @@ public class RequirementsResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             requirementToCreate.setCreator(dalFacade.getUserById(internalUserId));
             // Take Object for generic error handling
-            Set<ConstraintViolation<Object>> violations = bazaarService.validate(requirementToCreate);
+            Set<ConstraintViolation<Object>> violations = bazaarService.validateCreate(requirementToCreate);
             if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
 
             // check if all categories are in the same project

@@ -27,6 +27,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreateValidation;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
@@ -317,6 +318,12 @@ public class BazaarService extends RESTService {
         return validator.validate(entity);
     }
 
+    public Set<ConstraintViolation<Object>> validateCreate(Object entity) {
+        Validator validator = validatorFactory.getValidator();
+        // Take Object for generic error handling
+        return validator.validate(entity, CreateValidation.class);
+    }
+
     public NotificationDispatcher getNotificationDispatcher() {
         return notificationDispatcher;
     }
@@ -351,8 +358,7 @@ public class BazaarService extends RESTService {
                         .emailLeadSubscription(true).emailFollowSubscription(true).personalizationEnabled(false).build();
                 user = dalFacade.createUser(user);
                 int userId = user.getId();
-                this.getNotificationDispatcher().dispatchNotification(user.getCreationDate(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_55,
-                        userId, Activity.DataType.USER, userId);
+                // this.getNotificationDispatcher().dispatchNotification(user.getCreationDate(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_55, userId, Activity.DataType.USER, userId);
                 dalFacade.addUserToRole(userId, "SystemAdmin", null);
             } else {
                 // update lastLoginDate

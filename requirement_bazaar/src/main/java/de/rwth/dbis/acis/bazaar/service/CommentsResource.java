@@ -355,7 +355,7 @@ public class CommentsResource {
             }
             commentToCreate.setCreator(dalFacade.getUserById(internalUserId));
             // Take Object for generic error handling
-            Set<ConstraintViolation<Object>> violations = bazaarService.validate(commentToCreate);
+            Set<ConstraintViolation<Object>> violations = bazaarService.validateCreate(commentToCreate);
             if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
 
             dalFacade.followRequirement(internalUserId, requirement.getId());

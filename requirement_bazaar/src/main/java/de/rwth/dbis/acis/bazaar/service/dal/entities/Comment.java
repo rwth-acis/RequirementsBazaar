@@ -23,6 +23,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreateValidation;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -35,13 +36,13 @@ public class Comment extends EntityBase {
 
     private int id;
 
-    @NotNull
+    @NotNull(groups = CreateValidation.class)
     private String message;
 
-    @Min(value = 0)
+    @Min(value = 0, groups = CreateValidation.class)
     private Integer replyToComment;
 
-    @Min(value = 0)
+    @Min(value = 0, groups = CreateValidation.class)
     private int requirementId;
 
     private User creator;

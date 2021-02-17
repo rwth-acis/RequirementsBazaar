@@ -245,7 +245,7 @@ public class CategoryResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
             // Take Object for generic error handling
-            Set<ConstraintViolation<Object>> violations = bazaarService.validate(categoryToCreate);
+            Set<ConstraintViolation<Object>> violations = bazaarService.validateCreate(categoryToCreate);
             if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
 
             dalFacade = bazaarService.getDBConnection();
