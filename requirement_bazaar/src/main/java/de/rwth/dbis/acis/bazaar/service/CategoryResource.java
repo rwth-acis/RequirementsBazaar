@@ -718,7 +718,7 @@ public class CategoryResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method returns the list of requirements for a specific category.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of requirements for a given project", response = Category.class, responseContainer = "List"),
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of requirements for a given project", response = Requirement.class, responseContainer = "List"),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
