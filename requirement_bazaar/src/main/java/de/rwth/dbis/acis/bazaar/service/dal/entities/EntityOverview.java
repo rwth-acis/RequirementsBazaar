@@ -24,6 +24,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.util.List;
 
@@ -73,7 +74,7 @@ public class EntityOverview {
     }
 
     public String toJSON() throws JsonProcessingException {
-        return new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL).writeValueAsString(this);
+        return new ObjectMapper().registerModule(new JavaTimeModule()).setSerializationInclusion(JsonInclude.Include.NON_NULL).writeValueAsString(this);
     }
 
     public static class Builder {

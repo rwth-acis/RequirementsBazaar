@@ -3,6 +3,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 /**
  * Created by hugif on 26.12.2016.
@@ -75,7 +76,7 @@ public class Statistic {
     }
 
     public String toJSON() throws JsonProcessingException {
-        return new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL).writeValueAsString(this);
+        return new ObjectMapper().registerModule(new JavaTimeModule()).setSerializationInclusion(JsonInclude.Include.NON_NULL).writeValueAsString(this);
     }
 
     public static Builder getBuilder() {
