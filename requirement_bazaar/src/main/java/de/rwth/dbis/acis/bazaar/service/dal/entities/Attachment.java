@@ -39,15 +39,15 @@ public class Attachment extends EntityBase {
     private String description;
 
     @NotNull(groups = CreateValidation.class)
-    @Size(min = 1, max = 10)
+    @Size(min = 1, max = 1000)
     private String mimeType;
 
     @NotNull(groups = CreateValidation.class)
-    @Size(min = 1, max = 10)
+    @Size(min = 1, max = 1000)
     private String identifier;
 
     @NotNull(groups = CreateValidation.class)
-    @Size(min = 1, max = 10)
+    @Size(min = 1, max = 1000)
     private String fileUrl;
 
     @Min(value = 0)
