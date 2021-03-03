@@ -2,7 +2,7 @@ on:
   push:
     # Sequence of patterns matched against refs/tags
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+-rc[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+-rc\.[0-9]+'
 
 name: Create Pre-Release
 
@@ -38,7 +38,7 @@ jobs:
             sleep 1
           done
       - name: Build release bundle with Gradle
-        run: ./gradlew packageDistribution -x test -Pservice.version=${{ steps.get_version.outputs.version-without-v }}
+        run: ./gradlew packageDistribution -x test #-Pservice.version=${{ steps.get_version.outputs.version-without-v }}
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
