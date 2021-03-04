@@ -27,6 +27,8 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
   return a list of categories instead of a list of
   requirements [#78](https://github.com/rwth-acis/RequirementsBazaar/pull/78)
 - Revised and automated release process [#78](https://github.com/rwth-acis/RequirementsBazaar/pull/78)
+- Split leading `+`/`-`from sort parameter in favour of a `sortDirection` (ASC/DESC)
+  parameter. [#82](https://github.com/rwth-acis/RequirementsBazaar/pull/82)
 
 ## [0.7.2] - 2017-10-25
 

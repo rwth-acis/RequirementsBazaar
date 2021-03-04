@@ -22,6 +22,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.helpers;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @since 6/12/2014
@@ -47,9 +48,17 @@ public interface Pageable {
         String field;
         SortDirection sortDirection;
 
-        public SortField(String field, SortDirection sortDirection) {
+        public SortField(String field, String sortDirection) {
             this.field = field;
-            this.sortDirection = sortDirection;
+
+            // Use Object.equals here for no extra null check (else should cover this)
+            if (Objects.equals(sortDirection, "ASC")) {
+                this.sortDirection = SortDirection.ASC;
+            } else if (Objects.equals(sortDirection, "DESC")) {
+                this.sortDirection = SortDirection.DESC;
+            } else {
+                this.sortDirection = SortDirection.DEFAULT;
+            }
         }
 
         public String getField() {

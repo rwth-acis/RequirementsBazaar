@@ -29,7 +29,7 @@ import java.util.*;
 @SwaggerDefinition(
         info = @Info(
                 title = "Requirements Bazaar",
-                version = "0.6",
+                version = "0.9.0",
                 description = "Requirements Bazaar project",
                 termsOfService = "http://requirements-bazaar.org",
                 contact = @Contact(
@@ -238,8 +238,9 @@ public class UsersResource {
     })
     public Response getEntityOverview(
             @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
-            @ApiParam(value = "Types of entities to include", required = true, allowMultiple = true, allowableValues = "projects,categories,requirements")  @QueryParam("include") List<String> include,
+            @ApiParam(value = "Types of entities to include", required = true, allowMultiple = true, allowableValues = "projects,categories,requirements") @QueryParam("include") List<String> include,
             @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("date") @QueryParam("sort") List<String> sort,
+            @ApiParam(value = "SortDirection", allowableValues = "ASC,DESC") @QueryParam("sortDirection") String sortDirection,
             @ApiParam(value = "Filter", required = false, allowMultiple = true, allowableValues = "created, following, developing") @DefaultValue("created") @QueryParam("filters") List<String> filters){
             //Possibly allow filtertype "all"?
         DALFacade dalFacade = null;
@@ -252,16 +253,7 @@ public class UsersResource {
             String userId = agent.getIdentifier();
             List<Pageable.SortField> sortList = new ArrayList<>();
             for (String sortOption : sort) {
-                Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
-                if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { // " " is needed because jersey does not pass "+"
-                    direction = Pageable.SortDirection.ASC;
-                    sortOption = sortOption.substring(1);
-
-                } else if (sortOption.startsWith("-")) {
-                    direction = Pageable.SortDirection.DESC;
-                    sortOption = sortOption.substring(1);
-                }
-                Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
+                Pageable.SortField sortField = new Pageable.SortField(sortOption, sortDirection);
                 sortList.add(sortField);
             }
 

@@ -28,7 +28,7 @@ import java.util.Set;
 @SwaggerDefinition(
         info = @Info(
                 title = "Requirements Bazaar",
-                version = "0.6",
+                version = "0.9.0",
                 description = "Requirements Bazaar project",
                 termsOfService = "http://requirements-bazaar.org",
                 contact = @Contact(
