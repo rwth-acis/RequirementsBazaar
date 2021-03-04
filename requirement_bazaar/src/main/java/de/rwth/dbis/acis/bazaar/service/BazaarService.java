@@ -22,6 +22,7 @@ package de.rwth.dbis.acis.bazaar.service;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
@@ -101,7 +102,7 @@ public class BazaarService extends RESTService {
     private DataSource dataSource;
 
     private final L2pLogger logger = L2pLogger.getInstance(BazaarService.class.getName());
-    private static ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    private static ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule()).setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     @Override
     protected void initResources() {

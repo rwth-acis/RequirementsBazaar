@@ -23,6 +23,7 @@ package de.rwth.dbis.acis.bazaar.service.exception;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 
 import javax.validation.ConstraintViolation;
@@ -39,7 +40,7 @@ public enum ExceptionHandler {
         return INSTANCE;
     }
 
-    ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule()).setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
     public BazaarException convert(Exception ex, ExceptionLocation location, ErrorCode errorCode, String message) {
         BazaarException bazaarException = new BazaarException(location);
