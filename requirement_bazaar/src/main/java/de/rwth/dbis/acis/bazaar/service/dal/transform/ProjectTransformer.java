@@ -111,13 +111,12 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
             switch (sort.getField()) {
                 case "name":
                     switch (sort.getSortDirection()) {
-                        case ASC:
-                            sortFields.add(PROJECT.NAME.asc());
-                            break;
                         case DESC:
+                            sortFields.add(PROJECT.NAME.length().desc());
                             sortFields.add(PROJECT.NAME.desc());
                             break;
                         default:
+                            sortFields.add(PROJECT.NAME.length().asc());
                             sortFields.add(PROJECT.NAME.asc());
                             break;
                     }

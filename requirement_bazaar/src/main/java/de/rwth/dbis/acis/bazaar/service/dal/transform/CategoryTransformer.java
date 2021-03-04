@@ -106,13 +106,12 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
             switch (sort.getField()) {
                 case "name":
                     switch (sort.getSortDirection()) {
-                        case ASC:
-                            sortFields.add(CATEGORY.NAME.asc());
-                            break;
                         case DESC:
+                            sortFields.add(CATEGORY.NAME.length().desc());
                             sortFields.add(CATEGORY.NAME.desc());
                             break;
                         default:
+                            sortFields.add(CATEGORY.NAME.length().asc());
                             sortFields.add(CATEGORY.NAME.asc());
                             break;
                     }
