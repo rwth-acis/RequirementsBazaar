@@ -142,13 +142,14 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
                 if (privilegeEntry.getKey() == null) continue;
                 Result<Record> privileges = privilegeEntry.getValue();
 
-                Privilege privilege = Privilege.getBuilder(new PrivilegeEnumConverter().from(privileges.getValues(privilegeTable.NAME).get(0)))
+                Privilege privilege = Privilege.builder().name(new PrivilegeEnumConverter().from(privileges.getValues(privilegeTable.NAME).get(0)))
                         .id(privileges.getValues(privilegeTable.ID).get(0))
                         .build();
                 rolesToAddPrivileges.add(privilege);
             }
 
-            Role roleToAdd = Role.getBuilder(records.getValues(roleTable.NAME).get(0))
+            Role roleToAdd = Role.builder()
+                    .name(records.getValues(roleTable.NAME).get(0))
                     .id(records.getValues(roleTable.ID).get(0))
                     .privileges(rolesToAddPrivileges)
                     .build();

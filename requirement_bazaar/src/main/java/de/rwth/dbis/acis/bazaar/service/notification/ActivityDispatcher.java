@@ -44,7 +44,7 @@ public class ActivityDispatcher {
         try {
             dalFacade = bazaarService.getDBConnection();
 
-            Activity.Builder activityBuilder = Activity.getBuilder();
+            Activity.Builder activityBuilder = Activity.builder();
             activityBuilder = activityBuilder.creationDate(creationDate);
             activityBuilder = activityBuilder.activityAction(activityAction);
 
@@ -111,7 +111,7 @@ public class ActivityDispatcher {
             }
             activityBuilder = activityBuilder.userUrl(baseURL + "users" + "/" + String.valueOf(userId));
             activityBuilder = activityBuilder.origin(activityOrigin);
-            activityBuilder = activityBuilder.addititionalObject(additionalObject);
+            activityBuilder = activityBuilder.additionalObject(additionalObject);
             Activity activity = activityBuilder.build();
 
             FilterProvider filters =

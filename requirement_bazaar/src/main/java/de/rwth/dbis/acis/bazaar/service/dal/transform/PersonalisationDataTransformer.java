@@ -49,7 +49,7 @@ public class PersonalisationDataTransformer implements Transformer<Personalisati
 
     @Override
     public PersonalisationData getEntityFromTableRecord(PersonalisationDataRecord record) {
-        return PersonalisationData.getBuilder()
+        return PersonalisationData.builder()
                 .id(record.getId())
                 .userId(record.getUserId())
                 .version(record.getVersion())

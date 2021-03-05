@@ -5,6 +5,10 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreateValidation;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.UserVote;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.extern.jackson.Jacksonized;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -15,6 +19,10 @@ import java.util.List;
 /**
  * Requirement entity
  */
+@EqualsAndHashCode(callSuper = true)
+@Data
+@Jacksonized
+@Builder(builderClassName = "Builder")
 public class Requirement extends EntityBase {
 
     private int id;
@@ -64,150 +72,6 @@ public class Requirement extends EntityBase {
     @JsonProperty("_context")
     private EntityContext context;
 
-    public Requirement() {
-    }
-
-    protected Requirement(Builder builder) {
-        this.id = builder.id;
-        this.name = builder.name;
-        this.description = builder.description;
-        this.realized = builder.realized;
-        this.projectId = builder.projectId;
-        this.creator = builder.creator;
-        this.leadDeveloper = builder.leadDeveloper;
-        this.creationDate = builder.creationDate;
-        this.lastUpdatedDate = builder.lastUpdatedDate;
-        this.upVotes = builder.upVotes;
-        this.downVotes = builder.downVotes;
-        this.userVoted = builder.userVoted;
-        this.isFollower = builder.isFollower;
-        this.isDeveloper = builder.isDeveloper;
-        this.isContributor = builder.isContributor;
-        this.context = builder.context;
-    }
-
-    /**
-     * Builder to easily build Requirement objects
-     *
-     * @param name Name field will be initialized using the passed value
-     * @return a builder with name returned
-     */
-    public static Builder getBuilder(String name) {
-        return new Builder(name);
-    }
-
-    public LocalDateTime getRealized() {
-        return realized;
-    }
-
-    public LocalDateTime getCreationDate() {
-        return creationDate;
-    }
-
-    public LocalDateTime getLastUpdatedDate() {
-        return lastUpdatedDate;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public List<Category> getCategories() {
-        return categories;
-    }
-
-    public void setCategories(List<Category> categories) {
-        this.categories = categories;
-    }
-
-    public List<Attachment> getAttachments() {
-        return attachments;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public int getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(int projectId) {
-        this.projectId = projectId;
-    }
-
-    public User getCreator() {
-        return creator;
-    }
-
-    public void setCreator(User creator) {
-        this.creator = creator;
-    }
-
-    public User getLeadDeveloper() {
-        return leadDeveloper;
-    }
-
-    public void setFollower(Boolean follower) {
-        isFollower = follower;
-    }
-
-    public void setDeveloper(Boolean developer) {
-        isDeveloper = developer;
-    }
-
-    public void setContributor(Boolean contributor) {
-        isContributor = contributor;
-    }
-
-    public Integer getNumberOfComments() {
-        return numberOfComments;
-    }
-
-    public void setNumberOfComments(Integer numberOfComments) {
-        this.numberOfComments = numberOfComments;
-    }
-
-    public Integer getNumberOfAttachments() {
-        return numberOfAttachments;
-    }
-
-    public void setNumberOfAttachments(Integer numberOfAttachments) {
-        this.numberOfAttachments = numberOfAttachments;
-    }
-
-    public Integer getNumberOfFollowers() {
-        return numberOfFollowers;
-    }
-
-    public void setNumberOfFollowers(Integer numberOfFollowers) {
-        this.numberOfFollowers = numberOfFollowers;
-    }
-
-    public int getUpVotes() {
-        return upVotes;
-    }
-
-    public int getDownVotes() {
-        return downVotes;
-    }
-
-    public UserVote getUserVoted() {
-        return userVoted;
-    }
-
     @JsonProperty("isFollower")
     public Boolean isFollower() {
         return isFollower;
@@ -221,124 +85,5 @@ public class Requirement extends EntityBase {
     @JsonProperty("isContributor")
     public Boolean isContributor() {
         return isContributor;
-    }
-
-    public EntityContext getContext() { return context; }
-    public void setContext(EntityContext context){
-        this.context = context;
-    }
-
-    public static class Builder {
-        private int id;
-        private String description;
-        private String name;
-        private LocalDateTime realized;
-        private int projectId;
-        private LocalDateTime creationDate;
-        private LocalDateTime lastUpdatedDate;
-        private int upVotes;
-        private int downVotes;
-        private UserVote userVoted;
-        private User creator;
-        private User leadDeveloper;
-        private Boolean isFollower;
-        private Boolean isDeveloper;
-        private Boolean isContributor;
-        private EntityContext context;
-
-        public Builder(String name) {
-            this.name = name;
-        }
-
-        public Builder description(String description) {
-            this.description = description;
-            return this;
-        }
-
-        public Builder id(int id) {
-            this.id = id;
-            return this;
-        }
-
-        /**
-         * Call this to create a Requirement object with the values previously set in the builder.
-         *
-         * @return initialized Requirement object
-         */
-        public Requirement build() {
-            Requirement created = new Requirement(this);
-
-            String name = created.getName();
-
-            if (name == null || name.length() == 0) {
-                throw new IllegalStateException("name cannot be null or empty");
-            }
-
-            return created;
-        }
-
-        public Builder projectId(int projectId) {
-            this.projectId = projectId;
-            return this;
-        }
-
-        public Builder realized(LocalDateTime realized) {
-            this.realized = realized;
-            return this;
-        }
-
-        public Builder creationDate(LocalDateTime creationDate) {
-            this.creationDate = creationDate;
-            return this;
-        }
-
-        public Builder lastUpdatedDate(LocalDateTime lastUpdatedDate) {
-            this.lastUpdatedDate = lastUpdatedDate;
-            return this;
-        }
-
-        public Builder upVotes(int upVotes) {
-            this.upVotes = upVotes;
-            return this;
-        }
-
-        public Builder downVotes(int downVotes) {
-            this.downVotes = downVotes;
-            return this;
-        }
-
-        public Builder userVoted(UserVote userVoted) {
-            this.userVoted = userVoted;
-            return this;
-        }
-
-        public Requirement.Builder creator(User creator) {
-            this.creator = creator;
-            return this;
-        }
-
-        public Requirement.Builder leadDeveloper(User leadDeveloper) {
-            this.leadDeveloper = leadDeveloper;
-            return this;
-        }
-
-        public Requirement.Builder isFollower(Boolean isFollower) {
-            this.isFollower = isFollower;
-            return this;
-        }
-
-        public Requirement.Builder isDeveloper(Boolean isDeveloper) {
-            this.isDeveloper = isDeveloper;
-            return this;
-        }
-
-        public Requirement.Builder isContributor(Boolean isContributor) {
-            this.isContributor = isContributor;
-            return this;
-        }
-        public Builder context(EntityContext context){
-            this.context = context;
-            return this;
-        }
     }
 }

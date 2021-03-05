@@ -51,7 +51,8 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
 
     @Override
     public Comment getEntityFromTableRecord(CommentRecord record) {
-        return Comment.getBuilder(record.getMessage())
+        return Comment.builder()
+                .message(record.getMessage())
                 .id(record.getId())
                 .requirementId(record.getRequirementId())
                 .replyToComment(record.getReplyToCommentId())

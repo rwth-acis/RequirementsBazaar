@@ -25,12 +25,18 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
 
 import java.util.List;
 
 /**
  * @since 22/01/2020
  */
+@Data
+@Jacksonized
+@Builder(builderClassName = "Builder")
 public class EntityOverview {
 
     private List<Integer> projects;
@@ -39,78 +45,7 @@ public class EntityOverview {
     private List<Integer> comments;
     private List<Integer> attachments;
 
-    public EntityOverview() {
-    }
-
-    public EntityOverview(Builder builder) {
-        this.projects = builder.projects;
-        this.categories = builder.categories;
-        this.requirements = builder.requirements;
-        this.comments = builder.comments;
-        this.attachments = builder.attachments;
-
-    }
-
-
-    public List<Integer> getProjects() {
-        return projects;
-    }
-
-    public List<Integer> getCategories() {
-        return categories;
-    }
-
-    public List<Integer> getRequirements() {
-        return requirements;
-    }
-
-    public List<Integer> getComments() {
-        return comments;
-    }
-
-
-    public static Builder getBuilder() {
-        return new Builder();
-    }
-
     public String toJSON() throws JsonProcessingException {
         return new ObjectMapper().registerModule(new JavaTimeModule()).setSerializationInclusion(JsonInclude.Include.NON_NULL).writeValueAsString(this);
-    }
-
-    public static class Builder {
-        private List<Integer> projects;
-        private List<Integer> categories;
-        private List<Integer> requirements;
-        private List<Integer> comments;
-        private List<Integer> attachments;
-
-
-        public Builder projects(List<Integer> projects) {
-            this.projects = projects;
-            return this;
-        }
-
-        public Builder categories(List<Integer> categories) {
-            this.categories = categories;
-            return this;
-        }
-
-        public Builder requirements(List<Integer> requirements) {
-            this.requirements = requirements;
-            return this;
-        }
-        public Builder attachments(List<Integer> attachments) {
-            this.attachments = attachments;
-            return this;
-        }
-
-        public Builder comments(List<Integer> comments) {
-            this.comments = comments;
-            return this;
-        }
-
-        public EntityOverview build() {
-            return new EntityOverview(this);
-        }
     }
 }

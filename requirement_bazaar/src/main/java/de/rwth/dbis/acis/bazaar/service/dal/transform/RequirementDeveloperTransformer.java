@@ -43,7 +43,7 @@ public class RequirementDeveloperTransformer implements Transformer<RequirementD
 
     @Override
     public RequirementDeveloper getEntityFromTableRecord(RequirementDeveloperMapRecord record) {
-        return RequirementDeveloper.getBuilder()
+        return RequirementDeveloper.builder()
                 .id(record.getId())
                 .userId(record.getUserId())
                 .requirementId(record.getRequirementId())

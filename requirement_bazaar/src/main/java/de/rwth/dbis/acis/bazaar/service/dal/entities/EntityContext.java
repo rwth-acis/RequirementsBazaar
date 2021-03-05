@@ -25,10 +25,16 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.jackson.Jacksonized;
 
 /**
  * @since 30/01/2020
  */
+@Data
+@Jacksonized
+@Builder(builderClassName = "Builder")
 public class EntityContext {
     private User user;
     private Project project;
@@ -36,75 +42,7 @@ public class EntityContext {
     private Requirement requirement;
     private Comment comment;
 
-    public EntityContext() {
-    }
-
-    public EntityContext(Builder builder) {
-        this.user           = builder.user;
-        this.project        = builder.project;
-        this.categories       = builder.categories;
-        this.requirement    = builder.requirement;
-        this.comment        = builder.comment;
-    }
-
-
-    public Project getProject() { return project; }
-
-    public Category[] getCategory() {
-        return categories;
-    }
-
-    public Requirement getRequirement() {
-        return requirement;
-    }
-
-    public Comment getComment() {
-        return comment;
-    }
-
-
-    public static Builder getBuilder() {
-        return new Builder();
-    }
-
     public String toJSON() throws JsonProcessingException {
         return new ObjectMapper().registerModule(new JavaTimeModule()).setSerializationInclusion(JsonInclude.Include.NON_NULL).writeValueAsString(this);
-    }
-
-    public static class Builder {
-        private User user;
-        private Project project;
-        private Category[] categories;
-        private Requirement requirement;
-        private Comment comment;
-
-
-        public Builder project(Project project) {
-            this.project = project;
-            return this;
-        }
-
-        public Builder category(Category[] categories) {
-            this.categories = categories;
-            return this;
-        }
-
-        public Builder requirement(Requirement requirement) {
-            this.requirement = requirement;
-            return this;
-        }
-        public Builder attachment(User user) {
-            this.user = user;
-            return this;
-        }
-
-        public Builder comment(Comment comment) {
-            this.comment = comment;
-            return this;
-        }
-
-        public EntityContext build() {
-            return new EntityContext(this);
-        }
     }
 }

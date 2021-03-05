@@ -3,9 +3,18 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NonNull;
+import lombok.extern.jackson.Jacksonized;
 
 import java.time.LocalDateTime;
 
+@EqualsAndHashCode(callSuper = true)
+@Data
+@Jacksonized
+@Builder(builderClassName = "Builder")
 public class Activity extends EntityBase {
 
     private final transient int id;
@@ -24,68 +33,10 @@ public class Activity extends EntityBase {
 
     private AdditionalObject additionalObject;
 
-    private Activity(Builder builder) {
-        this.id = builder.id;
-        this.creationDate = builder.creationDate;
-        this.activityAction = builder.activityAction;
-        this.dataUrl = builder.dataUrl;
-        this.dataType = builder.dataType;
-        this.dataFrontendUrl = builder.dataFrontendUrl;
-        this.parentDataUrl = builder.parentDataUrl;
-        this.parentDataType = builder.parentDataType;
-        this.userUrl = builder.userUrl;
-        this.origin = builder.origin;
-        this.additionalObject = builder.additionalObject;
-    }
-
-    public static Builder getBuilder() {
-        return new Builder();
-    }
-
     @Override
     @JsonIgnore
     public int getId() {
         return id;
-    }
-
-    public LocalDateTime getCreationDate() {
-        return creationDate;
-    }
-
-    public ActivityAction getActivityAction() {
-        return activityAction;
-    }
-
-    public String getDataUrl() {
-        return dataUrl;
-    }
-
-    public DataType getDataType() {
-        return dataType;
-    }
-
-    public String getDataFrontendUrl() {
-        return dataFrontendUrl;
-    }
-
-    public String getParentDataUrl() {
-        return parentDataUrl;
-    }
-
-    public DataType getParentDataType() {
-        return parentDataType;
-    }
-
-    public String getUserUrl() {
-        return userUrl;
-    }
-
-    public String getOrigin() {
-        return origin;
-    }
-
-    public AdditionalObject getAdditionalObject() {
-        return additionalObject;
     }
 
     public enum DataType {
@@ -116,109 +67,22 @@ public class Activity extends EntityBase {
         UNLEADDEVELOP
     }
 
-    public static class Builder {
-
-        protected int id;
-        protected LocalDateTime creationDate;
-        protected ActivityAction activityAction;
-        protected String dataUrl;
-        protected DataType dataType;
-        protected String dataFrontendUrl;
-        protected String parentDataUrl;
-        protected DataType parentDataType;
-        protected String userUrl;
-        protected String origin;
-        protected AdditionalObject additionalObject;
-
-        public Builder creationDate(LocalDateTime creationDate) {
-            this.creationDate = creationDate;
-            return this;
-        }
-
-        public Builder activityAction(ActivityAction activityAction) {
-            this.activityAction = activityAction;
-            return this;
-        }
-
-        public Builder dataUrl(String dataUrl) {
-            this.dataUrl = dataUrl;
-            return this;
-        }
-
-        public Builder dataType(DataType dataType) {
-            this.dataType = dataType;
-            return this;
-        }
-
-        public Builder dataFrontendUrl(String dataFrontendUrl) {
-            this.dataFrontendUrl = dataFrontendUrl;
-            return this;
-        }
-
-        public Builder parentDataUrl(String parentDataUrl) {
-            this.parentDataUrl = parentDataUrl;
-            return this;
-        }
-
-        public Builder parentDataType(DataType parentDataType) {
-            this.parentDataType = parentDataType;
-            return this;
-        }
-
-        public Builder userUrl(String userUrl) {
-            this.userUrl = userUrl;
-            return this;
-        }
-
-        public Builder origin(String origin) {
-            this.origin = origin;
-            return this;
-        }
-
-        public Builder addititionalObject(AdditionalObject additionalObject) {
-            this.additionalObject = additionalObject;
-            return this;
-        }
-
-        public Activity build() {
-            return new Activity(this);
-        }
-    }
-
+    @Data
     public static class AdditionalObject {
         @JsonFilter("ActivityFilter")
+        @NonNull
         private Project project;
 
         @JsonFilter("ActivityFilter")
+        @NonNull
         private Category category;
 
         @JsonFilter("ActivityFilter")
+        @NonNull
         private Requirement requirement;
 
         @JsonFilter("ActivityFilter")
+        @NonNull
         private User user;
-
-        public Project getProject() {
-            return project;
-        }
-
-        public Category getCategory() {
-            return category;
-        }
-
-        public Requirement getRequirement() {
-            return requirement;
-        }
-
-        public User getUser() {
-            return user;
-        }
-
-        public AdditionalObject(Project project, Category category, Requirement requirement, User user) {
-            this.project = project;
-            this.category = category;
-            this.requirement = requirement;
-            this.user = user;
-        }
     }
 }

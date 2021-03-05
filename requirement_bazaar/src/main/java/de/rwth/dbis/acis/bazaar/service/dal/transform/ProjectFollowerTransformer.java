@@ -21,7 +21,7 @@ public class ProjectFollowerTransformer implements Transformer<ProjectFollower, 
 
     @Override
     public ProjectFollower getEntityFromTableRecord(ProjectFollowerMapRecord record) {
-        return ProjectFollower.getBuilder()
+        return ProjectFollower.builder()
                 .id(record.getId())
                 .userId(record.getUserId())
                 .projectId(record.getProjectId())

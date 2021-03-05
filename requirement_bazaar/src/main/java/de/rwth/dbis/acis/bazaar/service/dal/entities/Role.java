@@ -20,67 +20,26 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.extern.jackson.Jacksonized;
+
 import java.util.List;
 
 /**
  * @since 2/17/2015
  */
+@EqualsAndHashCode(callSuper = true)
+@Data
+@Jacksonized
+@Builder(builderClassName = "Builder")
 public class Role extends EntityBase {
 
-    private final int Id;
+    private final int id;
 
     private final List<Privilege> privileges;
 
 
     private final String name;
-
-    private Role(Builder builder) {
-        Id = builder.id;
-        this.privileges = builder.privileges;
-
-        this.name = builder.name;
-    }
-
-    @Override
-    public int getId() {
-        return Id;
-    }
-
-    public List<Privilege> getPrivileges() {
-        return privileges;
-    }
-
-
-    public String getName() {
-        return name;
-    }
-
-    public static Builder getBuilder(String name) {
-        return new Builder(name);
-    }
-
-    public static class Builder {
-        private String name;
-        private int id;
-        private List<Privilege> privileges;
-
-
-        public Builder(String name) {
-            this.name = name;
-        }
-
-        public Builder id(int id) {
-            this.id = id;
-            return this;
-        }
-
-        public Builder privileges(List<Privilege> privileges) {
-            this.privileges = privileges;
-            return this;
-        }
-
-        public Role build() {
-            return new Role(this);
-        }
-    }
 }

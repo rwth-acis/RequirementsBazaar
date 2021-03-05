@@ -53,7 +53,8 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
 
     @Override
     public Category getEntityFromTableRecord(CategoryRecord record) {
-        return Category.getBuilder(record.getName())
+        return Category.builder()
+                .name(record.getName())
                 .description(record.getDescription())
                 .projectId(record.getProjectId())
                 .id(record.getId())

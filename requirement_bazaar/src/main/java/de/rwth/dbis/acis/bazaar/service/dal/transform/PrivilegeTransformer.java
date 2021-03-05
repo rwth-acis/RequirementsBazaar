@@ -44,7 +44,8 @@ public class PrivilegeTransformer implements Transformer<Privilege, PrivilegeRec
 
     @Override
     public Privilege getEntityFromTableRecord(PrivilegeRecord record) {
-        return Privilege.getBuilder(new PrivilegeEnumConverter().from(record.getName()))
+        return Privilege.builder()
+                .name(new PrivilegeEnumConverter().from(record.getName()))
                 .id(record.getId())
                 .build();
     }

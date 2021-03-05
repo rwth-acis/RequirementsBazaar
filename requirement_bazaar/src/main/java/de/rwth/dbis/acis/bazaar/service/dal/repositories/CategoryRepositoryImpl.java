@@ -137,7 +137,8 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                         ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
             }
 
-            Category.Builder builder = Category.getBuilder(queryResult.getValues(CATEGORY.NAME).get(0))
+            Category.Builder builder = Category.builder()
+                    .name(queryResult.getValues(CATEGORY.NAME).get(0))
                     .description(queryResult.getValues(CATEGORY.DESCRIPTION).get(0))
                     .projectId(queryResult.getValues(CATEGORY.PROJECT_ID).get(0))
                     .id(queryResult.getValues(CATEGORY.ID).get(0))
@@ -154,7 +155,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
             category.setNumberOfRequirements((Integer) queryResult.getValues(REQUIREMENT_COUNT).get(0));
             category.setNumberOfFollowers((Integer) queryResult.getValues(FOLLOWER_COUNT).get(0));
             if (userId != 1) {
-                category.setFollower((Integer) queryResult.getValues(isFollower).get(0) == 0 ? false : true);
+                category.setIsFollower(0 != (Integer) queryResult.getValues(isFollower).get(0));
             }
 
         } catch (BazaarException be) {
@@ -209,7 +210,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                 category.setNumberOfRequirements((Integer) queryResult.getValue(REQUIREMENT_COUNT));
                 category.setNumberOfFollowers((Integer) queryResult.getValue(FOLLOWER_COUNT));
                 if (userId != 1) {
-                    category.setFollower((Integer) queryResult.getValue(isFollower) == 0 ? false : true);
+                    category.setIsFollower(0 != (Integer) queryResult.getValue(isFollower));
                 }
                 categories.add(category);
             }
@@ -276,7 +277,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                 category.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
                 category.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
                 if (userId != 1) {
-                    category.setFollower((Integer) queryResult.getValue(isFollower) == 0 ? false : true);
+                    category.setIsFollower(0 != (Integer) queryResult.getValue(isFollower));
                 }
                 categories.add(category);
             }
@@ -354,7 +355,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                 category.setNumberOfRequirements((Integer) queryResult.getValue(REQUIREMENT_COUNT));
                 category.setNumberOfFollowers((Integer) queryResult.getValue(FOLLOWER_COUNT));
                 if (userId != 1) {
-                    category.setFollower((Integer) queryResult.getValue(isFollower) == 0 ? false : true);
+                    category.setIsFollower((Integer) queryResult.getValue(isFollower) != 0);
                 }
                 categories.add(category);
             }
@@ -432,7 +433,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                     .where(CATEGORY.ID.eq(categoryId))
                     .fetchOne();
 
-            result = Statistic.getBuilder()
+            result = Statistic.builder()
                     .numberOfProjects((Integer) record1.get("numberOfProjects"))
                     .numberOfCategories((Integer) record2.get("numberOfCategories"))
                     .numberOfRequirements((Integer) record3.get("numberOfRequirements"))

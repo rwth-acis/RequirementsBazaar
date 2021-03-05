@@ -22,14 +22,14 @@ import java.util.concurrent.Executors;
 public class EmailDispatcher {
 
     private final L2pLogger logger = L2pLogger.getInstance(EmailDispatcher.class.getName());
-    private String smtpServer;
-    private String emailFromAddress;
-    private BazaarService bazaarService;
-    private String frontendBaseURL;
-    private String emailSummaryTimePeriodInMinutes;
-    private Map<Integer, List<Email>> notificationSummery;
+    private final String smtpServer;
+    private final String emailFromAddress;
+    private final BazaarService bazaarService;
+    private final String frontendBaseURL;
+    private final String emailSummaryTimePeriodInMinutes;
+    private final Map<Integer, List<Email>> notificationSummery;
 
-    private ExecutorService executorService = Executors.newCachedThreadPool();
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     public EmailDispatcher(BazaarService bazaarService, String smtpServer, String emailFromAddress, String frontendBaseURL, String emailSummaryTimePeriodInMinutes) throws Exception {
         this.smtpServer = smtpServer;
@@ -75,7 +75,7 @@ public class EmailDispatcher {
                     notificationSummery.put(recipient.getId(), new ArrayList<>());
                 } else if (!emailSummaryTimePeriodInMinutes.isEmpty()) {
                     //if user has notificationsummery, add this email to it and remove from recipient
-                    notificationSummery.get(recipient.getId()).add(new Email.Builder(email).recipients(new HashSet<>(Arrays.asList(recipient))).build());
+                    notificationSummery.get(recipient.getId()).add(email.toBuilder().recipients(new HashSet<>(Arrays.asList(recipient))).build());
                     recipientsIterator.remove();
                     email.removeRecipient(recipient);
                 }
@@ -92,11 +92,11 @@ public class EmailDispatcher {
     private Email generateEmail(List<User> recipients, LocalDateTime creationDate, Activity.ActivityAction activityAction,
                                 int dataId, Activity.DataType dataType, Activity.AdditionalObject additionalObject) throws Exception {
         DALFacade dalFacade = bazaarService.getDBConnection();
-        String subject = new String();
-        String bodyText = new String();
+        String subject = "";
+        String bodyText = "";
         String objectName;
-        String resourcePath = new String();
-        String activity = new String();
+        String resourcePath = "";
+        String activity = "";
         if (activityAction == Activity.ActivityAction.CREATE) {
             activity = Localization.getInstance().getResourceBundle().getString("email.bodyText.created");
             subject = Localization.getInstance().getResourceBundle().getString("email.subject.New");
@@ -111,7 +111,7 @@ public class EmailDispatcher {
         if (dataType == Activity.DataType.PROJECT) {
             Project project = additionalObject.getProject();
             objectName = project.getName();
-            resourcePath = "projects" + "/" + String.valueOf(dataId);
+            resourcePath = "projects" + "/" + dataId;
             subject = subject.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.project") + ": " + (objectName.length() > 40 ? objectName.substring(0, 39) : objectName));
             bodyText = bodyText.concat(Localization.getInstance().getResourceBundle().getString("email.bodyText.user") + " " + additionalObject.getUser().getUserName());
             bodyText = bodyText.concat(" " + activity);
@@ -123,7 +123,7 @@ public class EmailDispatcher {
         } else if (dataType == Activity.DataType.CATEGORY) {
             Category category = additionalObject.getCategory();
             objectName = category.getName();
-            resourcePath = "projects" + "/" + category.getProjectId() + "/" + "categories" + "/" + String.valueOf(dataId);
+            resourcePath = "projects" + "/" + category.getProjectId() + "/" + "categories" + "/" + dataId;
             subject = subject.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.category") + ": " + (objectName.length() > 40 ? objectName.substring(0, 39) : objectName));
             bodyText = bodyText.concat(Localization.getInstance().getResourceBundle().getString("email.bodyText.user") + " " + additionalObject.getUser().getUserName());
             bodyText = bodyText.concat(" " + activity);
@@ -139,7 +139,7 @@ public class EmailDispatcher {
             Requirement requirement = additionalObject.getRequirement();
             objectName = requirement.getName();
             resourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
-                    requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(dataId);
+                    requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + dataId;
             subject = subject.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.requirement") + ": " + (objectName.length() > 40 ? objectName.substring(0, 39) : objectName));
             bodyText = bodyText.concat(Localization.getInstance().getResourceBundle().getString("email.bodyText.user") + " " + additionalObject.getUser().getUserName());
             bodyText = bodyText.concat(" " + activity);
@@ -156,7 +156,7 @@ public class EmailDispatcher {
             Requirement requirement = additionalObject.getRequirement();
             objectName = requirement.getName();
             resourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
-                    requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
+                    requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + requirement.getId();
             subject = subject.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.comment") + " "
                     + Localization.getInstance().getResourceBundle().getString("email.bodyText.for") + " "
                     + Localization.getInstance().getResourceBundle().getString("email.bodyText.requirement") + ": " + (objectName.length() > 40 ? objectName.substring(0, 39) : objectName));
@@ -172,7 +172,7 @@ public class EmailDispatcher {
             Requirement requirement = additionalObject.getRequirement();
             objectName = requirement.getName();
             resourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
-                    requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
+                    requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + requirement.getId();
             subject = subject.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.attachment") + " "
                     + Localization.getInstance().getResourceBundle().getString("email.bodyText.for") + " "
                     + Localization.getInstance().getResourceBundle().getString("email.bodyText.requirement") + ": " + (objectName.length() > 40 ? objectName.substring(0, 39) : objectName));
@@ -192,7 +192,7 @@ public class EmailDispatcher {
                 Localization.getInstance().getResourceBundle().getString("email.bodyText.bestWishes");
         String footer = Localization.getInstance().getResourceBundle().getString("email.bodyText.footer");
 
-        Email.Builder emailBuilder = new Email.Builder();
+        Email.Builder emailBuilder = Email.builder();
         emailBuilder.recipients(new HashSet<>(recipients));
         emailBuilder.subject(subject);
         emailBuilder.starting(greeting + "\r\n\r\n" + news);
@@ -237,7 +237,7 @@ public class EmailDispatcher {
                         notificationIterator.remove();
                     }
 
-                    Email.Builder emailBuilder = new Email.Builder();
+                    Email.Builder emailBuilder = Email.builder();
                     emailBuilder.recipients(new HashSet<>(Arrays.asList(user)));
                     emailBuilder.subject(subject);
                     emailBuilder.starting(greeting);

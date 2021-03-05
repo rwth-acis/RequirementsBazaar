@@ -20,53 +20,21 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.extern.jackson.Jacksonized;
+
 /**
  * @since 2/17/2015
  */
+@EqualsAndHashCode(callSuper = true)
+@Data
+@Jacksonized
+@Builder(builderClassName = "Builder")
 public class Privilege extends EntityBase {
 
-    private final int Id;
+    private final int id;
 
     private final PrivilegeEnum name;
-
-    private Privilege(Builder builder) {
-        Id = builder.id;
-        this.name = builder.name;
-    }
-
-    @Override
-    public int getId() {
-        return Id;
-    }
-
-    public PrivilegeEnum getName() {
-        return name;
-    }
-
-    public static Builder getBuilder(PrivilegeEnum privilege) {
-        return new Builder(privilege);
-    }
-
-    public static class Builder {
-        private int id;
-        private PrivilegeEnum name;
-
-        public Builder(PrivilegeEnum privilege) {
-            this.name = privilege;
-        }
-
-        public Builder id(int id) {
-            this.id = id;
-            return this;
-        }
-
-        public Builder name(PrivilegeEnum name) {
-            this.name = name;
-            return this;
-        }
-
-        public Privilege build() {
-            return new Privilege(this);
-        }
-    }
 }

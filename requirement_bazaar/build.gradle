@@ -20,6 +20,7 @@ plugins {
     id 'idea'
     id "org.flywaydb.flyway" version "7.3.2"
     id "nu.studer.jooq" version "5.2"
+    id "io.freefair.lombok" version "5.3.0"
 }
 
 application {

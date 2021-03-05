@@ -79,7 +79,8 @@ public class DALFacadeTest {
         try {
             initUser = facade.getUserById(facade.getUserIdByLAS2PeerId("1111"));
         } catch (Exception e) {
-            initUser = User.getBuilder("test@test.hu")
+            initUser = User.builder()
+                    .eMail("test@test.hu")
                     .firstName("Elek")
                     .lastName("Test")
                     .userName("TestElek")
@@ -95,7 +96,7 @@ public class DALFacadeTest {
     @Test
     public void testCreateUser() {
         try {
-            facade.createUser(User.getBuilder("unittest@test.hu").firstName("Max").lastName("Zimmermann").admin(false).las2peerId("9999").userName("MaxZim").personalizationEnabled(false).emailFollowSubscription(false).emailLeadSubscription(false).build());
+            facade.createUser(User.builder().eMail("unittest@test.hu").firstName("Max").lastName("Zimmermann").admin(false).las2peerId("9999").userName("MaxZim").personalizationEnabled(false).emailFollowSubscription(false).emailLeadSubscription(false).build());
 
             Integer userId = facade.getUserIdByLAS2PeerId("9999");
             User user = facade.getUserById(userId);
@@ -128,7 +129,7 @@ public class DALFacadeTest {
 
     @Test
     public void testCreateGetProject() throws Exception {
-        Project project = Project.getBuilder("Project3").description("ProjDesc3").id(1).leader(initUser).visibility(true).isFollower(false).build();
+        Project project = Project.builder().name("Project3").description("ProjDesc3").id(1).leader(initUser).visibility(true).isFollower(false).build();
 
         facade.createProject(project, initUser.getId());
 

@@ -44,7 +44,7 @@ public class VoteTransformer implements Transformer<Vote, VoteRecord> {
 
     @Override
     public Vote getEntityFromTableRecord(VoteRecord record) {
-        return Vote.getBuilder()
+        return Vote.builder()
                 .id(record.getId())
                 .userId(record.getUserId())
                 .requirementId(record.getRequirementId())
@@ -69,7 +69,7 @@ public class VoteTransformer implements Transformer<Vote, VoteRecord> {
 
     @Override
     public Map<Field, Object> getUpdateMap(final Vote entity) {
-        return new HashMap<Field, Object>() {{
+        return new HashMap<>() {{
             put(VOTE.IS_UPVOTE, entity.isUpvote());
             put(VOTE.REQUIREMENT_ID, entity.getRequirementId());
             put(VOTE.USER_ID, entity.getUserId());

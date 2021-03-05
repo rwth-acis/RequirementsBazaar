@@ -44,6 +44,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
 import static org.jooq.impl.DSL.*;
@@ -383,7 +384,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             }
 
             //Filling up Requirement fields
-            Requirement.Builder builder = Requirement.getBuilder(queryResult.getValues(REQUIREMENT.NAME).get(0));
+            Requirement.Builder builder = Requirement.builder().name(queryResult.getValues(REQUIREMENT.NAME).get(0));
             builder.id(queryResult.getValues(REQUIREMENT.ID).get(0))
                     .description(queryResult.getValues(REQUIREMENT.DESCRIPTION).get(0))
                     .realized(queryResult.getValues(REQUIREMENT.REALIZED).get(0))
@@ -430,7 +431,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 if (entry.getKey() == null) continue;
                 Result<Record> records = entry.getValue();
                 categories.add(
-                        Category.getBuilder(records.getValues(CATEGORY.NAME).get(0))
+                        Category.builder()
+                                .name(records.getValues(CATEGORY.NAME).get(0))
                                 .projectId(records.getValues(CATEGORY.PROJECT_ID).get(0))
                                 .id(records.getValues(CATEGORY.ID).get(0))
                                 .description(records.getValues(CATEGORY.DESCRIPTION).get(0))
@@ -444,9 +446,9 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             requirement.setNumberOfAttachments((Integer) queryResult.getValues(ATTACHMENT_COUNT).get(0));
             requirement.setNumberOfFollowers((Integer) queryResult.getValues(FOLLOWER_COUNT).get(0));
             if (userId != 1) {
-                requirement.setFollower((Integer) queryResult.getValues(isFollower).get(0) == 0 ? false : true);
-                requirement.setDeveloper((Integer) queryResult.getValues(isDeveloper).get(0) == 0 ? false : true);
-                requirement.setContributor(queryResult.getValues(isContributor).get(0).equals(new BigDecimal(0)) ? false : true);
+                requirement.setIsFollower(0 != (Integer) queryResult.getValues(isFollower).get(0));
+                requirement.setIsDeveloper(0 != (Integer) queryResult.getValues(isDeveloper).get(0));
+                requirement.setIsContributor(!Objects.equals(queryResult.getValues(isContributor).get(0), new BigDecimal(0)));
             }
 
             requirement.setContext(EntityContextFactory.create(embed, queryResult.get(0)));
@@ -523,7 +525,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                             .and(REQUIREMENT.ID.eq(requirementId)))
                     .fetchOne();
 
-            result = Statistic.getBuilder()
+            result = Statistic.builder()
                     .numberOfProjects((Integer) record1.get("numberOfProjects"))
                     .numberOfCategories((Integer) record1.get("numberOfCategories"))
                     .numberOfRequirements((Integer) record2.get("numberOfRequirements"))

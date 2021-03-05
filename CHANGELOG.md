@@ -31,6 +31,8 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 - Split leading `+`/`-`from sort parameter in favour of a `sortDirection` (ASC/DESC) parameter.
   [#82](https://github.com/rwth-acis/RequirementsBazaar/pull/82)
 - Order by name now implies natural sorting [#82](https://github.com/rwth-acis/RequirementsBazaar/pull/82)
+- Remove static code from data classes and generate getter/setters and builder with lombok. This renames the `category`
+  attribute in `EntityContext` to `categories` [#83](https://github.com/rwth-acis/RequirementsBazaar/pull/82)
 
 ## [0.7.2] - 2017-10-25
 
