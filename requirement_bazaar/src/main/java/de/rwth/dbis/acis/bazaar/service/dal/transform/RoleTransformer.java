@@ -44,7 +44,8 @@ public class RoleTransformer implements Transformer<Role, RoleRecord> {
 
     @Override
     public Role getEntityFromTableRecord(RoleRecord record) {
-        return Role.getBuilder(record.getName())
+        return Role.builder()
+                .name(record.getName())
                 .id(record.getId())
                 .build();
     }

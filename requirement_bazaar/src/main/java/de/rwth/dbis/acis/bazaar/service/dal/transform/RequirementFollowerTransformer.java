@@ -43,7 +43,7 @@ public class RequirementFollowerTransformer implements Transformer<RequirementFo
 
     @Override
     public RequirementFollower getEntityFromTableRecord(RequirementFollowerMapRecord record) {
-        return RequirementFollower.getBuilder()
+        return RequirementFollower.builder()
                 .id(record.getId())
                 .userId(record.getUserId())
                 .requirementId(record.getRequirementId())
@@ -67,7 +67,7 @@ public class RequirementFollowerTransformer implements Transformer<RequirementFo
 
     @Override
     public Map<Field, Object> getUpdateMap(final RequirementFollower entity) {
-        return new HashMap<Field, Object>() {{
+        return new HashMap<>() {{
             put(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID, entity.getRequirementId());
             put(REQUIREMENT_FOLLOWER_MAP.USER_ID, entity.getUserId());
         }};

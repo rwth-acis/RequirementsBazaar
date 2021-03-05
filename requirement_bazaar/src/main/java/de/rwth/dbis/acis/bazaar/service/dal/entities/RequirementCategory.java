@@ -20,63 +20,21 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.extern.jackson.Jacksonized;
+
 /**
  * @since 6/11/2014
  */
+@EqualsAndHashCode(callSuper = true)
+@Data
+@Jacksonized
+@Builder(builderClassName = "Builder")
 public class RequirementCategory extends EntityBase {
 
     private final int id;
     private final int categoryId;
     private final int requirementId;
-
-    private RequirementCategory(Builder builder) {
-        this.id = builder.id;
-        this.categoryId = builder.categoryId;
-        this.requirementId = builder.requirementId;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public int getCategoryId() {
-        return categoryId;
-    }
-
-    public int getRequirementId() {
-        return requirementId;
-    }
-
-    public static Builder getBuilder(int category_id) {
-        return new Builder(category_id);
-    }
-
-    public static class Builder {
-        private int id;
-        private int categoryId;
-        private int requirementId;
-
-        public Builder(int category_id) {
-            this.categoryId = category_id;
-        }
-
-        public Builder id(int id) {
-            this.id = id;
-            return this;
-        }
-
-        public Builder categoryId(int categoryId) {
-            this.categoryId = categoryId;
-            return this;
-        }
-
-        public Builder requirementId(int requirementId) {
-            this.requirementId = requirementId;
-            return this;
-        }
-
-        public RequirementCategory build() {
-            return new RequirementCategory(this);
-        }
-    }
 }

@@ -43,7 +43,8 @@ public class RequirementCategoryTransformer implements Transformer<RequirementCa
 
     @Override
     public RequirementCategory getEntityFromTableRecord(RequirementCategoryMapRecord record) {
-        return RequirementCategory.getBuilder(record.getCategoryId())
+        return RequirementCategory.builder()
+                .categoryId(record.getCategoryId())
                 .id(record.getId())
                 .requirementId(record.getRequirementId())
                 .build();

@@ -206,7 +206,8 @@ public class DALFacadeImpl implements DALFacade {
 
         String categoryName = Localization.getInstance().getResourceBundle().getString("category.uncategorized.Name");
         String categoryDescription = Localization.getInstance().getResourceBundle().getString("category.uncategorized.Description");
-        Category uncategorizedCategory = Category.getBuilder(categoryName)
+        Category uncategorizedCategory = Category.builder()
+                .name(categoryName)
                 .description(categoryDescription)
                 .projectId(newProject.getId())
                 .build();
@@ -514,7 +515,7 @@ public class DALFacadeImpl implements DALFacade {
     @Override
     public CreationStatus followProject(int userId, int projectId) throws BazaarException {
         projectFollowerRepository = (projectFollowerRepository != null) ? projectFollowerRepository : new ProjectFollowerRepositoryImpl(dslContext);
-        return projectFollowerRepository.addOrUpdate(ProjectFollower.getBuilder()
+        return projectFollowerRepository.addOrUpdate(ProjectFollower.builder()
                 .projectId(projectId)
                 .userId(userId)
                 .build()
@@ -530,7 +531,7 @@ public class DALFacadeImpl implements DALFacade {
     @Override
     public CreationStatus followCategory(int userId, int categoryId) throws BazaarException {
         categoryFollowerRepository = (categoryFollowerRepository != null) ? categoryFollowerRepository : new CategoryFollowerRepositoryImpl(dslContext);
-        return categoryFollowerRepository.addOrUpdate(CategoryFollower.getBuilder()
+        return categoryFollowerRepository.addOrUpdate(CategoryFollower.builder()
                 .categoryId(categoryId)
                 .userId(userId)
                 .build()
@@ -546,7 +547,7 @@ public class DALFacadeImpl implements DALFacade {
     @Override
     public CreationStatus followRequirement(int userId, int requirementId) throws BazaarException {
         requirementFollowerRepository = (requirementFollowerRepository != null) ? requirementFollowerRepository : new RequirementFollowerRepositoryImpl(dslContext);
-        return requirementFollowerRepository.addOrUpdate(RequirementFollower.getBuilder()
+        return requirementFollowerRepository.addOrUpdate(RequirementFollower.builder()
                 .requirementId(requirementId)
                 .userId(userId)
                 .build()
@@ -562,7 +563,7 @@ public class DALFacadeImpl implements DALFacade {
     @Override
     public CreationStatus wantToDevelop(int userId, int requirementId) throws BazaarException {
         developerRepository = (developerRepository != null) ? developerRepository : new RequirementDeveloperRepositoryImpl(dslContext);
-        return developerRepository.addOrUpdate(RequirementDeveloper.getBuilder()
+        return developerRepository.addOrUpdate(RequirementDeveloper.builder()
                 .requirementId(requirementId)
                 .userId(userId)
                 .build()
@@ -579,7 +580,8 @@ public class DALFacadeImpl implements DALFacade {
     @Override
     public void addCategoryTag(int requirementId, int categoryId) throws BazaarException {
         tagRepository = (tagRepository != null) ? tagRepository : new RequirementCategoryRepositoryImpl(dslContext);
-        tagRepository.add(RequirementCategory.getBuilder(categoryId)
+        tagRepository.add(RequirementCategory.builder()
+                .categoryId(categoryId)
                 .requirementId(requirementId)
                 .build()
         );
@@ -594,7 +596,7 @@ public class DALFacadeImpl implements DALFacade {
     @Override
     public CreationStatus vote(int userId, int requirementId, boolean isUpVote) throws BazaarException {
         voteRepository = (voteRepository != null) ? voteRepository : new VoteRepositoryImpl(dslContext);
-        return voteRepository.addOrUpdate(Vote.getBuilder()
+        return voteRepository.addOrUpdate(Vote.builder()
                 .requirementId(requirementId)
                 .userId(userId)
                 .isUpvote(isUpVote)
@@ -632,7 +634,7 @@ public class DALFacadeImpl implements DALFacade {
 
         Privilege privilegeDb = privilegeRepository.findByName(new PrivilegeEnumConverter().to(privilege));
         if (privilegeDb == null) {
-            privilegeRepository.add(Privilege.getBuilder(privilege).build());
+            privilegeRepository.add(Privilege.builder().name(privilege).build());
         }
 
     }
@@ -657,21 +659,21 @@ public class DALFacadeImpl implements DALFacade {
     @Override
     public EntityOverview getEntitiesForUser(List<String> includes, Pageable pageable, int userId) throws BazaarException {
         //categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
-        EntityOverview.Builder result =  EntityOverview.getBuilder();
+        EntityOverview.Builder result = EntityOverview.builder();
         for(String include : includes) {
             switch (include) {
-                case "projects":
+                case "projects" -> {
                     projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
                     result.projects(projectRepository.listAllProjectIds(pageable, userId));
-                    break;
-                case "requirements":
+                }
+                case "requirements" -> {
                     requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
                     result.requirements(requirementRepository.listAllRequirementIds(pageable, userId));
-                    break;
-                case "categories":
+                }
+                case "categories" -> {
                     categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
                     result.categories(categoryRepository.listAllCategoryIds(pageable, userId));
-                    break;
+                }
             }
             //TODO Add Comments/Attachments
         }

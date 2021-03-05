@@ -48,7 +48,7 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
     }
 
     public Requirement.Builder mapToEntityBuilder(RequirementRecord record) {
-        return Requirement.getBuilder(record.getName())
+        return Requirement.builder().name(record.getName())
                 .description(record.getDescription())
                 .id(record.getId())
                 .realized(record.getRealized())

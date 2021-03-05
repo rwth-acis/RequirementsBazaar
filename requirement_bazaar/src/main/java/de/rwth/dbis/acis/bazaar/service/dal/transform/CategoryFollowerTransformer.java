@@ -20,7 +20,7 @@ public class CategoryFollowerTransformer implements Transformer<CategoryFollower
 
     @Override
     public CategoryFollower getEntityFromTableRecord(CategoryFollowerMapRecord record) {
-        return CategoryFollower.getBuilder()
+        return CategoryFollower.builder()
                 .id(record.getId())
                 .userId(record.getUserId())
                 .categoryId(record.getCategoryId())

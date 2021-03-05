@@ -151,7 +151,7 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
             }
 
             UserTransformer userTransformer = new UserTransformer();
-            RequirementContributors.Builder builder = new RequirementContributors.Builder();
+            RequirementContributors.Builder builder = RequirementContributors.builder();
 
             builder.creator(
                     userTransformer.getEntityFromQueryResult(creator, queryResult)
@@ -240,7 +240,7 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
             }
 
             UserTransformer userTransformer = new UserTransformer();
-            CategoryContributors.Builder builder = new CategoryContributors.Builder();
+            CategoryContributors.Builder builder = CategoryContributors.builder();
 
             builder.leader(
                     userTransformer.getEntityFromQueryResult(leader, queryResult)
@@ -352,7 +352,7 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
             }
 
             UserTransformer userTransformer = new UserTransformer();
-            ProjectContributors.Builder builder = new ProjectContributors.Builder();
+            ProjectContributors.Builder builder = ProjectContributors.builder();
 
             builder.leader(
                     userTransformer.getEntityFromQueryResult(leader, queryResult)

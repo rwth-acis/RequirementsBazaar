@@ -20,58 +20,20 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.extern.jackson.Jacksonized;
+
 /**
  * @since 6/11/2014
  */
+@EqualsAndHashCode(callSuper = true)
+@Data
+@Jacksonized
+@Builder(builderClassName = "Builder")
 public class RequirementFollower extends EntityBase {
-    private final int Id;
-    private final int RequirementId;
-    private final int UserId;
-
-    private RequirementFollower(Builder builder) {
-        Id = builder.id;
-        RequirementId = builder.requirementId;
-        UserId = builder.userId;
-    }
-
-    public int getId() {
-        return Id;
-    }
-
-    public int getRequirementId() {
-        return RequirementId;
-    }
-
-    public int getUserId() {
-        return UserId;
-    }
-
-    public static Builder getBuilder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        int userId;
-        int requirementId;
-        int id;
-
-        public Builder userId(int userId) {
-            this.userId = userId;
-            return this;
-        }
-
-        public Builder requirementId(int requirementId) {
-            this.requirementId = requirementId;
-            return this;
-        }
-
-        public Builder id(int id) {
-            this.id = id;
-            return this;
-        }
-
-        public RequirementFollower build() {
-            return new RequirementFollower(this);
-        }
-    }
+    private final int id;
+    private final int requirementId;
+    private final int userId;
 }

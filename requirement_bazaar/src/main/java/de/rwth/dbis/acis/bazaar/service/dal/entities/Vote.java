@@ -20,71 +20,21 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.extern.jackson.Jacksonized;
+
 /**
  * @since 6/11/2014
  */
+@EqualsAndHashCode(callSuper = true)
+@Data
+@Jacksonized
+@Builder(builderClassName = "Builder")
 public class Vote extends EntityBase {
-
-    private final int Id;
+    private final int id;
     private final boolean isUpvote;
-    private final int RequirementId;
-    private final int UserId;
-
-    private Vote(Builder builder) {
-        Id = builder.id;
-        this.isUpvote = builder.isUpvote;
-        RequirementId = builder.requirementId;
-        UserId = builder.userId;
-    }
-
-    public int getId() {
-        return Id;
-    }
-
-    public boolean isUpvote() {
-        return isUpvote;
-    }
-
-    public int getRequirementId() {
-        return RequirementId;
-    }
-
-    public int getUserId() {
-        return UserId;
-    }
-
-    public static Builder getBuilder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private int id;
-        private boolean isUpvote;
-        private int requirementId;
-        private int userId;
-
-        public Builder id(int id) {
-            this.id = id;
-            return this;
-        }
-
-        public Builder isUpvote(boolean isUpvote) {
-            this.isUpvote = isUpvote;
-            return this;
-        }
-
-        public Builder requirementId(int requirementId) {
-            this.requirementId = requirementId;
-            return this;
-        }
-
-        public Builder userId(int userId) {
-            this.userId = userId;
-            return this;
-        }
-
-        public Vote build() {
-            return new Vote(this);
-        }
-    }
+    private final int requirementId;
+    private final int userId;
 }

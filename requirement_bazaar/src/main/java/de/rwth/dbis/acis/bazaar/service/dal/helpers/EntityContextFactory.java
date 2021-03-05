@@ -22,7 +22,7 @@ public class EntityContextFactory{
 
 
     public static EntityContext create(List<String> embed, Record record){
-        EntityContext.Builder contextBuilder = EntityContext.getBuilder();
+        EntityContext.Builder contextBuilder = EntityContext.builder();
         if(embed != null) {
             for (String entry : embed) {
                 if (entry.equalsIgnoreCase("project")) {

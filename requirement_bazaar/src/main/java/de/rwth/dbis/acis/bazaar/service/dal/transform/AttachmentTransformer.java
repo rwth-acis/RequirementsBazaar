@@ -52,7 +52,7 @@ public class AttachmentTransformer implements Transformer<Attachment, Attachment
 
     @Override
     public Attachment getEntityFromTableRecord(AttachmentRecord record) {
-        return Attachment.getBuilder()
+        return Attachment.builder()
                 .id(record.getId())
                 .requirementId(record.getRequirementId())
                 .name(record.getName())

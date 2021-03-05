@@ -145,7 +145,8 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                         ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
             }
 
-            Project.Builder builder = Project.getBuilder(queryResult.getValues(PROJECT.NAME).get(0))
+            Project.Builder builder = Project.builder()
+                    .name(queryResult.getValues(PROJECT.NAME).get(0))
                     .description(queryResult.getValues(PROJECT.DESCRIPTION).get(0))
                     .id(queryResult.getValues(PROJECT.ID).get(0))
                     .defaultCategoryId(queryResult.getValues(PROJECT.DEFAULT_CATEGORY_ID).get(0))
@@ -164,7 +165,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
             project.setNumberOfRequirements((Integer) queryResult.getValues(REQUIREMENT_COUNT).get(0));
             project.setNumberOfFollowers((Integer) queryResult.getValues(FOLLOWER_COUNT).get(0));
             if (userId != 1) {
-                project.setFollower((Integer) queryResult.getValues(isFollower).get(0) == 0 ? false : true);
+                project.setIsFollower(0 != (Integer) queryResult.getValues(isFollower).get(0));
             }
 
         } catch (BazaarException be) {
@@ -222,7 +223,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                 project.setNumberOfRequirements((Integer) queryResult.getValue(REQUIREMENT_COUNT));
                 project.setNumberOfFollowers((Integer) queryResult.getValue(FOLLOWER_COUNT));
                 if (userId != 1) {
-                    project.setFollower((Integer) queryResult.getValue(isFollower) == 0 ? false : true);
+                    project.setIsFollower(0 != (Integer) queryResult.getValue(isFollower));
                 }
                 projects.add(project);
             }
@@ -289,7 +290,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                 project.setNumberOfRequirements((Integer) queryResult.getValue(REQUIREMENT_COUNT));
                 project.setNumberOfFollowers((Integer) queryResult.getValue(FOLLOWER_COUNT));
                 if (userId != 1) {
-                    project.setFollower((Integer) queryResult.getValue(isFollower) == 0 ? false : true);
+                    project.setIsFollower(0 != (Integer) queryResult.getValue(isFollower));
                 }
                 projects.add(project);
             }
@@ -380,7 +381,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .where(PROJECT.VISIBILITY.isTrue())
                     .fetchOne();
 
-            result = Statistic.getBuilder()
+            result = Statistic.builder()
                     .numberOfProjects((Integer) record1.get("numberOfProjects"))
                     .numberOfCategories((Integer) record2.get("numberOfCategories"))
                     .numberOfRequirements((Integer) record2.get("numberOfRequirements"))
@@ -439,7 +440,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                     .where(PROJECT.ID.eq(projectId))
                     .fetchOne();
 
-            result = Statistic.getBuilder()
+            result = Statistic.builder()
                     .numberOfProjects((Integer) record1.get("numberOfProjects"))
                     .numberOfCategories((Integer) record2.get("numberOfCategories"))
                     .numberOfRequirements((Integer) record2.get("numberOfRequirements"))

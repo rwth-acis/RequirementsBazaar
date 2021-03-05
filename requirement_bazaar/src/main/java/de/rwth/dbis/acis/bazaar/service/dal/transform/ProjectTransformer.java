@@ -51,7 +51,8 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
 
     @Override
     public Project getEntityFromTableRecord(ProjectRecord record) {
-        return Project.getBuilder(record.getName())
+        return Project.builder()
+                .name(record.getName())
                 .description(record.getDescription())
                 .id(record.getId())
                 .defaultCategoryId(record.getDefaultCategoryId())

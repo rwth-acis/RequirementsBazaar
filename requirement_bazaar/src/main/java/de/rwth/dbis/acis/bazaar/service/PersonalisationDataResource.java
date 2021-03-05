@@ -147,7 +147,7 @@ public class PersonalisationDataResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.create"));
             }
 
-            PersonalisationData fullData = PersonalisationData.getBuilder().key(key).userId(internalUserId).version(version).value(data.getValue()).build();
+            PersonalisationData fullData = PersonalisationData.builder().key(key).userId(internalUserId).version(version).value(data.getValue()).build();
 
             // Take Object for generic error handling
             Set<ConstraintViolation<Object>> violations = bazaarService.validateCreate(fullData);
