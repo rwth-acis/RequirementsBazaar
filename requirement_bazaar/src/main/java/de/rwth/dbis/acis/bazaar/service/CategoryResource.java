@@ -32,7 +32,7 @@ import java.util.*;
 @SwaggerDefinition(
         info = @Info(
                 title = "Requirements Bazaar",
-                version = "0.6",
+                version = "0.9.0",
                 description = "Requirements Bazaar project",
                 termsOfService = "http://requirements-bazaar.org",
                 contact = @Contact(
@@ -61,14 +61,15 @@ public class CategoryResource {
     /**
      * This method returns the list of categories under a given project.
      *
-     * @param projectId id of the project
-     * @param page      page number
-     * @param perPage   number of projects by page
-     * @param search    search string
-     * @param sort      sort order
+     * @param projectId     id of the project
+     * @param page          page number
+     * @param perPage       number of projects by page
+     * @param search        search string
+     * @param sort          item to sort by
+     * @param sortDirection sort order
      * @return Response with categories as a JSON array.
      */
-    public Response getCategoriesForProject(int projectId, int page, int perPage, String search, List<String> sort) {
+    public Response getCategoriesForProject(int projectId, int page, int perPage, String search, List<String> sort, String sortDirection) {
         DALFacade dalFacade = null;
         try {
             Agent agent = Context.getCurrent().getMainAgent();
@@ -79,16 +80,7 @@ public class CategoryResource {
             }
             List<Pageable.SortField> sortList = new ArrayList<>();
             for (String sortOption : sort) {
-                Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
-                if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { // " " is needed because jersey does not pass "+"
-                    direction = Pageable.SortDirection.ASC;
-                    sortOption = sortOption.substring(1);
-
-                } else if (sortOption.startsWith("-")) {
-                    direction = Pageable.SortDirection.DESC;
-                    sortOption = sortOption.substring(1);
-                }
-                Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
+                Pageable.SortField sortField = new Pageable.SortField(sortOption, sortDirection);
                 sortList.add(sortField);
             }
             PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>(), sortList, search);
@@ -728,8 +720,10 @@ public class CategoryResource {
                                                @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
                                                @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
                                                @ApiParam(value = "State filter", required = false, allowableValues = "all,open,realized") @DefaultValue("all") @QueryParam("state") String stateFilter,
-                                               @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "date,last_activity,name,vote,comment,follower") @DefaultValue("date") @QueryParam("sort") List<String> sort) throws Exception {
+                                               @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "date,last_activity,name,vote,comment,follower") @DefaultValue("date") @QueryParam("sort") List<String> sort,
+                                               @ApiParam(value = "SortDirection", allowableValues = "ASC,DESC") @DefaultValue("DESC") @QueryParam("sortDirection") String sortDirection
+    ) throws Exception {
         RequirementsResource requirementsResource = new RequirementsResource();
-        return requirementsResource.getRequirementsForCategory(categoryId, page, perPage, search, stateFilter, sort);
+        return requirementsResource.getRequirementsForCategory(categoryId, page, perPage, search, stateFilter, sort, sortDirection);
     }
 }

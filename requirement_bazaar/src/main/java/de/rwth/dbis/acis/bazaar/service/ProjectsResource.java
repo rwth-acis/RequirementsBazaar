@@ -31,7 +31,7 @@ import java.util.*;
 @SwaggerDefinition(
         info = @Info(
                 title = "Requirements Bazaar",
-                version = "0.6",
+                version = "0.9.0",
                 description = "Requirements Bazaar project",
                 termsOfService = "http://requirements-bazaar.org",
                 contact = @Contact(
@@ -80,6 +80,7 @@ public class ProjectsResource {
             @ApiParam(value = "Elements of project by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
             @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
             @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort,
+            @ApiParam(value = "SortDirection", allowableValues = "ASC,DESC") @QueryParam("sortDirection") String sortDirection,
             @ApiParam(value = "Filter", required = false, allowMultiple = true, allowableValues = "all, created, following") @QueryParam("filters") List<String> filters,
             @ApiParam(value = "Ids", required = false, allowMultiple = true) @QueryParam("ids") List<Integer> ids) {
 
@@ -93,16 +94,7 @@ public class ProjectsResource {
             String userId = agent.getIdentifier();
             List<Pageable.SortField> sortList = new ArrayList<>();
             for (String sortOption : sort) {
-                Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
-                if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { // " " is needed because jersey does not pass "+"
-                    direction = Pageable.SortDirection.ASC;
-                    sortOption = sortOption.substring(1);
-
-                } else if (sortOption.startsWith("-")) {
-                    direction = Pageable.SortDirection.DESC;
-                    sortOption = sortOption.substring(1);
-                }
-                Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
+                Pageable.SortField sortField = new Pageable.SortField(sortOption, sortDirection);
                 sortList.add(sortField);
             }
 
@@ -669,9 +661,11 @@ public class ProjectsResource {
             @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
             @ApiParam(value = "Elements of categories by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
             @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
-            @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort) throws Exception {
+            @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort,
+            @ApiParam(value = "SortDirection", allowableValues = "ASC,DESC") @QueryParam("sortDirection") String sortDirection
+    ) throws Exception {
         CategoryResource categoryResource = new CategoryResource();
-        return categoryResource.getCategoriesForProject(projectId, page, perPage, search, sort);
+        return categoryResource.getCategoriesForProject(projectId, page, perPage, search, sort, sortDirection);
     }
 
     /**
@@ -700,8 +694,10 @@ public class ProjectsResource {
                                               @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
                                               @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
                                               @ApiParam(value = "State filter", required = false, allowableValues = "all,open,realized") @DefaultValue("all") @QueryParam("state") String stateFilter,
-                                              @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "date,last_activity,name,vote,comment,follower,realized") @DefaultValue("date") @QueryParam("sort") List<String> sort) throws Exception {
+                                              @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "date,last_activity,name,vote,comment,follower") @DefaultValue("date") @QueryParam("sort") List<String> sort,
+                                              @ApiParam(value = "SortDirection", allowableValues = "ASC,DESC") @QueryParam("sortDirection") String sortDirection
+    ) throws Exception {
         RequirementsResource requirementsResource = new RequirementsResource();
-        return requirementsResource.getRequirementsForProject(projectId, page, perPage, search, stateFilter, sort);
+        return requirementsResource.getRequirementsForProject(projectId, page, perPage, search, stateFilter, sort, sortDirection);
     }
 }

@@ -130,13 +130,12 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
                     break;
                 case "name":
                     switch (sort.getSortDirection()) {
-                        case ASC:
-                            sortFields.add(REQUIREMENT.NAME.asc());
-                            break;
                         case DESC:
+                            sortFields.add(REQUIREMENT.NAME.length().desc());
                             sortFields.add(REQUIREMENT.NAME.desc());
                             break;
                         default:
+                            sortFields.add(REQUIREMENT.NAME.length().asc());
                             sortFields.add(REQUIREMENT.NAME.asc());
                             break;
                     }

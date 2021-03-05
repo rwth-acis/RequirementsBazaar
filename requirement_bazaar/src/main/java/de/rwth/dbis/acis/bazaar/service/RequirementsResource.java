@@ -31,7 +31,7 @@ import java.util.*;
 @SwaggerDefinition(
         info = @Info(
                 title = "Requirements Bazaar",
-                version = "0.6",
+                version = "0.9.0",
                 description = "Requirements Bazaar project",
                 termsOfService = "http://requirements-bazaar.org",
                 contact = @Contact(
@@ -80,6 +80,7 @@ public class RequirementsResource {
             @ApiParam(value = "Elements of requirements by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
             @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
             @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort,
+            @ApiParam(value = "SortDirection", allowableValues = "ASC,DESC") @QueryParam("sortDirection") String sortDirection,
             @ApiParam(value = "Filter", required = true, allowMultiple = true, allowableValues = "created, following") @QueryParam("filters") List<String> filters,
             @ApiParam(value = "Embed parents", required = true, allowMultiple = true, allowableValues = "project") @QueryParam("embedParents") List<String> embedParents) {
 
@@ -93,16 +94,7 @@ public class RequirementsResource {
             String userId = agent.getIdentifier();
             List<Pageable.SortField> sortList = new ArrayList<>();
             for (String sortOption : sort) {
-                Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
-                if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { // " " is needed because jersey does not pass "+"
-                    direction = Pageable.SortDirection.ASC;
-                    sortOption = sortOption.substring(1);
-
-                } else if (sortOption.startsWith("-")) {
-                    direction = Pageable.SortDirection.DESC;
-                    sortOption = sortOption.substring(1);
-                }
-                Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
+                Pageable.SortField sortField = new Pageable.SortField(sortOption, sortDirection);
                 sortList.add(sortField);
             }
 
@@ -186,7 +178,7 @@ public class RequirementsResource {
      * @param sort        sort order
      * @return Response with requirements as a JSON array.
      */
-    public Response getRequirementsForProject(int projectId, int page, int perPage, String search, String stateFilter, List<String> sort) {
+    public Response getRequirementsForProject(int projectId, int page, int perPage, String search, String stateFilter, List<String> sort, String sortDirection) {
         DALFacade dalFacade = null;
         try {
             Agent agent = Context.getCurrent().getMainAgent();
@@ -201,16 +193,7 @@ public class RequirementsResource {
             }
             List<Pageable.SortField> sortList = new ArrayList<>();
             for (String sortOption : sort) {
-                Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
-                if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { // " " is needed because jersey does not pass "+"
-                    direction = Pageable.SortDirection.ASC;
-                    sortOption = sortOption.substring(1);
-
-                } else if (sortOption.startsWith("-")) {
-                    direction = Pageable.SortDirection.DESC;
-                    sortOption = sortOption.substring(1);
-                }
-                Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
+                Pageable.SortField sortField = new Pageable.SortField(sortOption, sortDirection);
                 sortList.add(sortField);
             }
             PageInfo pageInfo = new PageInfo(page, perPage, filters, sortList, search);
@@ -284,15 +267,16 @@ public class RequirementsResource {
     /**
      * This method returns the list of requirements for a specific category.
      *
-     * @param categoryId  id of the category under a given project
-     * @param page        page number
-     * @param perPage     number of projects by page
-     * @param search      search string
-     * @param stateFilter requirement state
-     * @param sort        sort order
+     * @param categoryId    id of the category under a given project
+     * @param page          page number
+     * @param perPage       number of projects by page
+     * @param search        search string
+     * @param stateFilter   requirement state
+     * @param sort          parameter to sort by
+     * @param sortDirection orientation to sort by
      * @return Response with requirements as a JSON array.
      */
-    public Response getRequirementsForCategory(int categoryId, int page, int perPage, String search, String stateFilter, List<String> sort) {
+    public Response getRequirementsForCategory(int categoryId, int page, int perPage, String search, String stateFilter, List<String> sort, String sortDirection) {
         DALFacade dalFacade = null;
         try {
             Agent agent = Context.getCurrent().getMainAgent();
@@ -307,16 +291,7 @@ public class RequirementsResource {
             }
             List<Pageable.SortField> sortList = new ArrayList<>();
             for (String sortOption : sort) {
-                Pageable.SortDirection direction = Pageable.SortDirection.DEFAULT;
-                if (sortOption.startsWith("+") || sortOption.startsWith(" ")) { // " " is needed because jersey does not pass "+"
-                    direction = Pageable.SortDirection.ASC;
-                    sortOption = sortOption.substring(1);
-
-                } else if (sortOption.startsWith("-")) {
-                    direction = Pageable.SortDirection.DESC;
-                    sortOption = sortOption.substring(1);
-                }
-                Pageable.SortField sortField = new Pageable.SortField(sortOption, direction);
+                Pageable.SortField sortField = new Pageable.SortField(sortOption, sortDirection);
                 sortList.add(sortField);
             }
             PageInfo pageInfo = new PageInfo(page, perPage, filters, sortList, search);
