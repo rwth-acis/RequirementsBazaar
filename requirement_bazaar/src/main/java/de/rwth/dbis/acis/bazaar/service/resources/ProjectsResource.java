@@ -700,4 +700,37 @@ public class ProjectsResource {
         RequirementsResource requirementsResource = new RequirementsResource();
         return requirementsResource.getRequirementsForProject(projectId, page, perPage, search, stateFilter, sort, sortDirection);
     }
+
+    /**
+     * This method returns the list of feedbacks for a specific project.
+     *
+     * @param projectId   id of the project to retrieve requirements for
+     * @param page        page number
+     * @param perPage     number of requirements by page
+     * @param search      search string
+     * @param stateFilter requirement state
+     * @param sort        sort order
+     * @return Response with requirements as a JSON array.
+     */
+    @GET
+    @Path("/{projectId}/feedbacks")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "This method returns the list of given feedbacks for a specific project.")
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns a list of feedbacks for a given project", response = Feedback.class, responseContainer = "List"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+    })
+    public Response getFeedbacksForProject(@PathParam("projectId") int projectId,
+                                           @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
+                                           @ApiParam(value = "Elements of feedbacks by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage,
+                                           @ApiParam(value = "Search filter", required = false) @QueryParam("search") String search,
+                                           @ApiParam(value = "State filter", required = false, allowableValues = "all,open") @DefaultValue("all") @QueryParam("state") String stateFilter,
+                                           @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "date") @DefaultValue("date") @QueryParam("sort") List<String> sort,
+                                           @ApiParam(value = "SortDirection", allowableValues = "ASC,DESC") @QueryParam("sortDirection") String sortDirection
+    ) throws Exception {
+        FeedbackResource feedbackResource = new FeedbackResource();
+        return feedbackResource.getFeedbackForProject(projectId, page, perPage);
+    }
 }
