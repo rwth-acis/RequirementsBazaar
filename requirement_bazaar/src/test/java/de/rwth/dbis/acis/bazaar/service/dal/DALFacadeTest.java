@@ -21,82 +21,28 @@
 package de.rwth.dbis.acis.bazaar.service.dal;
 
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Feedback;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
-import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
-import org.apache.commons.dbcp2.BasicDataSource;
-import org.jooq.DSLContext;
-import org.jooq.SQLDialect;
+import de.rwth.dbis.acis.bazaar.service.helpers.SetupData;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
-import javax.sql.DataSource;
 import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
 import static junit.framework.TestCase.*;
 
 //TODO Pagination testing
-public class DALFacadeTest {
+public class DALFacadeTest extends SetupData {
 
     public static final PageInfo ALL_IN_ONE_PAGE = new PageInfo(0, 100);
-
-    DALFacade facade;
-    private DALFacadeImpl dalImpl;
-    DSLContext jooq;
-    private User initUser;
-
-    private static DataSource setupDataSource(String dbUrl, String dbUserName, String dbPassword) {
-        BasicDataSource dataSource = new BasicDataSource();
-        // Deprecated according to jooq
-        // dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUrl(dbUrl + "?useSSL=false&serverTimezone=UTC");
-        dataSource.setUsername(dbUserName);
-        dataSource.setPassword(dbPassword);
-        dataSource.setValidationQuery("SELECT 1;");
-        dataSource.setTestOnBorrow(true); // test each connection when borrowing from the pool with the validation query
-        dataSource.setMaxConnLifetimeMillis(1000 * 60 * 60); // max connection life time 1h. mysql drops connection after 8h.
-        return dataSource;
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        String url = "jdbc:mysql://localhost:3306/reqbaz";
-
-        DataSource dataSource = setupDataSource(url, "root", "rootpw");
-
-        dalImpl = new DALFacadeImpl(dataSource, SQLDialect.MYSQL);
-        facade = dalImpl;
-        jooq = dalImpl.getDslContext();
-
-        Locale locale = new Locale("en", "us");
-        Localization.getInstance().setResourceBundle(ResourceBundle.getBundle("i18n.Translation", locale));
-
-        try {
-            initUser = facade.getUserById(facade.getUserIdByLAS2PeerId("1111"));
-        } catch (Exception e) {
-            initUser = User.builder()
-                    .eMail("test@test.hu")
-                    .firstName("Elek")
-                    .lastName("Test")
-                    .userName("TestElek")
-                    .admin(true)
-                    .las2peerId("1111")
-                    .build();
-
-            facade.createUser(initUser);
-            initUser = facade.getUserById(facade.getUserIdByLAS2PeerId("1111"));
-        }
-    }
 
     @Test
     public void testCreateUser() {
         try {
-            facade.createUser(User.builder().eMail("unittest@test.hu").firstName("Max").lastName("Zimmermann").admin(false).las2peerId("9999").userName("MaxZim").personalizationEnabled(false).emailFollowSubscription(false).emailLeadSubscription(false).build());
+            facade.createUser(User.builder().eMail("unittest@test.hu").firstName("Max").lastName("Zimmermann").las2peerId("9999").userName("MaxZim").personalizationEnabled(false).emailFollowSubscription(false).emailLeadSubscription(false).build());
 
             Integer userId = facade.getUserIdByLAS2PeerId("9999");
             User user = facade.getUserById(userId);
@@ -104,10 +50,9 @@ public class DALFacadeTest {
             assertEquals("unittest@test.hu", user.getEMail());
             assertEquals("Max", user.getFirstName());
             assertEquals("Zimmermann", user.getLastName());
-            assertFalse(user.isAdmin());
             assertEquals("9999", user.getLas2peerId());
 
-            jooq.delete(de.rwth.dbis.acis.bazaar.dal.jooq.tables.User.USER).where(de.rwth.dbis.acis.bazaar.dal.jooq.tables.User.USER.ID.eq(9)).execute();
+            jooq.delete(de.rwth.dbis.acis.bazaar.dal.jooq.tables.User.USER).where(de.rwth.dbis.acis.bazaar.dal.jooq.tables.User.USER.ID.eq(userId)).execute();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -117,34 +62,34 @@ public class DALFacadeTest {
 
     @Test
     public void testGetUserById() throws Exception {
-        Integer userId = facade.getUserIdByLAS2PeerId("1111");
+        Integer userId = facade.getUserIdByLAS2PeerId(eveId);
         User user = facade.getUserById(userId);
 
         assertEquals("test@test.hu", user.getEMail());
         assertEquals("Elek", user.getFirstName());
         assertEquals("Test", user.getLastName());
-        assertTrue(user.isAdmin());
-        assertEquals("1111", user.getLas2peerId());
+        assertEquals(eveId, user.getLas2peerId());
     }
 
     @Test
     public void testCreateGetProject() throws Exception {
-        Project project = Project.builder().name("Project3").description("ProjDesc3").id(1).leader(initUser).visibility(true).isFollower(false).build();
+        Project project = Project.builder().name("Project3  \uD83D\uDC69\u200D\uD83D\uDC69\u200D\uD83D\uDC67\u200D\uD83D\uDC66").description("An \uD83D\uDE00awesome \uD83D\uDE03string with a few \uD83D\uDE09emojis!").id(1).leader(initUser).visibility(true).isFollower(false).build();
 
         facade.createProject(project, initUser.getId());
 
         // This can't work reliably without fetching by name
         // Id is set by the database but never returned
-        ProjectRecord projectRecord = jooq.selectFrom(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Project.PROJECT).where(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Project.PROJECT.NAME.equal("Project3")).fetchOne();
+        ProjectRecord projectRecord = jooq.selectFrom(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Project.PROJECT).where(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Project.PROJECT.NAME.equal("Project3  \uD83D\uDC69\u200D\uD83D\uDC69\u200D\uD83D\uDC67\u200D\uD83D\uDC66")).fetchOne();
         assertNotNull(projectRecord);
         Integer projectID = projectRecord.getId(); // .get(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Project.PROJECT.ID);
 
         Project projectById = facade.getProjectById(projectID, initUser.getId());
 
-        assertEquals(project.getName(),       projectById.getName()           );
-        assertEquals(project.getDescription(),projectById.getDescription()      );
-        assertEquals(project.getLeader().getId(),     projectById.getLeader().getId());
-        assertEquals(project.getVisibility(), projectById.getVisibility()      );
+        assertEquals(project.getName(), projectById.getName());
+        assertEquals(project.getDescription(), projectById.getDescription());
+        assertEquals("An 😀awesome 😃string with a few 😉emojis!", projectById.getDescription());
+        assertEquals(project.getLeader().getId(), projectById.getLeader().getId());
+        assertEquals(project.getVisibility(), projectById.getVisibility());
 
         // Now check if this can also be found as a public project
         PaginationResult<Project> projectsPage = facade.listPublicProjects(new PageInfo(0, 1), initUser.getId());
@@ -160,11 +105,11 @@ public class DALFacadeTest {
 
         Project proj = projects.get(0);
 
-        assertEquals(projectById.getId(),         proj.getId()             );
-        assertEquals(projectById.getName(),       proj.getName()           );
-        assertEquals(projectById.getDescription(),proj.getDescription()      );
-        assertEquals(projectById.getLeader().getId(),     proj.getLeader().getId());
-        assertEquals(projectById.getVisibility(), proj.getVisibility()      );
+        assertEquals(projectById.getId(), proj.getId());
+        assertEquals(projectById.getName(), proj.getName());
+        assertEquals(projectById.getDescription(), proj.getDescription());
+        assertEquals(projectById.getLeader().getId(), proj.getLeader().getId());
+        assertEquals(projectById.getVisibility(), proj.getVisibility());
 
 
         jooq.delete(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Project.PROJECT).where(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Project.PROJECT.ID.equal(project.getId())).execute();
@@ -172,6 +117,33 @@ public class DALFacadeTest {
 
     @Test
     public void testListPublicProjects() throws Exception {
+
+    }
+
+    @Test
+    public void testFeedback() {
+        try {
+            Feedback createdFeedback = facade.createFeedback(Feedback.builder().projectId(testProject.getId()).feedback("Crashes all the time.").build());
+
+            assertNull(createdFeedback.getEMail());
+            assertNotNull(createdFeedback.getCreationDate());
+            assertEquals("Crashes all the time.", createdFeedback.getFeedback());
+            assertEquals(testProject.getId(), createdFeedback.getProjectId());
+
+            Feedback createdFeedbackWithMail = facade.createFeedback(Feedback.builder().projectId(testProject.getId()).feedback("Crashes all the time.").eMail(initUser.getEMail()).build());
+            assertEquals(initUser.getEMail(), createdFeedbackWithMail.getEMail());
+
+            PaginationResult<Feedback> feedbackPage = facade.getFeedbackByProject(testProject.getId(), new PageInfo(0, 20));
+
+            List<Feedback> feedbackByProject = feedbackPage.getElements();
+
+            assertNotNull(feedbackByProject);
+            assertEquals(2, feedbackByProject.size());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.fail(e.toString());
+        }
 
     }
 
