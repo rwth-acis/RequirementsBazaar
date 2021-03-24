@@ -54,9 +54,6 @@ public class User extends EntityBase {
     @Size(min = 1, max = 1000, message = "eMail must have between 1 and 1000 characters")
     private transient String eMail;
 
-    @JsonIgnore
-    private Boolean admin;
-
     @NotNull(message = "las2peerId can't be null")
     @Size(min = 1, max = 1000, message = "las2peerId must have between 1 and 1000 characters")
     private String las2peerId;
@@ -82,11 +79,7 @@ public class User extends EntityBase {
     public String getEMail() {
         return eMail;
     }
-
-    public Boolean isAdmin() {
-        return admin;
-    }
-
+    
     public Boolean isEmailLeadSubscription() {
         return emailLeadSubscription != null && emailLeadSubscription;
     }

@@ -49,7 +49,7 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
     }
 
     @Override
-    public List<Role> listRolesOfUser(int userId, String context) throws BazaarException {
+    public List<Role> listRolesOfUser(int userId, Integer context) throws BazaarException {
         List<Role> roles = null;
 
         try {
@@ -75,7 +75,7 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
     }
 
     @Override
-    public void addUserToRole(int userId, String roleName, String context) throws BazaarException {
+    public void addUserToRole(int userId, String roleName, Integer context) throws BazaarException {
         Role role = findByRoleName(roleName);
         UserRoleMapRecord record = new UserRoleMapRecord();
         record.setRoleId(role.getId());

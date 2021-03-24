@@ -31,9 +31,9 @@ import java.util.List;
 public interface RoleRepository extends Repository<Role> {
     List<Role> listParentsForRole(int roleId) throws BazaarException;
 
-    List<Role> listRolesOfUser(int userId, String context) throws BazaarException;
+    List<Role> listRolesOfUser(int userId, Integer context) throws BazaarException;
 
-    void addUserToRole(int userId, String roleName, String context) throws BazaarException;
+    void addUserToRole(int userId, String roleName, Integer context) throws BazaarException;
 
     Role findByRoleName(String roleName) throws BazaarException;
 }

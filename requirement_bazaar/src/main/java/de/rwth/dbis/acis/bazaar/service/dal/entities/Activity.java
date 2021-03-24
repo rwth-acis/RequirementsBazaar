@@ -46,7 +46,8 @@ public class Activity extends EntityBase {
         REQUIREMENT,
         COMMENT,
         ATTACHMENT,
-        USER
+        USER,
+        FEEDBACK
     }
 
     public enum ActivityAction {

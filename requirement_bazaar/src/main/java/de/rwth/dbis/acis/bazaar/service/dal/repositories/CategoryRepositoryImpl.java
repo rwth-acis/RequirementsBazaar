@@ -147,7 +147,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
 
             UserTransformer userTransformer = new UserTransformer();
             //Filling up LeadDeveloper
-            builder.leader(userTransformer.getEntityFromQueryResult(leaderUser, queryResult));
+            builder.creator(userTransformer.getEntityFromQueryResult(leaderUser, queryResult));
 
             category = builder.build();
 
@@ -206,7 +206,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                 Category category = transformer.getEntityFromTableRecord(categoryRecord);
                 UserTransformer userTransformer = new UserTransformer();
                 UserRecord userRecord = queryResult.into(leaderUser);
-                category.setLeader(userTransformer.getEntityFromTableRecord(userRecord));
+                category.setCreator(userTransformer.getEntityFromTableRecord(userRecord));
                 category.setNumberOfRequirements((Integer) queryResult.getValue(REQUIREMENT_COUNT));
                 category.setNumberOfFollowers((Integer) queryResult.getValue(FOLLOWER_COUNT));
                 if (userId != 1) {
@@ -273,7 +273,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                 Category category = transformer.getEntityFromTableRecord(categoryRecord);
                 UserTransformer userTransformer = new UserTransformer();
                 UserRecord userRecord = queryResult.into(leaderUser);
-                category.setLeader(userTransformer.getEntityFromTableRecord(userRecord));
+                category.setCreator(userTransformer.getEntityFromTableRecord(userRecord));
                 category.setNumberOfRequirements((Integer) queryResult.getValue(requirementCount));
                 category.setNumberOfFollowers((Integer) queryResult.getValue(followerCount));
                 if (userId != 1) {
@@ -351,7 +351,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                 Category category = transformer.getEntityFromTableRecord(categoryRecord);
                 UserTransformer userTransformer = new UserTransformer();
                 UserRecord userRecord = queryResult.into(leaderUser);
-                category.setLeader(userTransformer.getEntityFromTableRecord(userRecord));
+                category.setCreator(userTransformer.getEntityFromTableRecord(userRecord));
                 category.setNumberOfRequirements((Integer) queryResult.getValue(REQUIREMENT_COUNT));
                 category.setNumberOfFollowers((Integer) queryResult.getValue(FOLLOWER_COUNT));
                 if (userId != 1) {

@@ -249,7 +249,7 @@ public interface DALFacade {
     PaginationResult<Requirement> listRequirementsByCategory(int categoryId, Pageable pageable, int userId) throws BazaarException;
 
     /**
-     * @param pageable   pagination information
+     * @param pageable pagination information
      * @param userId
      * @return the requirements filtered by pageable
      */
@@ -452,14 +452,14 @@ public interface DALFacade {
     PaginationResult<Comment> listCommentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
 
     /**
-     * @param pageable      pagination information
+     * @param pageable pagination information
      * @return the set of comments
      */
     PaginationResult<Comment> listAllComments(Pageable pageable) throws BazaarException;
 
     /**
-     *  @param userId the identifier of user we are looking at
-     * @param pageable      pagination information
+     * @param userId   the identifier of user we are looking at
+     * @param pageable pagination information
      * @return the answers for a given user
      */
     PaginationResult<Comment> listAllAnswers(Pageable pageable, int userId) throws BazaarException;
@@ -576,35 +576,66 @@ public interface DALFacade {
      * @param userId the identifier of the user
      * @return all the roles filled up with parents and permissions
      */
-    List<Role> getRolesByUserId(int userId, String context) throws BazaarException;
+    List<Role> getRolesByUserId(int userId, Integer context) throws BazaarException;
 
     List<Role> getParentsForRole(int roleId) throws BazaarException;
 
     void createPrivilegeIfNotExists(PrivilegeEnum privilege) throws BazaarException;
 
-    void addUserToRole(int userId, String roleName, String context) throws BazaarException;
+    void addUserToRole(int userId, String roleName, Integer context) throws BazaarException;
     //endregion
-
 
 
     /**
      * Receives the PersonalisationData for a given userid, key and version
-     * @param userId which owns the personalisationData.
-     * @param key which identifies the personalisationData.
+     *
+     * @param userId  which owns the personalisationData.
+     * @param key     which identifies the personalisationData.
      * @param version of the key's plugin
      */
     PersonalisationData getPersonalisationData(int userId, String key, int version) throws BazaarException;
+
     /**
      * Creates a new record or alters the existing record to save a given personalisationData
+     *
      * @param personalisationData which holds the data to be saved
      */
     void setPersonalisationData(PersonalisationData personalisationData) throws BazaarException;
 
     /**
      * Creates an Entity-Overview for a given user
+     *
      * @param includes List of entities to include values: [projects, categories, requirements]
      * @param pageable Used for search-term, filters and sorting
      * @param userId   userId for privilege-check
      */
     EntityOverview getEntitiesForUser(List<String> includes, Pageable pageable, int userId) throws BazaarException;
+
+    /**
+     * Creates a new feedback item
+     *
+     * @param feedback the feedback to create (as submitted by the api)
+     * @return the created feedback item
+     * @throws BazaarException
+     */
+    Feedback createFeedback(Feedback feedback) throws Exception;
+
+    /**
+     * Returns the feedback for a project
+     *
+     * @param projectId Project to look for
+     * @param pageable  a pageable
+     * @return Pageable with the feedback for this project
+     * @throws BazaarException
+     */
+    PaginationResult<Feedback> getFeedbackByProject(int projectId, Pageable pageable) throws BazaarException;
+
+    /**
+     * Allows to retrieve a single feedback item
+     *
+     * @param feedbackId ID of the feedback item
+     * @return the requested feedback item
+     * @throws Exception
+     */
+    Feedback getFeedbackById(int feedbackId) throws Exception;
 }

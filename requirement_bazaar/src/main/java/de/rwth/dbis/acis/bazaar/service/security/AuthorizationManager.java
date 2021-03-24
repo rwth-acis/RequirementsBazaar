@@ -34,17 +34,6 @@ import java.util.List;
  */
 public class AuthorizationManager {
 
-    public boolean isAuthorized(int userId, PrivilegeEnum privilege, List<String> contexts, DALFacade facade) throws BazaarException {
-        for (String context : contexts) {
-            List<Role> userRoles = facade.getRolesByUserId(userId, context);
-            boolean authorized = isAuthorized(userRoles, privilege, facade);
-            if (authorized)
-                return true;
-        }
-
-        return false;
-    }
-
     public boolean isAuthorized(int userId, PrivilegeEnum privilege, DALFacade facade) throws BazaarException {
         List<Role> userRoles = facade.getRolesByUserId(userId, null);
 
@@ -52,7 +41,7 @@ public class AuthorizationManager {
 
     }
 
-    public boolean isAuthorized(int userId, PrivilegeEnum privilege, String context, DALFacade facade) throws BazaarException {
+    public boolean isAuthorized(int userId, PrivilegeEnum privilege, Integer context, DALFacade facade) throws BazaarException {
         List<Role> userRoles = facade.getRolesByUserId(userId, context);
 
         return isAuthorized(userRoles, privilege, facade);

@@ -64,6 +64,7 @@ public class DALFacadeImpl implements DALFacade {
     private RoleRepository roleRepository;
     private PrivilegeRepository privilegeRepository;
     private PersonalisationDataRepository personalisationDataRepository;
+    private FeedbackRepository feedbackRepository;
 
     public DALFacadeImpl(DataSource dataSource, SQLDialect dialect) {
         dslContext = DSL.using(dataSource, dialect);
@@ -211,7 +212,7 @@ public class DALFacadeImpl implements DALFacade {
                 .description(categoryDescription)
                 .projectId(newProject.getId())
                 .build();
-        uncategorizedCategory.setLeader(project.getLeader());
+        uncategorizedCategory.setCreator(project.getLeader());
         Category defaultCategory = createCategory(uncategorizedCategory, userId);
         newProject.setDefaultCategoryId(defaultCategory.getId());
         // TODO: concurrency transaction -> https://www.jooq.org/doc/3.9/manual/sql-execution/transaction-management/
@@ -485,6 +486,7 @@ public class DALFacadeImpl implements DALFacade {
         commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
         return commentRepository.findAllComments(pageable);
     }
+
     @Override
     public PaginationResult<Comment> listAllAnswers(Pageable pageable, int userId) throws BazaarException {
         commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
@@ -617,7 +619,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public List<Role> getRolesByUserId(int userId, String context) throws BazaarException {
+    public List<Role> getRolesByUserId(int userId, Integer context) throws BazaarException {
         roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
         return roleRepository.listRolesOfUser(userId, context);
     }
@@ -640,15 +642,17 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public void addUserToRole(int userId, String roleName, String context) throws BazaarException {
+    public void addUserToRole(int userId, String roleName, Integer context) throws BazaarException {
         roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
         roleRepository.addUserToRole(userId, roleName, context);
     }
+
     @Override
     public PersonalisationData getPersonalisationData(int userId, String key, int version) throws BazaarException {
         personalisationDataRepository = (personalisationDataRepository != null) ? personalisationDataRepository : new PersonalisationDataRepositoryImpl(dslContext);
         return personalisationDataRepository.findByKey(userId,version,key);
     }
+
     @Override
     public void setPersonalisationData(PersonalisationData personalisationData) throws BazaarException {
         personalisationDataRepository = (personalisationDataRepository != null) ? personalisationDataRepository : new PersonalisationDataRepositoryImpl(dslContext);
@@ -678,7 +682,24 @@ public class DALFacadeImpl implements DALFacade {
             //TODO Add Comments/Attachments
         }
         return result.build();
-
     }
 
+    @Override
+    public Feedback createFeedback(Feedback feedback) throws Exception {
+        feedbackRepository = (feedbackRepository != null) ? feedbackRepository : new FeedbackRepositoryImpl(dslContext);
+        Feedback newFeedback = feedbackRepository.add(feedback);
+        return feedbackRepository.findById(newFeedback.getId());
+    }
+
+    @Override
+    public PaginationResult<Feedback> getFeedbackByProject(int projectId, Pageable pageable) throws BazaarException {
+        feedbackRepository = (feedbackRepository != null) ? feedbackRepository : new FeedbackRepositoryImpl(dslContext);
+        return feedbackRepository.findAllByProject(projectId, pageable);
+    }
+
+    @Override
+    public Feedback getFeedbackById(int feedbackId) throws Exception {
+        feedbackRepository = (feedbackRepository != null) ? feedbackRepository : new FeedbackRepositoryImpl(dslContext);
+        return feedbackRepository.findById(feedbackId);
+    }
 }

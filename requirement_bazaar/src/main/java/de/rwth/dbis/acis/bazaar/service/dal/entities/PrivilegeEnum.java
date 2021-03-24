@@ -38,6 +38,7 @@ public enum PrivilegeEnum {
     Read_REQUIREMENT,
     Read_PUBLIC_REQUIREMENT,
     Modify_REQUIREMENT,
+    Realize_REQUIREMENT,
 
     Create_COMMENT,
     Read_COMMENT,
@@ -53,5 +54,7 @@ public enum PrivilegeEnum {
     Create_FOLLOW, Delete_FOLLOW,
 
     Create_DEVELOP, Delete_DEVELOP,
-    Read_PERSONALISATION_DATA, Create_PERSONALISATION_DATA        //Create covers "PUT" Operation
+    Read_PERSONALISATION_DATA, Create_PERSONALISATION_DATA,        //Create covers "PUT" Operation
+
+    Read_FEEDBACK
 }

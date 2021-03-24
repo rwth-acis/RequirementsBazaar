@@ -56,7 +56,7 @@ public class Category extends EntityBase {
     @Min(value = 0, groups = CreateValidation.class)
     private int projectId;
 
-    private User leader;
+    private User creator;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
     private LocalDateTime creationDate;
