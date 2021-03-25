@@ -149,10 +149,6 @@ jooq {
                         name = 'org.jooq.meta.mysql.MySQLDatabase'
                         inputSchema = "${project.property('db.name')}"
                         forcedTypes {
-                            forcedType {
-                                name = 'BOOLEAN'
-                                includeExpression = ".*\\.admin"
-                            }
                         }
                     }
                     generate {
