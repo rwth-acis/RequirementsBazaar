@@ -13,6 +13,8 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 ### Added
 
 - Added new testcases [#73](https://github.com/rwth-acis/RequirementsBazaar/pull/73)
+- Added endpoints to provide anonymous feedback which can be read by project
+  admins [#85](https://github.com/rwth-acis/RequirementsBazaar/pull/85)
 
 ### Changed
 
@@ -33,6 +35,8 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 - Order by name now implies natural sorting [#82](https://github.com/rwth-acis/RequirementsBazaar/pull/82)
 - Remove static code from data classes and generate getter/setters and builder with lombok. This renames the `category`
   attribute in `EntityContext` to `categories` [#83](https://github.com/rwth-acis/RequirementsBazaar/pull/82)
+- Rework permission system as lined out
+  in [Privileges](docs/Privileges.md) [#85](https://github.com/rwth-acis/RequirementsBazaar/pull/85)
 
 ## [0.7.2] - 2017-10-25
 

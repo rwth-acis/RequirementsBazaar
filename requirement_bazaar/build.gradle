@@ -18,9 +18,10 @@ plugins {
     id 'java'
     id 'application'
     id 'idea'
-    id "org.flywaydb.flyway" version "7.3.2"
-    id "nu.studer.jooq" version "5.2"
+    id "org.flywaydb.flyway" version "7.7.1"
+    id "nu.studer.jooq" version "5.2.1"
     id "io.freefair.lombok" version "5.3.0"
+    id 'com.github.ben-manes.versions' version '0.38.0'
 }
 
 application {
@@ -62,7 +63,7 @@ dependencies {
     jooqGenerator "mysql:mysql-connector-java:${project.property('mysql.version')}"
     jooqGenerator "org.jooq:jooq-codegen:${project.property('jooq.version')}"
 
-    implementation "org.flywaydb:flyway-core:7.3.2"
+    implementation "org.flywaydb:flyway-core:7.7.1"
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'org.apache.commons:commons-pool2:2.9.0'
     implementation 'org.apache.commons:commons-dbcp2:2.8.0'
