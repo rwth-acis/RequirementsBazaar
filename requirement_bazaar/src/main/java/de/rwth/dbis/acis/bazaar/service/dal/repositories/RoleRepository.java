@@ -20,7 +20,10 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
+import de.rwth.dbis.acis.bazaar.service.dal.entities.ProjectMember;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.util.List;
@@ -36,4 +39,6 @@ public interface RoleRepository extends Repository<Role> {
     void addUserToRole(int userId, String roleName, Integer context) throws BazaarException;
 
     Role findByRoleName(String roleName) throws BazaarException;
+
+    PaginationResult<ProjectMember> listProjectMembers(int projectId, Pageable pageable) throws BazaarException;
 }

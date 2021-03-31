@@ -36,7 +36,7 @@ import java.time.LocalDateTime;
 @Data
 @Jacksonized
 @Builder(builderClassName = "Builder")
-public class Attachment extends EntityBase {
+public class Attachment extends EntityBase implements Ownable {
 
     private int id;
 
@@ -66,6 +66,11 @@ public class Attachment extends EntityBase {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
     private LocalDateTime creationDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone="Europe/Berlin")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
     private LocalDateTime lastUpdatedDate;
+
+    @Override
+    public boolean isOwner(User user) {
+        return creator == user;
+    }
 }

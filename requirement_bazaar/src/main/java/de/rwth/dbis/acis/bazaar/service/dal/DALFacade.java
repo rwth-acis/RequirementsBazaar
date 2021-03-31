@@ -638,4 +638,12 @@ public interface DALFacade {
      * @throws Exception
      */
     Feedback getFeedbackById(int feedbackId) throws Exception;
+
+    /**
+     * Get the members of a project and their according role
+     *
+     * @param projectId
+     * @return List of projectmembers in the project
+     */
+    PaginationResult<ProjectMember> getProjectMembers(int projectId, Pageable pageable) throws BazaarException;
 }

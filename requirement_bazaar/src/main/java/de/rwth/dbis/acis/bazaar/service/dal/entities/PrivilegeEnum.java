@@ -56,5 +56,7 @@ public enum PrivilegeEnum {
     Create_DEVELOP, Delete_DEVELOP,
     Read_PERSONALISATION_DATA, Create_PERSONALISATION_DATA,        //Create covers "PUT" Operation
 
-    Read_FEEDBACK
+    Read_FEEDBACK,
+    Modify_MEMBERS,
+    Modify_ADMIN_MEMBERS,
 }

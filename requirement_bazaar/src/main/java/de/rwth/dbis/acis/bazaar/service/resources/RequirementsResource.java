@@ -26,6 +26,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -988,7 +989,7 @@ public class RequirementsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method creates a vote for the given requirement in the name of the current user.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = Requirement.class),
+            @ApiResponse(code = HttpURLConnection.HTTP_SEE_OTHER, message = "Returns the requirement", response = Requirement.class),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -1024,7 +1025,7 @@ public class RequirementsResource {
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.VOTE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_35,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
-            return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
+            return Response.status(Response.Status.SEE_OTHER).location(URI.create(bazaarService.getBaseURL() + "requirement/" + requirementId)).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
@@ -1080,7 +1081,7 @@ public class RequirementsResource {
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.UNVOTE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_36,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
-            return Response.ok(requirement.toJSON()).build();
+            return Response.status(Response.Status.SEE_OTHER).location(URI.create(bazaarService.getBaseURL() + "requirement/" + requirementId)).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();

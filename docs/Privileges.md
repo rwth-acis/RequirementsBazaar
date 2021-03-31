@@ -32,12 +32,14 @@ There are 6 roles, which inherit the privileges of the roles mentioned before. T
 |LoggedInUser  |Read_PERSONALISATION_DATA  |
 |ProjectAdmin  |Modify_CATEGORY            |
 |ProjectAdmin  |Modify_PROJECT             |
+|ProjectAdmin  |Modify_ADMIN_MEMBERS       |
 |ProjectManager|Create_CATEGORY            |
 |ProjectManager|Modify_ATTACHMENT          |
 |ProjectManager|Modify_COMMENT             |
 |ProjectManager|Modify_REQUIREMENT         |
 |ProjectManager|Promote_USER               |
 |ProjectManager|Read_FEEDBACK              |
+|ProjectManager|Modify_MEMBERS             |
 |ProjectMember |Create_DEVELOP             |
 |ProjectMember |Delete_DEVELOP             |
 |ProjectMember |Read_ATTACHMENT            |

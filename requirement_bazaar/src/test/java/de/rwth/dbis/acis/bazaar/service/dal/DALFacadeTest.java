@@ -23,6 +23,7 @@ package de.rwth.dbis.acis.bazaar.service.dal;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Feedback;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.ProjectMember;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
@@ -90,6 +91,7 @@ public class DALFacadeTest extends SetupData {
         assertEquals("An 😀awesome 😃string with a few 😉emojis!", projectById.getDescription());
         assertEquals(project.getLeader().getId(), projectById.getLeader().getId());
         assertEquals(project.getVisibility(), projectById.getVisibility());
+        assertTrue(projectById.isOwner(initUser));
 
         // Now check if this can also be found as a public project
         PaginationResult<Project> projectsPage = facade.listPublicProjects(new PageInfo(0, 1), initUser.getId());
@@ -113,6 +115,16 @@ public class DALFacadeTest extends SetupData {
 
 
         jooq.delete(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Project.PROJECT).where(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Project.PROJECT.ID.equal(project.getId())).execute();
+    }
+
+    @Test
+    public void testGetProjectMembers() throws Exception {
+        PaginationResult<ProjectMember> membersPage = facade.getProjectMembers(testProject.getId(), new PageInfo(0, 100));
+
+        List<ProjectMember> members = membersPage.getElements();
+
+        assertNotNull(members);
+        assertEquals(1, members.size());
     }
 
     @Test

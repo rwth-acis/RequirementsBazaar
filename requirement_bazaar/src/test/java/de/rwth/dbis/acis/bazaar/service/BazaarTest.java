@@ -11,6 +11,8 @@ import org.junit.Test;
 import javax.ws.rs.core.MediaType;
 import java.util.HashMap;
 
+import static org.junit.Assert.*;
+
 public class BazaarTest extends TestBase {
 
     /**
@@ -24,12 +26,12 @@ public class BazaarTest extends TestBase {
             ClientResponse result = client.sendRequest("GET", mainPath + "version", "");
             JsonObject response = JsonParser.parseString(result.getResponse()).getAsJsonObject();
             System.out.println(response.toString());
-            Assert.assertTrue(response.isJsonObject());
-            Assert.assertEquals(response.get("version").getAsString(), BazaarService.class.getName() + "@" + testVersion);
+            assertTrue(response.isJsonObject());
+            assertEquals(response.get("version").getAsString(), BazaarService.class.getName() + "@" + testVersion);
 
         } catch (Exception e) {
             e.printStackTrace();
-            Assert.fail(e.toString());
+            fail(e.toString());
         }
     }
 
@@ -46,13 +48,13 @@ public class BazaarTest extends TestBase {
                     MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
             System.out.println(result.toString());
             System.out.println("Result of 'testPost': " + result.getResponse().trim());
-            Assert.assertEquals(201, result.getHttpCode());
+            assertEquals(201, result.getHttpCode());
 
             JsonObject response = JsonParser.parseString(result.getResponse()).getAsJsonObject();
-            Assert.assertTrue(response.isJsonObject());
+            assertTrue(response.isJsonObject());
 
             // gson doesn't remove the quotes
-            Assert.assertTrue(isValidISO8601(response.get("creationDate").toString().replace("\"", "")));
+            assertTrue(isValidISO8601(response.get("creationDate").toString().replace("\"", "")));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -70,24 +72,61 @@ public class BazaarTest extends TestBase {
 
             ClientResponse result = client.sendRequest("GET", mainPath + "projects", "");
 
-            Assert.assertEquals(200, result.getHttpCode());
+            assertEquals(200, result.getHttpCode());
             JsonElement response = JsonParser.parseString(result.getResponse());
             System.out.println(response.toString());
-            Assert.assertTrue(response.isJsonArray());
+            assertTrue(response.isJsonArray());
 
             // Now for a specific project
             result = client.sendRequest("GET", mainPath + "projects/" + testProject.getId(), "");
 
-            Assert.assertEquals(200, result.getHttpCode());
+            assertEquals(200, result.getHttpCode());
             response = JsonParser.parseString(result.getResponse());
             System.out.println(response.toString());
-            Assert.assertTrue(response.isJsonObject());
+            assertTrue(response.isJsonObject());
 
             JsonObject jsonObject = JsonParser.parseString(result.getResponse()).getAsJsonObject();
-            Assert.assertTrue(isValidISO8601(jsonObject.get("creationDate").toString().replace("\"", "")));
+            assertTrue(isValidISO8601(jsonObject.get("creationDate").toString().replace("\"", "")));
         } catch (Exception e) {
             e.printStackTrace();
-            Assert.fail(e.toString());
+            fail(e.toString());
+        }
+    }
+
+    /**
+     * Test to get a list of projects
+     */
+    @Test
+    public void testMembers() {
+        try {
+            MiniClient client = getClient();
+            MiniClient adminClient = getAdminClient();
+
+            String path = mainPath + "projects/" + testProject.getId() + "/members";
+            ClientResponse result = client.sendRequest("GET", path, "");
+            assertEquals(200, result.getHttpCode());
+
+            JsonElement response = JsonParser.parseString(result.getResponse());
+            System.out.println(response.toString());
+            assertTrue(response.isJsonArray());
+
+            // Now add user role
+            String testRequest = "{\"userId\": 3,  \"role\": \"ProjectManager\"}";
+            result = adminClient.sendRequest("PUT", path, testRequest, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
+            assertEquals(204, result.getHttpCode());
+
+            result = client.sendRequest("GET", path, "");
+            assertEquals(200, result.getHttpCode());
+
+            response = JsonParser.parseString(result.getResponse());
+            System.out.println(response.toString());
+            assertTrue(response.isJsonArray());
+
+            assertEquals(2, response.getAsJsonArray().size());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.toString());
         }
     }
 
@@ -104,17 +143,17 @@ public class BazaarTest extends TestBase {
                     MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
             System.out.println(result.toString());
             System.out.println("Result of 'testPost': " + result.getResponse().trim());
-            Assert.assertEquals(201, result.getHttpCode());
+            assertEquals(201, result.getHttpCode());
 
             JsonObject response = JsonParser.parseString(result.getResponse()).getAsJsonObject();
-            Assert.assertTrue(response.isJsonObject());
+            assertTrue(response.isJsonObject());
 
             // gson doesn't remove the quotes
-            Assert.assertTrue(isValidISO8601(response.get("creationDate").toString().replace("\"", "")));
+            assertTrue(isValidISO8601(response.get("creationDate").toString().replace("\"", "")));
 
         } catch (Exception e) {
             e.printStackTrace();
-            Assert.fail(e.toString());
+            fail(e.toString());
         }
     }
 
@@ -132,7 +171,7 @@ public class BazaarTest extends TestBase {
                     MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
             System.out.println(result.toString());
             System.out.println("Result of 'testPost': " + result.getResponse().trim());
-            Assert.assertEquals(201, result.getHttpCode());
+            assertEquals(201, result.getHttpCode());
 
             JsonObject response = JsonParser.parseString(result.getResponse()).getAsJsonObject();
             Assert.assertTrue(response.isJsonObject());
@@ -160,13 +199,13 @@ public class BazaarTest extends TestBase {
 
             System.out.println(result.getResponse());
 
-            Assert.assertEquals(401, result.getHttpCode());
+            assertEquals(401, result.getHttpCode());
 
             result = adminClient.sendRequest("GET", path, "");
 
             System.out.println(result.getResponse());
 
-            Assert.assertEquals(200, result.getHttpCode());
+            assertEquals(200, result.getHttpCode());
         } catch (Exception e) {
             e.printStackTrace();
             Assert.fail(e.toString());

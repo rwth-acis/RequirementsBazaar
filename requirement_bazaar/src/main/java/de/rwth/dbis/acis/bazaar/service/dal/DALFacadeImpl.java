@@ -216,6 +216,7 @@ public class DALFacadeImpl implements DALFacade {
         Category defaultCategory = createCategory(uncategorizedCategory, userId);
         newProject.setDefaultCategoryId(defaultCategory.getId());
         // TODO: concurrency transaction -> https://www.jooq.org/doc/3.9/manual/sql-execution/transaction-management/
+        addUserToRole(userId, "ProjectAdmin", newProject.getId());
         return projectRepository.update(newProject);
     }
 
@@ -270,7 +271,7 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public PaginationResult<Requirement> listAllRequirements( Pageable pageable, int userId) throws BazaarException {
+    public PaginationResult<Requirement> listAllRequirements(Pageable pageable, int userId) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         return requirementRepository.findAll(pageable, userId);
     }
@@ -650,7 +651,7 @@ public class DALFacadeImpl implements DALFacade {
     @Override
     public PersonalisationData getPersonalisationData(int userId, String key, int version) throws BazaarException {
         personalisationDataRepository = (personalisationDataRepository != null) ? personalisationDataRepository : new PersonalisationDataRepositoryImpl(dslContext);
-        return personalisationDataRepository.findByKey(userId,version,key);
+        return personalisationDataRepository.findByKey(userId, version, key);
     }
 
     @Override
@@ -664,7 +665,7 @@ public class DALFacadeImpl implements DALFacade {
     public EntityOverview getEntitiesForUser(List<String> includes, Pageable pageable, int userId) throws BazaarException {
         //categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
         EntityOverview.Builder result = EntityOverview.builder();
-        for(String include : includes) {
+        for (String include : includes) {
             switch (include) {
                 case "projects" -> {
                     projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
@@ -701,5 +702,11 @@ public class DALFacadeImpl implements DALFacade {
     public Feedback getFeedbackById(int feedbackId) throws Exception {
         feedbackRepository = (feedbackRepository != null) ? feedbackRepository : new FeedbackRepositoryImpl(dslContext);
         return feedbackRepository.findById(feedbackId);
+    }
+
+    @Override
+    public PaginationResult<ProjectMember> getProjectMembers(int projectId, Pageable pageable) throws BazaarException {
+        roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
+        return roleRepository.listProjectMembers(projectId, pageable);
     }
 }

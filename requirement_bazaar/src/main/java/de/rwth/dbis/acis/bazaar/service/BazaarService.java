@@ -173,6 +173,11 @@ public class BazaarService extends RESTService {
         notificationDispatcher.setBazaarService(this);
     }
 
+    public String getBaseURL() {
+        return baseURL;
+    }
+
+
     @Api(value = "/", description = "Bazaar service")
     @SwaggerDefinition(
             info = @Info(

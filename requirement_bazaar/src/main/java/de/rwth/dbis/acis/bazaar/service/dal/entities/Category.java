@@ -41,7 +41,7 @@ import java.time.LocalDateTime;
 @Data
 @Jacksonized
 @Builder(builderClassName = "Builder")
-public class Category extends EntityBase {
+public class Category extends EntityBase implements Ownable {
 
     private int id;
 
@@ -71,5 +71,10 @@ public class Category extends EntityBase {
     @JsonProperty("isFollower")
     public Boolean isFollower() {
         return isFollower;
+    }
+
+    @Override
+    public boolean isOwner(User user) {
+        return creator == user;
     }
 }
