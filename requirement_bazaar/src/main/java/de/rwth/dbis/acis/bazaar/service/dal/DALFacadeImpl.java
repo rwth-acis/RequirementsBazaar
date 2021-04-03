@@ -649,6 +649,12 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public void removeUserFromProject(int userId, Integer context) throws BazaarException {
+        roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
+        roleRepository.removeUserFromRole(userId, context);
+    }
+
+    @Override
     public PersonalisationData getPersonalisationData(int userId, String key, int version) throws BazaarException {
         personalisationDataRepository = (personalisationDataRepository != null) ? personalisationDataRepository : new PersonalisationDataRepositoryImpl(dslContext);
         return personalisationDataRepository.findByKey(userId, version, key);

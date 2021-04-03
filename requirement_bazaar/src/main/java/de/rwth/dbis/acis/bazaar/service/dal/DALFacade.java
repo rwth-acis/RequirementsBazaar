@@ -646,4 +646,13 @@ public interface DALFacade {
      * @return List of projectmembers in the project
      */
     PaginationResult<ProjectMember> getProjectMembers(int projectId, Pageable pageable) throws BazaarException;
+
+    /**
+     * Allows to remove a role from a user
+     *
+     * @param userId
+     * @param context
+     * @throws BazaarException
+     */
+    void removeUserFromProject(int userId, Integer context) throws BazaarException;
 }

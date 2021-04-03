@@ -154,6 +154,11 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
     }
 
     @Override
+    public void removeUserFromRole(int userId, Integer context) throws BazaarException {
+        jooq.deleteFrom(USER_ROLE_MAP).where(USER_ROLE_MAP.USER_ID.equal(userId).and(USER_ROLE_MAP.CONTEXT_INFO.eq(context))).execute();
+    }
+
+    @Override
     public List<Role> listParentsForRole(int roleId) throws BazaarException {
         List<Role> roles = null;
 

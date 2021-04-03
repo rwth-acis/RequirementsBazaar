@@ -880,4 +880,66 @@ public class ProjectsResource {
             bazaarService.closeDBConnection(dalFacade);
         }
     }
+
+    @DELETE
+    @Path("/{projectId}/members/{memberId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "This method allows to remove a project member.")
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpURLConnection.HTTP_NO_CONTENT, message = "Member removed"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+    })
+    public Response removeMember(@PathParam("projectId") int projectId, @PathParam("memberId") int memberId) {
+        DALFacade dalFacade = null;
+        try {
+            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registrarErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
+            }
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
+
+            dalFacade = bazaarService.getDBConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+            // Get roles of the member to modify to prevent admins being removed by managers
+            List<Role> modifiedMemberRoles = dalFacade.getRolesByUserId(memberId, projectId);
+
+            // Only Admins should be able to remove admins.
+            // Differentiate here by checking if a user is a project admin
+            PrivilegeEnum privilege = PrivilegeEnum.Modify_MEMBERS;
+            if (modifiedMemberRoles.stream().anyMatch(role -> role.getName().equals(ProjectRole.ProjectAdmin.name()))) {
+                privilege = PrivilegeEnum.Modify_ADMIN_MEMBERS;
+            }
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, privilege, projectId, dalFacade);
+            if (!authorized) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.modify"));
+            }
+
+            dalFacade.removeUserFromProject(memberId, projectId);
+
+            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_6, projectId, Activity.DataType.PROJECT, internalUserId);
+
+            return Response.noContent().build();
+        } catch (BazaarException bex) {
+            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } else {
+                logger.warning(bex.getMessage());
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Update project");
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            }
+        } catch (Exception ex) {
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Update project");
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+        } finally {
+            bazaarService.closeDBConnection(dalFacade);
+        }
+    }
 }

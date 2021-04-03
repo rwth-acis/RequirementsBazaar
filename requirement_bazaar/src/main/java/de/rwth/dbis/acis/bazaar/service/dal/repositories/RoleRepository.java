@@ -41,4 +41,6 @@ public interface RoleRepository extends Repository<Role> {
     Role findByRoleName(String roleName) throws BazaarException;
 
     PaginationResult<ProjectMember> listProjectMembers(int projectId, Pageable pageable) throws BazaarException;
+
+    void removeUserFromRole(int userId, Integer context) throws BazaarException;
 }

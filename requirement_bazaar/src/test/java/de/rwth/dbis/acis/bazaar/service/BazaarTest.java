@@ -111,7 +111,7 @@ public class BazaarTest extends TestBase {
             assertTrue(response.isJsonArray());
 
             // Now add user role
-            String testRequest = "{\"userId\": 3,  \"role\": \"ProjectManager\"}";
+            String testRequest = "{\"userId\": 3,  \"role\": \"ProjectMember\"}";
             result = adminClient.sendRequest("PUT", path, testRequest, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
             assertEquals(204, result.getHttpCode());
 
@@ -123,6 +123,22 @@ public class BazaarTest extends TestBase {
             assertTrue(response.isJsonArray());
 
             assertEquals(2, response.getAsJsonArray().size());
+
+            // And now delete again
+            String delPath = mainPath + "projects/" + testProject.getId() + "/members/" + 3;
+            result = client.sendRequest("DELETE", delPath, "");
+            assertEquals(401, result.getHttpCode());
+            result = adminClient.sendRequest("DELETE", delPath, "");
+            assertEquals(204, result.getHttpCode());
+
+            result = client.sendRequest("GET", path, "");
+            assertEquals(200, result.getHttpCode());
+
+            response = JsonParser.parseString(result.getResponse());
+            System.out.println(response.toString());
+            assertTrue(response.isJsonArray());
+
+            assertEquals(1, response.getAsJsonArray().size());
 
         } catch (Exception e) {
             e.printStackTrace();

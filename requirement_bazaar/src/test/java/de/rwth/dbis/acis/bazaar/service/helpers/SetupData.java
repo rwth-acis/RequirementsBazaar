@@ -21,6 +21,7 @@ public abstract class SetupData {
     public DSLContext jooq;
     public User initUser;
     public Project testProject;
+    // las2peer id of eve (defined in the testing components of las2peer)
     public String eveId = "799dea0f00e126dc3493f362bddbddbc55bdfbb918fce3b12f68e1340a8ea7de7aaaa8a7af900b6ee7f849a524b18649d4ae80cb406959568f405a487f085ac7";
 
     private static DataSource setupDataSource(String dbUrl, String dbUserName, String dbPassword) {
