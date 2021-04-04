@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import i5.las2peer.connectors.webConnector.client.ClientResponse;
 import i5.las2peer.connectors.webConnector.client.MiniClient;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import javax.ws.rs.core.MediaType;
@@ -14,6 +15,21 @@ import java.util.HashMap;
 import static org.junit.Assert.*;
 
 public class BazaarTest extends TestBase {
+
+    private int adamId;
+
+    @Before
+    public void adamSetup() {
+        MiniClient client = getClient();
+
+        ClientResponse result = client.sendRequest("GET", mainPath + "users/me", "");
+        assertEquals(200, result.getHttpCode());
+
+        JsonObject response = JsonParser.parseString(result.getResponse()).getAsJsonObject();
+        System.out.println(response.toString());
+        assertTrue(response.isJsonObject());
+        adamId = response.get("id").getAsInt();
+    }
 
     /**
      * Test to get the version from the version endpoint
@@ -111,7 +127,7 @@ public class BazaarTest extends TestBase {
             assertTrue(response.isJsonArray());
 
             // Now add user role
-            String testRequest = "{\"userId\": 3,  \"role\": \"ProjectMember\"}";
+            String testRequest = String.format("{\"userId\": %s,  \"role\": \"ProjectMember\"}", adamId);
             result = adminClient.sendRequest("PUT", path, testRequest, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
             assertEquals(204, result.getHttpCode());
 
@@ -125,7 +141,7 @@ public class BazaarTest extends TestBase {
             assertEquals(2, response.getAsJsonArray().size());
 
             // And now delete again
-            String delPath = mainPath + "projects/" + testProject.getId() + "/members/" + 3;
+            String delPath = mainPath + "projects/" + testProject.getId() + "/members/" + adamId;
             result = client.sendRequest("DELETE", delPath, "");
             assertEquals(401, result.getHttpCode());
             result = adminClient.sendRequest("DELETE", delPath, "");
