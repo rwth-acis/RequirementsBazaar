@@ -651,4 +651,27 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
         }
         return entries;
     }
+
+    public List<User> search(Pageable pageable) throws BazaarException {
+        List<User> entries = null;
+        try {
+            entries = new ArrayList<>();
+            List<UserRecord> queryResults = jooq.selectFrom(transformer.getTable())
+                    .where(transformer.getSearchCondition(pageable.getSearch()))
+                    .limit(pageable.getPageSize())
+                    .offset(pageable.getOffset())
+                    .fetchInto(transformer.getRecordClass());
+
+            for (UserRecord queryResult : queryResults) {
+                User entry = transformer.getEntityFromTableRecord(queryResult);
+                entries.add(entry);
+            }
+        } catch (BazaarException ex) {
+            ExceptionHandler.getInstance().convertAndThrowException(ex);
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+
+        return entries;
+    }
 }

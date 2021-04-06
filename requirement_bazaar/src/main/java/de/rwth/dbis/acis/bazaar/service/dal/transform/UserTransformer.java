@@ -143,7 +143,7 @@ public class UserTransformer implements Transformer<User, UserRecord> {
     @Override
     public Condition getSearchCondition(String search) throws Exception {
         return USER.USER_NAME.likeIgnoreCase("%" + search + "%")
-                .or(USER.EMAIL.likeIgnoreCase("%" + search + "%"))
+                .or(USER.EMAIL.likeIgnoreCase(search))
                 .or(USER.FIRST_NAME.likeIgnoreCase("%" + search + "%"))
                 .or(USER.LAST_NAME.likeIgnoreCase("%" + search + "%"));
     }

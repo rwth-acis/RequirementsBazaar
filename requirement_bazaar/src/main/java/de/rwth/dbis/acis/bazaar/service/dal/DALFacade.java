@@ -135,6 +135,15 @@ public interface DALFacade {
      * @return list of users to receive email notification
      */
     List<User> getRecipientListForRequirement(int requirementId) throws BazaarException;
+
+    /**
+     * Search for users with a given search term
+     *
+     * @param pageInfo
+     * @return
+     */
+    PaginationResult<User> searchUsers(PageInfo pageInfo) throws BazaarException;
+
     //endregion
 
     //region Project
@@ -193,6 +202,23 @@ public interface DALFacade {
     Statistic getStatisticsForAllProjects(int userId, Calendar since) throws BazaarException;
 
     Statistic getStatisticsForProject(int userId, int projectId, Calendar since) throws BazaarException;
+
+    /**
+     * Get the members of a project and their according role
+     *
+     * @param projectId
+     * @return List of projectmembers in the project
+     */
+    PaginationResult<ProjectMember> getProjectMembers(int projectId, Pageable pageable) throws BazaarException;
+
+    /**
+     * Allows to remove a role from a user
+     *
+     * @param userId
+     * @param context
+     * @throws BazaarException
+     */
+    void removeUserFromProject(int userId, Integer context) throws BazaarException;
     //endregion
 
     //region ProjectFollower
@@ -611,6 +637,8 @@ public interface DALFacade {
      */
     EntityOverview getEntitiesForUser(List<String> includes, Pageable pageable, int userId) throws BazaarException;
 
+    // region feedback
+
     /**
      * Creates a new feedback item
      *
@@ -638,21 +666,5 @@ public interface DALFacade {
      * @throws Exception
      */
     Feedback getFeedbackById(int feedbackId) throws Exception;
-
-    /**
-     * Get the members of a project and their according role
-     *
-     * @param projectId
-     * @return List of projectmembers in the project
-     */
-    PaginationResult<ProjectMember> getProjectMembers(int projectId, Pageable pageable) throws BazaarException;
-
-    /**
-     * Allows to remove a role from a user
-     *
-     * @param userId
-     * @param context
-     * @throws BazaarException
-     */
-    void removeUserFromProject(int userId, Integer context) throws BazaarException;
+    // endregion feedback
 }

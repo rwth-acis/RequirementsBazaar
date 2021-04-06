@@ -59,4 +59,13 @@ public interface UserRepository extends Repository<User> {
     List<User> getEmailReceiverForCategory(int categoryId) throws BazaarException;
 
     List<User> getEmailReceiverForRequirement(int requirementId) throws BazaarException;
+
+    /**
+     * Search with custom search and order logic
+     *
+     * @param pageable
+     * @return
+     * @throws BazaarException
+     */
+    List<User> search(Pageable pageable) throws BazaarException;
 }

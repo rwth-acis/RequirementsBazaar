@@ -182,6 +182,13 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public PaginationResult<User> searchUsers(PageInfo pageInfo) throws BazaarException {
+        userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
+        List<User> users = userRepository.search(pageInfo);
+        return new PaginationResult<>(users.size(), pageInfo, users);
+    }
+
+    @Override
     public PaginationResult<Project> listPublicProjects(Pageable pageable, int userId) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         return projectRepository.findAllPublic(pageable, userId);

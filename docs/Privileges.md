@@ -30,6 +30,7 @@ There are 6 roles, which inherit the privileges of the roles mentioned before. T
 |LoggedInUser  |Delete_FOLLOW              |
 |LoggedInUser  |Delete_VOTE                |
 |LoggedInUser  |Read_PERSONALISATION_DATA  |
+|LoggedInUser  |Read_USERS                 |
 |ProjectAdmin  |Modify_CATEGORY            |
 |ProjectAdmin  |Modify_PROJECT             |
 |ProjectAdmin  |Modify_ADMIN_MEMBERS       |
