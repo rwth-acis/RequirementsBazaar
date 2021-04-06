@@ -31,6 +31,7 @@ import lombok.extern.jackson.Jacksonized;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 /**
@@ -45,6 +46,7 @@ public class Comment extends EntityBase implements Ownable {
     private int id;
 
     @NotNull(groups = CreateValidation.class)
+    @Size(min = 1)
     private String message;
 
     @Min(value = 0, groups = CreateValidation.class)
