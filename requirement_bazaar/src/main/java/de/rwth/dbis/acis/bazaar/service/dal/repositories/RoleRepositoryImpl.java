@@ -22,8 +22,9 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RoleRecord;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UserRoleMapRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Privilege;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.PrivilegeEnumConverter;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.RoleTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -49,7 +50,7 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
     }
 
     @Override
-    public List<Role> listRolesOfUser(int userId, String context) throws BazaarException {
+    public List<Role> listRolesOfUser(int userId, Integer context) throws BazaarException {
         List<Role> roles = null;
 
         try {
@@ -75,7 +76,7 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
     }
 
     @Override
-    public void addUserToRole(int userId, String roleName, String context) throws BazaarException {
+    public void addUserToRole(int userId, String roleName, Integer context) throws BazaarException {
         Role role = findByRoleName(roleName);
         UserRoleMapRecord record = new UserRoleMapRecord();
         record.setRoleId(role.getId());
@@ -102,6 +103,59 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return role;
+    }
+
+    @Override
+    public PaginationResult<ProjectMember> listProjectMembers(int projectId, Pageable pageable) throws BazaarException {
+        PaginationResult<ProjectMember> result = null;
+        List<ProjectMember> projectMembers = null;
+        int total = 0;
+
+        try {
+            de.rwth.dbis.acis.bazaar.dal.jooq.tables.Role roleTable = ROLE.as("role");
+            de.rwth.dbis.acis.bazaar.dal.jooq.tables.User userTable = USER.as("user");
+
+            Result<Record> queryResult = jooq.selectFrom(
+                    USER_ROLE_MAP
+                            .join(roleTable).on(USER_ROLE_MAP.ROLE_ID.eq(roleTable.ID))
+                            .leftOuterJoin(USER).on(USER.ID.eq(USER_ROLE_MAP.USER_ID))
+            ).where(USER_ROLE_MAP.CONTEXT_INFO.equal(projectId)).fetch();
+
+            if (queryResult != null && !queryResult.isEmpty()) {
+                total = queryResult.size();
+                projectMembers = new ArrayList<>();
+                for (Record entry : queryResult) {
+                    User user = User.builder()
+                            .eMail(entry.getValue(userTable.EMAIL))
+                            .id(entry.getValue(userTable.ID))
+                            .firstName(entry.getValue(userTable.FIRST_NAME))
+                            .lastName(entry.getValue(userTable.LAST_NAME))
+                            .las2peerId(entry.getValue(userTable.LAS2PEER_ID))
+                            .userName(entry.getValue(userTable.USER_NAME))
+                            .profileImage(entry.getValue(userTable.PROFILE_IMAGE))
+                            .emailLeadSubscription(entry.getValue(userTable.EMAIL_LEAD_SUBSCRIPTION) != 0)
+                            .emailFollowSubscription(entry.getValue(userTable.EMAIL_FOLLOW_SUBSCRIPTION) != 0)
+                            .personalizationEnabled(entry.getValue(userTable.PERSONALIZATION_ENABLED) != 0)
+                            .build();
+                    ProjectMember member = ProjectMember.builder()
+                            .id(entry.getValue(USER_ROLE_MAP.ID))
+                            .user(user)
+                            .userId(user.getId())
+                            .role(ProjectRole.valueOf(entry.getValue(roleTable.NAME)))
+                            .build();
+                    projectMembers.add(member);
+                }
+
+            }
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return new PaginationResult<>(total, pageable, projectMembers);
+    }
+
+    @Override
+    public void removeUserFromRole(int userId, Integer context) throws BazaarException {
+        jooq.deleteFrom(USER_ROLE_MAP).where(USER_ROLE_MAP.USER_ID.equal(userId).and(USER_ROLE_MAP.CONTEXT_INFO.eq(context))).execute();
     }
 
     @Override

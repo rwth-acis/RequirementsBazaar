@@ -1,5 +1,7 @@
-package de.rwth.dbis.acis.bazaar.service;
+package de.rwth.dbis.acis.bazaar.service.resources;
 
+import de.rwth.dbis.acis.bazaar.service.BazaarFunction;
+import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.EntityOverview;

@@ -20,7 +20,10 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
+import de.rwth.dbis.acis.bazaar.service.dal.entities.ProjectMember;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
 import java.util.List;
@@ -31,9 +34,13 @@ import java.util.List;
 public interface RoleRepository extends Repository<Role> {
     List<Role> listParentsForRole(int roleId) throws BazaarException;
 
-    List<Role> listRolesOfUser(int userId, String context) throws BazaarException;
+    List<Role> listRolesOfUser(int userId, Integer context) throws BazaarException;
 
-    void addUserToRole(int userId, String roleName, String context) throws BazaarException;
+    void addUserToRole(int userId, String roleName, Integer context) throws BazaarException;
 
     Role findByRoleName(String roleName) throws BazaarException;
+
+    PaginationResult<ProjectMember> listProjectMembers(int projectId, Pageable pageable) throws BazaarException;
+
+    void removeUserFromRole(int userId, Integer context) throws BazaarException;
 }

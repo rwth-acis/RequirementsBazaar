@@ -31,6 +31,7 @@ import lombok.extern.jackson.Jacksonized;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -53,9 +54,6 @@ public class User extends EntityBase {
     @NotNull(message = "eMail can't be null")
     @Size(min = 1, max = 1000, message = "eMail must have between 1 and 1000 characters")
     private transient String eMail;
-
-    @JsonIgnore
-    private Boolean admin;
 
     @NotNull(message = "las2peerId can't be null")
     @Size(min = 1, max = 1000, message = "las2peerId must have between 1 and 1000 characters")
@@ -83,10 +81,6 @@ public class User extends EntityBase {
         return eMail;
     }
 
-    public Boolean isAdmin() {
-        return admin;
-    }
-
     public Boolean isEmailLeadSubscription() {
         return emailLeadSubscription != null && emailLeadSubscription;
     }
@@ -97,5 +91,19 @@ public class User extends EntityBase {
 
     public Boolean isPersonalizationEnabled() {
         return personalizationEnabled != null && personalizationEnabled;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof User)) return false;
+        User other = (User) o;
+
+        return this.las2peerId.equals(other.las2peerId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, userName, firstName, lastName, eMail, las2peerId, profileImage, emailLeadSubscription, emailFollowSubscription, personalizationEnabled, creationDate, lastUpdatedDate, lastLoginDate);
     }
 }

@@ -39,6 +39,7 @@ import de.rwth.dbis.acis.bazaar.service.notification.ActivityDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.EmailDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcherImp;
+import de.rwth.dbis.acis.bazaar.service.resources.*;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Context;
 import i5.las2peer.api.ManualDeployment;
@@ -114,6 +115,7 @@ public class BazaarService extends RESTService {
         getResourceConfig().register(AttachmentsResource.class);
         getResourceConfig().register(UsersResource.class);
         getResourceConfig().register(PersonalisationDataResource.class);
+        getResourceConfig().register(FeedbackResource.class);
     }
 
     public BazaarService() throws Exception {
@@ -170,6 +172,11 @@ public class BazaarService extends RESTService {
 
         notificationDispatcher.setBazaarService(this);
     }
+
+    public String getBaseURL() {
+        return baseURL;
+    }
+
 
     @Api(value = "/", description = "Bazaar service")
     @SwaggerDefinition(
@@ -356,7 +363,6 @@ public class BazaarService extends RESTService {
                 // create user
                 User user = User.builder()
                         .eMail(email)
-                        .admin(false)
                         .las2peerId(agent.getIdentifier())
                         .userName(loginName)
                         .profileImage(profileImage)
@@ -367,7 +373,7 @@ public class BazaarService extends RESTService {
                 user = dalFacade.createUser(user);
                 int userId = user.getId();
                 // this.getNotificationDispatcher().dispatchNotification(user.getCreationDate(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_55, userId, Activity.DataType.USER, userId);
-                dalFacade.addUserToRole(userId, "SystemAdmin", null);
+                dalFacade.addUserToRole(userId, "LoggedInUser", null);
             } else {
                 // update lastLoginDate
                 dalFacade.updateLastLoginDate(userIdByLAS2PeerId);
@@ -384,7 +390,8 @@ public class BazaarService extends RESTService {
         BasicDataSource dataSource = new BasicDataSource();
         // Deprecated according to jooq
         // dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUrl(dbUrl + "?useSSL=false&serverTimezone=UTC");
+        dataSource.setUrl(dbUrl + "?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true" +
+                "");
         dataSource.setUsername(dbUserName);
         dataSource.setPassword(dbPassword);
         dataSource.setValidationQuery("SELECT 1;");

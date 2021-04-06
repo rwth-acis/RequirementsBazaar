@@ -20,7 +20,6 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
-import com.vdurmont.emoji.EmojiParser;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
@@ -37,8 +36,6 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
 
     @Override
     public ProjectRecord createRecord(Project entry) {
-        entry = this.cleanEntry(entry);
-
         ProjectRecord record = new ProjectRecord();
         record.setDescription(entry.getDescription());
         record.setName(entry.getName());
@@ -224,15 +221,5 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
             }
         }
         return conditions;
-    }
-
-    private Project cleanEntry(Project project) {
-        if (project.getName() != null) {
-            project.setName(EmojiParser.parseToAliases(project.getName()));
-        }
-        if (project.getDescription() != null) {
-            project.setDescription(EmojiParser.parseToAliases(project.getDescription()));
-        }
-        return project;
     }
 }

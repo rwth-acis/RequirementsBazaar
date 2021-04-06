@@ -12,3 +12,4 @@ ALTER TABLE reqbaz.project
 ALTER TABLE reqbaz.project
     ADD CONSTRAINT project_category FOREIGN KEY project_category (default_category_id) REFERENCES category (id)
         ON DELETE CASCADE;
+SET FOREIGN_KEY_CHECKS = 1;

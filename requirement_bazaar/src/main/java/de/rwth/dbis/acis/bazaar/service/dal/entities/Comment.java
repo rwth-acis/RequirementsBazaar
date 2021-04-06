@@ -40,7 +40,7 @@ import java.time.LocalDateTime;
 @Data
 @Jacksonized
 @Builder(builderClassName = "Builder")
-public class Comment extends EntityBase {
+public class Comment extends EntityBase implements Ownable {
 
     private int id;
 
@@ -55,12 +55,17 @@ public class Comment extends EntityBase {
 
     private User creator;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone="Europe/Berlin")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
     private LocalDateTime creationDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone="Europe/Berlin")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
     private LocalDateTime lastUpdatedDate;
 
     @JsonProperty("_context")
     private EntityContext context;
+
+    @Override
+    public boolean isOwner(User user) {
+        return creator == user;
+    }
 }

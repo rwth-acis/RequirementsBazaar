@@ -1,5 +1,6 @@
 package de.rwth.dbis.acis.bazaar.service;
 
+import de.rwth.dbis.acis.bazaar.service.helpers.SetupData;
 import i5.las2peer.api.p2p.ServiceNameVersion;
 import i5.las2peer.connectors.webConnector.WebConnector;
 import i5.las2peer.connectors.webConnector.client.MiniClient;
@@ -18,15 +19,19 @@ import java.time.format.DateTimeParseException;
 /**
  * Example Test Class demonstrating a basic JUnit test structure.
  */
-public abstract class TestBase {
+public abstract class TestBase extends SetupData {
 
     private static final String testPass = "adamspass";
+    private static final String adminPass = "evespass";
+
     static final String mainPath = "bazaar/";
     static final String testVersion = "1.0.0";
     private static LocalNode node;
     private static WebConnector connector;
     private static ByteArrayOutputStream logStream;
     private static UserAgentImpl testAgent;
+    private static UserAgentImpl adminAgent;
+
 
     /**
      * Called before a test starts.
@@ -45,6 +50,12 @@ public abstract class TestBase {
         testAgent = MockAgentFactory.getAdam();
         testAgent.unlock(testPass); // agents must be unlocked in order to be stored
         node.storeAgent(testAgent);
+
+        // add agent to node
+        adminAgent = MockAgentFactory.getEve();
+        adminAgent.unlock(adminPass); // agents must be unlocked in order to be stored
+        node.storeAgent(adminAgent);
+
 
         // start service
         // during testing, the specified service version does not matter
@@ -85,6 +96,14 @@ public abstract class TestBase {
         client.setConnectorEndpoint(connector.getHttpEndpoint());
 
         client.setLogin(testAgent.getIdentifier(), testPass);
+        return client;
+    }
+
+    MiniClient getAdminClient() {
+        MiniClient client = new MiniClient();
+        client.setConnectorEndpoint(connector.getHttpEndpoint());
+
+        client.setLogin(adminAgent.getIdentifier(), adminPass);
         return client;
     }
 

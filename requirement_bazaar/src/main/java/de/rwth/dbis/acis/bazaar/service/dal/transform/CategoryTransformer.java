@@ -20,7 +20,6 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
-import com.vdurmont.emoji.EmojiParser;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.CategoryRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Category;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
@@ -40,13 +39,11 @@ import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.CATEGORY_FOLLOWER_MAP;
 public class CategoryTransformer implements Transformer<Category, CategoryRecord> {
     @Override
     public CategoryRecord createRecord(Category entry) {
-        entry = this.cleanEntry(entry);
-
         CategoryRecord record = new CategoryRecord();
         record.setDescription(entry.getDescription());
         record.setName(entry.getName());
         record.setProjectId(entry.getProjectId());
-        record.setLeaderId(entry.getLeader().getId());
+        record.setLeaderId(entry.getCreator().getId());
         record.setCreationDate(LocalDateTime.now());
         return record;
     }
@@ -87,8 +84,8 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
             if (entry.getName() != null) {
                 put(CATEGORY.NAME, entry.getName());
             }
-            if (entry.getLeader() != null) {
-                put(CATEGORY.LEADER_ID, entry.getLeader().getId());
+            if (entry.getCreator() != null) {
+                put(CATEGORY.LEADER_ID, entry.getCreator().getId());
             }
         }};
         if (!updateMap.isEmpty()) {
@@ -206,15 +203,5 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
             }
         }
         return conditions;
-    }
-
-    private Category cleanEntry(Category category) {
-        if (category.getName() != null) {
-            category.setName(EmojiParser.parseToAliases(category.getName()));
-        }
-        if (category.getDescription() != null) {
-            category.setDescription(EmojiParser.parseToAliases(category.getDescription()));
-        }
-        return category;
     }
 }

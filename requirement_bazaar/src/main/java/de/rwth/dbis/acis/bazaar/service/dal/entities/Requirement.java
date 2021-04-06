@@ -23,7 +23,7 @@ import java.util.List;
 @Data
 @Jacksonized
 @Builder(builderClassName = "Builder")
-public class Requirement extends EntityBase {
+public class Requirement extends EntityBase implements Ownable {
 
     private int id;
 
@@ -85,5 +85,10 @@ public class Requirement extends EntityBase {
     @JsonProperty("isContributor")
     public Boolean isContributor() {
         return isContributor;
+    }
+
+    @Override
+    public boolean isOwner(User user) {
+        return creator == user;
     }
 }
