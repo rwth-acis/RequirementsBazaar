@@ -243,4 +243,58 @@ public class BazaarTest extends TestBase {
             Assert.fail(e.toString());
         }
     }
+
+    /**
+     * Test to search for a user
+     */
+    @Test
+    public void testSearchUser() {
+        try {
+            MiniClient client = getClient();
+
+            ClientResponse result = client.sendRequest("GET", mainPath + "users?search=elek", "");
+            JsonElement response = JsonParser.parseString(result.getResponse());
+            System.out.println(response.toString());
+            assertEquals(200, result.getHttpCode());
+
+            assertTrue(response.isJsonArray());
+            assertEquals(1, response.getAsJsonArray().size());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.toString());
+        }
+    }
+
+    /**
+     * Test to search for a user
+     */
+    @Test
+    public void testUserJsonView() {
+        try {
+            MiniClient client = getClient();
+
+            ClientResponse result = client.sendRequest("GET", mainPath + "users/me", "");
+            System.out.println(result.toString());
+            assertEquals(200, result.getHttpCode());
+
+            JsonObject response = JsonParser.parseString(result.getResponse()).getAsJsonObject();
+            assertTrue(response.isJsonObject());
+            assertTrue(response.has("email"));
+            assertTrue(response.has("emailFollowSubscription"));
+
+            result = client.sendRequest("GET", mainPath + "users/" + initUser.getId(), "");
+            System.out.println(result.toString());
+            assertEquals(200, result.getHttpCode());
+
+            response = JsonParser.parseString(result.getResponse()).getAsJsonObject();
+            assertTrue(response.isJsonObject());
+            assertFalse(response.has("email"));
+            assertFalse(response.has("emailFollowSubscription"));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.toString());
+        }
+    }
 }

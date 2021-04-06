@@ -22,7 +22,8 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.SerializerViews;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -46,9 +47,11 @@ public class User extends EntityBase {
     private String userName;
 
     @Size(min = 1, max = 1000, message = "first name must have between 1 and 1000 characters")
+    @JsonView(SerializerViews.Private.class)
     private String firstName;
 
     @Size(min = 1, max = 1000, message = "last name must have between 1 and 1000 characters")
+    @JsonView(SerializerViews.Private.class)
     private String lastName;
 
     @NotNull(message = "eMail can't be null")
@@ -61,34 +64,43 @@ public class User extends EntityBase {
 
     private String profileImage;
 
+    @JsonView(SerializerViews.Private.class)
     private Boolean emailLeadSubscription;
 
+    @JsonView(SerializerViews.Private.class)
     private Boolean emailFollowSubscription;
 
+    @JsonView(SerializerViews.Private.class)
     private Boolean personalizationEnabled;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
+    @JsonView(SerializerViews.Private.class)
     private LocalDateTime creationDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone="Europe/Berlin")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
+    @JsonView(SerializerViews.Private.class)
     private LocalDateTime lastUpdatedDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone="Europe/Berlin")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
+    @JsonView(SerializerViews.Private.class)
     private LocalDateTime lastLoginDate;
 
-    @JsonIgnore
+    @JsonView(SerializerViews.Private.class)
     public String getEMail() {
         return eMail;
     }
 
+    @JsonView(SerializerViews.Private.class)
     public Boolean isEmailLeadSubscription() {
         return emailLeadSubscription != null && emailLeadSubscription;
     }
 
+    @JsonView(SerializerViews.Private.class)
     public Boolean isEmailFollowSubscription() {
         return emailFollowSubscription != null && emailFollowSubscription;
     }
 
+    @JsonView(SerializerViews.Private.class)
     public Boolean isPersonalizationEnabled() {
         return personalizationEnabled != null && personalizationEnabled;
     }
