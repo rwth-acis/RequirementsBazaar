@@ -53,6 +53,9 @@ public class PaginationResult<T> {
     }
 
     public String toJSON() throws JsonProcessingException {
-        return new ObjectMapper().registerModule(new JavaTimeModule()).setSerializationInclusion(JsonInclude.Include.NON_NULL).writeValueAsString(this.getElements());
+        return new ObjectMapper().registerModule(new JavaTimeModule())
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                .writerWithView(SerializerViews.Public.class)
+                .writeValueAsString(this.getElements());
     }
 }

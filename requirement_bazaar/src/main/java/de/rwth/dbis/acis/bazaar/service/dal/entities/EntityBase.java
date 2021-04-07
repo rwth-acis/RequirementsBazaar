@@ -24,6 +24,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.SerializerViews;
 
 /**
  * @since 9/16/2014
@@ -31,6 +32,17 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 public abstract class EntityBase implements IdentifiedById {
 
     public String toJSON() throws JsonProcessingException {
-        return new ObjectMapper().registerModule(new JavaTimeModule()).setSerializationInclusion(JsonInclude.Include.NON_NULL).writeValueAsString(this);
+        return new ObjectMapper().registerModule(new JavaTimeModule())
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                .writerWithView(SerializerViews.Public.class)
+                .writeValueAsString(this);
+    }
+
+    public String toPrivateJSON() throws JsonProcessingException {
+        return new ObjectMapper()
+                .registerModule(new JavaTimeModule())
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                .writerWithView(SerializerViews.Private.class)
+                .writeValueAsString(this);
     }
 }

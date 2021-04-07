@@ -59,4 +59,6 @@ public enum PrivilegeEnum {
     Read_FEEDBACK,
     Modify_MEMBERS,
     Modify_ADMIN_MEMBERS,
+
+    Read_USERS,
 }

@@ -15,6 +15,7 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 - Added new testcases [#73](https://github.com/rwth-acis/RequirementsBazaar/pull/73)
 - Added endpoints to provide anonymous feedback which can be read by project
   admins [#85](https://github.com/rwth-acis/RequirementsBazaar/pull/85)
+- Added endpoint to search for users by name or email [#90](https://github.com/rwth-acis/RequirementsBazaar/pull/90)
 
 ### Changed
 
@@ -37,6 +38,9 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
   attribute in `EntityContext` to `categories` [#83](https://github.com/rwth-acis/RequirementsBazaar/pull/82)
 - Rework permission system as lined out
   in [Privileges](docs/Privileges.md) [#85](https://github.com/rwth-acis/RequirementsBazaar/pull/85)
+- Category `leader` attribute has been renamed to `creator` [#85](https://github.com/rwth-acis/RequirementsBazaar/pull/85)
+- Voting now returns a 303 response with reference to the modified object [#85](https://github.com/rwth-acis/RequirementsBazaar/pull/85)
+- Restrict user attributes normally returned to id, username, profile image and las2peerid [#90](https://github.com/rwth-acis/RequirementsBazaar/pull/90)
 
 ## [0.7.2] - 2017-10-25
 

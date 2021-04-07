@@ -4,7 +4,8 @@ VALUES (29, 'Read_FEEDBACK'),
        (31, 'Promote_USER'),
        (32, 'Realize_REQUIREMENT'),
        (34, 'Modify_MEMBERS'),
-       (35, 'Modify_ADMIN_MEMBERS');
+       (35, 'Modify_ADMIN_MEMBERS'),
+       (36, 'Read_USERS');
 
 
 REPLACE INTO reqbaz.role
@@ -35,6 +36,7 @@ VALUES (1, 3),
        (2, 24),
        (2, 27),
        (2, 28),
+       (2, 36),
 
        (3, 4),
        (3, 8),
