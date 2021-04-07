@@ -127,7 +127,7 @@ public class BazaarTest extends TestBase {
             assertTrue(response.isJsonArray());
 
             // Now add user role
-            String testRequest = String.format("{\"userId\": %s,  \"role\": \"ProjectMember\"}", adamId);
+            String testRequest = String.format("[{\"userId\": %s,  \"role\": \"ProjectMember\"}]", adamId);
             result = adminClient.sendRequest("PUT", path, testRequest, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
             assertEquals(204, result.getHttpCode());
 

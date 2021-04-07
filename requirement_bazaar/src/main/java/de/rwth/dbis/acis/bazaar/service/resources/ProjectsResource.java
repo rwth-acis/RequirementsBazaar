@@ -28,6 +28,7 @@ import javax.xml.bind.DatatypeConverter;
 import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Api(value = "projects", description = "Projects resource")
 @SwaggerDefinition(
@@ -739,8 +740,8 @@ public class ProjectsResource {
     /**
      * Allows to update a certain project.
      *
-     * @param projectId     id of the project to update
-     * @param projectMember New or modified project member
+     * @param projectId      id of the project to update
+     * @param projectMembers New or modified project members
      * @return Response with the updated project as a JSON object.
      */
     @PUT
@@ -755,7 +756,7 @@ public class ProjectsResource {
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public Response updateMembership(@PathParam("projectId") int projectId,
-                                     @ApiParam(value = "New or updated project member", required = true) ProjectMember projectMember) {
+                                     @ApiParam(value = "New or updated project member", required = true) List<ProjectMember> projectMembers) {
         DALFacade dalFacade = null;
         try {
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -766,28 +767,32 @@ public class ProjectsResource {
             String userId = agent.getIdentifier();
 
             // Take Object for generic error handling
-            Set<ConstraintViolation<Object>> violations = bazaarService.validate(projectMember);
+            Set<ConstraintViolation<Object>> violations = bazaarService.validate(projectMembers);
             if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
-            // Only Admins should be able to create new admins.
-            // Differentiate here
-            PrivilegeEnum privilege = PrivilegeEnum.Modify_MEMBERS;
-            if (projectMember.getRole() == ProjectRole.ProjectAdmin) {
-                privilege = PrivilegeEnum.Modify_ADMIN_MEMBERS;
-            }
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, privilege, projectId, dalFacade);
+            AtomicReference<PrivilegeEnum> privilege = new AtomicReference<>(PrivilegeEnum.Modify_MEMBERS);
+            projectMembers.forEach(projectMember -> {
+                // Only Admins should be able to create new admins.
+                // Differentiate here
+                if (projectMember.getRole() == ProjectRole.ProjectAdmin) {
+                    privilege.set(PrivilegeEnum.Modify_ADMIN_MEMBERS);
+                }
+            });
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, privilege.get(), projectId, dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.modify"));
             }
 
-            User member = dalFacade.getUserById(projectMember.getUserId());
-            dalFacade.addUserToRole(member.getId(), projectMember.getRole().name(), projectId);
+            for (ProjectMember projectMember : projectMembers) {
+                User member = dalFacade.getUserById(projectMember.getUserId());
+                dalFacade.addUserToRole(member.getId(), projectMember.getRole().name(), projectId);
 
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_6, projectId, Activity.DataType.PROJECT, internalUserId);
-
+                bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_6, projectId, Activity.DataType.PROJECT, internalUserId);
+            }
             return Response.noContent().build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
@@ -847,7 +852,11 @@ public class ProjectsResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_PROJECT, projectId, dalFacade);
+            PrivilegeEnum privilege = PrivilegeEnum.Read_PUBLIC_PROJECT;
+
+            if (!dalFacade.isProjectPublic(projectId)) privilege = PrivilegeEnum.Read_PROJECT;
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, privilege, projectId, dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.modify"));
             }
