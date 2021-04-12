@@ -139,7 +139,7 @@ public class EmailDispatcher {
             Requirement requirement = additionalObject.getRequirement();
             objectName = requirement.getName();
             resourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
-                    requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + dataId;
+                    requirement.getCategories().get(0) + "/" + "requirements" + "/" + dataId;
             subject = subject.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.requirement") + ": " + (objectName.length() > 40 ? objectName.substring(0, 39) : objectName));
             bodyText = bodyText.concat(Localization.getInstance().getResourceBundle().getString("email.bodyText.user") + " " + additionalObject.getUser().getUserName());
             bodyText = bodyText.concat(" " + activity);
@@ -156,7 +156,7 @@ public class EmailDispatcher {
             Requirement requirement = additionalObject.getRequirement();
             objectName = requirement.getName();
             resourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
-                    requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + requirement.getId();
+                    requirement.getCategories().get(0) + "/" + "requirements" + "/" + requirement.getId();
             subject = subject.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.comment") + " "
                     + Localization.getInstance().getResourceBundle().getString("email.bodyText.for") + " "
                     + Localization.getInstance().getResourceBundle().getString("email.bodyText.requirement") + ": " + (objectName.length() > 40 ? objectName.substring(0, 39) : objectName));
@@ -172,7 +172,7 @@ public class EmailDispatcher {
             Requirement requirement = additionalObject.getRequirement();
             objectName = requirement.getName();
             resourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
-                    requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + requirement.getId();
+                    requirement.getCategories().get(0) + "/" + "requirements" + "/" + requirement.getId();
             subject = subject.concat(" " + Localization.getInstance().getResourceBundle().getString("email.bodyText.attachment") + " "
                     + Localization.getInstance().getResourceBundle().getString("email.bodyText.for") + " "
                     + Localization.getInstance().getResourceBundle().getString("email.bodyText.requirement") + ": " + (objectName.length() > 40 ? objectName.substring(0, 39) : objectName));

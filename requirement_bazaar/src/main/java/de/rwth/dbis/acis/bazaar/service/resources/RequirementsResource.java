@@ -455,13 +455,14 @@ public class RequirementsResource {
         try {
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
+
+            dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
-            dalFacade = bazaarService.getDBConnection();
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_REQUIREMENT, requirementToCreate.getProjectId(), dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.create"));
@@ -473,8 +474,8 @@ public class RequirementsResource {
             if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
 
             // check if all categories are in the same project
-            for (Category category : requirementToCreate.getCategories()) {
-                category = dalFacade.getCategoryById(category.getId(), internalUserId);
+            for (Integer catId : requirementToCreate.getCategories()) {
+                Category category = dalFacade.getCategoryById(catId, internalUserId);
                 if (requirementToCreate.getProjectId() != category.getProjectId()) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.VALIDATION, "Category does not fit with project");
                 }
@@ -1005,13 +1006,6 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
 
-            /* Not sure why this is necessary. Should be handled by swagger
-            if (!(direction.equals("up") || direction.equals("down"))) {
-                Vtor vtor = bazaarService.getValidators();
-                vtor.addViolation(new Violation("Direction can only be \"up\" or \"down\"", direction, direction));
-                ExceptionHandler.getInstance().handleViolations(vtor.getViolations());
-            }*/
-
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_VOTE, dalFacade);
@@ -1025,7 +1019,7 @@ public class RequirementsResource {
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.VOTE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_35,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
-            return Response.status(Response.Status.SEE_OTHER).location(URI.create(bazaarService.getBaseURL() + "requirement/" + requirementId)).entity(requirement.toJSON()).build();
+            return Response.status(Response.Status.SEE_OTHER).location(URI.create(bazaarService.getBaseURL() + "requirements/" + requirementId)).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();

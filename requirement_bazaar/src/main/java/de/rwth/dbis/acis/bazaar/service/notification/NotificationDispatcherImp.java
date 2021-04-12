@@ -94,19 +94,19 @@ public class NotificationDispatcherImp extends TimerTask implements Notification
                 additionalObject = new Activity.AdditionalObject(project, category, null, user);
             } else if (dataType.equals(Activity.DataType.REQUIREMENT)) {
                 Requirement requirement = dalFacade.getRequirementById(dataId, userId);
-                Category category = dalFacade.getCategoryById(requirement.getCategories().get(0).getId(), userId);
+                Category category = dalFacade.getCategoryById(requirement.getCategories().get(0), userId);
                 Project project = dalFacade.getProjectById(requirement.getProjectId(), userId);
                 additionalObject = new Activity.AdditionalObject(project, category, requirement, user);
             } else if (dataType.equals(Activity.DataType.COMMENT)) {
                 Comment comment = dalFacade.getCommentById(dataId);
                 Requirement requirement = dalFacade.getRequirementById(comment.getRequirementId(), userId);
-                Category category = dalFacade.getCategoryById(requirement.getCategories().get(0).getId(), userId);
+                Category category = dalFacade.getCategoryById(requirement.getCategories().get(0), userId);
                 Project project = dalFacade.getProjectById(requirement.getProjectId(), userId);
                 additionalObject = new Activity.AdditionalObject(project, category, requirement, user);
             } else if (dataType.equals(Activity.DataType.ATTACHMENT)) {
                 Attachment attachment = dalFacade.getAttachmentById(dataId);
                 Requirement requirement = dalFacade.getRequirementById(attachment.getRequirementId(), userId);
-                Category category = dalFacade.getCategoryById(requirement.getCategories().get(0).getId(), userId);
+                Category category = dalFacade.getCategoryById(requirement.getCategories().get(0), userId);
                 Project project = dalFacade.getProjectById(requirement.getProjectId(), userId);
                 additionalObject = new Activity.AdditionalObject(project, category, requirement, user);
             } else {

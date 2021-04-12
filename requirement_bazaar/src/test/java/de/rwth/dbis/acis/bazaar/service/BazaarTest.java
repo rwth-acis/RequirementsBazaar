@@ -110,6 +110,88 @@ public class BazaarTest extends TestBase {
     }
 
     /**
+     * Test create a new requirement
+     */
+    @Test
+    public void testCategories() {
+        try {
+            MiniClient client = getClient();
+            MiniClient adminClient = getAdminClient();
+
+            String testCategory = "{\"name\": \"Test Category\",  \"description\": \"A test category\", \"projectId\":" + testProject.getId() + "}";
+            String path = mainPath + "categories";
+
+            // Plebs --> no permission
+            ClientResponse result = client.sendRequest("POST", path, testCategory,
+                    MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
+            assertEquals(401, result.getHttpCode());
+
+            // Admin and owner --> permission
+            result = adminClient.sendRequest("POST", path, testCategory,
+                    MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
+            assertEquals(201, result.getHttpCode());
+
+            JsonObject response = JsonParser.parseString(result.getResponse()).getAsJsonObject();
+            assertTrue(response.isJsonObject());
+            System.out.println(response);
+
+            result = client.sendRequest("GET", mainPath + "projects/" + testProject.getId() + "/categories", "");
+            assertEquals(200, result.getHttpCode());
+
+            JsonElement resp = JsonParser.parseString(result.getResponse());
+            System.out.println(resp);
+            assertTrue(resp.isJsonArray());
+            assertEquals(2, resp.getAsJsonArray().size());
+
+            JsonObject createdRequirement = resp.getAsJsonArray().get(1).getAsJsonObject();
+
+            assertTrue(createdRequirement.has("lastActivity"));
+            assertTrue(isValidISO8601(createdRequirement.get("creationDate").toString().replace("\"", "")));
+            assertTrue(isValidISO8601(createdRequirement.get("lastActivity").toString().replace("\"", "")));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.toString());
+        }
+    }
+
+    /**
+     * Test create a new requirement
+     */
+    @Test
+    public void testRequirements() {
+        try {
+            MiniClient client = getClient();
+
+            String testRequirement = "{\"name\": \"Test Requirements\",  \"description\": \"A test requirement\", \"categories\": [" + testProject.getDefaultCategoryId() + "], \"projectId\":" + testProject.getId() + "}";
+            ClientResponse result = client.sendRequest("POST", mainPath + "requirements", testRequirement,
+                    MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
+            assertEquals(201, result.getHttpCode());
+            JsonObject response = JsonParser.parseString(result.getResponse()).getAsJsonObject();
+            assertTrue(response.isJsonObject());
+            System.out.println(response);
+
+            result = client.sendRequest("GET", mainPath + "requirements", "");
+            assertEquals(200, result.getHttpCode());
+
+            JsonElement resp = JsonParser.parseString(result.getResponse());
+            System.out.println(resp);
+            assertTrue(resp.isJsonArray());
+            assertEquals(1, resp.getAsJsonArray().size());
+
+            JsonObject createdRequirement = resp.getAsJsonArray().get(0).getAsJsonObject();
+
+            assertTrue(createdRequirement.has("lastActivity"));
+            assertTrue(isValidISO8601(createdRequirement.get("creationDate").toString().replace("\"", "")));
+            assertTrue(isValidISO8601(createdRequirement.get("lastActivity").toString().replace("\"", "")));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.toString());
+        }
+    }
+
+    /**
      * Test to get a list of projects
      */
     @Test
