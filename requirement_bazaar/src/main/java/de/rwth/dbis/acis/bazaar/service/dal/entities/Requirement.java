@@ -38,6 +38,7 @@ public class Requirement extends EntityBase implements Ownable {
     private LocalDateTime realized;
 
     @Min(value = 0)
+    @NotNull(message = "A project id must be provided", groups = CreateValidation.class)
     private int projectId;
 
     private User creator;
@@ -45,7 +46,7 @@ public class Requirement extends EntityBase implements Ownable {
 
     @NotNull(message = "categories should not be null", groups = CreateValidation.class)
     @Size(min = 1, groups = CreateValidation.class)
-    private List<Category> categories;
+    private List<Integer> categories;
 
     // This field is not filled because attachments should be not included in requirements response.
     // But the API still allows to create a requirement with attachments at the same time.
@@ -56,6 +57,9 @@ public class Requirement extends EntityBase implements Ownable {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
     private LocalDateTime lastUpdatedDate;
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
+    private LocalDateTime lastActivity;
 
     private Integer numberOfComments;
     private Integer numberOfAttachments;

@@ -69,8 +69,8 @@ public class ActivityDispatcher {
                 parentResourcePath = "categories";
                 Requirement requirement = dalFacade.getRequirementById(dataId, userId);
                 frontendResourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
-                        requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(dataId);
-                parentDataId = requirement.getCategories().get(0).getId();
+                        requirement.getCategories().get(0) + "/" + "requirements" + "/" + String.valueOf(dataId);
+                parentDataId = requirement.getCategories().get(0);
                 parentDataTyp = Activity.DataType.CATEGORY;
             } else if (dataType.equals(Activity.DataType.COMMENT)) {
                 resourcePath = "comments";
@@ -78,7 +78,7 @@ public class ActivityDispatcher {
                 Comment comment = dalFacade.getCommentById(dataId);
                 Requirement requirement = dalFacade.getRequirementById(comment.getRequirementId(), userId);
                 frontendResourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
-                        requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
+                        requirement.getCategories().get(0) + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
                 parentDataId = requirement.getId();
                 parentDataTyp = Activity.DataType.REQUIREMENT;
             } else if (dataType.equals(Activity.DataType.ATTACHMENT)) {
@@ -87,7 +87,7 @@ public class ActivityDispatcher {
                 Attachment attachment = dalFacade.getAttachmentById(dataId);
                 Requirement requirement = dalFacade.getRequirementById(attachment.getRequirementId(), userId);
                 frontendResourcePath = "projects" + "/" + requirement.getProjectId() + "/" + "categories" + "/" +
-                        requirement.getCategories().get(0).getId() + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
+                        requirement.getCategories().get(0) + "/" + "requirements" + "/" + String.valueOf(requirement.getId());
                 parentDataId = requirement.getId();
                 parentDataTyp = Activity.DataType.REQUIREMENT;
             } else if (dataType.equals(Activity.DataType.USER)) {

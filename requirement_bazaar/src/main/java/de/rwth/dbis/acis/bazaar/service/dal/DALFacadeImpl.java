@@ -293,8 +293,8 @@ public class DALFacadeImpl implements DALFacade {
     public Requirement createRequirement(Requirement requirement, int userId) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         Requirement newRequirement = requirementRepository.add(requirement);
-        for (Category category : requirement.getCategories()) {
-            addCategoryTag(newRequirement.getId(), category.getId());
+        for (Integer category : requirement.getCategories()) {
+            addCategoryTag(newRequirement.getId(), category);
         }
         return getRequirementById(newRequirement.getId(), userId);
     }
@@ -308,8 +308,8 @@ public class DALFacadeImpl implements DALFacade {
             PaginationResult<Category> oldCategories = listCategoriesByRequirementId(modifiedRequirement.getId(), new PageInfo(0, 1000, new HashMap<>()), userId);
             for (Category oldCategory : oldCategories.getElements()) {
                 boolean containCategory = false;
-                for (Category newCategory : modifiedRequirement.getCategories()) {
-                    if (oldCategory.getId() == newCategory.getId()) {
+                for (Integer newCategory : modifiedRequirement.getCategories()) {
+                    if (oldCategory.getId() == newCategory) {
                         containCategory = true;
                         break;
                     }
@@ -318,16 +318,16 @@ public class DALFacadeImpl implements DALFacade {
                     deleteCategoryTag(modifiedRequirement.getId(), oldCategory.getId());
                 }
             }
-            for (Category newCategory : modifiedRequirement.getCategories()) {
+            for (Integer newCategory : modifiedRequirement.getCategories()) {
                 boolean containCategory = false;
                 for (Category oldCategory : oldCategories.getElements()) {
-                    if (oldCategory.getId() == newCategory.getId()) {
+                    if (oldCategory.getId() == newCategory) {
                         containCategory = true;
                         break;
                     }
                 }
                 if (!containCategory) {
-                    addCategoryTag(modifiedRequirement.getId(), newCategory.getId());
+                    addCategoryTag(modifiedRequirement.getId(), newCategory);
                 }
             }
         }

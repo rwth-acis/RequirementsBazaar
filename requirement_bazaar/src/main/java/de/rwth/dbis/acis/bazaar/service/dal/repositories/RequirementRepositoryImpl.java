@@ -20,20 +20,19 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementCategoryMapRecord;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Category;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.EntityContextFactory;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.UserVote;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.*;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementTransformer;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jooq.Record;
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
@@ -41,10 +40,7 @@ import org.jooq.impl.DSL;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
 import static org.jooq.impl.DSL.*;
@@ -101,11 +97,159 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
             .asField("followerCount");
 
+    de.rwth.dbis.acis.bazaar.dal.jooq.tables.User creatorUser = USER.as("creatorUser");
+    de.rwth.dbis.acis.bazaar.dal.jooq.tables.User leadDeveloperUser = USER.as("leadDeveloperUser");
+    de.rwth.dbis.acis.bazaar.dal.jooq.tables.Vote vote = VOTE.as("vote");
+    de.rwth.dbis.acis.bazaar.dal.jooq.tables.Vote userVote = VOTE.as("userVote");
+
     /**
      * @param jooq DSLContext object to initialize JOOQ connection. For more see JOOQ documentation.
      */
     public RequirementRepositoryImpl(DSLContext jooq) {
         super(jooq, new RequirementTransformer());
+    }
+
+    private ImmutablePair<List<Requirement>, Integer> getFilteredRequirements(Collection<Condition> requirementFilter, Pageable pageable, int userId) throws Exception {
+        List<Requirement> requirements = new ArrayList<>();
+
+        Field<Object> idCount = jooq.selectCount()
+                .from(REQUIREMENT)
+                .where(requirementFilter)
+                .asField("idCount");
+
+        Field<Object> isFollower = DSL.select(DSL.count())
+                .from(REQUIREMENT_FOLLOWER_MAP)
+                .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID).and(REQUIREMENT_FOLLOWER_MAP.USER_ID.equal(userId)))
+                .asField("isFollower");
+
+        Field<Object> isDeveloper = DSL.select(DSL.count())
+                .from(REQUIREMENT_DEVELOPER_MAP)
+                .where(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID).and(REQUIREMENT_DEVELOPER_MAP.USER_ID.equal(userId)))
+                .asField("isDeveloper");
+
+        Condition isAuthorizedCondition = REQUIREMENT.PROJECT_ID.in(
+                DSL.select(PROJECT.ID)
+                        .from(PROJECT)
+                        .where(PROJECT.ID.eq(REQUIREMENT.PROJECT_ID))
+                        .and(PROJECT.VISIBILITY.isTrue().or(PROJECT.LEADER_ID.eq(userId)))
+        );
+
+        Field<Object> lastActivity = DSL.select(LAST_ACTIVITY.field("last_activity")).from(LAST_ACTIVITY)
+                .where(LAST_ACTIVITY.field(REQUIREMENT.ID).equal(REQUIREMENT.ID))
+                .asField("lastActivity");
+
+        // Contributors = {Creator, Lead Developer, Developers, Comments creators,  Attachments creators}
+        // This code could be improved so that not only "1" or "0" will return but how much contributions an user made
+        // I tried this for 2-3 hours. SQL ... yeah ... I leave this to someone else. :->
+        // TODO: Try the first idea from here: http://stackoverflow.com/questions/43717672/sum-over-multiple-count-field/43721212?noredirect=1#comment74498115_43721212
+        Field<Object> isContributor = select(sum(choose()
+                .when(REQUIREMENT.CREATOR_ID.eq(userId), inline(1))
+                .when(REQUIREMENT.LEAD_DEVELOPER_ID.eq(userId), inline(1))
+                .when(REQUIREMENT_DEVELOPER_MAP.USER_ID.eq(userId), inline(1))
+                .when(COMMENT.USER_ID.eq(userId), inline(1))
+                .when(ATTACHMENT.USER_ID.eq(userId), inline(1))
+                .otherwise(inline(0))
+        ))
+                .from(REQUIREMENT)
+                .leftOuterJoin(REQUIREMENT_DEVELOPER_MAP).on(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+                .leftOuterJoin(COMMENT).on(COMMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+                .leftOuterJoin(ATTACHMENT).on(ATTACHMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
+                .asField("isContributor");
+
+
+        Result<Record> queryResults = jooq.select(REQUIREMENT.fields())
+                .select(idCount)
+                .select(COMMENT_COUNT)
+                .select(ATTACHMENT_COUNT)
+                .select(FOLLOWER_COUNT)
+                .select(isFollower)
+                .select(isDeveloper)
+                .select(isContributor)
+                .select(creatorUser.fields())
+                .select(leadDeveloperUser.fields())
+                .select(PROJECT.fields())
+                .select(lastActivity)
+                .from(REQUIREMENT)
+                .join(creatorUser).on(creatorUser.ID.equal(REQUIREMENT.CREATOR_ID))
+                .leftOuterJoin(leadDeveloperUser).on(leadDeveloperUser.ID.equal(REQUIREMENT.LEAD_DEVELOPER_ID))
+                .leftOuterJoin(PROJECT).on(PROJECT.ID.equal(REQUIREMENT.PROJECT_ID))
+                .leftOuterJoin(LAST_ACTIVITY).on(REQUIREMENT.ID.eq(LAST_ACTIVITY.field(REQUIREMENT.ID)))
+                .where(requirementFilter)
+                .and(isAuthorizedCondition)
+                .fetch();
+
+        for (Record queryResult : queryResults) {
+            RequirementRecord requirementRecord = queryResult.into(REQUIREMENT);
+            Requirement requirement = transformer.getEntityFromTableRecord(requirementRecord);
+            requirement.setLastActivity((LocalDateTime) queryResult.getValue(lastActivity));
+
+            UserTransformer userTransformer = new UserTransformer();
+            //Filling up Creator
+            requirement.setCreator(
+                    userTransformer.getEntityFromTableRecord(queryResult.into(creatorUser))
+            );
+
+            //Filling up LeadDeveloper
+            if (queryResult.getValue(leadDeveloperUser.ID) != null) {
+                requirement.setLeadDeveloper(
+                        userTransformer.getEntityFromTableRecord(queryResult.into(leadDeveloperUser))
+                );
+            }
+
+            //Filling up votes
+            Result<Record> voteQueryResult = jooq.select(DSL.count(DSL.nullif(vote.IS_UPVOTE, 0)).as("upVotes"))
+                    .select(DSL.count(DSL.nullif(vote.IS_UPVOTE, 1)).as("downVotes"))
+                    .select(userVote.IS_UPVOTE.as("userVoted"))
+                    .from(REQUIREMENT)
+                    .leftOuterJoin(vote).on(vote.REQUIREMENT_ID.eq(REQUIREMENT.ID))
+                    .leftOuterJoin(userVote).on(userVote.REQUIREMENT_ID.eq(REQUIREMENT.ID).and(userVote.USER_ID.eq(userId)))
+                    .where(transformer.getTableId().equal(requirement.getId()))
+                    .groupBy(userVote.IS_UPVOTE)
+                    .fetch();
+
+            requirement.setUpVotes(voteQueryResult.get(0).getValue("upVotes", Integer.class));
+            requirement.setDownVotes(voteQueryResult.get(0).getValue("downVotes", Integer.class));
+            requirement.setUserVoted(transformToUserVoted(voteQueryResult.get(0).getValue("userVoted", Integer.class)));
+
+            //Filling up categories
+            List<Integer> categories = new ArrayList<>();
+
+            Result<RequirementCategoryMapRecord> categoryRecord = jooq.selectFrom(REQUIREMENT_CATEGORY_MAP).where(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.eq(requirement.getId())).fetch();
+
+            categoryRecord.forEach(record -> categories.add(record.getValue(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID)));
+
+            requirement.setCategories(categories);
+
+            //Filling up additional information
+            requirement.setNumberOfComments((Integer) queryResult.getValue(COMMENT_COUNT));
+            requirement.setNumberOfAttachments((Integer) queryResult.getValue(ATTACHMENT_COUNT));
+            requirement.setNumberOfFollowers((Integer) queryResult.getValue(FOLLOWER_COUNT));
+            if (userId != 1) {
+                requirement.setIsFollower(0 != (Integer) queryResult.getValue(isFollower));
+                requirement.setIsDeveloper(0 != (Integer) queryResult.getValue(isDeveloper));
+                requirement.setIsContributor(!Objects.equals(queryResult.getValue(isContributor), new BigDecimal(0)));
+            }
+
+            if (requirement.getNumberOfAttachments() > 0) {
+                AttachmentRepository attachmentRepository = new AttachmentRepositoryImpl(this.jooq);
+                List<Attachment> attachmentList = attachmentRepository.findAllByRequirementId(requirement.getId(), new PageInfo(0, 1000, new HashMap<>())).getElements();
+                requirement.setAttachments(attachmentList);
+            }
+
+            requirement.setContext(EntityContextFactory.create(pageable.getEmbed(), queryResult));
+            requirements.add(requirement);
+        }
+        int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
+
+        return ImmutablePair.of(requirements, total);
+    }
+
+    private ImmutablePair<List<Requirement>, Integer> getFilteredRequirements(Condition requirementFilter, Pageable pageable, int userId) throws Exception {
+        return getFilteredRequirements(Collections.singletonList(requirementFilter), pageable, userId);
+    }
+
+    private ImmutablePair<List<Requirement>, Integer> getFilteredRequirements(Condition requirementFilter, int userId) throws Exception {
+        return getFilteredRequirements(requirementFilter, new PageInfo(0, 1000, new HashMap<>()), userId);
     }
 
     @Override
@@ -115,7 +259,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             requirementIds = jooq.select()
                     .from(REQUIREMENT)
                     .where(transformer.getFilterConditions(pageable.getFilters()))
-                            .and(transformer.getSearchCondition(pageable.getSearch()))
+                    .and(transformer.getSearchCondition(pageable.getSearch()))
                     .orderBy(transformer.getSortFields(pageable.getSorts()))
                     //       .limit(pageable.getPageSize())
                     //       .offset(pageable.getOffset())
@@ -130,48 +274,14 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     @Override
     public PaginationResult<Requirement> findAll(Pageable pageable, int userId) throws BazaarException {
         PaginationResult<Requirement> result = null;
-        List<Requirement> requirements;
         try {
-            requirements = new ArrayList<>();
+            Collection<Condition> filterCondition = (Collection<Condition>) transformer.getFilterConditions(pageable.getFilters());
+            filterCondition.add(transformer.getSearchCondition(pageable.getSearch()));
 
-            Field<Object> idCount = jooq.selectCount()
-                    .from(REQUIREMENT)
-                    .where(transformer.getFilterConditions(pageable.getFilters()))
-                    .and(transformer.getSearchCondition(pageable.getSearch()))
-                    //.and(REQUIREMENT.PROJECT_ID.eq(projectId))
-                    .asField("idCount");
+            ImmutablePair<List<Requirement>, Integer> filteredRequirements = getFilteredRequirements(filterCondition, pageable, userId);
 
+            result = new PaginationResult<>(filteredRequirements.right, pageable, filteredRequirements.left);
 
-            Condition isAuthorizedCondition = REQUIREMENT.PROJECT_ID.in(
-                            DSL.<Integer>select(PROJECT.ID)
-                                    .from(PROJECT)
-                                    .where(PROJECT.ID.eq(REQUIREMENT.PROJECT_ID))
-                                    .and(PROJECT.VISIBILITY.isTrue().or(PROJECT.LEADER_ID.eq(userId)))
-                    );
-
-            List<Record> queryResults = jooq.select(REQUIREMENT.fields())
-                    .select(idCount)
-                    .select(VOTE_COUNT)
-                    .select(COMMENT_COUNT)
-                    .select(FOLLOWER_COUNT)
-                    .from(REQUIREMENT)
-                    .leftOuterJoin(LAST_ACTIVITY).on(REQUIREMENT.ID.eq(LAST_ACTIVITY.field(REQUIREMENT.ID)))
-                    .where(transformer.getFilterConditions(pageable.getFilters()))
-                    .and(transformer.getSearchCondition(pageable.getSearch()))
-                    .and(isAuthorizedCondition)
-                    .groupBy(REQUIREMENT.ID)
-                    .orderBy(transformer.getSortFields(pageable.getSorts()))
-                    .limit(pageable.getPageSize())
-                    .offset(pageable.getOffset())
-                    .fetch();
-
-            for (Record queryResult : queryResults) {
-                RequirementRecord requirementRecord = queryResult.into(REQUIREMENT);
-                Requirement requirement = transformer.getEntityFromTableRecord(requirementRecord);
-                requirements.add(findById(requirement.getId(), userId, pageable.getEmbed())); // TODO: Remove the getId call and create the objects themself here
-            }
-            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
-            result = new PaginationResult<>(total, pageable, requirements);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         } catch (Exception e) {
@@ -183,40 +293,14 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     @Override
     public PaginationResult<Requirement> findAllByProject(int projectId, Pageable pageable, int userId) throws BazaarException {
         PaginationResult<Requirement> result = null;
-        List<Requirement> requirements;
         try {
-            requirements = new ArrayList<>();
+            Collection<Condition> filterCondition = (Collection<Condition>) transformer.getFilterConditions(pageable.getFilters());
+            filterCondition.add(transformer.getSearchCondition(pageable.getSearch()));
+            filterCondition.add(REQUIREMENT.PROJECT_ID.eq(projectId));
 
-            Field<Object> idCount = jooq.selectCount()
-                    .from(REQUIREMENT)
-                    .where(transformer.getFilterConditions(pageable.getFilters()))
-                    .and(transformer.getSearchCondition(pageable.getSearch()))
-                    .and(REQUIREMENT.PROJECT_ID.eq(projectId))
-                    .asField("idCount");
+            ImmutablePair<List<Requirement>, Integer> filteredRequirements = getFilteredRequirements(filterCondition, pageable, userId);
 
-            List<Record> queryResults = jooq.select(REQUIREMENT.fields())
-                    .select(idCount)
-                    .select(VOTE_COUNT)
-                    .select(COMMENT_COUNT)
-                    .select(FOLLOWER_COUNT)
-                    .from(REQUIREMENT)
-                    .leftOuterJoin(LAST_ACTIVITY).on(REQUIREMENT.ID.eq(LAST_ACTIVITY.field(REQUIREMENT.ID)))
-                    .where(transformer.getFilterConditions(pageable.getFilters()))
-                    .and(transformer.getSearchCondition(pageable.getSearch()))
-                    .and(REQUIREMENT.PROJECT_ID.eq(projectId))
-                    .groupBy(REQUIREMENT.ID)
-                    .orderBy(transformer.getSortFields(pageable.getSorts()))
-                    .limit(pageable.getPageSize())
-                    .offset(pageable.getOffset())
-                    .fetch();
-
-            for (Record queryResult : queryResults) {
-                RequirementRecord requirementRecord = queryResult.into(REQUIREMENT);
-                Requirement requirement = transformer.getEntityFromTableRecord(requirementRecord);
-                requirements.add(findById(requirement.getId(), userId)); // TODO: Remove the getId call and create the objects themself here
-            }
-            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
-            result = new PaginationResult<>(total, pageable, requirements);
+            result = new PaginationResult<>(filteredRequirements.right, pageable, filteredRequirements.left);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         } catch (Exception e) {
@@ -245,56 +329,14 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     @Override
     public PaginationResult<Requirement> findAllByCategory(int categoryId, Pageable pageable, int userId) throws BazaarException {
         PaginationResult<Requirement> result = null;
-        List<Requirement> requirements;
         try {
-            requirements = new ArrayList<>();
+            Collection<Condition> filterCondition = (Collection<Condition>) transformer.getFilterConditions(pageable.getFilters());
+            filterCondition.add(transformer.getSearchCondition(pageable.getSearch()));
+            filterCondition.add(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.eq(categoryId));
 
-            Field<Object> idCount = jooq.selectCount()
-                    .from(REQUIREMENT)
-                    .join(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.eq(REQUIREMENT.ID))
-                    .where(transformer.getFilterConditions(pageable.getFilters()))
-                    .and(transformer.getSearchCondition(pageable.getSearch()))
-                    .and(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.eq(categoryId))
-                    .asField("idCount");
+            ImmutablePair<List<Requirement>, Integer> filteredRequirements = getFilteredRequirements(filterCondition, pageable, userId);
 
-            Field<Object> voteCount = jooq.select(DSL.count(DSL.nullif(VOTE.IS_UPVOTE, 0)))
-                    .from(VOTE)
-                    .where(VOTE.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .asField("voteCount");
-
-            Field<Object> commentCount = jooq.select(DSL.count())
-                    .from(COMMENT)
-                    .where(COMMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .asField("commentCount");
-
-            Field<Object> followerCount = jooq.select(DSL.count())
-                    .from(REQUIREMENT_FOLLOWER_MAP)
-                    .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .asField("followerCount");
-
-            List<Record> queryResults = jooq.select(REQUIREMENT.fields())
-                    .select(idCount)
-                    .select(VOTE_COUNT)
-                    .select(COMMENT_COUNT)
-                    .select(FOLLOWER_COUNT)
-                    .from(REQUIREMENT)
-                    .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.eq(REQUIREMENT.ID))
-                    .leftOuterJoin(LAST_ACTIVITY).on(REQUIREMENT.ID.eq(LAST_ACTIVITY.field(REQUIREMENT.ID)))
-                    .where(transformer.getFilterConditions(pageable.getFilters()))
-                    .and(transformer.getSearchCondition(pageable.getSearch()))
-                    .and(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.eq(categoryId))
-                    .groupBy(REQUIREMENT.ID)
-                    .orderBy(transformer.getSortFields(pageable.getSorts()))
-                    .limit(pageable.getPageSize())
-                    .offset(pageable.getOffset())
-                    .fetch();
-
-            for (Record queryResult : queryResults) {
-                RequirementRecord requirementRecord = queryResult.into(RequirementRecord.class);
-                requirements.add(findById(requirementRecord.getId(), userId)); // TODO: Remove the getId call and create the objects themself here
-            }
-            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
-            result = new PaginationResult<>(total, pageable, requirements);
+            result = new PaginationResult<>(filteredRequirements.right, pageable, filteredRequirements.left);
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
@@ -323,135 +365,18 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     public Requirement findById(int id, int userId, List<String> embed) throws Exception {
         Requirement requirement = null;
         try {
-            de.rwth.dbis.acis.bazaar.dal.jooq.tables.User creatorUser = USER.as("creatorUser");
-            de.rwth.dbis.acis.bazaar.dal.jooq.tables.User leadDeveloperUser = USER.as("leadDeveloperUser");
-            de.rwth.dbis.acis.bazaar.dal.jooq.tables.Vote vote = VOTE.as("vote");
-            de.rwth.dbis.acis.bazaar.dal.jooq.tables.Vote userVote = VOTE.as("userVote");
 
-            Field<Object> isFollower = DSL.select(DSL.count())
-                    .from(REQUIREMENT_FOLLOWER_MAP)
-                    .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID).and(REQUIREMENT_FOLLOWER_MAP.USER_ID.equal(userId)))
-                    .asField("isFollower");
+            Condition filterCondition = transformer.getTableId().equal(id);
 
-            Field<Object> isDeveloper = DSL.select(DSL.count())
-                    .from(REQUIREMENT_DEVELOPER_MAP)
-                    .where(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID).and(REQUIREMENT_DEVELOPER_MAP.USER_ID.equal(userId)))
-                    .asField("isDeveloper");
+            ImmutablePair<List<Requirement>, Integer> filteredRequirements = getFilteredRequirements(filterCondition, userId);
 
-            // Contributors = {Creator, Lead Developer, Developers, Comments creators,  Attachments creators}
-            // This code could be improved so that not only "1" or "0" will return but how much contributions an user made
-            // I tried this for 2-3 hours. SQL ... yeah ... I leave this to someone else. :->
-            // TODO: Try the first idea from here: http://stackoverflow.com/questions/43717672/sum-over-multiple-count-field/43721212?noredirect=1#comment74498115_43721212
-            Field<Object> isContributor = select(sum(choose()
-                    .when(REQUIREMENT.CREATOR_ID.eq(userId), inline(1))
-                    .when(REQUIREMENT.LEAD_DEVELOPER_ID.eq(userId), inline(1))
-                    .when(REQUIREMENT_DEVELOPER_MAP.USER_ID.eq(userId), inline(1))
-                    .when(COMMENT.USER_ID.eq(userId), inline(1))
-                    .when(ATTACHMENT.USER_ID.eq(userId), inline(1))
-                    .otherwise(inline(0))
-            ))
-                    .from(REQUIREMENT)
-                    .leftOuterJoin(REQUIREMENT_DEVELOPER_MAP).on(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .leftOuterJoin(COMMENT).on(COMMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .leftOuterJoin(ATTACHMENT).on(ATTACHMENT.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .where(REQUIREMENT.ID.equal(id))
-                    .asField("isContributor");
-
-            Result<Record> queryResult = jooq.select(REQUIREMENT.fields())
-                    .select(COMMENT_COUNT)
-                    .select(ATTACHMENT_COUNT)
-                    .select(FOLLOWER_COUNT)
-                    .select(isFollower)
-                    .select(isDeveloper)
-                    .select(isContributor)
-                    .select(creatorUser.fields())
-                    .select(leadDeveloperUser.fields())
-                    .select(CATEGORY.fields())
-                    .select(PROJECT.fields())
-                    .from(REQUIREMENT)
-                    .join(creatorUser).on(creatorUser.ID.equal(REQUIREMENT.CREATOR_ID))
-                    .leftOuterJoin(leadDeveloperUser).on(leadDeveloperUser.ID.equal(REQUIREMENT.LEAD_DEVELOPER_ID))
-                    .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.equal(REQUIREMENT.ID))
-                    .leftOuterJoin(CATEGORY).on(CATEGORY.ID.equal(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID))
-                    .leftOuterJoin(PROJECT).on(PROJECT.ID.equal(REQUIREMENT.PROJECT_ID))
-                    .where(transformer.getTableId().equal(id))
-                    .fetch();
-
-            if (queryResult == null || queryResult.size() == 0) {
+            if (filteredRequirements.left == null || filteredRequirements.left.size() == 0) {
                 ExceptionHandler.getInstance().convertAndThrowException(
                         new Exception("No " + transformer.getRecordClass() + " found with id: " + id),
                         ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
             }
 
-            //Filling up Requirement fields
-            Requirement.Builder builder = Requirement.builder().name(queryResult.getValues(REQUIREMENT.NAME).get(0));
-            builder.id(queryResult.getValues(REQUIREMENT.ID).get(0))
-                    .description(queryResult.getValues(REQUIREMENT.DESCRIPTION).get(0))
-                    .realized(queryResult.getValues(REQUIREMENT.REALIZED).get(0))
-                    .creationDate(queryResult.getValues(REQUIREMENT.CREATION_DATE).get(0))
-                    .lastUpdatedDate(queryResult.getValues(REQUIREMENT.LAST_UPDATED_DATE).get(0))
-                    .projectId(queryResult.getValues(REQUIREMENT.PROJECT_ID).get(0));
-
-            UserTransformer userTransformer = new UserTransformer();
-            //Filling up Creator
-            builder.creator(
-                    userTransformer.getEntityFromQueryResult(creatorUser, queryResult)
-            );
-
-            //Filling up LeadDeveloper
-            if (queryResult.getValues(leadDeveloperUser.ID).get(0) != null) {
-                builder.leadDeveloper(
-                        userTransformer.getEntityFromQueryResult(leadDeveloperUser, queryResult)
-                );
-            }
-
-            //Filling up votes
-            Result<Record> voteQueryResult = jooq.select(DSL.count(DSL.nullif(vote.IS_UPVOTE, 0)).as("upVotes"))
-                    .select(DSL.count(DSL.nullif(vote.IS_UPVOTE, 1)).as("downVotes"))
-                    .select(userVote.IS_UPVOTE.as("userVoted"))
-                    .from(REQUIREMENT)
-                    .leftOuterJoin(vote).on(vote.REQUIREMENT_ID.eq(REQUIREMENT.ID))
-                    .leftOuterJoin(userVote).on(userVote.REQUIREMENT_ID.eq(REQUIREMENT.ID).and(userVote.USER_ID.eq(userId)))
-                    .where(transformer.getTableId().equal(id))
-                    .groupBy(userVote.IS_UPVOTE)
-                    .fetch();
-
-            builder.upVotes(voteQueryResult.get(0).getValue("upVotes", Integer.class));
-            builder.downVotes(voteQueryResult.get(0).getValue("downVotes", Integer.class));
-            builder.userVoted(transformToUserVoted(voteQueryResult.get(0).getValue("userVoted", Integer.class)));
-
-
-
-            requirement = builder.build();
-
-            //Filling up categories
-            List<Category> categories = new ArrayList<>();
-
-            for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(CATEGORY.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
-                Result<Record> records = entry.getValue();
-                categories.add(
-                        Category.builder()
-                                .name(records.getValues(CATEGORY.NAME).get(0))
-                                .projectId(records.getValues(CATEGORY.PROJECT_ID).get(0))
-                                .id(records.getValues(CATEGORY.ID).get(0))
-                                .description(records.getValues(CATEGORY.DESCRIPTION).get(0))
-                                .build()
-                );
-            }
-            requirement.setCategories(categories);
-
-            //Filling up additional information
-            requirement.setNumberOfComments((Integer) queryResult.getValues(COMMENT_COUNT).get(0));
-            requirement.setNumberOfAttachments((Integer) queryResult.getValues(ATTACHMENT_COUNT).get(0));
-            requirement.setNumberOfFollowers((Integer) queryResult.getValues(FOLLOWER_COUNT).get(0));
-            if (userId != 1) {
-                requirement.setIsFollower(0 != (Integer) queryResult.getValues(isFollower).get(0));
-                requirement.setIsDeveloper(0 != (Integer) queryResult.getValues(isDeveloper).get(0));
-                requirement.setIsContributor(!Objects.equals(queryResult.getValues(isContributor).get(0), new BigDecimal(0)));
-            }
-
-            requirement.setContext(EntityContextFactory.create(embed, queryResult.get(0)));
+            requirement = filteredRequirements.left.get(0);
 
         } catch (BazaarException be) {
             ExceptionHandler.getInstance().convertAndThrowException(be);
