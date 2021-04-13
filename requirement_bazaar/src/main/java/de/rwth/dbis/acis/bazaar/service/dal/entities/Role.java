@@ -24,6 +24,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.jackson.Jacksonized;
+import net.minidev.json.annotate.JsonIgnore;
 
 import java.util.List;
 
@@ -40,6 +41,15 @@ public class Role extends EntityBase {
 
     private final List<Privilege> privileges;
 
-
     private final String name;
+
+    @JsonIgnore
+    public boolean isProjectScoped() {
+        try {
+            ProjectRole.valueOf(name);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
 }

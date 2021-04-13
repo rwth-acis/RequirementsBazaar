@@ -18,6 +18,8 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 - Added endpoint to search for users by name or email [#90](https://github.com/rwth-acis/RequirementsBazaar/pull/90)
 - Categories, projects and requirements now have a `lastActivity`
   attribute [#91](https://github.com/rwth-acis/RequirementsBazaar/pull/91).
+- If a user is a member of a project the respective role is now returned in the`projectRole` attribute of a
+  project [#94](https://github.com/rwth-acis/RequirementsBazaar/pull/94).
 
 ### Changed
 

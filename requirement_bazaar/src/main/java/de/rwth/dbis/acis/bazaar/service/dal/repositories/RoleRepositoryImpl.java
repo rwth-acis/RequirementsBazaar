@@ -153,6 +153,19 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
         return new PaginationResult<>(total, pageable, projectMembers);
     }
 
+    public ProjectRole getProjectRole(int userId, int projectId) throws BazaarException {
+        List<Role> roles = listRolesOfUser(userId, projectId);
+
+        for (Role role : roles) {
+            if (role.getName().equals("SystemAdmin")) {
+                return ProjectRole.ProjectAdmin;
+            } else if (role.isProjectScoped()) {
+                return ProjectRole.valueOf(role.getName());
+            }
+        }
+        return null;
+    }
+
     @Override
     public void removeUserFromRole(int userId, Integer context) throws BazaarException {
         jooq.deleteFrom(USER_ROLE_MAP).where(USER_ROLE_MAP.USER_ID.equal(userId).and(USER_ROLE_MAP.CONTEXT_INFO.eq(context))).execute();

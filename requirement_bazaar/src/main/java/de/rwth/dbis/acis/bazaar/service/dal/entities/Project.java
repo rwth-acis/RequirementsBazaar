@@ -71,6 +71,8 @@ public class Project extends EntityBase implements Ownable {
     private Integer numberOfFollowers;
     private Boolean isFollower;
 
+    private ProjectRole projectRole;
+
     @JsonProperty("isFollower")
     public Boolean isFollower() {
         return isFollower;

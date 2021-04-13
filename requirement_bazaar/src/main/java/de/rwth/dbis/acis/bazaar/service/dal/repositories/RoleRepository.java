@@ -21,6 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.service.dal.entities.ProjectMember;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.ProjectRole;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Role;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
@@ -41,6 +42,16 @@ public interface RoleRepository extends Repository<Role> {
     Role findByRoleName(String roleName) throws BazaarException;
 
     PaginationResult<ProjectMember> listProjectMembers(int projectId, Pageable pageable) throws BazaarException;
+
+    /**
+     * Return the project role or null
+     *
+     * @param userId    id of the user
+     * @param projectId id of the project
+     * @return projectrole or null
+     * @throws BazaarException
+     */
+    ProjectRole getProjectRole(int userId, int projectId) throws BazaarException;
 
     void removeUserFromRole(int userId, Integer context) throws BazaarException;
 }
