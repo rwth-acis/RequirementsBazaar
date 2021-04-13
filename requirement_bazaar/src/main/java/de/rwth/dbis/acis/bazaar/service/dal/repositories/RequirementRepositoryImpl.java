@@ -174,6 +174,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 .leftOuterJoin(leadDeveloperUser).on(leadDeveloperUser.ID.equal(REQUIREMENT.LEAD_DEVELOPER_ID))
                 .leftOuterJoin(PROJECT).on(PROJECT.ID.equal(REQUIREMENT.PROJECT_ID))
                 .leftOuterJoin(LAST_ACTIVITY).on(REQUIREMENT.ID.eq(LAST_ACTIVITY.field(REQUIREMENT.ID)))
+                .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT.ID.eq(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID))
                 .where(requirementFilter)
                 .and(isAuthorizedCondition)
                 .fetch();
