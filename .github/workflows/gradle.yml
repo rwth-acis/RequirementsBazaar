@@ -30,3 +30,9 @@ jobs:
           done
       - name: Build with Gradle
         run: ./gradlew clean build --info
+      - uses: codecov/codecov-action@v1
+        with:
+          flags: unittests
+          files: ./requirement_bazaar/build/reports/jacoco/test/jacocoTestReport.xml
+          fail_ci_if_error: true
+          verbose: true
