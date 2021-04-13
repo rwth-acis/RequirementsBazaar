@@ -50,6 +50,12 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
   las2peerid [#90](https://github.com/rwth-acis/RequirementsBazaar/pull/90)
 - Requirements no longer return the category objects in the `categories` attribute but a list of category
   ids [#91](https://github.com/rwth-acis/RequirementsBazaar/pull/91).
+- Vote direction can no longer be provided as a query
+  parameter [#94](https://github.com/rwth-acis/RequirementsBazaar/pull/94)
+
+### Removed
+
+- Personalisation endpoints [#94](https://github.com/rwth-acis/RequirementsBazaar/pull/94)
 
 ## [0.7.2] - 2017-10-25
 
