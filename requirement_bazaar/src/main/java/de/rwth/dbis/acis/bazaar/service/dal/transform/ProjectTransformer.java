@@ -102,7 +102,7 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {
         if (sorts.isEmpty()) {
-            return Collections.singletonList(PROJECT.NAME.asc());
+            return Collections.singletonList(ProjectRepositoryImpl.LAST_ACTIVITY.field("last_activity").desc());
         }
         List<SortField<?>> sortFields = new ArrayList<>();
         for (Pageable.SortField sort : sorts) {
@@ -136,9 +136,6 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
                     switch (sort.getSortDirection()) {
                         case ASC:
                             sortFields.add(ProjectRepositoryImpl.LAST_ACTIVITY.field("last_activity").asc());
-                            break;
-                        case DESC:
-                            sortFields.add(ProjectRepositoryImpl.LAST_ACTIVITY.field("last_activity").desc());
                             break;
                         default:
                             sortFields.add(ProjectRepositoryImpl.LAST_ACTIVITY.field("last_activity").desc());

@@ -24,8 +24,7 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 ### Changed
 
 - Updated all dependencies, most notably las2peer 1.0.0 [#68](https://github.com/rwth-acis/RequirementsBazaar/pull/68)
-- Updated las2peer to 1.1.0 and thereby requiring Java
-  14) [#73](https://github.com/rwth-acis/RequirementsBazaar/pull/73)
+- Updated las2peer to 1.1.0 and thereby requiring Java 14 [#73](https://github.com/rwth-acis/RequirementsBazaar/pull/73)
 - Changed buildsystem to use gradle [#73](https://github.com/rwth-acis/RequirementsBazaar/pull/73)
 - Automatically generate jooq code from migration files at build
   time [#73](https://github.com/rwth-acis/RequirementsBazaar/pull/73)
