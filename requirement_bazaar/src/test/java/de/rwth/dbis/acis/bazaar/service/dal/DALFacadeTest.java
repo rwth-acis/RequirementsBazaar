@@ -71,7 +71,7 @@ public class DALFacadeTest extends SetupData {
 
     @Test
     public void testCreateGetProject() throws Exception {
-        Project project = Project.builder().name("Project3  \uD83D\uDC69\u200D\uD83D\uDC69\u200D\uD83D\uDC67\u200D\uD83D\uDC66").description("An \uD83D\uDE00awesome \uD83D\uDE03string with a few \uD83D\uDE09emojis!").id(1).leader(initUser).visibility(true).isFollower(false).build();
+        Project project = Project.builder().name("Project3  \uD83D\uDC69\u200D\uD83D\uDC69\u200D\uD83D\uDC67\u200D\uD83D\uDC66").description("An \uD83D\uDE00awesome \uD83D\uDE03string with a few \uD83D\uDE09emojis!").id(1).leader(initUser).visibility(true).build();
 
         facade.createProject(project, initUser.getId());
 
@@ -89,7 +89,7 @@ public class DALFacadeTest extends SetupData {
         assertEquals(project.getLeader().getId(), projectById.getLeader().getId());
         assertEquals(project.getVisibility(), projectById.getVisibility());
         assertTrue(projectById.isOwner(initUser));
-        assertEquals(ProjectRole.ProjectAdmin, projectById.getProjectRole());
+        assertEquals(ProjectRole.ProjectAdmin, projectById.getUserContext().getProjectRole());
 
         // Now check if this can also be found as a public project
         PaginationResult<Project> projectsPage = facade.listPublicProjects(new PageInfo(0, 10), initUser.getId());

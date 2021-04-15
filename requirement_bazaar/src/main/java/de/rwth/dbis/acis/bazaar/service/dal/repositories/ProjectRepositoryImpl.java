@@ -24,6 +24,7 @@ import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectRecord;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UserRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.UserContext;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
@@ -161,17 +162,20 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
             Project project = transformer.getEntityFromTableRecord(projectRecord);
             UserTransformer userTransformer = new UserTransformer();
             UserRecord userRecord = queryResult.into(leaderUser);
+            UserContext.Builder userContext = UserContext.builder();
+
             project.setLeader(userTransformer.getEntityFromTableRecord(userRecord));
             project.setNumberOfCategories((Integer) queryResult.getValue(CATEGORY_COUNT));
             project.setNumberOfRequirements((Integer) queryResult.getValue(REQUIREMENT_COUNT));
             project.setNumberOfFollowers((Integer) queryResult.getValue(FOLLOWER_COUNT));
             project.setLastActivity((LocalDateTime) queryResult.getValue(lastActivity));
             if (userId != 1) {
-                project.setIsFollower(0 != (Integer) queryResult.getValue(isFollower));
+                userContext.isFollower(0 != (Integer) queryResult.getValue(isFollower));
             }
             RoleRepositoryImpl roleRepository = new RoleRepositoryImpl(jooq);
-            project.setProjectRole(roleRepository.getProjectRole(userId, project.getId()));
+            userContext.projectRole(roleRepository.getProjectRole(userId, project.getId()));
 
+            project.setUserContext(userContext.build());
             projects.add(project);
         }
         int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));

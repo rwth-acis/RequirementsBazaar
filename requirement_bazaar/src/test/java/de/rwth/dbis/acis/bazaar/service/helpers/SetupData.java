@@ -68,7 +68,7 @@ public abstract class SetupData {
         try {
             testProject = facade.getProjectById(0, initUser.getId());
         } catch (Exception e) {
-            testProject = Project.builder().name("ProjectTest").description("ProjDesc").leader(initUser).visibility(true).isFollower(false).build();
+            testProject = Project.builder().name("ProjectTest").description("ProjDesc").leader(initUser).visibility(true).build();
             testProject = facade.createProject(testProject, initUser.getId());
         }
     }

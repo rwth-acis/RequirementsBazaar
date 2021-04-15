@@ -18,8 +18,10 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 - Added endpoint to search for users by name or email [#90](https://github.com/rwth-acis/RequirementsBazaar/pull/90)
 - Categories, projects and requirements now have a `lastActivity`
   attribute [#91](https://github.com/rwth-acis/RequirementsBazaar/pull/91).
-- If a user is a member of a project the respective role is now returned in the`projectRole` attribute of a
-  project [#94](https://github.com/rwth-acis/RequirementsBazaar/pull/94).
+- Categories, projects and requirements now have a `userContext` encapsuling the dynamic user related information (
+  permissions, votes, contribution) [#94](https://github.com/rwth-acis/RequirementsBazaar/pull/94).
+- If a user is a member of a project the respective role is now returned in the`projectRole` attribute of the
+  new `userContext` attribute [#94](https://github.com/rwth-acis/RequirementsBazaar/pull/94).
 
 ### Changed
 
@@ -51,6 +53,8 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
   ids [#91](https://github.com/rwth-acis/RequirementsBazaar/pull/91).
 - Vote direction can no longer be provided as a query
   parameter [#94](https://github.com/rwth-acis/RequirementsBazaar/pull/94)
+- Moved user related information in categories, requirements and projects (isFollower/Developer/Contributor, userVoted)
+  into the new `userContext` [#94](https://github.com/rwth-acis/RequirementsBazaar/pull/94).
 
 ### Removed
 

@@ -71,7 +71,11 @@ public class BazaarTest extends TestBase {
 
             // gson doesn't remove the quotes
             assertTrue(isValidISO8601(response.get("creationDate").toString().replace("\"", "")));
-            assertTrue(response.has("projectRole"));
+            assertTrue(response.has("userContext"));
+
+            JsonObject userContext = response.getAsJsonObject("userContext");
+            assertTrue(userContext.has("projectRole"));
+            assertTrue(userContext.has("isFollower"));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -106,7 +110,10 @@ public class BazaarTest extends TestBase {
             JsonObject jsonObject = JsonParser.parseString(result.getResponse()).getAsJsonObject();
             assertTrue(isValidISO8601(jsonObject.get("creationDate").toString().replace("\"", "")));
             // Normal user has no project role
-            assertFalse(jsonObject.has("projectRole"));
+            assertTrue(jsonObject.has("userContext"));
+            JsonObject userContext = jsonObject.getAsJsonObject("userContext");
+            assertFalse(userContext.has("projectRole"));
+            assertTrue(userContext.has("isFollower"));
 
             // Test with admin
             // Now for a specific project
@@ -118,7 +125,9 @@ public class BazaarTest extends TestBase {
             assertTrue(response.isJsonObject());
 
             jsonObject = JsonParser.parseString(result.getResponse()).getAsJsonObject();
-            assertTrue(jsonObject.has("projectRole"));
+            userContext = jsonObject.getAsJsonObject("userContext");
+            assertTrue(userContext.has("projectRole"));
+            assertTrue(userContext.has("isFollower"));
         } catch (Exception e) {
             e.printStackTrace();
             fail(e.toString());

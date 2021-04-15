@@ -25,6 +25,7 @@ import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.UserContext;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.*;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementTransformer;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;
@@ -182,6 +183,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
         for (Record queryResult : queryResults) {
             RequirementRecord requirementRecord = queryResult.into(REQUIREMENT);
             Requirement requirement = transformer.getEntityFromTableRecord(requirementRecord);
+            UserContext.Builder userContext = UserContext.builder();
+
             requirement.setLastActivity((LocalDateTime) queryResult.getValue(lastActivity));
 
             UserTransformer userTransformer = new UserTransformer();
@@ -210,7 +213,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
             requirement.setUpVotes(voteQueryResult.get(0).getValue("upVotes", Integer.class));
             requirement.setDownVotes(voteQueryResult.get(0).getValue("downVotes", Integer.class));
-            requirement.setUserVoted(transformToUserVoted(voteQueryResult.get(0).getValue("userVoted", Integer.class)));
+
+            userContext.userVoted(transformToUserVoted(voteQueryResult.get(0).getValue("userVoted", Integer.class)));
 
             //Filling up categories
             List<Integer> categories = new ArrayList<>();
@@ -226,9 +230,9 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             requirement.setNumberOfAttachments((Integer) queryResult.getValue(ATTACHMENT_COUNT));
             requirement.setNumberOfFollowers((Integer) queryResult.getValue(FOLLOWER_COUNT));
             if (userId != 1) {
-                requirement.setIsFollower(0 != (Integer) queryResult.getValue(isFollower));
-                requirement.setIsDeveloper(0 != (Integer) queryResult.getValue(isDeveloper));
-                requirement.setIsContributor(!Objects.equals(queryResult.getValue(isContributor), new BigDecimal(0)));
+                userContext.isFollower(0 != (Integer) queryResult.getValue(isFollower));
+                userContext.isDeveloper(0 != (Integer) queryResult.getValue(isDeveloper));
+                userContext.isContributor(!Objects.equals(queryResult.getValue(isContributor), new BigDecimal(0)));
             }
 
             if (requirement.getNumberOfAttachments() > 0) {
@@ -238,6 +242,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             }
 
             requirement.setContext(EntityContextFactory.create(pageable.getEmbed(), queryResult));
+            requirement.setUserContext(userContext.build());
             requirements.add(requirement);
         }
         int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));

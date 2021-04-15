@@ -24,6 +24,7 @@ import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.CategoryRecord;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UserRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Category;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.UserContext;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
@@ -154,13 +155,17 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
             Category category = transformer.getEntityFromTableRecord(categoryRecord);
             UserTransformer userTransformer = new UserTransformer();
             UserRecord userRecord = queryResult.into(leaderUser);
+            UserContext.Builder userContext = UserContext.builder();
+
             category.setCreator(userTransformer.getEntityFromTableRecord(userRecord));
             category.setNumberOfRequirements((Integer) queryResult.getValue(REQUIREMENT_COUNT));
             category.setNumberOfFollowers((Integer) queryResult.getValue(FOLLOWER_COUNT));
             category.setLastActivity((LocalDateTime) queryResult.getValue(lastActivity));
             if (userId != 1) {
-                category.setIsFollower((Integer) queryResult.getValue(isFollower) != 0);
+                userContext.isFollower((Integer) queryResult.getValue(isFollower) != 0);
             }
+
+            category.setUserContext(userContext.build());
             categories.add(category);
         }
         int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));

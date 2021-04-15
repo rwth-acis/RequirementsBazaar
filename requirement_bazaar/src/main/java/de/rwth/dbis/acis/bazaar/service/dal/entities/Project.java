@@ -21,7 +21,6 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreateValidation;
 import lombok.Builder;
 import lombok.Data;
@@ -69,14 +68,8 @@ public class Project extends EntityBase implements Ownable {
     private Integer numberOfCategories;
     private Integer numberOfRequirements;
     private Integer numberOfFollowers;
-    private Boolean isFollower;
 
-    private ProjectRole projectRole;
-
-    @JsonProperty("isFollower")
-    public Boolean isFollower() {
-        return isFollower;
-    }
+    private UserContext userContext;
 
     @Override
     public boolean isOwner(User user) {

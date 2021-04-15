@@ -108,38 +108,26 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
         for (Pageable.SortField sort : sorts) {
             switch (sort.getField()) {
                 case "name":
-                    switch (sort.getSortDirection()) {
-                        case DESC:
-                            sortFields.add(PROJECT.NAME.length().desc());
-                            sortFields.add(PROJECT.NAME.desc());
-                            break;
-                        default:
-                            sortFields.add(PROJECT.NAME.length().asc());
-                            sortFields.add(PROJECT.NAME.asc());
-                            break;
+                    if (sort.getSortDirection() == Pageable.SortDirection.DESC) {
+                        sortFields.add(PROJECT.NAME.length().desc());
+                        sortFields.add(PROJECT.NAME.desc());
+                    } else {
+                        sortFields.add(PROJECT.NAME.length().asc());
+                        sortFields.add(PROJECT.NAME.asc());
                     }
                     break;
                 case "date":
-                    switch (sort.getSortDirection()) {
-                        case ASC:
-                            sortFields.add(PROJECT.CREATION_DATE.asc());
-                            break;
-                        case DESC:
-                            sortFields.add(PROJECT.CREATION_DATE.desc());
-                            break;
-                        default:
-                            sortFields.add(PROJECT.CREATION_DATE.desc());
-                            break;
+                    if (sort.getSortDirection() == Pageable.SortDirection.ASC) {
+                        sortFields.add(PROJECT.CREATION_DATE.asc());
+                    } else {
+                        sortFields.add(PROJECT.CREATION_DATE.desc());
                     }
                     break;
                 case "last_activity":
-                    switch (sort.getSortDirection()) {
-                        case ASC:
-                            sortFields.add(ProjectRepositoryImpl.LAST_ACTIVITY.field("last_activity").asc());
-                            break;
-                        default:
-                            sortFields.add(ProjectRepositoryImpl.LAST_ACTIVITY.field("last_activity").desc());
-                            break;
+                    if (sort.getSortDirection() == Pageable.SortDirection.ASC) {
+                        sortFields.add(ProjectRepositoryImpl.LAST_ACTIVITY.field("last_activity").asc());
+                    } else {
+                        sortFields.add(ProjectRepositoryImpl.LAST_ACTIVITY.field("last_activity").desc());
                     }
                     break;
                 case "requirement":
