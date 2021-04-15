@@ -81,6 +81,5 @@ public class AuthorizationManager {
         for (PrivilegeEnum privilege : privileges) {
             facade.createPrivilegeIfNotExists(privilege);
         }
-
     }
 }

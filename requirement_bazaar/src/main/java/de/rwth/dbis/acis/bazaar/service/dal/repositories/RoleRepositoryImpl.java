@@ -54,6 +54,7 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
         List<Role> roles = null;
 
         try {
+            roles = new ArrayList<>();
             de.rwth.dbis.acis.bazaar.dal.jooq.tables.Role roleTable = ROLE.as("role");
             de.rwth.dbis.acis.bazaar.dal.jooq.tables.Privilege privilegeTable = PRIVILEGE.as("privilege");
 
@@ -64,8 +65,7 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
                             .leftOuterJoin(PRIVILEGE).on(PRIVILEGE.ID.eq(ROLE_PRIVILEGE_MAP.PRIVILEGE_ID))
             ).where(USER_ROLE_MAP.USER_ID.equal(userId).and(USER_ROLE_MAP.CONTEXT_INFO.eq(context).or(USER_ROLE_MAP.CONTEXT_INFO.isNull()))).fetch();
 
-            if (queryResult != null && !queryResult.isEmpty()) {
-                roles = new ArrayList<>();
+            if (!queryResult.isEmpty()) {
                 convertToRoles(roles, roleTable, privilegeTable, queryResult);
             }
 
@@ -107,7 +107,6 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
 
     @Override
     public PaginationResult<ProjectMember> listProjectMembers(int projectId, Pageable pageable) throws BazaarException {
-        PaginationResult<ProjectMember> result = null;
         List<ProjectMember> projectMembers = null;
         int total = 0;
 
@@ -151,6 +150,19 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return new PaginationResult<>(total, pageable, projectMembers);
+    }
+
+    public ProjectRole getProjectRole(int userId, int projectId) throws BazaarException {
+        List<Role> roles = listRolesOfUser(userId, projectId);
+
+        for (Role role : roles) {
+            if (role.getName().equals("SystemAdmin")) {
+                return ProjectRole.ProjectAdmin;
+            } else if (role.isProjectScoped()) {
+                return ProjectRole.valueOf(role.getName());
+            }
+        }
+        return null;
     }
 
     @Override

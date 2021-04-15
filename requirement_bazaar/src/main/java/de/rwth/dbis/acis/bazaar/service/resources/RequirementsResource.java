@@ -996,7 +996,7 @@ public class RequirementsResource {
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public Response vote(@PathParam("requirementId") int requirementId,
-                         @ApiParam(value = "Vote direction", allowableValues = "up, down") @DefaultValue("up") @QueryParam("direction") String direction) {
+                         @ApiParam(value = "Vote direction", allowableValues = "up, down") @DefaultValue("up") String direction) {
         DALFacade dalFacade = null;
         try {
             Agent agent = Context.getCurrent().getMainAgent();

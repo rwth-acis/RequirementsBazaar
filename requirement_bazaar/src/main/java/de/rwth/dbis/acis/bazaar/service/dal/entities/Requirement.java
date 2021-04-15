@@ -4,7 +4,6 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreateValidation;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.UserVote;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -67,29 +66,11 @@ public class Requirement extends EntityBase implements Ownable {
 
     private int upVotes;
     private int downVotes;
-    private UserVote userVoted;
 
-    private Boolean isFollower;
-    private Boolean isDeveloper;
-    private Boolean isContributor;
+    private UserContext userContext;
 
     @JsonProperty("_context")
     private EntityContext context;
-
-    @JsonProperty("isFollower")
-    public Boolean isFollower() {
-        return isFollower;
-    }
-
-    @JsonProperty("isDeveloper")
-    public Boolean isDeveloper() {
-        return isDeveloper;
-    }
-
-    @JsonProperty("isContributor")
-    public Boolean isContributor() {
-        return isContributor;
-    }
 
     @Override
     public boolean isOwner(User user) {

@@ -24,6 +24,8 @@ import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectRecord;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UserRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.UserContext;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.ProjectTransformer;
@@ -32,6 +34,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jooq.Record;
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
@@ -39,6 +42,7 @@ import org.jooq.impl.DSL;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
@@ -120,70 +124,12 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
         super(jooq, new ProjectTransformer());
     }
 
-    @Override
-    public Project findById(int id, int userId) throws BazaarException {
-        Project project = null;
-        try {
-            Field<Object> isFollower = DSL.select(DSL.count())
-                    .from(PROJECT_FOLLOWER_MAP)
-                    .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.equal(PROJECT.ID).and(PROJECT_FOLLOWER_MAP.USER_ID.equal(userId)))
-                    .asField("isFollower");
-
-            Result<Record> queryResult = jooq.select(PROJECT.fields())
-                    .select(CATEGORY_COUNT)
-                    .select(REQUIREMENT_COUNT)
-                    .select(FOLLOWER_COUNT)
-                    .select(isFollower)
-                    .select(leaderUser.fields())
-                    .from(PROJECT)
-                    .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(PROJECT.LEADER_ID))
-                    .where(transformer.getTableId().equal(id))
-                    .fetch();
-
-            if (queryResult == null || queryResult.size() == 0) {
-                ExceptionHandler.getInstance().convertAndThrowException(
-                        new Exception("No " + transformer.getRecordClass() + " found with id: " + id),
-                        ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
-            }
-
-            Project.Builder builder = Project.builder()
-                    .name(queryResult.getValues(PROJECT.NAME).get(0))
-                    .description(queryResult.getValues(PROJECT.DESCRIPTION).get(0))
-                    .id(queryResult.getValues(PROJECT.ID).get(0))
-                    .defaultCategoryId(queryResult.getValues(PROJECT.DEFAULT_CATEGORY_ID).get(0))
-                    .visibility(queryResult.getValues(PROJECT.VISIBILITY).get(0) == 1)
-                    .creationDate(queryResult.getValues(PROJECT.CREATION_DATE).get(0))
-                    .lastUpdatedDate(queryResult.getValues(PROJECT.LAST_UPDATED_DATE).get(0));
-
-            UserTransformer userTransformer = new UserTransformer();
-            //Filling up LeadDeveloper
-            builder.leader(userTransformer.getEntityFromQueryResult(leaderUser, queryResult));
-
-            project = builder.build();
-
-            // Filling additional information
-            project.setNumberOfCategories((Integer) queryResult.getValues(CATEGORY_COUNT).get(0));
-            project.setNumberOfRequirements((Integer) queryResult.getValues(REQUIREMENT_COUNT).get(0));
-            project.setNumberOfFollowers((Integer) queryResult.getValues(FOLLOWER_COUNT).get(0));
-            if (userId != 1) {
-                project.setIsFollower(0 != (Integer) queryResult.getValues(isFollower).get(0));
-            }
-
-        } catch (BazaarException be) {
-            ExceptionHandler.getInstance().convertAndThrowException(be);
-        } catch (Exception e) {
-            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
-        }
-        return project;
-    }
-
-    private PaginationResult<Project> findProjects(Pageable pageable, int userId, Boolean queryPrivate) throws Exception {
+    private ImmutablePair<List<Project>, Integer> getFilteredProjects(Condition searchCondition, Pageable pageable, int userId) throws Exception {
 
         List<Project> projects = new ArrayList<>();
         Field<Object> idCount = jooq.selectCount()
                 .from(PROJECT)
-                .where(PROJECT.VISIBILITY.isTrue())
-                .and(transformer.getSearchCondition(pageable.getSearch()))
+                .where(searchCondition)
                 .asField("idCount");
 
         Field<Object> isFollower = DSL.select(DSL.count())
@@ -193,16 +139,6 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
         Field<Object> lastActivity = DSL.select(LAST_ACTIVITY.field("last_activity")).from(LAST_ACTIVITY)
                 .where(LAST_ACTIVITY.field(PROJECT.ID).equal(PROJECT.ID))
                 .asField("lastActivity");
-
-        Condition searchConditions = transformer.getSearchCondition(pageable.getSearch())
-                .and((pageable.getIds().size() > 0) ? PROJECT.ID.in(pageable.getIds()) : trueCondition());
-
-        if (queryPrivate) {
-            // TODO: Include permission check by project membership query
-            searchConditions.and(
-                    PROJECT.VISIBILITY.isTrue().or(leaderUser.ID.equal(userId))
-            );
-        }
 
         Result<Record> queryResults = jooq.select(PROJECT.fields())
                 .select(idCount)
@@ -215,7 +151,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                 .from(PROJECT)
                 .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(PROJECT.LEADER_ID))
                 .leftOuterJoin(LAST_ACTIVITY).on(PROJECT.ID.eq(LAST_ACTIVITY.field(PROJECT.ID)))
-                .where(searchConditions)
+                .where(searchCondition)
                 .orderBy(transformer.getSortFields(pageable.getSorts()))
                 .limit(pageable.getPageSize())
                 .offset(pageable.getOffset())
@@ -226,26 +162,66 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
             Project project = transformer.getEntityFromTableRecord(projectRecord);
             UserTransformer userTransformer = new UserTransformer();
             UserRecord userRecord = queryResult.into(leaderUser);
+            UserContext.Builder userContext = UserContext.builder();
+
             project.setLeader(userTransformer.getEntityFromTableRecord(userRecord));
             project.setNumberOfCategories((Integer) queryResult.getValue(CATEGORY_COUNT));
             project.setNumberOfRequirements((Integer) queryResult.getValue(REQUIREMENT_COUNT));
             project.setNumberOfFollowers((Integer) queryResult.getValue(FOLLOWER_COUNT));
             project.setLastActivity((LocalDateTime) queryResult.getValue(lastActivity));
             if (userId != 1) {
-                project.setIsFollower(0 != (Integer) queryResult.getValue(isFollower));
+                userContext.isFollower(0 != (Integer) queryResult.getValue(isFollower));
             }
+            RoleRepositoryImpl roleRepository = new RoleRepositoryImpl(jooq);
+            userContext.projectRole(roleRepository.getProjectRole(userId, project.getId()));
+
+            project.setUserContext(userContext.build());
             projects.add(project);
         }
         int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
 
-        return new PaginationResult<>(total, pageable, projects);
+        return ImmutablePair.of(projects, total);
+    }
+
+    private ImmutablePair<List<Project>, Integer> getFilteredProjects(Condition searchCondition, int userId) throws Exception {
+        return getFilteredProjects(searchCondition, new PageInfo(0, 1000, new HashMap<>()), userId);
+    }
+
+    @Override
+    public Project findById(int id, int userId) throws BazaarException {
+        Project project = null;
+        try {
+            Condition filterCondition = transformer.getTableId().equal(id);
+
+            ImmutablePair<List<Project>, Integer> filteredProjects = getFilteredProjects(filterCondition, userId);
+
+            if (filteredProjects.left == null || filteredProjects.left.size() == 0) {
+                ExceptionHandler.getInstance().convertAndThrowException(
+                        new Exception("No " + transformer.getRecordClass() + " found with id: " + id),
+                        ExceptionLocation.REPOSITORY, ErrorCode.NOT_FOUND);
+            }
+
+            project = filteredProjects.left.get(0);
+
+
+        } catch (BazaarException be) {
+            ExceptionHandler.getInstance().convertAndThrowException(be);
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return project;
     }
 
     @Override
     public PaginationResult<Project> findAllPublic(Pageable pageable, int userId) throws BazaarException {
         PaginationResult<Project> result = null;
         try {
-            result = findProjects(pageable, userId, false);
+            Condition searchConditions = transformer.getSearchCondition(pageable.getSearch())
+                    .and((pageable.getIds().size() > 0) ? PROJECT.ID.in(pageable.getIds()) : trueCondition());
+
+            ImmutablePair<List<Project>, Integer> filteredProjects = getFilteredProjects(searchConditions, pageable, userId);
+
+            result = new PaginationResult<>(filteredProjects.right, pageable, filteredProjects.left);
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
@@ -256,7 +232,15 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
     public PaginationResult<Project> findAllPublicAndAuthorized(Pageable pageable, int userId) throws BazaarException {
         PaginationResult<Project> result = null;
         try {
-            result = findProjects(pageable, userId, true);
+            Condition searchConditions = transformer.getSearchCondition(pageable.getSearch())
+                    .and((pageable.getIds().size() > 0) ? PROJECT.ID.in(pageable.getIds()) : trueCondition())
+                    .and(
+                            // TODO: Include permission check by project membership query
+                            PROJECT.VISIBILITY.isTrue().or(leaderUser.ID.equal(userId))
+                    );
+            ImmutablePair<List<Project>, Integer> filteredProjects = getFilteredProjects(searchConditions, pageable, userId);
+
+            result = new PaginationResult<>(filteredProjects.right, pageable, filteredProjects.left);
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }

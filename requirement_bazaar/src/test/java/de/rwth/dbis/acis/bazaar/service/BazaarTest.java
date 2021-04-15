@@ -71,6 +71,11 @@ public class BazaarTest extends TestBase {
 
             // gson doesn't remove the quotes
             assertTrue(isValidISO8601(response.get("creationDate").toString().replace("\"", "")));
+            assertTrue(response.has("userContext"));
+
+            JsonObject userContext = response.getAsJsonObject("userContext");
+            assertTrue(userContext.has("projectRole"));
+            assertTrue(userContext.has("isFollower"));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -85,6 +90,7 @@ public class BazaarTest extends TestBase {
     public void testGetProjects() {
         try {
             MiniClient client = getClient();
+            MiniClient adminClient = getAdminClient();
 
             ClientResponse result = client.sendRequest("GET", mainPath + "projects", "");
 
@@ -103,6 +109,25 @@ public class BazaarTest extends TestBase {
 
             JsonObject jsonObject = JsonParser.parseString(result.getResponse()).getAsJsonObject();
             assertTrue(isValidISO8601(jsonObject.get("creationDate").toString().replace("\"", "")));
+            // Normal user has no project role
+            assertTrue(jsonObject.has("userContext"));
+            JsonObject userContext = jsonObject.getAsJsonObject("userContext");
+            assertFalse(userContext.has("projectRole"));
+            assertTrue(userContext.has("isFollower"));
+
+            // Test with admin
+            // Now for a specific project
+            result = adminClient.sendRequest("GET", mainPath + "projects/" + testProject.getId(), "");
+            assertEquals(200, result.getHttpCode());
+
+            response = JsonParser.parseString(result.getResponse());
+            System.out.println(response.toString());
+            assertTrue(response.isJsonObject());
+
+            jsonObject = JsonParser.parseString(result.getResponse()).getAsJsonObject();
+            userContext = jsonObject.getAsJsonObject("userContext");
+            assertTrue(userContext.has("projectRole"));
+            assertTrue(userContext.has("isFollower"));
         } catch (Exception e) {
             e.printStackTrace();
             fail(e.toString());
@@ -180,6 +205,22 @@ public class BazaarTest extends TestBase {
             assertEquals(1, resp.getAsJsonArray().size());
 
             JsonObject createdRequirement = resp.getAsJsonArray().get(0).getAsJsonObject();
+
+            assertTrue(createdRequirement.has("lastActivity"));
+            assertTrue(isValidISO8601(createdRequirement.get("creationDate").toString().replace("\"", "")));
+            assertTrue(isValidISO8601(createdRequirement.get("lastActivity").toString().replace("\"", "")));
+
+
+            // Test by category
+            result = client.sendRequest("GET", mainPath + "categories/" + testProject.getDefaultCategoryId() + "/requirements", "");
+            assertEquals(200, result.getHttpCode());
+
+            resp = JsonParser.parseString(result.getResponse());
+            System.out.println(resp);
+            assertTrue(resp.isJsonArray());
+            assertEquals(1, resp.getAsJsonArray().size());
+
+            createdRequirement = resp.getAsJsonArray().get(0).getAsJsonObject();
 
             assertTrue(createdRequirement.has("lastActivity"));
             assertTrue(isValidISO8601(createdRequirement.get("creationDate").toString().replace("\"", "")));

@@ -21,10 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal;
 
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Feedback;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.ProjectMember;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.helpers.SetupData;
@@ -74,7 +71,7 @@ public class DALFacadeTest extends SetupData {
 
     @Test
     public void testCreateGetProject() throws Exception {
-        Project project = Project.builder().name("Project3  \uD83D\uDC69\u200D\uD83D\uDC69\u200D\uD83D\uDC67\u200D\uD83D\uDC66").description("An \uD83D\uDE00awesome \uD83D\uDE03string with a few \uD83D\uDE09emojis!").id(1).leader(initUser).visibility(true).isFollower(false).build();
+        Project project = Project.builder().name("Project3  \uD83D\uDC69\u200D\uD83D\uDC69\u200D\uD83D\uDC67\u200D\uD83D\uDC66").description("An \uD83D\uDE00awesome \uD83D\uDE03string with a few \uD83D\uDE09emojis!").id(1).leader(initUser).visibility(true).build();
 
         facade.createProject(project, initUser.getId());
 
@@ -92,20 +89,23 @@ public class DALFacadeTest extends SetupData {
         assertEquals(project.getLeader().getId(), projectById.getLeader().getId());
         assertEquals(project.getVisibility(), projectById.getVisibility());
         assertTrue(projectById.isOwner(initUser));
+        assertEquals(ProjectRole.ProjectAdmin, projectById.getUserContext().getProjectRole());
 
         // Now check if this can also be found as a public project
-        PaginationResult<Project> projectsPage = facade.listPublicProjects(new PageInfo(0, 1), initUser.getId());
+        PaginationResult<Project> projectsPage = facade.listPublicProjects(new PageInfo(0, 10), initUser.getId());
 
         List<Project> projects = projectsPage.getElements();
 
         assertNotNull(projects);
-        // assertEquals(1,projects.size());
 
-        for (Project proj : projects) {
-            assertTrue(proj.getVisibility());
+        Project proj = null;
+        for (Project pr : projects) {
+            assertTrue(pr.getVisibility());
+
+            if (pr.getId() == projectById.getId()) proj = pr;
         }
 
-        Project proj = projects.get(0);
+        assertNotNull(proj);
 
         assertEquals(projectById.getId(), proj.getId());
         assertEquals(projectById.getName(), proj.getName());

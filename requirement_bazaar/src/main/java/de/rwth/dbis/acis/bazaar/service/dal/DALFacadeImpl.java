@@ -224,7 +224,11 @@ public class DALFacadeImpl implements DALFacade {
         newProject.setDefaultCategoryId(defaultCategory.getId());
         // TODO: concurrency transaction -> https://www.jooq.org/doc/3.9/manual/sql-execution/transaction-management/
         addUserToRole(userId, "ProjectAdmin", newProject.getId());
-        return projectRepository.update(newProject);
+
+        // This is stupid, but the return value of update is inclomplete (dependent objects won't be resolved, since only the top level get by id method is called.
+        // Call repository get separately
+        projectRepository.update(newProject);
+        return projectRepository.findById(newProject.getId(), userId);
     }
 
     @Override
