@@ -283,12 +283,11 @@ public class ProjectsResource {
     /**
      * Allows to update a certain project.
      *
-     * @param projectId       id of the project to update
      * @param projectToUpdate updated project
      * @return Response with the updated project as a JSON object.
      */
     @PUT
-    @Path("/{projectId}")
+    @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to update a certain project.")
@@ -298,8 +297,7 @@ public class ProjectsResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response updateProject(@PathParam("projectId") int projectId,
-                                  @ApiParam(value = "Project entity", required = true) Project projectToUpdate) {
+    public Response updateProject(@ApiParam(value = "Project entity", required = true) Project projectToUpdate) {
         DALFacade dalFacade = null;
         try {
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -315,13 +313,11 @@ public class ProjectsResource {
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_PROJECT, dalFacade);
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_PROJECT, projectToUpdate.getId(), dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.modify"));
             }
-            if (projectToUpdate.getId() != 0 && projectId != projectToUpdate.getId()) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
-            }
+
             Project updatedProject = dalFacade.modifyProject(projectToUpdate);
             bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_6,
                     updatedProject.getId(), Activity.DataType.PROJECT, internalUserId);

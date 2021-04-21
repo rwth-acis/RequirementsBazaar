@@ -89,7 +89,7 @@ public class DALFacadeTest extends SetupData {
         assertEquals(project.getLeader().getId(), projectById.getLeader().getId());
         assertEquals(project.getVisibility(), projectById.getVisibility());
         assertTrue(projectById.isOwner(initUser));
-        assertEquals(ProjectRole.ProjectAdmin, projectById.getUserContext().getProjectRole());
+        assertEquals(ProjectRole.ProjectAdmin, projectById.getUserContext().getUserRole());
 
         // Now check if this can also be found as a public project
         PaginationResult<Project> projectsPage = facade.listPublicProjects(new PageInfo(0, 10), initUser.getId());

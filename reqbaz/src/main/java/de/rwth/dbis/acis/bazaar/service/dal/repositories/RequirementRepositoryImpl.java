@@ -22,10 +22,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementCategoryMapRecord;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.UserContext;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.*;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementTransformer;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;

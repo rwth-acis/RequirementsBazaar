@@ -274,12 +274,11 @@ public class CategoryResource {
     /**
      * Allows to update a certain category.
      *
-     * @param categoryId       id of the category under a given project
      * @param categoryToUpdate updated category as a JSON object
      * @return Response with the updated category as a JSON object.
      */
     @PUT
-    @Path("/{categoryId}")
+    @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to update a certain category.")
@@ -289,8 +288,7 @@ public class CategoryResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response updateCategory(@PathParam("categoryId") int categoryId,
-                                   @ApiParam(value = "Category entity", required = true) Category categoryToUpdate) {
+    public Response updateCategory(@ApiParam(value = "Category entity", required = true) Category categoryToUpdate) {
 
         DALFacade dalFacade = null;
         try {
@@ -306,13 +304,14 @@ public class CategoryResource {
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_CATEGORY, dalFacade);
+
+            // Prevent forged project ids
+            Category internalCategory = dalFacade.getCategoryById(categoryToUpdate.getId(), internalUserId);
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_CATEGORY, internalCategory.getProjectId(), dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.modify"));
             }
-            if (categoryToUpdate.getId() != 0 && categoryId != categoryToUpdate.getId()) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, "Id does not match");
-            }
+
             Category updatedCategory = dalFacade.modifyCategory(categoryToUpdate);
             bazaarService.getNotificationDispatcher().dispatchNotification(updatedCategory.getLastUpdatedDate(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_17,
                     updatedCategory.getId(), Activity.DataType.CATEGORY, internalUserId);
@@ -324,13 +323,13 @@ public class CategoryResource {
                 return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Update category " + categoryId);
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Update category " + categoryToUpdate.getId());
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Update category " + categoryId);
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Update category " + categoryToUpdate.getId());
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);

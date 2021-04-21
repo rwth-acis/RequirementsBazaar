@@ -74,7 +74,7 @@ public class BazaarTest extends TestBase {
             assertTrue(response.has("userContext"));
 
             JsonObject userContext = response.getAsJsonObject("userContext");
-            assertTrue(userContext.has("projectRole"));
+            assertTrue(userContext.has("userRole"));
             assertTrue(userContext.has("isFollower"));
 
         } catch (Exception e) {
@@ -112,7 +112,7 @@ public class BazaarTest extends TestBase {
             // Normal user has no project role
             assertTrue(jsonObject.has("userContext"));
             JsonObject userContext = jsonObject.getAsJsonObject("userContext");
-            assertFalse(userContext.has("projectRole"));
+            assertFalse(userContext.has("userRole"));
             assertTrue(userContext.has("isFollower"));
 
             // Test with admin
@@ -126,7 +126,7 @@ public class BazaarTest extends TestBase {
 
             jsonObject = JsonParser.parseString(result.getResponse()).getAsJsonObject();
             userContext = jsonObject.getAsJsonObject("userContext");
-            assertTrue(userContext.has("projectRole"));
+            assertTrue(userContext.has("userRole"));
             assertTrue(userContext.has("isFollower"));
         } catch (Exception e) {
             e.printStackTrace();

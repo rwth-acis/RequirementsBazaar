@@ -173,7 +173,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                 userContext.isFollower(0 != (Integer) queryResult.getValue(isFollower));
             }
             RoleRepositoryImpl roleRepository = new RoleRepositoryImpl(jooq);
-            userContext.projectRole(roleRepository.getProjectRole(userId, project.getId()));
+            userContext.userRole(roleRepository.getProjectRole(userId, project.getId()));
 
             project.setUserContext(userContext.build());
             projects.add(project);
