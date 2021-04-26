@@ -58,6 +58,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./requirement_bazaar/build/dist/BazaarService.zip
+          asset_path: ./reqbaz/build/dist/BazaarService.zip
           asset_name: RequirementsBazaar-${{ steps.get_version.outputs.version }}.zip
           asset_content_type: application/zip
