@@ -508,6 +508,14 @@ public interface DALFacade {
     Comment createComment(Comment comment) throws Exception;
 
     /**
+     * Updates a comment
+     * @param comment comment to persist
+     * @return the updated comment
+     * @throws Exception
+     */
+    Comment updateComment(Comment comment) throws Exception;
+
+    /**
      * @param commentId to identify the comment to be deleted
      */
     Comment deleteCommentById(int commentId) throws Exception;

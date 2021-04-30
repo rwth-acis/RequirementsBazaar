@@ -2,7 +2,9 @@ package de.rwth.dbis.acis.bazaar.service.helpers;
 
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Category;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 import org.apache.commons.dbcp2.BasicDataSource;
@@ -12,6 +14,7 @@ import org.junit.After;
 import org.junit.Before;
 
 import javax.sql.DataSource;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -21,6 +24,7 @@ public abstract class SetupData {
     public DSLContext jooq;
     public User initUser;
     public Project testProject;
+    public Requirement testRequirement;
     // las2peer id of eve (defined in the testing components of las2peer)
     public String eveId = "799dea0f00e126dc3493f362bddbddbc55bdfbb918fce3b12f68e1340a8ea7de7aaaa8a7af900b6ee7f849a524b18649d4ae80cb406959568f405a487f085ac7";
 
@@ -67,9 +71,19 @@ public abstract class SetupData {
         }
         try {
             testProject = facade.getProjectById(0, initUser.getId());
+            testRequirement = facade.getRequirementById(0, initUser.getId());
         } catch (Exception e) {
             testProject = Project.builder().name("ProjectTest").description("ProjDesc").leader(initUser).visibility(true).build();
             testProject = facade.createProject(testProject, initUser.getId());
+
+            testRequirement = Requirement.builder()
+                    .name("Test")
+                    .description("Test")
+                    .categories(List.of(testProject.getDefaultCategoryId()))
+                    .projectId(testProject.getId())
+                    .creator(initUser)
+                    .build();
+            testRequirement = facade.createRequirement(testRequirement, initUser.getId());
         }
     }
 

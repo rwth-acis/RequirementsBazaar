@@ -183,6 +183,38 @@ public class DALFacadeTest extends SetupData {
         });
     }
 
+    @Test
+    public void testComments() throws Exception {
+        Comment testComment = Comment.builder()
+                .message("TestComment")
+                .requirementId(testRequirement.getId())
+                .creator(initUser)
+                .build();
+
+        Comment createdComment = facade.createComment(testComment);
+
+        List<Comment> comments = facade.listCommentsByRequirementId(testRequirement.getId(), ALL_IN_ONE_PAGE).getElements();
+
+        assertNotNull(comments);
+        assertEquals(1,comments.size());
+        assertEquals(createdComment.getId(), comments.get(0).getId());
+
+        createdComment.setMessage("Updated message");
+
+        Comment updatedComment = facade.updateComment(createdComment);
+
+        assertNotNull(updatedComment);
+        assertEquals("Updated message", updatedComment.getMessage());
+
+        facade.deleteCommentById(updatedComment.getId());
+
+        comments = facade.listCommentsByRequirementId(testRequirement.getId(), ALL_IN_ONE_PAGE).getElements();
+        assertNotNull(comments);
+        assertEquals(0,comments.size());
+
+
+    }
+
     /* Doesn't work, searching breaks
     public void testModifyProject() throws Exception {
         //TODO
@@ -317,42 +349,6 @@ public class DALFacadeTest extends SetupData {
 
     public void testDeleteComponentById() throws Exception {
         //TODO
-    }
-
-    public void testListCommentsByRequirementId() throws Exception {
-        List<Comment> comments = facade.listCommentsByRequirementId(2, ALL_IN_ONE_PAGE).getElements();
-
-        assertNotNull(comments);
-        assertEquals(2,comments.size());
-        assertTrue(comments.get(0).getId() == 1 || comments.get(0).getId() == 2);
-        assertTrue(comments.get(1).getId() == 1 || comments.get(1).getId() == 2);
-    }
-
-    public void testCreateComment() throws Exception {
-        int createdCommentId = 9;
-        Comment testComment = Comment.getBuilder("TestComment").id(createdCommentId).creator(initUser).requirementId(1).build();
-
-        facade.createComment(testComment);
-
-        List<Comment> comments = facade.listCommentsByRequirementId(1, ALL_IN_ONE_PAGE).getElements();
-
-        assertNotNull(comments);
-        assertEquals(1,comments.size());
-        assertEquals(createdCommentId,comments.get(0).getId());
-
-        jooq.delete(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Comment.COMMENT).where(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Comment.COMMENT.ID.equal(createdCommentId)).execute();
-    }
-
-    public void testDeleteCommentById() throws Exception {
-        Comment testComment = Comment.getBuilder("TestComment").id(9).creator(initUser).requirementId(1).build();
-
-        facade.createComment(testComment);
-
-        facade.deleteCommentById(9);
-
-        List<Comment> comments = facade.listCommentsByRequirementId(1, ALL_IN_ONE_PAGE).getElements();
-        assertNotNull(comments);
-        assertEquals(0, comments.size());
     }
 
     public void testVoteAndUnvote() throws Exception {

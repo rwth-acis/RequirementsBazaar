@@ -205,9 +205,9 @@ public class BazaarTest extends TestBase {
             JsonElement resp = JsonParser.parseString(result.getResponse());
             System.out.println(resp);
             assertTrue(resp.isJsonArray());
-            assertEquals(1, resp.getAsJsonArray().size());
+            assertEquals(2, resp.getAsJsonArray().size());
 
-            JsonObject createdRequirement = resp.getAsJsonArray().get(0).getAsJsonObject();
+            JsonObject createdRequirement = resp.getAsJsonArray().get(1).getAsJsonObject();
 
             assertTrue(createdRequirement.has("lastActivity"));
             assertTrue(isValidISO8601(createdRequirement.get("creationDate").toString().replace("\"", "")));
@@ -221,9 +221,9 @@ public class BazaarTest extends TestBase {
             resp = JsonParser.parseString(result.getResponse());
             System.out.println(resp);
             assertTrue(resp.isJsonArray());
-            assertEquals(1, resp.getAsJsonArray().size());
+            assertEquals(2, resp.getAsJsonArray().size());
 
-            createdRequirement = resp.getAsJsonArray().get(0).getAsJsonObject();
+            createdRequirement = resp.getAsJsonArray().get(1).getAsJsonObject();
 
             assertTrue(createdRequirement.has("lastActivity"));
             assertTrue(isValidISO8601(createdRequirement.get("creationDate").toString().replace("\"", "")));
