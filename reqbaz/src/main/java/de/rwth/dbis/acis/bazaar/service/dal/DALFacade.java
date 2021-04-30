@@ -370,10 +370,9 @@ public interface DALFacade {
 
     /**
      * @param requirementId the id of the requirement we are looking in
-     * @param pageable      pagination information
      * @return the categories under the given project in a paginated way
      */
-    PaginationResult<Category> listCategoriesByRequirementId(int requirementId, Pageable pageable, int userId) throws BazaarException;
+    List<Category> listCategoriesByRequirementId(int requirementId, int userId) throws BazaarException;
 
     /**
      * @param category to be added to the database.

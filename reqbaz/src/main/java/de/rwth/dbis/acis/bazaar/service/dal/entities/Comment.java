@@ -70,4 +70,9 @@ public class Comment extends EntityBase implements Ownable {
     public boolean isOwner(User user) {
         return creator == user;
     }
+
+    @Override
+    public boolean isOwner(Integer userId) {
+        return creator.getId() == userId;
+    }
 }

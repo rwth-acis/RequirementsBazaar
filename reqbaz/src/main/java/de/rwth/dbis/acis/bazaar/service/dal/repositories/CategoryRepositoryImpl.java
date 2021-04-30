@@ -142,7 +142,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
                 .select(lastActivity)
                 .from(CATEGORY)
                 .leftOuterJoin(leaderUser).on(leaderUser.ID.equal(CATEGORY.LEADER_ID))
-                .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.equal(CATEGORY.ID))
+                //.leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.equal(CATEGORY.ID))
                 .leftOuterJoin(LAST_ACTIVITY).on(CATEGORY.ID.eq(LAST_ACTIVITY.field(CATEGORY.ID)))
                 .where(categoryFilter)
                 .orderBy(transformer.getSortFields(pageable.getSorts()))
@@ -256,14 +256,18 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
     }
 
     @Override
-    public PaginationResult<Category> findByRequirementId(int requirementId, Pageable pageable, int userId) throws BazaarException {
-        PaginationResult<Category> result = null;
+    public List<Category> findByRequirementId(int requirementId, int userId) throws BazaarException {
+        List<Category> result = null;
         try {
-            Condition filterCondition = REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.equal(requirementId);
+            // Resolve map here, or the cartesian product will bite all other queries
+            List<Integer> categoryIds = jooq.selectFrom(REQUIREMENT_CATEGORY_MAP).where(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.equal(requirementId)).fetch(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID);
 
-            ImmutablePair<List<Category>, Integer> fileredCategories = getFilteredCategories(filterCondition, pageable, userId);
+            Condition filterCondition = transformer.getTableId().in(categoryIds);
 
-            result = new PaginationResult<>(fileredCategories.right, pageable, fileredCategories.left);
+
+            ImmutablePair<List<Category>, Integer> fileredCategories = getFilteredCategories(filterCondition, userId);
+
+            result = fileredCategories.left;
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }

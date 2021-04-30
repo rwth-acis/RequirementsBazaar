@@ -523,7 +523,7 @@ public class RequirementsResource {
      * @return Response with updated requirement as a JSON object.
      */
     @PUT
-    @Path("/")
+    //@Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method updates a requirement.")
@@ -552,7 +552,7 @@ public class RequirementsResource {
             // Get internal requirement, so a malicious actor can't provide another project id
             Requirement internalRequirement = dalFacade.getRequirementById(requirementToUpdate.getId(), internalUserId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, internalRequirement.getProjectId(), dalFacade);
-            if (!authorized) {
+            if (!authorized && !internalRequirement.isOwner(internalUserId)) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.modify"));
             }
 

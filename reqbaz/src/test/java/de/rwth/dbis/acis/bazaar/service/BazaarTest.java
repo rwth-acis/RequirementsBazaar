@@ -226,6 +226,15 @@ public class BazaarTest extends TestBase {
             assertTrue(isValidISO8601(createdRequirement.get("creationDate").toString().replace("\"", "")));
             assertTrue(isValidISO8601(createdRequirement.get("lastActivity").toString().replace("\"", "")));
 
+            // Test update
+            createdRequirement.addProperty("description", "Updated Description");
+            result = client.sendRequest("PUT", mainPath + "requirements", createdRequirement.toString(),
+                    MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
+            assertEquals(200, result.getHttpCode());
+            response = JsonParser.parseString(result.getResponse()).getAsJsonObject();
+            assertTrue(response.isJsonObject());
+            System.out.println(response);
+
         } catch (Exception e) {
             e.printStackTrace();
             fail(e.toString());

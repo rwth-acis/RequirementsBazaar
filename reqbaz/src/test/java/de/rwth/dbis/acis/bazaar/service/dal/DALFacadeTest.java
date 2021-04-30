@@ -159,6 +159,30 @@ public class DALFacadeTest extends SetupData {
 
     }
 
+    @Test
+    public void testCreateCategory() throws Exception {
+        String name = "TestComp9";
+        Category testComp9 = Category.builder()
+                .name(name)
+                .description("Very testing")
+                .projectId(testProject.getId())
+                .creator(initUser)
+                .build();
+
+        facade.createCategory(testComp9, initUser.getId());
+
+        List<Category> components = facade.listCategoriesByProjectId(testProject.getId(), ALL_IN_ONE_PAGE, initUser.getId()).getElements();
+
+        assertNotNull(components);
+        assertEquals(2,components.size());
+
+        components.forEach(category -> {
+            if (category.getName().equals(name)) {
+                jooq.delete(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Category.CATEGORY).where(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Category.CATEGORY.ID.equal(category.getId())).execute();
+            }
+        });
+    }
+
     /* Doesn't work, searching breaks
     public void testModifyProject() throws Exception {
         //TODO
@@ -285,21 +309,6 @@ public class DALFacadeTest extends SetupData {
         assertNotNull(components);
         assertEquals(1,components.size());
         assertEquals(1,components.get(0).getId());
-    }
-
-    public void testCreateCategory() throws Exception {
-        int createdComponentId = 9;
-        Category testComp9 = Category.getBuilder("TestComp9").description("Very testing").id(createdComponentId).projectId(1).leader(initUser).build();
-
-        facade.createCategory(testComp9, initUser.getId());
-
-        List<Category> components = (List<Category>) facade.listCategoriesByProjectId(1, ALL_IN_ONE_PAGE, 1);
-
-        assertNotNull(components);
-        assertEquals(1,components.size());
-        assertEquals(createdComponentId,components.get(0).getId());
-
-        jooq.delete(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Category.CATEGORY).where(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Category.CATEGORY.ID.equal(createdComponentId)).execute();
     }
 
     public void testModifyComponent() throws Exception {

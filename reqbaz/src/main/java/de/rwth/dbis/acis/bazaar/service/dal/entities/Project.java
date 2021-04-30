@@ -75,4 +75,9 @@ public class Project extends EntityBase implements Ownable {
     public boolean isOwner(User user) {
         return leader.equals(user);
     }
+
+    @Override
+    public boolean isOwner(Integer userId) {
+        return leader.getId() == userId;
+    }
 }
