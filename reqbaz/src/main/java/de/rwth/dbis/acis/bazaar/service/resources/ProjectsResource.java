@@ -358,7 +358,7 @@ public class ProjectsResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response deleteRequirement(@PathParam("projectId") int projectId) {
+    public Response deleteProject(@PathParam("projectId") int projectId) {
         DALFacade dalFacade = null;
         try {
             Agent agent = Context.getCurrent().getMainAgent();
