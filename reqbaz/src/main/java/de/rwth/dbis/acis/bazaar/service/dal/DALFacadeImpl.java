@@ -238,6 +238,14 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public Project deleteProjectById(int projectId, Integer userId) throws Exception {
+        projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
+        Project project = projectRepository.findById(projectId, userId);
+        projectRepository.delete(projectId);
+        return project;
+    }
+
+    @Override
     public boolean isProjectPublic(int projectId) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         return projectRepository.belongsToPublicProject(projectId);

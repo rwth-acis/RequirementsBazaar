@@ -185,6 +185,13 @@ public interface DALFacade {
     Project modifyProject(Project modifiedProject) throws Exception;
 
     /**
+     * Deletes a given project
+     * @param projectId id of the project to delete
+     * @param userId id of the user
+     */
+    Project deleteProjectById(int projectId, Integer userId) throws Exception;
+
+    /**
      * Returns if a project is public or not
      *
      * @param projectId
@@ -665,5 +672,6 @@ public interface DALFacade {
      * @throws Exception
      */
     Feedback getFeedbackById(int feedbackId) throws Exception;
+
     // endregion feedback
 }

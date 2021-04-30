@@ -28,6 +28,7 @@ public enum PrivilegeEnum {
     Read_PROJECT,
     Read_PUBLIC_PROJECT,
     Modify_PROJECT,
+    Delete_PROJECT,
 
     Create_CATEGORY,
     Read_CATEGORY,

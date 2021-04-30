@@ -343,6 +343,63 @@ public class ProjectsResource {
     }
 
     /**
+     * This method deletes a specific project.
+     *
+     * @param projectId id of the project to delete
+     * @return Empty Response.
+     */
+    @DELETE
+    @Path("/{projectId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "This method deletes a specific project.")
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpURLConnection.HTTP_NO_CONTENT, message = "Successfully deleted"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+    })
+    public Response deleteRequirement(@PathParam("projectId") int projectId) {
+        DALFacade dalFacade = null;
+        try {
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
+            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registrarErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
+            }
+            dalFacade = bazaarService.getDBConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+            Project projectToDelete = dalFacade.getProjectById(projectId, internalUserId);
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_PROJECT, projectId, dalFacade);
+            if (!authorized && !projectToDelete.isOwner(internalUserId)) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.delete"));
+            }
+            dalFacade.deleteProjectById(projectId, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.DELETE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_28,
+                    projectId, Activity.DataType.PROJECT, internalUserId);
+            return Response.noContent().build();
+        } catch (BazaarException bex) {
+            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } else {
+                logger.warning(bex.getMessage());
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Delete project " + projectId);
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            }
+        } catch (Exception ex) {
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Delete project " + projectId);
+            logger.warning(bex.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+        } finally {
+            bazaarService.closeDBConnection(dalFacade);
+        }
+    }
+
+    /**
      * This method add the current user to the followers list of a given project.
      *
      * @param projectId id of the project

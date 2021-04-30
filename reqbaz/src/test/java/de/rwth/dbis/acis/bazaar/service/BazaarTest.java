@@ -77,6 +77,9 @@ public class BazaarTest extends TestBase {
             assertTrue(userContext.has("userRole"));
             assertTrue(userContext.has("isFollower"));
 
+            result = client.sendRequest("DELETE", mainPath + "projects/" + response.get("id").getAsString(), "");
+            assertEquals(204, result.getHttpCode());
+
         } catch (Exception e) {
             e.printStackTrace();
             Assert.fail(e.toString());
