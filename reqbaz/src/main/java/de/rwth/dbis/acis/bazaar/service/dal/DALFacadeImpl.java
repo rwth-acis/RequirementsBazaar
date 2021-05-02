@@ -238,6 +238,14 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public Project deleteProjectById(int projectId, Integer userId) throws Exception {
+        projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
+        Project project = projectRepository.findById(projectId, userId);
+        projectRepository.delete(projectId);
+        return project;
+    }
+
+    @Override
     public boolean isProjectPublic(int projectId) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         return projectRepository.belongsToPublicProject(projectId);
@@ -309,8 +317,8 @@ public class DALFacadeImpl implements DALFacade {
         requirementRepository.update(modifiedRequirement);
 
         if (modifiedRequirement.getCategories() != null) {
-            PaginationResult<Category> oldCategories = listCategoriesByRequirementId(modifiedRequirement.getId(), new PageInfo(0, 1000, new HashMap<>()), userId);
-            for (Category oldCategory : oldCategories.getElements()) {
+            List<Category> oldCategories = listCategoriesByRequirementId(modifiedRequirement.getId(), userId);
+            for (Category oldCategory : oldCategories) {
                 boolean containCategory = false;
                 for (Integer newCategory : modifiedRequirement.getCategories()) {
                     if (oldCategory.getId() == newCategory) {
@@ -324,7 +332,7 @@ public class DALFacadeImpl implements DALFacade {
             }
             for (Integer newCategory : modifiedRequirement.getCategories()) {
                 boolean containCategory = false;
-                for (Category oldCategory : oldCategories.getElements()) {
+                for (Category oldCategory : oldCategories) {
                     if (oldCategory.getId() == newCategory) {
                         containCategory = true;
                         break;
@@ -394,9 +402,9 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public PaginationResult<Category> listCategoriesByRequirementId(int requirementId, Pageable pageable, int userId) throws BazaarException {
+    public List<Category> listCategoriesByRequirementId(int requirementId, int userId) throws BazaarException {
         categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
-        return categoryRepository.findByRequirementId(requirementId, pageable, userId);
+        return categoryRepository.findByRequirementId(requirementId, userId);
     }
 
     @Override
@@ -516,6 +524,13 @@ public class DALFacadeImpl implements DALFacade {
         commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
         Comment newComment = commentRepository.add(comment);
         return commentRepository.findById(newComment.getId());
+    }
+
+    @Override
+    public Comment updateComment(Comment comment) throws Exception {
+        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
+        commentRepository.update(comment);
+        return commentRepository.findById(comment.getId());
     }
 
     @Override

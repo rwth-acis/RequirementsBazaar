@@ -185,6 +185,13 @@ public interface DALFacade {
     Project modifyProject(Project modifiedProject) throws Exception;
 
     /**
+     * Deletes a given project
+     * @param projectId id of the project to delete
+     * @param userId id of the user
+     */
+    Project deleteProjectById(int projectId, Integer userId) throws Exception;
+
+    /**
      * Returns if a project is public or not
      *
      * @param projectId
@@ -370,10 +377,9 @@ public interface DALFacade {
 
     /**
      * @param requirementId the id of the requirement we are looking in
-     * @param pageable      pagination information
      * @return the categories under the given project in a paginated way
      */
-    PaginationResult<Category> listCategoriesByRequirementId(int requirementId, Pageable pageable, int userId) throws BazaarException;
+    List<Category> listCategoriesByRequirementId(int requirementId, int userId) throws BazaarException;
 
     /**
      * @param category to be added to the database.
@@ -500,6 +506,14 @@ public interface DALFacade {
      * @param comment which holds the data for the new comment.
      */
     Comment createComment(Comment comment) throws Exception;
+
+    /**
+     * Updates a comment
+     * @param comment comment to persist
+     * @return the updated comment
+     * @throws Exception
+     */
+    Comment updateComment(Comment comment) throws Exception;
 
     /**
      * @param commentId to identify the comment to be deleted
@@ -666,5 +680,6 @@ public interface DALFacade {
      * @throws Exception
      */
     Feedback getFeedbackById(int feedbackId) throws Exception;
+
     // endregion feedback
 }

@@ -77,6 +77,9 @@ public class BazaarTest extends TestBase {
             assertTrue(userContext.has("userRole"));
             assertTrue(userContext.has("isFollower"));
 
+            result = client.sendRequest("DELETE", mainPath + "projects/" + response.get("id").getAsString(), "");
+            assertEquals(204, result.getHttpCode());
+
         } catch (Exception e) {
             e.printStackTrace();
             Assert.fail(e.toString());
@@ -202,9 +205,9 @@ public class BazaarTest extends TestBase {
             JsonElement resp = JsonParser.parseString(result.getResponse());
             System.out.println(resp);
             assertTrue(resp.isJsonArray());
-            assertEquals(1, resp.getAsJsonArray().size());
+            assertEquals(2, resp.getAsJsonArray().size());
 
-            JsonObject createdRequirement = resp.getAsJsonArray().get(0).getAsJsonObject();
+            JsonObject createdRequirement = resp.getAsJsonArray().get(1).getAsJsonObject();
 
             assertTrue(createdRequirement.has("lastActivity"));
             assertTrue(isValidISO8601(createdRequirement.get("creationDate").toString().replace("\"", "")));
@@ -218,13 +221,22 @@ public class BazaarTest extends TestBase {
             resp = JsonParser.parseString(result.getResponse());
             System.out.println(resp);
             assertTrue(resp.isJsonArray());
-            assertEquals(1, resp.getAsJsonArray().size());
+            assertEquals(2, resp.getAsJsonArray().size());
 
-            createdRequirement = resp.getAsJsonArray().get(0).getAsJsonObject();
+            createdRequirement = resp.getAsJsonArray().get(1).getAsJsonObject();
 
             assertTrue(createdRequirement.has("lastActivity"));
             assertTrue(isValidISO8601(createdRequirement.get("creationDate").toString().replace("\"", "")));
             assertTrue(isValidISO8601(createdRequirement.get("lastActivity").toString().replace("\"", "")));
+
+            // Test update
+            createdRequirement.addProperty("description", "Updated Description");
+            result = client.sendRequest("PUT", mainPath + "requirements", createdRequirement.toString(),
+                    MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
+            assertEquals(200, result.getHttpCode());
+            response = JsonParser.parseString(result.getResponse()).getAsJsonObject();
+            assertTrue(response.isJsonObject());
+            System.out.println(response);
 
         } catch (Exception e) {
             e.printStackTrace();

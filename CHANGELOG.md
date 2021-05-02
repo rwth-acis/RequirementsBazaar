@@ -22,6 +22,8 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
   permissions, votes, contribution) [#94](https://github.com/rwth-acis/RequirementsBazaar/pull/94).
 - If a user is a member of a project the respective role is now returned in the`usertRole` attribute of the
   new `userContext` attribute [#94](https://github.com/rwth-acis/RequirementsBazaar/pull/94) [#96](https://github.com/rwth-acis/RequirementsBazaar/pull/96).
+- Add a delete projects endpoint [#100](https://github.com/rwth-acis/RequirementsBazaar/pull/100).
+- Add an update comment endpoint [#100](https://github.com/rwth-acis/RequirementsBazaar/pull/100).
 
 ### Changed
 
