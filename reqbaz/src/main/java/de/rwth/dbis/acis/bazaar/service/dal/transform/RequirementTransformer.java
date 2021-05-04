@@ -30,7 +30,9 @@ import org.jooq.impl.DSL;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static de.rwth.dbis.acis.bazaar.dal.jooq.Routines.udfNaturalsortformat;
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
+import static org.jooq.impl.DSL.val;
 
 public class RequirementTransformer implements Transformer<Requirement, RequirementRecord> {
     @Override
@@ -100,93 +102,52 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
         for (Pageable.SortField sort : sorts) {
             switch (sort.getField()) {
                 case "last_activity":
-                    switch (sort.getSortDirection()) {
-                        case ASC:
-                            sortFields.add(RequirementRepositoryImpl.LAST_ACTIVITY.field("last_activity").asc());
-                            break;
-                        case DESC:
-                            sortFields.add(RequirementRepositoryImpl.LAST_ACTIVITY.field("last_activity").desc());
-                            break;
-                        default:
-                            sortFields.add(RequirementRepositoryImpl.LAST_ACTIVITY.field("last_activity").desc());
-                            break;
+                    if (sort.getSortDirection() == Pageable.SortDirection.ASC) {
+                        sortFields.add(RequirementRepositoryImpl.LAST_ACTIVITY.field("last_activity").asc());
+                    } else {
+                        sortFields.add(RequirementRepositoryImpl.LAST_ACTIVITY.field("last_activity").desc());
                     }
                     break;
                 case "date":
-                    switch (sort.getSortDirection()) {
-                        case ASC:
-                            sortFields.add(REQUIREMENT.CREATION_DATE.asc());
-                            break;
-                        case DESC:
-                            sortFields.add(REQUIREMENT.CREATION_DATE.desc());
-                            break;
-                        default:
-                            sortFields.add(REQUIREMENT.CREATION_DATE.desc());
-                            break;
+                    if (sort.getSortDirection() == Pageable.SortDirection.ASC) {
+                        sortFields.add(REQUIREMENT.CREATION_DATE.asc());
+                    } else {
+                        sortFields.add(REQUIREMENT.CREATION_DATE.desc());
                     }
                     break;
                 case "name":
-                    switch (sort.getSortDirection()) {
-                        case DESC:
-                            sortFields.add(REQUIREMENT.NAME.length().desc());
-                            sortFields.add(REQUIREMENT.NAME.desc());
-                            break;
-                        default:
-                            sortFields.add(REQUIREMENT.NAME.length().asc());
-                            sortFields.add(REQUIREMENT.NAME.asc());
-                            break;
+                    if (sort.getSortDirection() == Pageable.SortDirection.DESC) {
+                        sortFields.add(udfNaturalsortformat(REQUIREMENT.NAME, val(50), val(".")).desc());
+                    } else {
+                        sortFields.add(udfNaturalsortformat(REQUIREMENT.NAME, val(50), val(".")).asc());
                     }
                     break;
                 case "vote":
-                    switch (sort.getSortDirection()) {
-                        case ASC:
-                            sortFields.add(RequirementRepositoryImpl.VOTE_COUNT.asc());
-                            break;
-                        case DESC:
-                            sortFields.add(RequirementRepositoryImpl.VOTE_COUNT.desc());
-                            break;
-                        default:
-                            sortFields.add(RequirementRepositoryImpl.VOTE_COUNT.desc());
-                            break;
+                    if (sort.getSortDirection() == Pageable.SortDirection.ASC) {
+                        sortFields.add(RequirementRepositoryImpl.VOTE_COUNT.asc());
+                    } else {
+                        sortFields.add(RequirementRepositoryImpl.VOTE_COUNT.desc());
                     }
                     break;
                 case "comment":
-                    switch (sort.getSortDirection()) {
-                        case ASC:
-                            sortFields.add(RequirementRepositoryImpl.COMMENT_COUNT.asc());
-                            break;
-                        case DESC:
-                            sortFields.add(RequirementRepositoryImpl.COMMENT_COUNT.desc());
-                            break;
-                        default:
-                            sortFields.add(RequirementRepositoryImpl.COMMENT_COUNT.desc());
-                            break;
+                    if (sort.getSortDirection() == Pageable.SortDirection.ASC) {
+                        sortFields.add(RequirementRepositoryImpl.COMMENT_COUNT.asc());
+                    } else {
+                        sortFields.add(RequirementRepositoryImpl.COMMENT_COUNT.desc());
                     }
                     break;
                 case "follower":
-                    switch (sort.getSortDirection()) {
-                        case ASC:
-                            sortFields.add(RequirementRepositoryImpl.FOLLOWER_COUNT.asc());
-                            break;
-                        case DESC:
-                            sortFields.add(RequirementRepositoryImpl.FOLLOWER_COUNT.desc());
-                            break;
-                        default:
-                            sortFields.add(RequirementRepositoryImpl.FOLLOWER_COUNT.desc());
-                            break;
+                    if (sort.getSortDirection() == Pageable.SortDirection.ASC) {
+                        sortFields.add(RequirementRepositoryImpl.FOLLOWER_COUNT.asc());
+                    } else {
+                        sortFields.add(RequirementRepositoryImpl.FOLLOWER_COUNT.desc());
                     }
                     break;
                 case "realized":
-                    switch (sort.getSortDirection()) {
-                        case ASC:
-                            sortFields.add(REQUIREMENT.REALIZED.asc());
-                            break;
-                        case DESC:
-                            sortFields.add(REQUIREMENT.REALIZED.desc());
-                            break;
-                        default:
-                            sortFields.add(REQUIREMENT.REALIZED.desc());
-                            break;
+                    if (sort.getSortDirection() == Pageable.SortDirection.ASC) {
+                        sortFields.add(REQUIREMENT.REALIZED.asc());
+                    } else {
+                        sortFields.add(REQUIREMENT.REALIZED.desc());
                     }
                     break;
             }
