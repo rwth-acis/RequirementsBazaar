@@ -38,7 +38,7 @@ public class VoteTransformer implements Transformer<Vote, VoteRecord> {
         VoteRecord record = new VoteRecord();
         record.setUserId(entity.getUserId());
         record.setRequirementId(entity.getRequirementId());
-        record.setIsUpvote((byte) (entity.isUpvote() ? 1 : 0));
+        record.setIsUpvote(entity.isUpvote());
         return record;
     }
 
@@ -48,7 +48,7 @@ public class VoteTransformer implements Transformer<Vote, VoteRecord> {
                 .id(record.getId())
                 .userId(record.getUserId())
                 .requirementId(record.getRequirementId())
-                .isUpvote(record.getIsUpvote() != 0)
+                .isUpvote(record.getIsUpvote())
                 .build();
     }
 
