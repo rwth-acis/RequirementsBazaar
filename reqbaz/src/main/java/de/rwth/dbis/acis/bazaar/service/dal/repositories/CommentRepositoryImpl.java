@@ -266,4 +266,19 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord
         }
         return false;
     }
+
+    public boolean hasAnswers(int id) throws BazaarException {
+        try {
+            Integer answerCount = jooq.selectCount()
+                    .from(COMMENT)
+                    .where(COMMENT.REPLY_TO_COMMENT_ID.eq(id))
+                    .fetchOne(0, int.class);
+
+            return answerCount > 0;
+
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return false;
+    }
 }

@@ -43,6 +43,7 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
         record.setRequirementId(entity.getRequirementId());
         record.setReplyToCommentId(entity.getReplyToComment());
         record.setCreationDate(LocalDateTime.now());
+        record.setDeleted(entity.getDeleted());
         return record;
     }
 
@@ -55,6 +56,7 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
                 .replyToComment(record.getReplyToCommentId())
                 .creationDate(record.getCreationDate())
                 .lastUpdatedDate(record.getLastUpdatedDate())
+                .deleted(record.getDeleted())
                 .build();
     }
 
@@ -78,6 +80,7 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
         HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
             put(COMMENT.REQUIREMENT_ID, entity.getRequirementId());
             put(COMMENT.MESSAGE, entity.getMessage());
+            put(COMMENT.DELETED, entity.getDeleted());
         }};
         if (!updateMap.isEmpty()) {
             updateMap.put(COMMENT.LAST_UPDATED_DATE, LocalDateTime.now());

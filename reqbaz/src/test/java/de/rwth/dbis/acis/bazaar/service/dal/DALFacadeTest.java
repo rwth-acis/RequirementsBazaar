@@ -212,7 +212,29 @@ public class DALFacadeTest extends SetupData {
         assertNotNull(comments);
         assertEquals(0,comments.size());
 
+        testComment = Comment.builder()
+                .message("TestComment")
+                .requirementId(testRequirement.getId())
+                .creator(initUser)
+                .build();
 
+        createdComment = facade.createComment(testComment);
+
+        Comment responseComment = Comment.builder()
+                .message("TestResponse")
+                .requirementId(testRequirement.getId())
+                .replyToComment(createdComment.getId())
+                .creator(initUser)
+                .build();
+
+        responseComment = facade.createComment(responseComment);
+
+        facade.deleteCommentById(createdComment.getId());
+
+        Comment deletedComment = facade.getCommentById(createdComment.getId());
+
+        assertNotNull(deletedComment);
+        assertTrue(deletedComment.getDeleted());
     }
 
     /* Doesn't work, searching breaks

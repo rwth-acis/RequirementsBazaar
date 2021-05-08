@@ -34,4 +34,6 @@ public interface CommentRepository extends Repository<Comment> {
     PaginationResult<Comment> findAllAnswers(Pageable pageable, int userId) throws BazaarException;
 
     boolean belongsToPublicProject(int id) throws BazaarException;
+
+    boolean hasAnswers(int id) throws BazaarException;
 }

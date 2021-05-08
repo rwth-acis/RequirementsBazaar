@@ -63,6 +63,9 @@ public class Comment extends EntityBase implements Ownable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
     private LocalDateTime lastUpdatedDate;
 
+    @lombok.Builder.Default
+    private Boolean deleted = false;
+
     @JsonProperty("_context")
     private EntityContext context;
 
