@@ -31,6 +31,7 @@ import java.util.Map;
  * @since 6/15/2014
  */
 public class PageInfo implements Pageable {
+
     @Min(-1)
     private final int pageNumber;
     @Min(0)
