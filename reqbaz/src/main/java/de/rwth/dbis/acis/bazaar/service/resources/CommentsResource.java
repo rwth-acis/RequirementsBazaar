@@ -178,11 +178,9 @@ public class CommentsResource {
      * This method returns the list of comments for a specific requirement.
      *
      * @param requirementId id of the requirement
-     * @param page          page number
-     * @param perPage       number of projects by page
      * @return Response with comments as a JSON array.
      */
-    public Response getCommentsForRequirement(int requirementId, int page, int perPage) {
+    public Response getCommentsForRequirement(int requirementId) {
         DALFacade dalFacade = null;
         try {
             Agent agent = Context.getCurrent().getMainAgent();
@@ -191,10 +189,6 @@ public class CommentsResource {
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
-            PageInfo pageInfo = new PageInfo(page, perPage);
-            // Take Object for generic error handling
-            Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
-            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
 
             dalFacade = bazaarService.getDBConnection();
             //Todo use requirement's projectId for security context, not the one sent from client
@@ -212,21 +206,12 @@ public class CommentsResource {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.read"));
                 }
             }
-            PaginationResult<Comment> commentsResult = dalFacade.listCommentsByRequirementId(requirementId, pageInfo);
+            List<Comment> commentsResult = dalFacade.listCommentsByRequirementId(requirementId);
             bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_43,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
-            Map<String, List<String>> parameter = new HashMap<>();
-            parameter.put("page", new ArrayList() {{
-                add(String.valueOf(page));
-            }});
-            parameter.put("per_page", new ArrayList() {{
-                add(String.valueOf(perPage));
-            }});
 
             Response.ResponseBuilder responseBuilder = Response.ok();
-            responseBuilder = responseBuilder.entity(commentsResult.toJSON());
-            responseBuilder = bazaarService.paginationLinks(responseBuilder, commentsResult, "requirements/" + String.valueOf(requirementId) + "/comments", parameter);
-            responseBuilder = bazaarService.xHeaderFields(responseBuilder, commentsResult);
+            responseBuilder = responseBuilder.entity(bazaarService.getMapper().writeValueAsString(commentsResult));
 
             return responseBuilder.build();
         } catch (BazaarException bex) {

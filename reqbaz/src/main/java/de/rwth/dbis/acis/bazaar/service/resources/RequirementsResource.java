@@ -1464,8 +1464,6 @@ public class RequirementsResource {
      * This method returns the list of comments for a specific requirement.
      *
      * @param requirementId id of the requirement
-     * @param page          page number
-     * @param perPage       number of projects by page
      * @return Response with comments as a JSON array.
      */
     @GET
@@ -1478,11 +1476,9 @@ public class RequirementsResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response getCommentsForRequirement(@PathParam("requirementId") int requirementId,
-                                              @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
-                                              @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) throws Exception {
+    public Response getCommentsForRequirement(@PathParam("requirementId") int requirementId) throws Exception {
         CommentsResource commentsResource = new CommentsResource();
-        return commentsResource.getCommentsForRequirement(requirementId, page, perPage);
+        return commentsResource.getCommentsForRequirement(requirementId);
     }
 
     /**

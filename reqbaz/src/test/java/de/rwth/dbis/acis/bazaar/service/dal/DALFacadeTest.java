@@ -193,7 +193,7 @@ public class DALFacadeTest extends SetupData {
 
         Comment createdComment = facade.createComment(testComment);
 
-        List<Comment> comments = facade.listCommentsByRequirementId(testRequirement.getId(), ALL_IN_ONE_PAGE).getElements();
+        List<Comment> comments = facade.listCommentsByRequirementId(testRequirement.getId());
 
         assertNotNull(comments);
         assertEquals(1,comments.size());
@@ -208,7 +208,7 @@ public class DALFacadeTest extends SetupData {
 
         facade.deleteCommentById(updatedComment.getId());
 
-        comments = facade.listCommentsByRequirementId(testRequirement.getId(), ALL_IN_ONE_PAGE).getElements();
+        comments = facade.listCommentsByRequirementId(testRequirement.getId());
         assertNotNull(comments);
         assertEquals(0,comments.size());
 

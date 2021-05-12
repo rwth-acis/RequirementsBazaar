@@ -496,9 +496,9 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public PaginationResult<Comment> listCommentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
+    public List<Comment> listCommentsByRequirementId(int requirementId) throws BazaarException {
         commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
-        return commentRepository.findAllByRequirementId(requirementId, pageable);
+        return commentRepository.findAllByRequirementId(requirementId);
     }
 
     @Override
