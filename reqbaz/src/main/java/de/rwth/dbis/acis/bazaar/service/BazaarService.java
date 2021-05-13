@@ -409,6 +409,10 @@ public class BazaarService extends RESTService {
         dalFacade.close();
     }
 
+    public ObjectMapper getMapper() {
+        return mapper;
+    }
+
     public Response.ResponseBuilder paginationLinks(Response.ResponseBuilder responseBuilder, PaginationResult paginationResult,
                                                     String path, Map<String, List<String>> httpParameter) throws URISyntaxException {
         List<Link> links = new ArrayList<>();

@@ -478,10 +478,9 @@ public interface DALFacade {
 
     /**
      * @param requirementId the identifier of the requirement we are looking in
-     * @param pageable      pagination information
      * @return the comments for a given requirement
      */
-    PaginationResult<Comment> listCommentsByRequirementId(int requirementId, Pageable pageable) throws BazaarException;
+    List<Comment> listCommentsByRequirementId(int requirementId) throws BazaarException;
 
     /**
      * @param pageable pagination information

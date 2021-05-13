@@ -34,10 +34,8 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import i5.las2peer.api.security.AgentLockedException;
 import i5.las2peer.security.PassphraseAgentImpl;
-import org.jooq.DSLContext;
-import org.jooq.Field;
+import org.jooq.*;
 import org.jooq.Record;
-import org.jooq.Result;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -520,13 +518,13 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
                     .from(USER
                             .join(PROJECT).on(USER.ID.eq(PROJECT.LEADER_ID)))
                     .where(PROJECT.ID.eq(projectId))
-                    .and(USER.EMAIL_LEAD_SUBSCRIPTION.eq(ONE))
+                    .and(USER.EMAIL_LEAD_SUBSCRIPTION.isTrue())
 
                     .union(jooq.selectDistinct(USER.fields())
                             .from(USER
                                     .join(PROJECT_FOLLOWER_MAP).on(USER.ID.eq(PROJECT_FOLLOWER_MAP.USER_ID)))
                             .where(PROJECT_FOLLOWER_MAP.PROJECT_ID.eq(projectId))
-                            .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.eq(ONE)))
+                            .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.isTrue()))
                     .fetch();
 
             for (Record queryResult : queryResults) {
@@ -550,20 +548,20 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
                     .from(USER
                             .join(CATEGORY).on(USER.ID.eq(CATEGORY.LEADER_ID)))
                     .where(CATEGORY.ID.eq(categoryId))
-                    .and(USER.EMAIL_LEAD_SUBSCRIPTION.eq(ONE))
+                    .and(USER.EMAIL_LEAD_SUBSCRIPTION.isTrue())
 
                     .union(jooq.selectDistinct(USER.fields())
                             .from(USER
                                     .join(CATEGORY_FOLLOWER_MAP).on(USER.ID.eq(CATEGORY_FOLLOWER_MAP.USER_ID)))
                             .where(CATEGORY_FOLLOWER_MAP.CATEGORY_ID.eq(categoryId))
-                            .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.eq(ONE)))
+                            .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.isTrue()))
 
                     .union(jooq.selectDistinct(USER.fields())
                             .from(USER
                                     .join(PROJECT).on(USER.ID.eq(PROJECT.LEADER_ID))
                                     .join(CATEGORY).on(CATEGORY.PROJECT_ID.eq(PROJECT.ID)))
                             .where(CATEGORY.ID.eq(categoryId))
-                            .and(USER.EMAIL_LEAD_SUBSCRIPTION.eq(ONE)))
+                            .and(USER.EMAIL_LEAD_SUBSCRIPTION.isTrue()))
 
                     .union(jooq.selectDistinct(USER.fields())
                             .from(USER
@@ -571,7 +569,7 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
                                     .join(CATEGORY).on(CATEGORY.PROJECT_ID.eq(PROJECT_FOLLOWER_MAP.PROJECT_ID)))
                             .where(CATEGORY.ID.eq(categoryId))
                             .and(PROJECT_FOLLOWER_MAP.PROJECT_ID.eq(CATEGORY.PROJECT_ID))
-                            .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.eq(ONE)))
+                            .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.isTrue()))
 
                     .fetch();
 
@@ -597,14 +595,14 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
                     .from(USER
                             .join(REQUIREMENT).on(REQUIREMENT.LEAD_DEVELOPER_ID.eq(USER.ID)))
                     .where(REQUIREMENT.ID.eq(requirementId))
-                    .and(USER.EMAIL_LEAD_SUBSCRIPTION.eq(ONE))
+                    .and(USER.EMAIL_LEAD_SUBSCRIPTION.isTrue())
 
                     // req follower
                     .union(jooq.selectDistinct(USER.fields())
                             .from(USER
                                     .join(REQUIREMENT_FOLLOWER_MAP).on(USER.ID.eq(REQUIREMENT_FOLLOWER_MAP.USER_ID)))
                             .where(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID.eq(requirementId))
-                            .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.eq(ONE)))
+                            .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.isTrue()))
 
                     // category leader
                     .union(jooq.selectDistinct(USER.fields())
@@ -612,7 +610,7 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
                                     .join(CATEGORY).on(USER.ID.eq(CATEGORY.LEADER_ID))
                                     .join(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.eq(CATEGORY.ID)))
                             .where(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID.eq(requirementId))
-                            .and(USER.EMAIL_LEAD_SUBSCRIPTION.eq(ONE)))
+                            .and(USER.EMAIL_LEAD_SUBSCRIPTION.isTrue()))
 
                     // category follower
                     .union(jooq.selectDistinct(USER.fields())
@@ -621,7 +619,7 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
                                     .join(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.eq(CATEGORY_FOLLOWER_MAP.CATEGORY_ID))
                                     .join(REQUIREMENT).on(REQUIREMENT.ID.eq(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID)))
                             .where(REQUIREMENT.ID.eq(requirementId))
-                            .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.eq(ONE)))
+                            .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.isTrue()))
 
                     // project leader
                     .union(jooq.selectDistinct(USER.fields())
@@ -629,7 +627,7 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
                                     .join(PROJECT).on(USER.ID.eq(PROJECT.LEADER_ID))
                                     .join(REQUIREMENT).on(REQUIREMENT.PROJECT_ID.eq(PROJECT.ID)))
                             .where(REQUIREMENT.ID.eq(requirementId))
-                            .and(USER.EMAIL_LEAD_SUBSCRIPTION.eq(ONE)))
+                            .and(USER.EMAIL_LEAD_SUBSCRIPTION.isTrue()))
 
                     // project follower
                     .union(jooq.selectDistinct(USER.fields())
@@ -638,7 +636,7 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
                                     .join(REQUIREMENT).on(REQUIREMENT.PROJECT_ID.eq(PROJECT_FOLLOWER_MAP.PROJECT_ID)))
                             .where(REQUIREMENT.ID.eq(requirementId))
                             .and(PROJECT_FOLLOWER_MAP.PROJECT_ID.eq(REQUIREMENT.PROJECT_ID))
-                            .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.eq(ONE)))
+                            .and(USER.EMAIL_FOLLOW_SUBSCRIPTION.isTrue()))
 
                     .fetch();
 

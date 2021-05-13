@@ -132,9 +132,9 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
                             .las2peerId(entry.getValue(userTable.LAS2PEER_ID))
                             .userName(entry.getValue(userTable.USER_NAME))
                             .profileImage(entry.getValue(userTable.PROFILE_IMAGE))
-                            .emailLeadSubscription(entry.getValue(userTable.EMAIL_LEAD_SUBSCRIPTION) != 0)
-                            .emailFollowSubscription(entry.getValue(userTable.EMAIL_FOLLOW_SUBSCRIPTION) != 0)
-                            .personalizationEnabled(entry.getValue(userTable.PERSONALIZATION_ENABLED) != 0)
+                            .emailLeadSubscription(entry.getValue(userTable.EMAIL_LEAD_SUBSCRIPTION))
+                            .emailFollowSubscription(entry.getValue(userTable.EMAIL_FOLLOW_SUBSCRIPTION))
+                            .personalizationEnabled(entry.getValue(userTable.PERSONALIZATION_ENABLED))
                             .build();
                     ProjectMember member = ProjectMember.builder()
                             .id(entry.getValue(USER_ROLE_MAP.ID))

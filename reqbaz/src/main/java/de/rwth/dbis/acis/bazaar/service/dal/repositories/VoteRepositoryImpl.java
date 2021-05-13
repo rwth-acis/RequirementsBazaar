@@ -80,7 +80,7 @@ public class VoteRepositoryImpl extends RepositoryImpl<Vote, VoteRecord> impleme
                 .fetchOne();
 
         if (record != null) {
-            if (record.getIsUpvote() != (byte) (vote.isUpvote() ? 1 : 0)) {
+            if (record.getIsUpvote()) {
                 UpdateSetFirstStep<VoteRecord> update = jooq.update(transformer.getTable());
                 Map<Field, Object> map = transformer.getUpdateMap(vote);
                 UpdateSetMoreStep moreStep = null;

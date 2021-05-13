@@ -41,9 +41,9 @@ public class UserTransformer implements Transformer<User, UserRecord> {
         record.setLastName(entity.getLastName());
         record.setUserName(entity.getUserName());
         record.setProfileImage(entity.getProfileImage());
-        record.setEmailLeadSubscription((byte) (entity.isEmailLeadSubscription() ? 1 : 0));
-        record.setEmailFollowSubscription((byte) (entity.isEmailFollowSubscription() ? 1 : 0));
-        record.setPersonalizationEnabled((byte) (entity.isPersonalizationEnabled() ? 1:0));
+        record.setEmailLeadSubscription(entity.isEmailLeadSubscription());
+        record.setEmailFollowSubscription(entity.isEmailFollowSubscription());
+        record.setPersonalizationEnabled(entity.isPersonalizationEnabled());
         record.setCreationDate(LocalDateTime.now());
 
         return record;
@@ -59,12 +59,12 @@ public class UserTransformer implements Transformer<User, UserRecord> {
                 .las2peerId(record.getLas2peerId())
                 .profileImage(record.getProfileImage())
                 .userName(record.getUserName())
-                .emailLeadSubscription(record.getEmailLeadSubscription() != 0)
-                .emailFollowSubscription(record.getEmailFollowSubscription() != 0)
+                .emailLeadSubscription(record.getEmailLeadSubscription())
+                .emailFollowSubscription(record.getEmailFollowSubscription())
                 .creationDate(record.getCreationDate())
                 .lastUpdatedDate(record.getLastUpdatedDate())
                 .lastLoginDate(record.getLastLoginDate())
-                .personalizationEnabled(record.getPersonalizationEnabled() != 0)
+                .personalizationEnabled(record.getPersonalizationEnabled())
                 .build();
     }
 
@@ -77,9 +77,9 @@ public class UserTransformer implements Transformer<User, UserRecord> {
                 .las2peerId(queryResult.getValues(user.LAS2PEER_ID).get(0))
                 .userName(queryResult.getValues(user.USER_NAME).get(0))
                 .profileImage(queryResult.getValues(user.PROFILE_IMAGE).get(0))
-                .emailLeadSubscription(queryResult.getValues(user.EMAIL_LEAD_SUBSCRIPTION).get(0) != 0)
-                .emailFollowSubscription(queryResult.getValues(user.EMAIL_FOLLOW_SUBSCRIPTION).get(0) != 0)
-                .personalizationEnabled(queryResult.getValues(user.PERSONALIZATION_ENABLED).get(0) != 0)
+                .emailLeadSubscription(queryResult.getValues(user.EMAIL_LEAD_SUBSCRIPTION).get(0))
+                .emailFollowSubscription(queryResult.getValues(user.EMAIL_FOLLOW_SUBSCRIPTION).get(0))
+                .personalizationEnabled(queryResult.getValues(user.PERSONALIZATION_ENABLED).get(0))
                 .build();
     }
 

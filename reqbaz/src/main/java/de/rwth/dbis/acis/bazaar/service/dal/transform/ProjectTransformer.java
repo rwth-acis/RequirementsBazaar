@@ -42,7 +42,7 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
         record.setDescription(entry.getDescription());
         record.setName(entry.getName());
         record.setLeaderId(entry.getLeader().getId());
-        record.setVisibility((byte) (entry.getVisibility() ? 1 : 0));
+        record.setVisibility(entry.getVisibility());
         record.setDefaultCategoryId(entry.getDefaultCategoryId());
         record.setCreationDate(LocalDateTime.now());
         return record;
@@ -55,7 +55,7 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
                 .description(record.getDescription())
                 .id(record.getId())
                 .defaultCategoryId(record.getDefaultCategoryId())
-                .visibility(record.getVisibility() == 1)
+                .visibility(record.getVisibility())
                 .creationDate(record.getCreationDate())
                 .lastUpdatedDate(record.getLastUpdatedDate())
                 .build();

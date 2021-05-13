@@ -164,11 +164,9 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord
 
 
     @Override
-    public PaginationResult<de.rwth.dbis.acis.bazaar.service.dal.entities.Comment> findAllByRequirementId(int requirementId, Pageable pageable) throws BazaarException {
-        PaginationResult<Comment> result = null;
-        List<Comment> comments;
+    public List<de.rwth.dbis.acis.bazaar.service.dal.entities.Comment> findAllByRequirementId(int requirementId) throws BazaarException {
+        List<Comment> comments = new ArrayList<>();
         try {
-            comments = new ArrayList<>();
             de.rwth.dbis.acis.bazaar.dal.jooq.tables.User creatorUser = USER.as("creatorUser");
             de.rwth.dbis.acis.bazaar.dal.jooq.tables.Comment childComment = COMMENT.as("childComment");
             User childCommentCreatorUser = USER.as("childCommentCreatorUser");
@@ -185,9 +183,6 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord
                     .leftJoin(childCommentCreatorUser).on(childCommentCreatorUser.ID.equal(childComment.USER_ID))
                     .join(creatorUser).on(creatorUser.ID.equal(COMMENT.USER_ID))
                     .where(COMMENT.REQUIREMENT_ID.equal(requirementId).and(COMMENT.REPLY_TO_COMMENT_ID.isNull()))
-                    .orderBy(transformer.getSortFields(pageable.getSorts()))
-                    .limit(pageable.getPageSize())
-                    .offset(pageable.getOffset())
                     .fetch();
 
             Comment entry = null;
@@ -202,13 +197,11 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord
                     comments.add(childEntry);
                 }
             }
-            int total = queryResults.isEmpty() ? 0 : ((Integer) queryResults.get(0).get("idCount"));
-            result = new PaginationResult<>(total, pageable, comments);
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
 
-        return result;
+        return comments;
     }
 
 
@@ -261,6 +254,21 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord
                     .fetchOne(0, int.class);
 
             return (countOfPublicProjects == 1);
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return false;
+    }
+
+    public boolean hasAnswers(int id) throws BazaarException {
+        try {
+            Integer answerCount = jooq.selectCount()
+                    .from(COMMENT)
+                    .where(COMMENT.REPLY_TO_COMMENT_ID.eq(id))
+                    .fetchOne(0, int.class);
+
+            return answerCount > 0;
+
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
