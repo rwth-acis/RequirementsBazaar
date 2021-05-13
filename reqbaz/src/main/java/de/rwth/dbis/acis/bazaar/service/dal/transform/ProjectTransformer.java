@@ -30,7 +30,9 @@ import org.jooq.impl.DSL;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static de.rwth.dbis.acis.bazaar.dal.jooq.Routines.udfNaturalsortformat;
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
+import static org.jooq.impl.DSL.val;
 
 public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
 
@@ -109,11 +111,11 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
             switch (sort.getField()) {
                 case "name":
                     if (sort.getSortDirection() == Pageable.SortDirection.DESC) {
-                        sortFields.add(PROJECT.NAME.length().desc());
-                        sortFields.add(PROJECT.NAME.desc());
+                        // 50 is derived from the max length of the project name
+                        sortFields.add(udfNaturalsortformat(PROJECT.NAME, val(50), val(".")).desc());
                     } else {
-                        sortFields.add(PROJECT.NAME.length().asc());
-                        sortFields.add(PROJECT.NAME.asc());
+                        sortFields.add(udfNaturalsortformat(PROJECT.NAME, val(50), val(".")).asc());
+
                     }
                     break;
                 case "date":
