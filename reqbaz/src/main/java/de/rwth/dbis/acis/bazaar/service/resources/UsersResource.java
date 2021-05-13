@@ -3,10 +3,7 @@ package de.rwth.dbis.acis.bazaar.service.resources;
 import de.rwth.dbis.acis.bazaar.service.BazaarFunction;
 import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.EntityOverview;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.PrivilegeEnum;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
@@ -53,9 +50,8 @@ import java.util.*;
 @Path("/users")
 public class UsersResource {
 
-    private BazaarService bazaarService;
-
     private final L2pLogger logger = L2pLogger.getInstance(UsersResource.class.getName());
+    private final BazaarService bazaarService;
 
     public UsersResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
@@ -98,7 +94,9 @@ public class UsersResource {
 
             // Take Object for generic error handling
             Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
-            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+            if (violations.size() > 0) {
+                ExceptionHandler.getInstance().handleViolations(violations);
+            }
 
             PaginationResult<User> users = dalFacade.searchUsers(pageInfo);
 
@@ -246,6 +244,62 @@ public class UsersResource {
     }
 
     /**
+     * This method allows to retrieve the current users individual dashboard.
+     *
+     * @return Response with active user as a JSON object.
+     */
+    @GET
+    @Path("/me/dashboard")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "This method allows to retrieve the current users individual dashboard.")
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns user dashboard data", response = Dashboard.class),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+    })
+    public Response getUserDashboard() {
+        DALFacade dalFacade = null;
+        try {
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
+            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registrarErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
+            }
+            dalFacade = bazaarService.getDBConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_54,
+                    internalUserId, Activity.DataType.USER, internalUserId);
+
+            // Block anonymous user
+            if (internalUserId == 0) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.read"));
+            }
+
+            Dashboard data = dalFacade.getDashboardData(internalUserId, 10);
+
+            return Response.ok(data.toJSON()).build();
+        } catch (BazaarException bex) {
+            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } else {
+                logger.warning(bex.getMessage());
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get active user");
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            }
+        } catch (Exception ex) {
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get active user");
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+        } finally {
+            bazaarService.closeDBConnection(dalFacade);
+        }
+    }
+
+    /**
      * Allows to update a certain user.
      *
      * @param userId       id of the user to update
@@ -275,7 +329,9 @@ public class UsersResource {
 
             // Take Object for generic error handling
             Set<ConstraintViolation<Object>> violations = bazaarService.validate(userToUpdate);
-            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+            if (violations.size() > 0) {
+                ExceptionHandler.getInstance().handleViolations(violations);
+            }
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(agent.getIdentifier());
@@ -306,6 +362,7 @@ public class UsersResource {
             bazaarService.closeDBConnection(dalFacade);
         }
     }
+
     /**
      * This method returns an entityOverview for the logged in user
      *
@@ -330,8 +387,8 @@ public class UsersResource {
             @ApiParam(value = "Types of entities to include", required = true, allowMultiple = true, allowableValues = "projects,categories,requirements") @QueryParam("include") List<String> include,
             @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("date") @QueryParam("sort") List<String> sort,
             @ApiParam(value = "SortDirection", allowableValues = "ASC,DESC") @QueryParam("sortDirection") String sortDirection,
-            @ApiParam(value = "Filter", required = false, allowMultiple = true, allowableValues = "created, following, developing") @DefaultValue("created") @QueryParam("filters") List<String> filters){
-            //Possibly allow filtertype "all"?
+            @ApiParam(value = "Filter", required = false, allowMultiple = true, allowableValues = "created, following, developing") @DefaultValue("created") @QueryParam("filters") List<String> filters) {
+        //Possibly allow filtertype "all"?
         DALFacade dalFacade = null;
         try {
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -350,13 +407,13 @@ public class UsersResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
             HashMap<String, String> filterMap = new HashMap<>();
-            for(String filterOption : filters) {
-                filterMap.put(filterOption,internalUserId.toString());
+            for (String filterOption : filters) {
+                filterMap.put(filterOption, internalUserId.toString());
             }
             PageInfo pageInfo = new PageInfo(0, 0, filterMap, sortList, search);
 
 
-            EntityOverview result =  dalFacade.getEntitiesForUser(include, pageInfo, internalUserId);
+            EntityOverview result = dalFacade.getEntitiesForUser(include, pageInfo, internalUserId);
             // Wrong SERVICE_CUSTOM_MESSAGE_3 ?
             bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_3,
                     0, Activity.DataType.USER, internalUserId);
@@ -368,12 +425,12 @@ public class UsersResource {
             return responseBuilder.build();
         } catch (BazaarException bex) {
             logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get entityOverview failed" );
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get entityOverview failed");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } catch (Exception ex) {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get entityOverview failed" );
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get entityOverview failed");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);

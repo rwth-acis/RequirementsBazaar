@@ -354,4 +354,30 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
         }
         return result;
     }
+
+    @Override
+    public List<Category> getFollowedCategories(int userId, int count) throws BazaarException {
+        List<Category> categories = null;
+        try {
+            List<Integer> categoryIds;
+            categoryIds = jooq.select()
+                    .from(CATEGORY_FOLLOWER_MAP)
+                    .where(CATEGORY_FOLLOWER_MAP.USER_ID.eq(userId))
+                    .fetch(CATEGORY_FOLLOWER_MAP.CATEGORY_ID);
+
+            Condition filterCondition = transformer.getTableId().in(categoryIds);
+
+            Pageable.SortField sortField = new Pageable.SortField("last_activity", "DESC");
+            List<Pageable.SortField> sortList = new ArrayList<>();
+            sortList.add(sortField);
+
+            PageInfo filterPage = new PageInfo(0, count, new HashMap<>(), sortList);
+
+            categories = getFilteredCategories(filterCondition, filterPage, userId).left;
+
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return categories;
+    }
 }

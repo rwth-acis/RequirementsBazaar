@@ -47,4 +47,6 @@ public interface CategoryRepository extends Repository<Category> {
     boolean belongsToPublicProject(int id) throws BazaarException;
 
     Statistic getStatisticsForCategory(int userId, int categoryId, LocalDateTime timestamp) throws BazaarException;
+
+    List<Category> getFollowedCategories(int userId, int count) throws BazaarException;
 }

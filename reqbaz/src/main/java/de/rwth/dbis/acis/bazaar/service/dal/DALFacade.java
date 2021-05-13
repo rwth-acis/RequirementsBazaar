@@ -186,8 +186,9 @@ public interface DALFacade {
 
     /**
      * Deletes a given project
+     *
      * @param projectId id of the project to delete
-     * @param userId id of the user
+     * @param userId    id of the user
      */
     Project deleteProjectById(int projectId, Integer userId) throws Exception;
 
@@ -226,6 +227,16 @@ public interface DALFacade {
      * @throws BazaarException
      */
     void removeUserFromProject(int userId, Integer context) throws BazaarException;
+
+    /**
+     * Returns the count most recent active projects followed by the user
+     *
+     * @param userId id of the follower
+     * @param count  how many should be returned
+     * @return Followed projects ordered by last activity
+     */
+    List<Project> getFollowedProjects(int userId, int count) throws BazaarException;
+
     //endregion
 
     //region ProjectFollower
@@ -364,6 +375,15 @@ public interface DALFacade {
     boolean isRequirementPublic(int requirementId) throws BazaarException;
 
     Statistic getStatisticsForRequirement(int userId, int requirementId, Calendar timestamp) throws BazaarException;
+
+    /**
+     * Returns the count most recent active requirements followed by the user
+     *
+     * @param userId id of the follower
+     * @param count  how many should be returned
+     * @return Followed requirements ordered by last activity
+     */
+    List<Requirement> getFollowedRequirements(int userId, int count) throws BazaarException;
     //endregion
 
     //region Category
@@ -417,6 +437,15 @@ public interface DALFacade {
     boolean isCategoryPublic(int categoryId) throws BazaarException;
 
     Statistic getStatisticsForCategory(int userId, int categoryId, Calendar timestamp) throws BazaarException;
+
+    /**
+     * Returns the count most recent active categories followed by the user
+     *
+     * @param userId id of the follower
+     * @param count  how many should be returned
+     * @return Followed categories ordered by last activity
+     */
+    List<Category> getFollowedCategories(int userId, int count) throws BazaarException;
     //endregion
 
     //region CategoryFollower
@@ -508,6 +537,7 @@ public interface DALFacade {
 
     /**
      * Updates a comment
+     *
      * @param comment comment to persist
      * @return the updated comment
      * @throws Exception
@@ -681,4 +711,14 @@ public interface DALFacade {
     Feedback getFeedbackById(int feedbackId) throws Exception;
 
     // endregion feedback
+
+    /**
+     * Aggregates the data for the dashboard
+     *
+     * @param userId Id of the user for their individual dashboard
+     * @param count  Number of items per group
+     * @return
+     * @throws BazaarException
+     */
+    Dashboard getDashboardData(int userId, int count) throws BazaarException;
 }

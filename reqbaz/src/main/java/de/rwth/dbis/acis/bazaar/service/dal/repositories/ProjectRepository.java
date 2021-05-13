@@ -48,6 +48,5 @@ public interface ProjectRepository extends Repository<Project> {
 
     List<Integer> listAllProjectIds(Pageable pageable, int userId) throws BazaarException;
 
-
-
+    List<Project> getFollowedProjects(int userId, int count) throws BazaarException;
 }

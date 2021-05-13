@@ -52,6 +52,24 @@ public class BazaarTest extends TestBase {
     }
 
     /**
+     * Test to get the statistics
+     */
+    @Test
+    public void testStatistics() {
+        try {
+            MiniClient client = getClient();
+
+            ClientResponse result = client.sendRequest("GET", mainPath + "statistics", "");
+            JsonObject response = JsonParser.parseString(result.getResponse()).getAsJsonObject();
+            System.out.println(response.toString());
+            assertTrue(response.isJsonObject());
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.toString());
+        }
+    }
+
+    /**
      * Test to get a list of projects
      */
     @Test
@@ -427,6 +445,29 @@ public class BazaarTest extends TestBase {
             assertFalse(response.has("email"));
             assertFalse(response.has("emailFollowSubscription"));
 
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.toString());
+        }
+    }
+
+    /**
+     * Test to get user dashboard
+     */
+    @Test
+    public void testDashboard() {
+        try {
+            MiniClient client = getAdminClient();
+
+            ClientResponse result = client.sendRequest("GET", mainPath + "users/me/dashboard", "");
+            System.out.println(result.toString());
+            assertEquals(200, result.getHttpCode());
+
+            JsonObject response = JsonParser.parseString(result.getResponse()).getAsJsonObject();
+            assertTrue(response.isJsonObject());
+            assertTrue(response.has("projects"));
+            assertTrue(response.has("categories"));
+            assertTrue(response.has("requirements"));
         } catch (Exception e) {
             e.printStackTrace();
             fail(e.toString());
