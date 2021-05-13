@@ -20,6 +20,7 @@
 
 package de.rwth.dbis.acis.bazaar.service.exception;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 
 /**
@@ -27,17 +28,16 @@ import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
  */
 public class BazaarException extends Exception {
 
-    private String message;
-
-    private ErrorCode errorCode;
-
     private final ExceptionLocation location;
+    private String message;
+    private ErrorCode errorCode;
 
     protected BazaarException(ExceptionLocation location) {
         this.location = location;
         message = "";
     }
 
+    @Override
     public String getMessage() {
         return message;
     }
@@ -61,4 +61,11 @@ public class BazaarException extends Exception {
     public String getExceptionMessage() {
         return String.format(Localization.getInstance().getResourceBundle().getString("error.unknown_exception"), message, location.getMessage(), errorCode.getMessage(), getExceptionCode());
     }
+
+    @JsonIgnore
+    @Override
+    public StackTraceElement[] getStackTrace() {
+        return super.getStackTrace();
+    }
+
 }

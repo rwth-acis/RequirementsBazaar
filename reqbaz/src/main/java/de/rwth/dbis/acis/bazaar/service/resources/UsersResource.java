@@ -216,6 +216,12 @@ public class UsersResource {
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
+
+            // Block anonymous user
+            if (userId.equals("anonymous")) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.user.read"));
+            }
+
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             User user = dalFacade.getUserById(internalUserId);
@@ -266,15 +272,16 @@ public class UsersResource {
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
             }
+
+            // Block anonymous user
+            if (userId.equals("anonymous")) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.user.read"));
+            }
+
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_54,
                     internalUserId, Activity.DataType.USER, internalUserId);
-
-            // Block anonymous user
-            if (internalUserId == 0) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.read"));
-            }
 
             Dashboard data = dalFacade.getDashboardData(internalUserId, 10);
 
@@ -282,8 +289,6 @@ public class UsersResource {
         } catch (BazaarException bex) {
             if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                 return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             } else {
                 logger.warning(bex.getMessage());
                 Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get active user");

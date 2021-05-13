@@ -480,9 +480,9 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
         try {
             List<Integer> requirementIds;
             requirementIds = jooq.select()
-                    .from(CATEGORY_FOLLOWER_MAP)
-                    .where(CATEGORY_FOLLOWER_MAP.USER_ID.eq(userId))
-                    .fetch(CATEGORY_FOLLOWER_MAP.CATEGORY_ID);
+                    .from(REQUIREMENT_FOLLOWER_MAP)
+                    .where(REQUIREMENT_FOLLOWER_MAP.USER_ID.eq(userId))
+                    .fetch(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID);
 
             Condition filterCondition = transformer.getTableId().in(requirementIds);
 

@@ -60,6 +60,7 @@ public class User extends EntityBase {
 
     @NotNull(message = "las2peerId can't be null")
     @Size(min = 1, max = 1000, message = "las2peerId must have between 1 and 1000 characters")
+    @JsonView(SerializerViews.Private.class)
     private String las2peerId;
 
     private String profileImage;
@@ -107,11 +108,15 @@ public class User extends EntityBase {
 
     @Override
     public boolean equals(Object o) {
-        if (o == this) return true;
-        if (!(o instanceof User)) return false;
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof User)) {
+            return false;
+        }
         User other = (User) o;
 
-        return this.las2peerId.equals(other.las2peerId);
+        return las2peerId.equals(other.las2peerId);
     }
 
     @Override
