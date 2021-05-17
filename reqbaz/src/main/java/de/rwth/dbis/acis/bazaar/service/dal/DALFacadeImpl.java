@@ -272,6 +272,13 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public List<Project> getFollowedProjects(int userId, int count) throws BazaarException {
+        projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
+        return projectRepository.getFollowedProjects(userId, count);
+    }
+
+
+    @Override
     public List<Requirement> listRequirements(Pageable pageable) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         return requirementRepository.findAll(pageable);
@@ -396,6 +403,12 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public List<Requirement> getFollowedRequirements(int userId, int count) throws BazaarException {
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        return requirementRepository.getFollowedRequirements(userId, count);
+    }
+
+    @Override
     public PaginationResult<Category> listCategoriesByProjectId(int projectId, Pageable pageable, int userId) throws BazaarException {
         categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
         return categoryRepository.findByProjectId(projectId, pageable, userId);
@@ -460,6 +473,12 @@ public class DALFacadeImpl implements DALFacade {
         categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
         Timestamp timestamp = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
         return categoryRepository.getStatisticsForCategory(userId, categoryId, timestamp.toLocalDateTime());
+    }
+
+    @Override
+    public List<Category> getFollowedCategories(int userId, int count) throws BazaarException {
+        categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
+        return categoryRepository.getFollowedCategories(userId, count);
     }
 
     @Override
@@ -541,7 +560,7 @@ public class DALFacadeImpl implements DALFacade {
             comment.setDeleted(true);
             comment.setMessage("[This message has been deleted]");
             commentRepository.update(comment);
-        } else{
+        } else {
             commentRepository.delete(commentId);
         }
         return comment;
@@ -740,6 +759,15 @@ public class DALFacadeImpl implements DALFacade {
     public Feedback getFeedbackById(int feedbackId) throws Exception {
         feedbackRepository = (feedbackRepository != null) ? feedbackRepository : new FeedbackRepositoryImpl(dslContext);
         return feedbackRepository.findById(feedbackId);
+    }
+
+    @Override
+    public Dashboard getDashboardData(int userId, int count) throws BazaarException {
+        return Dashboard.builder()
+                .projects(getFollowedProjects(userId, count))
+                .categories(getFollowedCategories(userId, count))
+                .requirements(getFollowedRequirements(userId, count))
+                .build();
     }
 
     @Override

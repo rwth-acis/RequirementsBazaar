@@ -22,7 +22,10 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementCategoryMapRecord;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.UserContext;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.*;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementTransformer;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;
@@ -233,7 +236,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             }
 
             if (requirement.getNumberOfAttachments() > 0) {
-                AttachmentRepository attachmentRepository = new AttachmentRepositoryImpl(this.jooq);
+                AttachmentRepository attachmentRepository = new AttachmentRepositoryImpl(jooq);
                 List<Attachment> attachmentList = attachmentRepository.findAllByRequirementId(requirement.getId(), new PageInfo(0, 1000, new HashMap<>())).getElements();
                 requirement.setAttachments(attachmentList);
             }
@@ -314,8 +317,9 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
 
     private UserVote transformToUserVoted(Integer userVotedInt) {
         UserVote userVoted;
-        if (userVotedInt == null)
+        if (userVotedInt == null) {
             return UserVote.NO_VOTE;
+        }
         switch (userVotedInt) {
             case 0:
                 userVoted = UserVote.DOWN_VOTE;
@@ -360,10 +364,12 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
         }
         return false;
     }
+
     @Override
     public Requirement findById(int id, int userId) throws Exception {
         return findById(id, userId, null);
     }
+
     @Override
     public Requirement findById(int id, int userId, List<String> embed) throws Exception {
         Requirement requirement = null;
@@ -466,5 +472,31 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return result;
+    }
+
+    @Override
+    public List<Requirement> getFollowedRequirements(int userId, int count) throws BazaarException {
+        List<Requirement> requirements = null;
+        try {
+            List<Integer> requirementIds;
+            requirementIds = jooq.select()
+                    .from(REQUIREMENT_FOLLOWER_MAP)
+                    .where(REQUIREMENT_FOLLOWER_MAP.USER_ID.eq(userId))
+                    .fetch(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID);
+
+            Condition filterCondition = transformer.getTableId().in(requirementIds);
+
+            Pageable.SortField sortField = new Pageable.SortField("last_activity", "DESC");
+            List<Pageable.SortField> sortList = new ArrayList<>();
+            sortList.add(sortField);
+
+            PageInfo filterPage = new PageInfo(0, count, new HashMap<>(), sortList);
+
+            requirements = getFilteredRequirements(filterCondition, filterPage, userId).left;
+
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return requirements;
     }
 }

@@ -21,9 +21,14 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 - Categories, projects and requirements now have a `userContext` encapsuling the dynamic user related information (
   permissions, votes, contribution) [#94](https://github.com/rwth-acis/RequirementsBazaar/pull/94).
 - If a user is a member of a project the respective role is now returned in the`usertRole` attribute of the
-  new `userContext` attribute [#94](https://github.com/rwth-acis/RequirementsBazaar/pull/94) [#96](https://github.com/rwth-acis/RequirementsBazaar/pull/96).
+  new `userContext`
+  attribute [#94](https://github.com/rwth-acis/RequirementsBazaar/pull/94) [#96](https://github.com/rwth-acis/RequirementsBazaar/pull/96)
+  .
 - Add a delete projects endpoint [#100](https://github.com/rwth-acis/RequirementsBazaar/pull/100).
 - Add an update comment endpoint [#100](https://github.com/rwth-acis/RequirementsBazaar/pull/100).
+- Redacted comments now have a deleted flag [#103](https://github.com/rwth-acis/RequirementsBazaar/pull/103).
+- Added a user dashboard listing the last 10 most recent active followed projects, categories and
+  requirements [#106](https://github.com/rwth-acis/RequirementsBazaar/pull/106).
 
 ### Changed
 
@@ -54,9 +59,14 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 - Requirements no longer return the category objects in the `categories` attribute but a list of category
   ids [#91](https://github.com/rwth-acis/RequirementsBazaar/pull/91).
 - Vote direction can no longer be provided as a query
-  parameter [#94](https://github.com/rwth-acis/RequirementsBazaar/pull/94) but instead as a direction object strictly defined by an enum [#96](https://github.com/rwth-acis/RequirementsBazaar/pull/96),
+  parameter [#94](https://github.com/rwth-acis/RequirementsBazaar/pull/94) but instead as a direction object strictly
+  defined by an enum [#96](https://github.com/rwth-acis/RequirementsBazaar/pull/96),
 - Moved user related information in categories, requirements and projects (isFollower/Developer/Contributor, userVoted)
   into the new `userContext` [#94](https://github.com/rwth-acis/RequirementsBazaar/pull/94).
+- Comments with existing responses will no longer be deleted but
+  redacted [#103](https://github.com/rwth-acis/RequirementsBazaar/pull/103).
+- Comments for a requirement are no longer paginated but instead return all
+  comments [#103](https://github.com/rwth-acis/RequirementsBazaar/pull/103).
 
 ### Removed
 

@@ -40,7 +40,7 @@ public class PageInfo implements Pageable {
     private final List<SortField> sorts;
     private final String search;
     private final List<Integer> ids;
-    private final List <String> embed;
+    private final List<String> embed;
 
     public PageInfo(int pageNumber, int pageSize) {
         this(pageNumber, pageSize, new HashMap<>(), new ArrayList<>(), null, null);
@@ -50,15 +50,21 @@ public class PageInfo implements Pageable {
     public PageInfo(int pageNumber, int pageSize, Map<String, String> filters) {
         this(pageNumber, pageSize, filters, new ArrayList<>(), null);
     }
-    public PageInfo(int pageNumber, int pageSize, Map<String, String> filters, List<SortField> sorts, String search){
-        this(pageNumber, pageSize, filters, sorts, search,null);
+
+    public PageInfo(int pageNumber, int pageSize, Map<String, String> filters, List<SortField> sorts) {
+        this(pageNumber, pageSize, filters, sorts, null);
     }
-    public PageInfo(int pageNumber, int pageSize, Map<String, String> filters, List<SortField> sorts, String search, List<Integer> ids){
-        this(pageNumber, pageSize, filters, sorts, search,ids, null);
+
+    public PageInfo(int pageNumber, int pageSize, Map<String, String> filters, List<SortField> sorts, String search) {
+        this(pageNumber, pageSize, filters, sorts, search, null);
+    }
+
+    public PageInfo(int pageNumber, int pageSize, Map<String, String> filters, List<SortField> sorts, String search, List<Integer> ids) {
+        this(pageNumber, pageSize, filters, sorts, search, ids, null);
     }
 
 
-    public PageInfo(int pageNumber, int pageSize, Map<String, String> filters, List<SortField> sorts, String search, List<Integer> ids, List <String> embed) {
+    public PageInfo(int pageNumber, int pageSize, Map<String, String> filters, List<SortField> sorts, String search, List<Integer> ids, List<String> embed) {
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
         this.filters = filters;
@@ -104,5 +110,7 @@ public class PageInfo implements Pageable {
     }
 
     @Override
-    public String getSearch() {return search;}
+    public String getSearch() {
+        return search;
+    }
 }

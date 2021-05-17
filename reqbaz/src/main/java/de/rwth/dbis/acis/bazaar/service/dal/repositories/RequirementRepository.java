@@ -42,6 +42,7 @@ public interface RequirementRepository extends Repository<Requirement> {
     boolean belongsToPublicProject(int id) throws BazaarException;
 
     Requirement findById(int id, int userId) throws Exception;
+
     Requirement findById(int id, int userId, List<String> embed) throws Exception;
 
     void setRealized(int id, LocalDateTime realized) throws BazaarException;
@@ -50,5 +51,5 @@ public interface RequirementRepository extends Repository<Requirement> {
 
     Statistic getStatisticsForRequirement(int userId, int requirementId, LocalDateTime timestamp) throws BazaarException;
 
-
+    List<Requirement> getFollowedRequirements(int userId, int count) throws BazaarException;
 }

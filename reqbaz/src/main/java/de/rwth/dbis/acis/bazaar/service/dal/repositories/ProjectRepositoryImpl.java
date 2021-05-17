@@ -254,17 +254,43 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
             projectIds = jooq.select()
                     .from(PROJECT)
                     .where(transformer.getFilterConditions(pageable.getFilters()))
-                            .and(PROJECT.VISIBILITY.isTrue().or(PROJECT.LEADER_ID.equal(userId))
+                    .and(PROJECT.VISIBILITY.isTrue().or(PROJECT.LEADER_ID.equal(userId))
                             .and(transformer.getSearchCondition(pageable.getSearch())))
                     .orderBy(transformer.getSortFields(pageable.getSorts()))
-             //       .limit(pageable.getPageSize())
-             //       .offset(pageable.getOffset())
+                    //       .limit(pageable.getPageSize())
+                    //       .offset(pageable.getOffset())
                     .fetch(PROJECT.ID);
 
         } catch (Exception e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
         }
         return projectIds;
+    }
+
+    @Override
+    public List<Project> getFollowedProjects(int userId, int count) throws BazaarException {
+        List<Project> projects = null;
+        try {
+            List<Integer> projectIds;
+            projectIds = jooq.select()
+                    .from(PROJECT_FOLLOWER_MAP)
+                    .where(PROJECT_FOLLOWER_MAP.USER_ID.eq(userId))
+                    .fetch(PROJECT_FOLLOWER_MAP.PROJECT_ID);
+
+            Condition filterCondition = transformer.getTableId().in(projectIds);
+
+            Pageable.SortField sortField = new Pageable.SortField("last_activity", "DESC");
+            List<Pageable.SortField> sortList = new ArrayList<>();
+            sortList.add(sortField);
+
+            PageInfo filterPage = new PageInfo(0, count, new HashMap<>(), sortList);
+
+            projects = getFilteredProjects(filterCondition, filterPage, userId).left;
+
+        } catch (Exception e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return projects;
     }
 
 
@@ -342,7 +368,8 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
     }
 
     @Override
-    public Statistic getStatisticsForProject(int userId, int projectId, LocalDateTime timestamp) throws BazaarException {
+    public Statistic getStatisticsForProject(int userId, int projectId, LocalDateTime timestamp) throws
+            BazaarException {
         Statistic result = null;
         try {
             // If you want to change something here, please know what you are doing! Its SQL and even worse JOOQ :-|
