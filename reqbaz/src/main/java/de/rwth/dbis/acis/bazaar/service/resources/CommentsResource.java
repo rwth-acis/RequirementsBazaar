@@ -51,26 +51,22 @@ import java.util.*;
 @Path("/comments")
 public class CommentsResource {
 
-    private BazaarService bazaarService;
-
     private final L2pLogger logger = L2pLogger.getInstance(CommentsResource.class.getName());
+    private final BazaarService bazaarService;
 
     public CommentsResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
     }
 
 
-
-
-
     /**
      * This method returns the list of comments on the server.
      *
-     * @param page    page number
-     * @param perPage number of comments by page
+     * @param page         page number
+     * @param perPage      number of comments by page
      * @param embedParents embed context/parents of comment (project, requirement)
-     * @param search  search string
-     * @param sort    sort order
+     * @param search       search string
+     * @param sort         sort order
      * @return Response with list of all requirements
      */
     @GET
@@ -88,8 +84,7 @@ public class CommentsResource {
             @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date") @DefaultValue("name") @QueryParam("sort") List<String> sort,
             @ApiParam(value = "SortDirection", allowableValues = "ASC,DESC") @QueryParam("sortDirection") String sortDirection,
             @ApiParam(value = "Filter", required = true, allowMultiple = false, allowableValues = "created, following, replies") @QueryParam("filters") List<String> filters,
-            @ApiParam(value = "Embed parents", required = true, allowMultiple = true, allowableValues = "project, requirement") @QueryParam("embedParents") List<String> embedParents)
-    {
+            @ApiParam(value = "Embed parents", required = true, allowMultiple = true, allowableValues = "project, requirement") @QueryParam("embedParents") List<String> embedParents) {
 
         DALFacade dalFacade = null;
         try {
@@ -116,7 +111,9 @@ public class CommentsResource {
 
             // Take Object for generic error handling
             Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
-            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+            if (violations.size() > 0) {
+                ExceptionHandler.getInstance().handleViolations(violations);
+            }
 
             PaginationResult<Comment> commentResult = null;
 
@@ -335,7 +332,9 @@ public class CommentsResource {
             commentToCreate.setCreator(dalFacade.getUserById(internalUserId));
             // Take Object for generic error handling
             Set<ConstraintViolation<Object>> violations = bazaarService.validateCreate(commentToCreate);
-            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+            if (violations.size() > 0) {
+                ExceptionHandler.getInstance().handleViolations(violations);
+            }
 
             dalFacade.followRequirement(internalUserId, requirement.getId());
             Comment createdComment = dalFacade.createComment(commentToCreate);
@@ -366,7 +365,6 @@ public class CommentsResource {
      * @return Response with the updated comment as a JSON object.
      */
     @PUT
-    @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method modifies a specific comment.")
