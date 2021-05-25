@@ -473,4 +473,31 @@ public class BazaarTest extends TestBase {
             fail(e.toString());
         }
     }
+
+    /**
+     * Test creating and updating comments
+     */
+    @Test
+    public void testComments() {
+        MiniClient client = getClient();
+        String testComment = String.format("{\"message\": \"Crashes all the time\",  \"requirementId\": %s}", testRequirement.getId());
+        ClientResponse result = client.sendRequest("POST", mainPath + "comments", testComment,
+                MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
+        System.out.println(result.toString());
+        System.out.println("Result of 'testPost': " + result.getResponse().trim());
+        assertEquals(201, result.getHttpCode());
+
+        JsonObject response = JsonParser.parseString(result.getResponse()).getAsJsonObject();
+        Assert.assertTrue(response.isJsonObject());
+
+        assertTrue(response.has("id"));
+        assertTrue(isValidISO8601(response.get("creationDate").toString().replace("\"", "")));
+
+        // Test update
+        response.addProperty("message", "Updated message");
+        result = client.sendRequest("PUT", mainPath + "comments", response.toString(),
+                MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
+        assertEquals(200, result.getHttpCode());
+    }
+
 }

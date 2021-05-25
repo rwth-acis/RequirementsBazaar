@@ -53,7 +53,6 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord
     }
 
 
-
     @Override
     public PaginationResult<Comment> findAllAnswers(Pageable pageable, int userId) throws BazaarException {
         PaginationResult<Comment> result = null;
@@ -208,9 +207,11 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord
     private Comment convertToCommentWithUser(Record record, de.rwth.dbis.acis.bazaar.dal.jooq.tables.User creatorUser) {
         CommentRecord commentRecord = record.into(CommentRecord.class);
         Comment entry = transformer.getEntityFromTableRecord(commentRecord);
-        UserTransformer userTransformer = new UserTransformer();
-        UserRecord userRecord = record.into(creatorUser);
-        entry.setCreator(userTransformer.getEntityFromTableRecord(userRecord));
+        if (!entry.getDeleted()) {
+            UserTransformer userTransformer = new UserTransformer();
+            UserRecord userRecord = record.into(creatorUser);
+            entry.setCreator(userTransformer.getEntityFromTableRecord(userRecord));
+        }
         return entry;
     }
 
@@ -260,6 +261,7 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord
         return false;
     }
 
+    @Override
     public boolean hasAnswers(int id) throws BazaarException {
         try {
             Integer answerCount = jooq.selectCount()
