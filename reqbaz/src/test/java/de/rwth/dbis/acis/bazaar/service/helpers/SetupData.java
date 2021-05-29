@@ -2,9 +2,9 @@ package de.rwth.dbis.acis.bazaar.service.helpers;
 
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Category;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Tag;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 import org.apache.commons.dbcp2.BasicDataSource;
@@ -75,6 +75,13 @@ public abstract class SetupData {
         } catch (Exception e) {
             testProject = Project.builder().name("ProjectTest").description("ProjDesc").leader(initUser).visibility(true).build();
             testProject = facade.createProject(testProject, initUser.getId());
+
+
+            facade.createTag(Tag.builder()
+                    .name("Bug")
+                    .colour("#FF0000")
+                    .projectId(testProject.getId())
+                    .build());
 
             testRequirement = Requirement.builder()
                     .name("Test")

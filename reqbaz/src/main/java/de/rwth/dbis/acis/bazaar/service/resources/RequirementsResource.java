@@ -3,6 +3,7 @@ package de.rwth.dbis.acis.bazaar.service.resources;
 import de.rwth.dbis.acis.bazaar.service.BazaarFunction;
 import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.Tag;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
@@ -52,9 +53,8 @@ import java.util.*;
 @Path("/requirements")
 public class RequirementsResource {
 
-    private BazaarService bazaarService;
-
     private final L2pLogger logger = L2pLogger.getInstance(RequirementsResource.class.getName());
+    private final BazaarService bazaarService;
 
     public RequirementsResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
@@ -112,7 +112,9 @@ public class RequirementsResource {
 
             // Take Object for generic error handling
             Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
-            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+            if (violations.size() > 0) {
+                ExceptionHandler.getInstance().handleViolations(violations);
+            }
 
             PaginationResult<Requirement> requirementsResult = null;
 
@@ -167,9 +169,6 @@ public class RequirementsResource {
     }
 
 
-
-
-
     /**
      * This method returns the list of requirements for a specific project.
      *
@@ -202,7 +201,9 @@ public class RequirementsResource {
             PageInfo pageInfo = new PageInfo(page, perPage, filters, sortList, search);
             // Take Object for generic error handling
             Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
-            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+            if (violations.size() > 0) {
+                ExceptionHandler.getInstance().handleViolations(violations);
+            }
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
@@ -300,7 +301,9 @@ public class RequirementsResource {
             PageInfo pageInfo = new PageInfo(page, perPage, filters, sortList, search);
             // Take Object for generic error handling
             Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
-            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+            if (violations.size() > 0) {
+                ExceptionHandler.getInstance().handleViolations(violations);
+            }
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
@@ -366,10 +369,6 @@ public class RequirementsResource {
             bazaarService.closeDBConnection(dalFacade);
         }
     }
-
-
-
-
 
 
     /**
@@ -471,7 +470,9 @@ public class RequirementsResource {
             requirementToCreate.setCreator(dalFacade.getUserById(internalUserId));
             // Take Object for generic error handling
             Set<ConstraintViolation<Object>> violations = bazaarService.validateCreate(requirementToCreate);
-            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+            if (violations.size() > 0) {
+                ExceptionHandler.getInstance().handleViolations(violations);
+            }
 
             // check if all categories are in the same project
             for (Integer catId : requirementToCreate.getCategories()) {
@@ -480,6 +481,16 @@ public class RequirementsResource {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.VALIDATION, "Category does not fit with project");
                 }
             }
+
+            for (Tag tag : requirementToCreate.getTags()) {
+                Tag internalTag = dalFacade.getTagById(tag.getId());
+                if (internalTag == null) {
+                    dalFacade.createTag(tag);
+                } else if (requirementToCreate.getProjectId() != tag.getProjectId()) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.VALIDATION, "Tag does not fit with project");
+                }
+            }
+
             Requirement createdRequirement = dalFacade.createRequirement(requirementToCreate, internalUserId);
 
             // check if attachments are given
@@ -489,7 +500,9 @@ public class RequirementsResource {
                     attachment.setRequirementId(createdRequirement.getId());
                     // Take Object for generic error handling
                     violations = bazaarService.validate(attachment);
-                    if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+                    if (violations.size() > 0) {
+                        ExceptionHandler.getInstance().handleViolations(violations);
+                    }
 
                     dalFacade.createAttachment(attachment);
                 }
@@ -544,7 +557,9 @@ public class RequirementsResource {
             String userId = agent.getIdentifier();
             // Take Object for generic error handling
             Set<ConstraintViolation<Object>> violations = bazaarService.validate(requirementToUpdate);
-            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+            if (violations.size() > 0) {
+                ExceptionHandler.getInstance().handleViolations(violations);
+            }
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
@@ -1293,7 +1308,9 @@ public class RequirementsResource {
             PageInfo pageInfo = new PageInfo(page, perPage);
             // Take Object for generic error handling
             Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
-            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+            if (violations.size() > 0) {
+                ExceptionHandler.getInstance().handleViolations(violations);
+            }
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
@@ -1418,7 +1435,9 @@ public class RequirementsResource {
             PageInfo pageInfo = new PageInfo(page, perPage);
             // Take Object for generic error handling
             Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
-            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+            if (violations.size() > 0) {
+                ExceptionHandler.getInstance().handleViolations(violations);
+            }
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);

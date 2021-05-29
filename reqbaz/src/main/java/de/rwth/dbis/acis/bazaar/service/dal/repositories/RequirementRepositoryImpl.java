@@ -22,12 +22,11 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementCategoryMapRecord;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.UserContext;
+import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.TagRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.*;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementTransformer;
+import de.rwth.dbis.acis.bazaar.service.dal.transform.TagTransformer;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
@@ -42,6 +41,7 @@ import org.jooq.impl.DSL;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
 import static org.jooq.impl.DSL.*;
@@ -224,6 +224,19 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             categoryRecord.forEach(record -> categories.add(record.getValue(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID)));
 
             requirement.setCategories(categories);
+
+            // Filling up tags
+            Result<TagRecord> tagRecords = jooq.select(TAG.fields())
+                    .from(TAG)
+                    .leftOuterJoin(REQUIREMENT_TAG_MAP).on(REQUIREMENT_TAG_MAP.TAG_ID.eq(TAG.ID))
+                    .where(REQUIREMENT_TAG_MAP.REQUIREMENT_ID.eq(requirement.getId())).fetchInto(TAG);
+
+            TagTransformer tagTransformer = new TagTransformer();
+            List<Tag> tags = tagRecords.stream()
+                    .map(tagTransformer::getEntityFromTableRecord)
+                    .collect(Collectors.toList());
+
+            requirement.setTags(tags);
 
             //Filling up additional information
             requirement.setNumberOfComments((Integer) queryResult.getValue(COMMENT_COUNT));

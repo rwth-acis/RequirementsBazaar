@@ -57,6 +57,7 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
      * @param entity to add
      * @return the persisted entity
      */
+    @Override
     public E add(E entity) throws BazaarException {
         E transformedEntity = null;
         try {
@@ -80,10 +81,11 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
      * @throws Exception
      */
     //TODO transaction (findById,delete)
+    @Override
     public E delete(int id) throws Exception {
         E deleted = null;
         try {
-            deleted = this.findById(id);
+            deleted = findById(id);
 
             int deletedRecordCount = jooq.delete(transformer.getTable())
                     .where(transformer.getTableId().equal(id))
@@ -100,6 +102,7 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
     /**
      * @return all the entities currently in the database
      */
+    @Override
     public List<E> findAll() throws BazaarException {
         List<E> entries = null;
         try {
@@ -107,10 +110,7 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
 
             List<R> queryResults = jooq.selectFrom(transformer.getTable()).fetchInto(transformer.getRecordClass());
 
-            for (R queryResult : queryResults) {
-                E entry = transformer.getEntityFromTableRecord(queryResult);
-                entries.add(entry);
-            }
+
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN, e.getMessage());
         }
@@ -173,6 +173,7 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
      * @return the entity from the database with the given Id
      * @throws Exception
      */
+    @Override
     public E findById(int id) throws Exception {
         R queryResult = null;
         try {
@@ -208,10 +209,11 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
             for (Map.Entry<Field, Object> item : map.entrySet()) {
                 Field key = item.getKey();
                 Object value = item.getValue();
-                if (moreStep == null)
+                if (moreStep == null) {
                     moreStep = update.set(key, value);
-                else
+                } else {
                     moreStep.set(key, value);
+                }
             }
             assert moreStep != null;
             moreStep.where(transformer.getTableId().equal(entity.getId())).execute();

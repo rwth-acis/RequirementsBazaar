@@ -1,5 +1,6 @@
 package de.rwth.dbis.acis.bazaar.service;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -156,7 +157,7 @@ public class BazaarTest extends TestBase {
     }
 
     /**
-     * Test create a new requirement
+     * Test create a new category
      */
     @Test
     public void testCategories() {
@@ -500,4 +501,61 @@ public class BazaarTest extends TestBase {
         assertEquals(200, result.getHttpCode());
     }
 
+    /**
+     * Test to get a list of tags on a project
+     */
+    @Test
+    public void testTags() {
+        try {
+            MiniClient client = getClient();
+            MiniClient adminClient = getAdminClient();
+
+            String path = mainPath + "projects/" + testProject.getId() + "/tags";
+            ClientResponse result = client.sendRequest("GET", path, "");
+            assertEquals(200, result.getHttpCode());
+
+            JsonElement response = JsonParser.parseString(result.getResponse());
+            System.out.println(response.toString());
+            assertTrue(response.isJsonArray());
+
+            // Now create
+            String testRequest = "{\"name\": \"Feature\",  \"colour\": \"#00FF00\"}";
+            ClientResponse newResult = adminClient.sendRequest("POST", path, testRequest, MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
+            assertEquals(201, newResult.getHttpCode());
+            Integer tagId = JsonParser.parseString(newResult.getResponse()).getAsJsonObject().get("id").getAsInt();
+
+            result = client.sendRequest("GET", path, "");
+            assertEquals(200, result.getHttpCode());
+
+            response = JsonParser.parseString(result.getResponse());
+            System.out.println(response.toString());
+            assertTrue(response.isJsonArray());
+            assertEquals(2, response.getAsJsonArray().size());
+
+            // Now try to add one of these tags and an entirely new one to a requirement
+            result = client.sendRequest("GET", mainPath + "requirements/" + testRequirement.getId(), "");
+            assertEquals(200, result.getHttpCode());
+
+            JsonElement resp = JsonParser.parseString(result.getResponse());
+            JsonObject requirement = resp.getAsJsonObject();
+
+            // Create Tag array and add it to the JsonObject
+            JsonArray newTags = JsonParser.parseString(String.format("[{\"id\": %s, \"name\": \"Feature\",  \"colour\": \"#00FF00\"}, {\"name\": \"Test\", \"colour\": \"#0000FF\"}]", tagId)).getAsJsonArray();
+            requirement.add("tags", newTags);
+
+
+            result = adminClient.sendRequest("PUT", mainPath + "requirements", requirement.toString(),
+                    MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
+            System.out.println(result.getResponse());
+            assertEquals(200, result.getHttpCode());
+
+            response = JsonParser.parseString(result.getResponse());
+            assertTrue(response.isJsonObject());
+            assertEquals(2, response.getAsJsonObject().get("tags").getAsJsonArray().size());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.toString());
+        }
+    }
 }

@@ -13,6 +13,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,6 +51,9 @@ public class Requirement extends EntityBase implements Ownable {
     // This field is not filled because attachments should be not included in requirements response.
     // But the API still allows to create a requirement with attachments at the same time.
     private List<Attachment> attachments;
+
+    @lombok.Builder.Default
+    private List<Tag> tags = new ArrayList<>();
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
     private LocalDateTime creationDate;

@@ -721,4 +721,51 @@ public interface DALFacade {
      * @throws BazaarException
      */
     Dashboard getDashboardData(int userId, int count) throws BazaarException;
+
+    // region Tags
+
+    /**
+     * Allows to retrieve a tag by its id
+     *
+     * @param id
+     * @return
+     */
+    Tag getTagById(int id) throws Exception;
+
+    /**
+     * Returns all tags associated with a project.
+     *
+     * @param projectId
+     * @return
+     */
+    List<Tag> getTagsByProjectId(int projectId) throws Exception;
+
+    /**
+     * Creates a new project level tag
+     *
+     * @param tag
+     * @return
+     * @throws BazaarException
+     */
+    Tag createTag(Tag tag) throws BazaarException;
+
+    /**
+     * Link a tag to a requirement
+     *
+     * @param tagId         id of the tag (project scoped)
+     * @param requirementId id of the requirement
+     * @return
+     * @throws BazaarException
+     */
+    CreationStatus tagRequirement(int tagId, int requirementId) throws BazaarException;
+
+    /**
+     * Removes a tag from a requirement
+     *
+     * @param tagId
+     * @param requirementId
+     * @throws Exception
+     */
+    void untagRequirement(int tagId, int requirementId) throws Exception;
+    // endregion tags
 }
