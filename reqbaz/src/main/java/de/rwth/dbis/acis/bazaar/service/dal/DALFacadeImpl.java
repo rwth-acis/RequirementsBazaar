@@ -362,16 +362,16 @@ public class DALFacadeImpl implements DALFacade {
         // Synchronize tags
         if (modifiedRequirement.getTags() != null) {
             // Check if tags have changed
-            for (Tag tag1 : modifiedRequirement.getTags()) {
+            for (Tag tag : modifiedRequirement.getTags()) {
                 try {
-                    Tag internalTag = getTagById(tag1.getId());
+                    Tag internalTag = getTagById(tag.getId());
 
                     // Check if tag exists (in project)
                     if (internalTag == null || modifiedRequirement.getProjectId() != internalTag.getProjectId()) {
-                        tag1.setProjectId(modifiedRequirement.getProjectId());
-                        tag1 = createTag(tag1);
+                        tag.setProjectId(modifiedRequirement.getProjectId());
+                        tag = createTag(tag);
                     }
-                    tagRequirement(tag1.getId(), modifiedRequirement.getId());
+                    tagRequirement(tag.getId(), modifiedRequirement.getId());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
