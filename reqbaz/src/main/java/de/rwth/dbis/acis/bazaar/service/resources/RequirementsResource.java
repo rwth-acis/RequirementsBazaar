@@ -482,14 +482,18 @@ public class RequirementsResource {
                 }
             }
 
+            List<Tag> validatedTags = new ArrayList<>();
             for (Tag tag : requirementToCreate.getTags()) {
                 Tag internalTag = dalFacade.getTagById(tag.getId());
                 if (internalTag == null) {
-                    dalFacade.createTag(tag);
+                    tag.setProjectId(requirementToCreate.getProjectId());
+                    internalTag = dalFacade.createTag(tag);
                 } else if (requirementToCreate.getProjectId() != tag.getProjectId()) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.VALIDATION, "Tag does not fit with project");
                 }
+                validatedTags.add(internalTag);
             }
+            requirementToCreate.setTags(validatedTags);
 
             Requirement createdRequirement = dalFacade.createRequirement(requirementToCreate, internalUserId);
 

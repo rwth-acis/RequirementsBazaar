@@ -210,7 +210,7 @@ public class BazaarTest extends TestBase {
         try {
             MiniClient client = getClient();
 
-            String testRequirement = "{\"name\": \"Test Requirements\",  \"description\": \"A test requirement\", \"categories\": [" + testProject.getDefaultCategoryId() + "], \"projectId\":" + testProject.getId() + "}";
+            String testRequirement = String.format("{\"name\": \"Test Requirements\",  \"description\": \"A test requirement\", \"categories\": [%s], \"projectId\": \"%s\", \"tags\": [{\"name\": \"CreateTest\", \"colour\": \"#FFFFFF\"}]}", testProject.getDefaultCategoryId(), testProject.getId());
             ClientResponse result = client.sendRequest("POST", mainPath + "requirements", testRequirement,
                     MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
             assertEquals(201, result.getHttpCode());

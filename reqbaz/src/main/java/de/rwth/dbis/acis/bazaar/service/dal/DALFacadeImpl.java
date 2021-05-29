@@ -320,7 +320,7 @@ public class DALFacadeImpl implements DALFacade {
             addCategoryTag(newRequirement.getId(), category);
         }
         for (Tag tag : requirement.getTags()) {
-            tagRequirement(newRequirement.getId(), tag.getId());
+            tagRequirement(tag.getId(), newRequirement.getId());
         }
         return getRequirementById(newRequirement.getId(), userId);
     }
