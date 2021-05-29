@@ -29,6 +29,8 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 - Redacted comments now have a deleted flag [#103](https://github.com/rwth-acis/RequirementsBazaar/pull/103).
 - Added a user dashboard listing the last 10 most recent active followed projects, categories and
   requirements [#106](https://github.com/rwth-acis/RequirementsBazaar/pull/106).
+- Requirements can now have arbitrary tags next to the categories. Tags are a project scoped
+  entity [#108](https://github.com/rwth-acis/RequirementsBazaar/pull/108).
 
 ### Changed
 
