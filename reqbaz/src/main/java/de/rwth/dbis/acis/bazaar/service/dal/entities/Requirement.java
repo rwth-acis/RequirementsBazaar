@@ -3,7 +3,9 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreateValidation;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -72,6 +74,11 @@ public class Requirement extends EntityBase implements Ownable {
     private int downVotes;
 
     private UserContext userContext;
+
+    @ApiModelProperty(
+            dataType = "java.util.Map"
+    )
+    private JsonNode additionalProperties;
 
     @JsonProperty("_context")
     private EntityContext context;

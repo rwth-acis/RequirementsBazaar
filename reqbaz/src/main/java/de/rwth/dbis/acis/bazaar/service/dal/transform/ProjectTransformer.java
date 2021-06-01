@@ -20,6 +20,9 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
@@ -45,20 +48,36 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
         record.setVisibility(entry.getVisibility());
         record.setDefaultCategoryId(entry.getDefaultCategoryId());
         record.setCreationDate(LocalDateTime.now());
+        if (entry.getAdditionalProperties() != null) {
+            record.setAdditionalProperties(JSON.json(entry.getAdditionalProperties().toString()));
+        }
         return record;
     }
 
     @Override
     public Project getEntityFromTableRecord(ProjectRecord record) {
-        return Project.builder()
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        Project.Builder projectBuilder = Project.builder()
                 .name(record.getName())
                 .description(record.getDescription())
                 .id(record.getId())
                 .defaultCategoryId(record.getDefaultCategoryId())
                 .visibility(record.getVisibility())
                 .creationDate(record.getCreationDate())
-                .lastUpdatedDate(record.getLastUpdatedDate())
-                .build();
+                .lastUpdatedDate(record.getLastUpdatedDate());
+
+        try {
+            return projectBuilder
+                    .additionalProperties(
+                            mapper.readTree(record.getAdditionalProperties().data())
+                    )
+                    .build();
+        } catch (Exception e) {
+            return projectBuilder.build();
+        }
     }
 
     @Override
@@ -77,8 +96,8 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
     }
 
     @Override
-    public Map<Field, Object> getUpdateMap(final Project entry) {
-        HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
+    public Map<Field, Object> getUpdateMap(Project entry) {
+        HashMap<Field, Object> updateMap = new HashMap<>() {{
             if (entry.getDescription() != null) {
                 put(PROJECT.DESCRIPTION, entry.getDescription());
             }
@@ -93,6 +112,9 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
             }
             if (entry.getVisibility() != null) {
                 put(PROJECT.VISIBILITY, entry.getVisibility());
+            }
+            if (entry.getAdditionalProperties() != null) {
+                put(PROJECT.ADDITIONAL_PROPERTIES, entry.getAdditionalProperties());
             }
         }};
         if (!updateMap.isEmpty()) {
@@ -185,16 +207,15 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
     public Collection<? extends Condition> getFilterConditions(Map<String, String> filters) throws Exception {
         List<Condition> conditions = new ArrayList<>();
         for (Map.Entry<String, String> filterEntry : filters.entrySet()) {
-            if(filterEntry.getKey().equals("all")){
+            if (filterEntry.getKey().equals("all")) {
                 conditions.add(
                         DSL.trueCondition()
                 );
-            }else
-            if (filterEntry.getKey().equals("created")) {
+            } else if (filterEntry.getKey().equals("created")) {
                 conditions.add(
                         PROJECT.LEADER_ID.eq(Integer.parseInt(filterEntry.getValue()))
                 );
-            }else if(filterEntry.getKey().equals("following")){
+            } else if (filterEntry.getKey().equals("following")) {
                 conditions.add(
                         PROJECT.ID.in(
                                 DSL.<Integer>select(PROJECT_FOLLOWER_MAP.PROJECT_ID)
@@ -202,8 +223,7 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
                                         .where(PROJECT_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue())))
                         )
                 );
-            }
-            else{
+            } else {
                 conditions.add(DSL.falseCondition());
             }
         }

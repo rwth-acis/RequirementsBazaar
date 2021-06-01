@@ -78,7 +78,7 @@ public class BazaarTest extends TestBase {
         try {
             MiniClient client = getClient();
 
-            String testProject = "{\"name\": \"Test Project\",  \"description\": \"A test Project\"}";
+            String testProject = "{\"name\": \"Test Project\",  \"description\": \"A test Project\", \"additionalProperties\": {\"testProperty\": \"test\"}}";
             ClientResponse result = client.sendRequest("POST", mainPath + "projects", testProject,
                     MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
             System.out.println(result.toString());
@@ -91,6 +91,7 @@ public class BazaarTest extends TestBase {
             // gson doesn't remove the quotes
             assertTrue(isValidISO8601(response.get("creationDate").toString().replace("\"", "")));
             assertTrue(response.has("userContext"));
+            assertTrue(response.has("additionalProperties"));
 
             JsonObject userContext = response.getAsJsonObject("userContext");
             assertTrue(userContext.has("userRole"));
@@ -165,7 +166,7 @@ public class BazaarTest extends TestBase {
             MiniClient client = getClient();
             MiniClient adminClient = getAdminClient();
 
-            String testCategory = "{\"name\": \"Test Category\",  \"description\": \"A test category\", \"projectId\":" + testProject.getId() + "}";
+            String testCategory = "{\"name\": \"Test Category\",  \"description\": \"A test category\", \"additionalProperties\": {\"testProperty\": \"test\"}, \"projectId\":" + testProject.getId() + "}";
             String path = mainPath + "categories";
 
             // Plebs --> no permission
@@ -190,11 +191,13 @@ public class BazaarTest extends TestBase {
             assertTrue(resp.isJsonArray());
             assertEquals(2, resp.getAsJsonArray().size());
 
-            JsonObject createdRequirement = resp.getAsJsonArray().get(1).getAsJsonObject();
+            JsonObject createdCategory = resp.getAsJsonArray().get(1).getAsJsonObject();
 
-            assertTrue(createdRequirement.has("lastActivity"));
-            assertTrue(isValidISO8601(createdRequirement.get("creationDate").toString().replace("\"", "")));
-            assertTrue(isValidISO8601(createdRequirement.get("lastActivity").toString().replace("\"", "")));
+            assertTrue(createdCategory.has("lastActivity"));
+            assertTrue(createdCategory.has("additionalProperties"));
+
+            assertTrue(isValidISO8601(createdCategory.get("creationDate").toString().replace("\"", "")));
+            assertTrue(isValidISO8601(createdCategory.get("lastActivity").toString().replace("\"", "")));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -210,7 +213,7 @@ public class BazaarTest extends TestBase {
         try {
             MiniClient client = getClient();
 
-            String testRequirement = String.format("{\"name\": \"Test Requirements\",  \"description\": \"A test requirement\", \"categories\": [%s], \"projectId\": \"%s\", \"tags\": [{\"name\": \"CreateTest\", \"colour\": \"#FFFFFF\"}]}", testProject.getDefaultCategoryId(), testProject.getId());
+            String testRequirement = String.format("{\"name\": \"Test Requirements\",  \"description\": \"A test requirement\", \"categories\": [%s], \"projectId\": \"%s\", \"tags\": [{\"name\": \"CreateTest\", \"colour\": \"#FFFFFF\"}], \"additionalProperties\": {\"testProperty\": \"test\"}}", testProject.getDefaultCategoryId(), testProject.getId());
             ClientResponse result = client.sendRequest("POST", mainPath + "requirements", testRequirement,
                     MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
             assertEquals(201, result.getHttpCode());
@@ -229,6 +232,7 @@ public class BazaarTest extends TestBase {
             JsonObject createdRequirement = resp.getAsJsonArray().get(1).getAsJsonObject();
 
             assertTrue(createdRequirement.has("lastActivity"));
+            assertTrue(createdRequirement.has("additionalProperties"));
             assertTrue(isValidISO8601(createdRequirement.get("creationDate").toString().replace("\"", "")));
             assertTrue(isValidISO8601(createdRequirement.get("lastActivity").toString().replace("\"", "")));
 

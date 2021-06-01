@@ -20,6 +20,9 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.CategoryRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Category;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
@@ -31,7 +34,8 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Routines.udfNaturalsortformat;
-import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
+import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.CATEGORY;
+import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.CATEGORY_FOLLOWER_MAP;
 import static org.jooq.impl.DSL.val;
 
 /**
@@ -46,19 +50,35 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
         record.setProjectId(entry.getProjectId());
         record.setLeaderId(entry.getCreator().getId());
         record.setCreationDate(LocalDateTime.now());
+        if (entry.getAdditionalProperties() != null) {
+            record.setAdditionalProperties(JSON.json(entry.getAdditionalProperties().toString()));
+        }
         return record;
     }
 
     @Override
     public Category getEntityFromTableRecord(CategoryRecord record) {
-        return Category.builder()
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        Category.Builder categoryBuilder = Category.builder()
                 .name(record.getName())
                 .description(record.getDescription())
                 .projectId(record.getProjectId())
                 .id(record.getId())
                 .creationDate(record.getCreationDate())
-                .lastUpdatedDate(record.getLastUpdatedDate())
-                .build();
+                .lastUpdatedDate(record.getLastUpdatedDate());
+
+        try {
+            return categoryBuilder
+                    .additionalProperties(
+                            mapper.readTree(record.getAdditionalProperties().data())
+                    )
+                    .build();
+        } catch (Exception e) {
+            return categoryBuilder.build();
+        }
     }
 
     @Override
@@ -77,8 +97,8 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
     }
 
     @Override
-    public Map<Field, Object> getUpdateMap(final Category entry) {
-        HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
+    public Map<Field, Object> getUpdateMap(Category entry) {
+        HashMap<Field, Object> updateMap = new HashMap<>() {{
             if (entry.getDescription() != null) {
                 put(CATEGORY.DESCRIPTION, entry.getDescription());
             }
@@ -87,6 +107,9 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
             }
             if (entry.getCreator() != null) {
                 put(CATEGORY.LEADER_ID, entry.getCreator().getId());
+            }
+            if (entry.getAdditionalProperties() != null) {
+                put(CATEGORY.ADDITIONAL_PROPERTIES, entry.getAdditionalProperties());
             }
         }};
         if (!updateMap.isEmpty()) {
@@ -187,9 +210,7 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
                 conditions.add(
                         CATEGORY.LEADER_ID.eq(Integer.parseInt(filterEntry.getValue()))
                 );
-            }else
-
-            if(filterEntry.getKey().equals("following")){
+            } else if (filterEntry.getKey().equals("following")) {
                 conditions.add(
                         CATEGORY.ID.in(
                                 DSL.<Integer>select(CATEGORY_FOLLOWER_MAP.CATEGORY_ID)
@@ -197,8 +218,7 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
                                         .where(CATEGORY_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue())))
                         )
                 );
-            }
-            else{
+            } else {
                 conditions.add(DSL.falseCondition());
             }
         }
