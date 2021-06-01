@@ -22,7 +22,9 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.JsonNode;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreateValidation;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -70,6 +72,11 @@ public class Category extends EntityBase implements Ownable {
     private Integer numberOfFollowers;
 
     private UserContext userContext;
+
+    @ApiModelProperty(
+            dataType = "java.util.Map"
+    )
+    private JsonNode additionalProperties;
 
     @Override
     public boolean isOwner(User user) {

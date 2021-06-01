@@ -20,6 +20,9 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.transform;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementRecord;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
@@ -43,17 +46,34 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
         record.setCreationDate(LocalDateTime.now());
         record.setCreatorId(entry.getCreator().getId());
         record.setProjectId(entry.getProjectId());
+        if (entry.getAdditionalProperties() != null) {
+            record.setAdditionalProperties(JSON.json(entry.getAdditionalProperties().toString()));
+        }
         return record;
     }
 
     public Requirement.Builder mapToEntityBuilder(RequirementRecord record) {
-        return Requirement.builder().name(record.getName())
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+        Requirement.Builder requirementBuilder = Requirement.builder()
+                .name(record.getName())
                 .description(record.getDescription())
                 .id(record.getId())
                 .realized(record.getRealized())
                 .creationDate(record.getCreationDate())
                 .lastUpdatedDate(record.getLastUpdatedDate())
                 .projectId(record.getProjectId());
+
+        try {
+            return requirementBuilder
+                    .additionalProperties(
+                            mapper.readTree(record.getAdditionalProperties().data())
+                    );
+        } catch (Exception e) {
+            return requirementBuilder;
+        }
     }
 
     @Override
@@ -78,8 +98,8 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
     }
 
     @Override
-    public Map<Field, Object> getUpdateMap(final Requirement entry) {
-        HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
+    public Map<Field, Object> getUpdateMap(Requirement entry) {
+        HashMap<Field, Object> updateMap = new HashMap<>() {{
             if (entry.getDescription() != null) {
                 put(REQUIREMENT.DESCRIPTION, entry.getDescription());
             }
@@ -172,15 +192,11 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
                 if (filterEntry.getValue().equals("open")) {
                     conditions.add(REQUIREMENT.REALIZED.isNull());
                 }
-            }else
-
-            if (filterEntry.getKey().equals("created")) {
+            } else if (filterEntry.getKey().equals("created")) {
                 conditions.add(
                         REQUIREMENT.CREATOR_ID.eq(Integer.parseInt(filterEntry.getValue()))
                 );
-            }else
-
-            if(filterEntry.getKey().equals("following")){
+            } else if (filterEntry.getKey().equals("following")) {
                 conditions.add(
                         REQUIREMENT.ID.in(
                                 DSL.<Integer>select(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID)
@@ -188,9 +204,7 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
                                         .where(REQUIREMENT_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue())))
                         )
                 );
-            }else
-
-            if(filterEntry.getKey().equals("developing")){
+            } else if (filterEntry.getKey().equals("developing")) {
                 conditions.add(
                         REQUIREMENT.ID.in(
                                 DSL.<Integer>select(REQUIREMENT_DEVELOPER_MAP.REQUIREMENT_ID)
@@ -200,7 +214,7 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
                                 REQUIREMENT.LEAD_DEVELOPER_ID.eq(Integer.parseInt(filterEntry.getValue()))
                         )
                 );
-            }else{
+            } else {
                 conditions.add(
                         DSL.falseCondition()
                 );
