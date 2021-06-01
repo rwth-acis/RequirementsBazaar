@@ -28,6 +28,8 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.dal.repositories.*;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.PrivilegeEnumConverter;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
+import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
+import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 import i5.las2peer.api.Context;
 import i5.las2peer.security.PassphraseAgentImpl;
@@ -58,13 +60,15 @@ public class DALFacadeImpl implements DALFacade {
     private RequirementFollowerRepository requirementFollowerRepository;
     private ProjectRepository projectRepository;
     private RequirementRepository requirementRepository;
-    private RequirementCategoryRepository tagRepository;
+    private RequirementCategoryRepository requirementCategoryRepository;
     private UserRepository userRepository;
     private VoteRepository voteRepository;
     private RoleRepository roleRepository;
     private PrivilegeRepository privilegeRepository;
     private PersonalisationDataRepository personalisationDataRepository;
     private FeedbackRepository feedbackRepository;
+    private TagRepository tagRepository;
+    private RequirementTagRepository requirementTagRepository;
 
     public DALFacadeImpl(DataSource dataSource, SQLDialect dialect) {
         dslContext = DSL.using(dataSource, dialect);
@@ -315,12 +319,16 @@ public class DALFacadeImpl implements DALFacade {
         for (Integer category : requirement.getCategories()) {
             addCategoryTag(newRequirement.getId(), category);
         }
+        for (Tag tag : requirement.getTags()) {
+            tagRequirement(tag.getId(), newRequirement.getId());
+        }
         return getRequirementById(newRequirement.getId(), userId);
     }
 
     @Override
     public Requirement modifyRequirement(Requirement modifiedRequirement, int userId) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        Requirement oldRequirement = getRequirementById(modifiedRequirement.getId(), userId);
         requirementRepository.update(modifiedRequirement);
 
         if (modifiedRequirement.getCategories() != null) {
@@ -349,6 +357,36 @@ public class DALFacadeImpl implements DALFacade {
                     addCategoryTag(modifiedRequirement.getId(), newCategory);
                 }
             }
+        }
+
+        // Synchronize tags
+        if (modifiedRequirement.getTags() != null) {
+            // Check if tags have changed
+            for (Tag tag : modifiedRequirement.getTags()) {
+                try {
+                    Tag internalTag = getTagById(tag.getId());
+
+                    // Check if tag exists (in project)
+                    if (internalTag == null || modifiedRequirement.getProjectId() != internalTag.getProjectId()) {
+                        tag.setProjectId(modifiedRequirement.getProjectId());
+                        tag = createTag(tag);
+                    }
+                    tagRequirement(tag.getId(), modifiedRequirement.getId());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // Remove tags no longer present
+            oldRequirement.getTags().stream().filter(tag -> modifiedRequirement.getTags().contains(tag)).forEach(tag -> {
+                try {
+                    untagRequirement(tag.getId(), oldRequirement.getId());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+
+
         }
         return getRequirementById(modifiedRequirement.getId(), userId);
     }
@@ -633,8 +671,8 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public void addCategoryTag(int requirementId, int categoryId) throws BazaarException {
-        tagRepository = (tagRepository != null) ? tagRepository : new RequirementCategoryRepositoryImpl(dslContext);
-        tagRepository.add(RequirementCategory.builder()
+        requirementCategoryRepository = (requirementCategoryRepository != null) ? requirementCategoryRepository : new RequirementCategoryRepositoryImpl(dslContext);
+        requirementCategoryRepository.add(RequirementCategory.builder()
                 .categoryId(categoryId)
                 .requirementId(requirementId)
                 .build()
@@ -643,8 +681,8 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public void deleteCategoryTag(int requirementId, int categoryId) throws BazaarException {
-        tagRepository = (tagRepository != null) ? tagRepository : new RequirementCategoryRepositoryImpl(dslContext);
-        tagRepository.delete(requirementId, categoryId);
+        requirementCategoryRepository = (requirementCategoryRepository != null) ? requirementCategoryRepository : new RequirementCategoryRepositoryImpl(dslContext);
+        requirementCategoryRepository.delete(requirementId, categoryId);
     }
 
     @Override
@@ -771,7 +809,50 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public PaginationResult<ProjectMember> getProjectMembers(int projectId, Pageable pageable) throws BazaarException {
+    public Tag getTagById(int id) throws Exception {
+        tagRepository = (tagRepository != null) ? tagRepository : new TagRepositoryImpl(dslContext);
+        try {
+            return tagRepository.findById(id);
+        } catch (BazaarException bex) {
+            if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                return null;
+            }
+            ExceptionHandler.getInstance().convertAndThrowException(bex);
+        }
+        return null;
+    }
+
+    @Override
+    public List<Tag> getTagsByProjectId(int projectId) throws Exception {
+        tagRepository = (tagRepository != null) ? tagRepository : new TagRepositoryImpl(dslContext);
+        return tagRepository.findByProjectId(projectId);
+    }
+
+    @Override
+    public Tag createTag(Tag tag) throws BazaarException {
+        tagRepository = (tagRepository != null) ? tagRepository : new TagRepositoryImpl(dslContext);
+        return tagRepository.add(tag);
+    }
+
+    @Override
+    public CreationStatus tagRequirement(int tagId, int requirementId) throws BazaarException {
+        requirementTagRepository = (requirementTagRepository != null) ? requirementTagRepository : new RequirementTagRepositoryImpl(dslContext);
+        return requirementTagRepository.addOrUpdate(RequirementTag.builder()
+                .requirementId(requirementId)
+                .tagId(tagId)
+                .build()
+        );
+    }
+
+    @Override
+    public void untagRequirement(int tagId, int requirementId) throws Exception {
+        requirementTagRepository = (requirementTagRepository != null) ? requirementTagRepository : new RequirementTagRepositoryImpl(dslContext);
+        requirementTagRepository.delete(tagId, requirementId);
+    }
+
+    @Override
+    public PaginationResult<ProjectMember> getProjectMembers(int projectId, Pageable pageable) throws
+            BazaarException {
         roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
         return roleRepository.listProjectMembers(projectId, pageable);
     }

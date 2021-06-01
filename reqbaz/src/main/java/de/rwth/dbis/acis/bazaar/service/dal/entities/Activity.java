@@ -19,7 +19,7 @@ public class Activity extends EntityBase {
 
     private final transient int id;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone="Europe/Berlin")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
     private final LocalDateTime creationDate;
 
     private final ActivityAction activityAction;
@@ -47,7 +47,8 @@ public class Activity extends EntityBase {
         COMMENT,
         ATTACHMENT,
         USER,
-        FEEDBACK
+        FEEDBACK,
+        TAG
     }
 
     public enum ActivityAction {
