@@ -106,6 +106,9 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
             if (entry.getName() != null) {
                 put(REQUIREMENT.NAME, entry.getName());
             }
+            if (entry.getAdditionalProperties() != null) {
+                put(REQUIREMENT.ADDITIONAL_PROPERTIES, entry.getAdditionalProperties());
+            }
         }};
         if (!updateMap.isEmpty()) {
             updateMap.put(REQUIREMENT.LAST_UPDATED_DATE, LocalDateTime.now());

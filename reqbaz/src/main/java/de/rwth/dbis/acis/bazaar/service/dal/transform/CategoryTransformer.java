@@ -108,6 +108,9 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
             if (entry.getCreator() != null) {
                 put(CATEGORY.LEADER_ID, entry.getCreator().getId());
             }
+            if (entry.getAdditionalProperties() != null) {
+                put(CATEGORY.ADDITIONAL_PROPERTIES, entry.getAdditionalProperties());
+            }
         }};
         if (!updateMap.isEmpty()) {
             updateMap.put(CATEGORY.LAST_UPDATED_DATE, LocalDateTime.now());
