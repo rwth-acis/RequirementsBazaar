@@ -31,6 +31,8 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
   requirements [#106](https://github.com/rwth-acis/RequirementsBazaar/pull/106).
 - Requirements can now have arbitrary tags next to the categories. Tags are a project scoped
   entity [#108](https://github.com/rwth-acis/RequirementsBazaar/pull/108).
+- Projects, categories and requirements now have an `additionalProperties` object which allows storing and providing
+  additional context as plain json [#109](https://github.com/rwth-acis/RequirementsBazaar/pull/109).
 
 ### Changed
 
