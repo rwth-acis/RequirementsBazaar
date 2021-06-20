@@ -33,9 +33,7 @@ import org.jooq.impl.DSL;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.dal.jooq.Routines.udfNaturalsortformat;
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
-import static org.jooq.impl.DSL.val;
 
 public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
 
@@ -49,7 +47,7 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
         record.setDefaultCategoryId(entry.getDefaultCategoryId());
         record.setCreationDate(LocalDateTime.now());
         if (entry.getAdditionalProperties() != null) {
-            record.setAdditionalProperties(JSON.json(entry.getAdditionalProperties().toString()));
+            record.setAdditionalProperties(JSONB.jsonb(entry.getAdditionalProperties().toString()));
         }
         return record;
     }
@@ -134,9 +132,9 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
                 case "name":
                     if (sort.getSortDirection() == Pageable.SortDirection.DESC) {
                         // 50 is derived from the max length of the project name
-                        sortFields.add(udfNaturalsortformat(PROJECT.NAME, val(50), val(".")).desc());
+                        sortFields.add(PROJECT.NAME.desc());
                     } else {
-                        sortFields.add(udfNaturalsortformat(PROJECT.NAME, val(50), val(".")).asc());
+                        sortFields.add(PROJECT.NAME.asc());
 
                     }
                     break;

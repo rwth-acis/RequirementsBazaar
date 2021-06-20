@@ -83,6 +83,12 @@ import java.util.*;
 @ServicePath("/bazaar")
 public class BazaarService extends RESTService {
 
+    private static final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule()).setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    private final L2pLogger logger = L2pLogger.getInstance(BazaarService.class.getName());
+    private final ValidatorFactory validatorFactory;
+    private final List<BazaarFunctionRegistrar> functionRegistrar;
+    private final NotificationDispatcher notificationDispatcher;
+    private final DataSource dataSource;
     //CONFIG PROPERTIES
     protected String dbUserName;
     protected String dbPassword;
@@ -96,27 +102,6 @@ public class BazaarService extends RESTService {
     protected String smtpServer;
     protected String emailFromAddress;
     protected String emailSummaryTimePeriodInMinutes;
-
-    private ValidatorFactory validatorFactory;
-    private List<BazaarFunctionRegistrar> functionRegistrar;
-    private NotificationDispatcher notificationDispatcher;
-    private DataSource dataSource;
-
-    private final L2pLogger logger = L2pLogger.getInstance(BazaarService.class.getName());
-    private static ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule()).setSerializationInclusion(JsonInclude.Include.NON_NULL);
-
-    @Override
-    protected void initResources() {
-        getResourceConfig().register(Resource.class);
-        getResourceConfig().register(ProjectsResource.class);
-        getResourceConfig().register(CategoryResource.class);
-        getResourceConfig().register(RequirementsResource.class);
-        getResourceConfig().register(CommentsResource.class);
-        getResourceConfig().register(AttachmentsResource.class);
-        getResourceConfig().register(UsersResource.class);
-        //getResourceConfig().register(PersonalisationDataResource.class);
-        getResourceConfig().register(FeedbackResource.class);
-    }
 
     public BazaarService() throws Exception {
         setFieldValues();
@@ -173,10 +158,164 @@ public class BazaarService extends RESTService {
         notificationDispatcher.setBazaarService(this);
     }
 
+    public static DataSource setupDataSource(String dbUrl, String dbUserName, String dbPassword) {
+        BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setUrl(dbUrl);
+        dataSource.setUsername(dbUserName);
+        dataSource.setPassword(dbPassword);
+        dataSource.setValidationQuery("SELECT 1;");
+        dataSource.setTestOnBorrow(true); // test each connection when borrowing from the pool with the validation query
+        dataSource.setMaxConnLifetimeMillis(1000 * 60 * 60); // max connection life time 1h. mysql drops connection after 8h.
+        return dataSource;
+    }
+
+    @Override
+    protected void initResources() {
+        getResourceConfig().register(Resource.class);
+        getResourceConfig().register(ProjectsResource.class);
+        getResourceConfig().register(CategoryResource.class);
+        getResourceConfig().register(RequirementsResource.class);
+        getResourceConfig().register(CommentsResource.class);
+        getResourceConfig().register(AttachmentsResource.class);
+        getResourceConfig().register(UsersResource.class);
+        //getResourceConfig().register(PersonalisationDataResource.class);
+        getResourceConfig().register(FeedbackResource.class);
+    }
+
     public String getBaseURL() {
         return baseURL;
     }
 
+    public String notifyRegistrars(EnumSet<BazaarFunction> functions) {
+        String resultJSON = null;
+        try {
+            for (BazaarFunctionRegistrar functionRegistrar : functionRegistrar) {
+                functionRegistrar.registerFunction(functions);
+            }
+        } catch (BazaarException bazaarEx) {
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarEx);
+        } catch (Exception ex) {
+            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.registrars"));
+            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
+        }
+        return resultJSON;
+    }
+
+    public Set<ConstraintViolation<Object>> validate(Object entity) {
+        Validator validator = validatorFactory.getValidator();
+        // Take Object for generic error handling
+        return validator.validate(entity);
+    }
+
+    public Set<ConstraintViolation<Object>> validateCreate(Object entity) {
+        Validator validator = validatorFactory.getValidator();
+        // Take Object for generic error handling
+        return validator.validate(entity, CreateValidation.class);
+    }
+
+    public NotificationDispatcher getNotificationDispatcher() {
+        return notificationDispatcher;
+    }
+
+    private void registerUserAtFirstLogin() throws Exception {
+        Agent agent = Context.getCurrent().getMainAgent();
+
+        String loginName = null;
+        String email = null;
+        String profileImage = "https://api.learning-layers.eu/profile.png";
+
+        if (agent instanceof AnonymousAgent) {
+            loginName = ((AnonymousAgent) agent).LOGIN_NAME;
+            email = "NO.EMAIL@WARNING.COM";
+        } else if (agent instanceof UserAgent) {
+            loginName = ((UserAgent) agent).getLoginName();
+            if (((UserAgent) agent).getEmail() == null) {
+                email = "NO.EMAIL@WARNING.COM";
+            } else {
+                email = ((UserAgent) agent).getEmail();
+            }
+        }
+
+        DALFacade dalFacade = null;
+        try {
+            dalFacade = getDBConnection();
+            Integer userIdByLAS2PeerId = dalFacade.getUserIdByLAS2PeerId(agent.getIdentifier());
+            if (userIdByLAS2PeerId == null) {
+                // create user
+                User user = User.builder()
+                        .eMail(email)
+                        .las2peerId(agent.getIdentifier())
+                        .userName(loginName)
+                        .profileImage(profileImage)
+                        .emailLeadSubscription(true)
+                        .emailFollowSubscription(true)
+                        .personalizationEnabled(false)
+                        .build();
+                user = dalFacade.createUser(user);
+                int userId = user.getId();
+                // this.getNotificationDispatcher().dispatchNotification(user.getCreationDate(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_55, userId, Activity.DataType.USER, userId);
+                dalFacade.addUserToRole(userId, "LoggedInUser", null);
+            } else {
+                // update lastLoginDate
+                dalFacade.updateLastLoginDate(userIdByLAS2PeerId);
+            }
+        } catch (Exception ex) {
+            ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.first_login"));
+            logger.warning(ex.getMessage());
+        } finally {
+            closeDBConnection(dalFacade);
+        }
+    }
+
+    public DALFacade getDBConnection() throws Exception { // TODO: Specify Exception
+        return new DALFacadeImpl(dataSource, SQLDialect.POSTGRES);
+    }
+
+    public void closeDBConnection(DALFacade dalFacade) {
+        if (dalFacade == null) {
+            return;
+        }
+        dalFacade.close();
+    }
+
+    public ObjectMapper getMapper() {
+        return mapper;
+    }
+
+    public Response.ResponseBuilder paginationLinks(Response.ResponseBuilder responseBuilder, PaginationResult paginationResult,
+                                                    String path, Map<String, List<String>> httpParameter) throws URISyntaxException {
+        List<Link> links = new ArrayList<>();
+        URIBuilder uriBuilder = new URIBuilder(baseURL + path);
+        for (Map.Entry<String, List<String>> entry : httpParameter.entrySet()) {
+            for (String parameter : entry.getValue()) {
+                uriBuilder.addParameter(entry.getKey(), parameter);
+            }
+        }
+        if (paginationResult.getPrevPage() != -1) {
+            links.add(Link.fromUri(uriBuilder.setParameter("page", String.valueOf(paginationResult.getPrevPage())).build()).rel("prev").build());
+        }
+        if (paginationResult.getNextPage() != -1) {
+            links.add(Link.fromUri(uriBuilder.setParameter("page", String.valueOf(paginationResult.getNextPage())).build()).rel("next").build());
+        }
+        links.add(Link.fromUri(uriBuilder.setParameter("page", "0").build()).rel("first").build());
+        links.add(Link.fromUri(uriBuilder.setParameter("page", String.valueOf(paginationResult.getTotalPages())).build()).rel("last").build());
+        responseBuilder = responseBuilder.links(links.toArray(new Link[links.size()]));
+        return responseBuilder;
+    }
+
+    public Response.ResponseBuilder xHeaderFields(Response.ResponseBuilder responseBuilder, PaginationResult paginationResult) {
+        responseBuilder = responseBuilder.header("X-Page", String.valueOf(paginationResult.getPageable().getPageNumber()));
+        responseBuilder = responseBuilder.header("X-Per-Page", String.valueOf(paginationResult.getPageable().getPageSize()));
+        if (paginationResult.getPrevPage() != -1) {
+            responseBuilder = responseBuilder.header("X-Prev-Page", String.valueOf(paginationResult.getPrevPage()));
+        }
+        if (paginationResult.getNextPage() != -1) {
+            responseBuilder = responseBuilder.header("X-Next-Page", String.valueOf(paginationResult.getNextPage()));
+        }
+        responseBuilder = responseBuilder.header("X-Total-Pages", String.valueOf(paginationResult.getTotalPages()));
+        responseBuilder = responseBuilder.header("X-Total", String.valueOf(paginationResult.getTotal()));
+        return responseBuilder;
+    }
 
     @Api(value = "/", description = "Bazaar service")
     @SwaggerDefinition(
@@ -303,149 +442,6 @@ public class BazaarService extends RESTService {
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         }
-    }
-
-    public String notifyRegistrars(EnumSet<BazaarFunction> functions) {
-        String resultJSON = null;
-        try {
-            for (BazaarFunctionRegistrar functionRegistrar : functionRegistrar) {
-                functionRegistrar.registerFunction(functions);
-            }
-        } catch (BazaarException bazaarEx) {
-            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarEx);
-        } catch (Exception ex) {
-            BazaarException bazaarException = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.registrars"));
-            resultJSON = ExceptionHandler.getInstance().toJSON(bazaarException);
-        }
-        return resultJSON;
-    }
-
-    public Set<ConstraintViolation<Object>> validate(Object entity) {
-        Validator validator = validatorFactory.getValidator();
-        // Take Object for generic error handling
-        return validator.validate(entity);
-    }
-
-    public Set<ConstraintViolation<Object>> validateCreate(Object entity) {
-        Validator validator = validatorFactory.getValidator();
-        // Take Object for generic error handling
-        return validator.validate(entity, CreateValidation.class);
-    }
-
-    public NotificationDispatcher getNotificationDispatcher() {
-        return notificationDispatcher;
-    }
-
-    private void registerUserAtFirstLogin() throws Exception {
-        Agent agent = Context.getCurrent().getMainAgent();
-
-        String loginName = null;
-        String email = null;
-        String profileImage = "https://api.learning-layers.eu/profile.png";
-
-        if (agent instanceof AnonymousAgent) {
-            loginName = ((AnonymousAgent) agent).LOGIN_NAME;
-            email = "NO.EMAIL@WARNING.COM";
-        } else if (agent instanceof UserAgent) {
-            loginName = ((UserAgent) agent).getLoginName();
-            if (((UserAgent) agent).getEmail() == null) {
-                email = "NO.EMAIL@WARNING.COM";
-            } else {
-                email = ((UserAgent) agent).getEmail();
-            }
-        }
-
-        DALFacade dalFacade = null;
-        try {
-            dalFacade = getDBConnection();
-            Integer userIdByLAS2PeerId = dalFacade.getUserIdByLAS2PeerId(agent.getIdentifier());
-            if (userIdByLAS2PeerId == null) {
-                // create user
-                User user = User.builder()
-                        .eMail(email)
-                        .las2peerId(agent.getIdentifier())
-                        .userName(loginName)
-                        .profileImage(profileImage)
-                        .emailLeadSubscription(true)
-                        .emailFollowSubscription(true)
-                        .personalizationEnabled(false)
-                        .build();
-                user = dalFacade.createUser(user);
-                int userId = user.getId();
-                // this.getNotificationDispatcher().dispatchNotification(user.getCreationDate(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_55, userId, Activity.DataType.USER, userId);
-                dalFacade.addUserToRole(userId, "LoggedInUser", null);
-            } else {
-                // update lastLoginDate
-                dalFacade.updateLastLoginDate(userIdByLAS2PeerId);
-            }
-        } catch (Exception ex) {
-            ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.first_login"));
-            logger.warning(ex.getMessage());
-        } finally {
-            closeDBConnection(dalFacade);
-        }
-    }
-
-    public static DataSource setupDataSource(String dbUrl, String dbUserName, String dbPassword) {
-        BasicDataSource dataSource = new BasicDataSource();
-        // Deprecated according to jooq
-        // dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUrl(dbUrl + "?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true" +
-                "");
-        dataSource.setUsername(dbUserName);
-        dataSource.setPassword(dbPassword);
-        dataSource.setValidationQuery("SELECT 1;");
-        dataSource.setTestOnBorrow(true); // test each connection when borrowing from the pool with the validation query
-        dataSource.setMaxConnLifetimeMillis(1000 * 60 * 60); // max connection life time 1h. mysql drops connection after 8h.
-        return dataSource;
-    }
-
-    public DALFacade getDBConnection() throws Exception { // TODO: Specify Exception
-        return new DALFacadeImpl(dataSource, SQLDialect.MYSQL);
-    }
-
-    public void closeDBConnection(DALFacade dalFacade) {
-        if (dalFacade == null) return;
-        dalFacade.close();
-    }
-
-    public ObjectMapper getMapper() {
-        return mapper;
-    }
-
-    public Response.ResponseBuilder paginationLinks(Response.ResponseBuilder responseBuilder, PaginationResult paginationResult,
-                                                    String path, Map<String, List<String>> httpParameter) throws URISyntaxException {
-        List<Link> links = new ArrayList<>();
-        URIBuilder uriBuilder = new URIBuilder(baseURL + path);
-        for (Map.Entry<String, List<String>> entry : httpParameter.entrySet()) {
-            for (String parameter : entry.getValue()) {
-                uriBuilder.addParameter(entry.getKey(), parameter);
-            }
-        }
-        if (paginationResult.getPrevPage() != -1) {
-            links.add(Link.fromUri(uriBuilder.setParameter("page", String.valueOf(paginationResult.getPrevPage())).build()).rel("prev").build());
-        }
-        if (paginationResult.getNextPage() != -1) {
-            links.add(Link.fromUri(uriBuilder.setParameter("page", String.valueOf(paginationResult.getNextPage())).build()).rel("next").build());
-        }
-        links.add(Link.fromUri(uriBuilder.setParameter("page", "0").build()).rel("first").build());
-        links.add(Link.fromUri(uriBuilder.setParameter("page", String.valueOf(paginationResult.getTotalPages())).build()).rel("last").build());
-        responseBuilder = responseBuilder.links(links.toArray(new Link[links.size()]));
-        return responseBuilder;
-    }
-
-    public Response.ResponseBuilder xHeaderFields(Response.ResponseBuilder responseBuilder, PaginationResult paginationResult) {
-        responseBuilder = responseBuilder.header("X-Page", String.valueOf(paginationResult.getPageable().getPageNumber()));
-        responseBuilder = responseBuilder.header("X-Per-Page", String.valueOf(paginationResult.getPageable().getPageSize()));
-        if (paginationResult.getPrevPage() != -1) {
-            responseBuilder = responseBuilder.header("X-Prev-Page", String.valueOf(paginationResult.getPrevPage()));
-        }
-        if (paginationResult.getNextPage() != -1) {
-            responseBuilder = responseBuilder.header("X-Next-Page", String.valueOf(paginationResult.getNextPage()));
-        }
-        responseBuilder = responseBuilder.header("X-Total-Pages", String.valueOf(paginationResult.getTotalPages()));
-        responseBuilder = responseBuilder.header("X-Total", String.valueOf(paginationResult.getTotal()));
-        return responseBuilder;
     }
 
 }

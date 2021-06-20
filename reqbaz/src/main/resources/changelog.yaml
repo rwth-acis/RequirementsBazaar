@@ -1,0 +1,1737 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1624138981933-1
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: feedback_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: project_id
+                  type: INTEGER
+              - column:
+                  name: requirement_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+                  name: creation_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: email
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: feedback
+                  type: TEXT
+            tableName: feedback
+  - changeSet:
+      id: 1624138981933-2
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: project_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: description
+                  type: TEXT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: visibility
+                  type: BOOLEAN
+              - column:
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+                  name: creation_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: leader_id
+                  type: INTEGER
+              - column:
+                  name: default_category_id
+                  type: INTEGER
+              - column:
+                  name: additional_properties
+                  type: JSONB
+            tableName: project
+  - changeSet:
+      id: 1624138981933-3
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: role_role_map_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: child_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: parent_id
+                  type: INTEGER
+            tableName: role_role_map
+  - changeSet:
+      id: 1624138981933-4
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: category_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: description
+                  type: TEXT
+              - column:
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+                  name: creation_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: project_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: leader_id
+                  type: INTEGER
+              - column:
+                  name: additional_properties
+                  type: JSONB
+            tableName: category
+  - changeSet:
+      id: 1624138981933-5
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: personalisation_data_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+                  name: creation_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  defaultValueComputed: now()
+                  name: last_updated_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: identifier
+                  type: VARCHAR(50)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: version
+                  type: INTEGER
+              - column:
+                  name: setting
+                  type: TEXT
+            tableName: personalisation_data
+  - changeSet:
+      id: 1624138981933-6
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: category_follower_map_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: category_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+                  name: creation_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+            tableName: category_follower_map
+  - changeSet:
+      id: 1624138981933-7
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: requirement_category_map_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: category_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: requirement_id
+                  type: INTEGER
+            tableName: requirement_category_map
+  - changeSet:
+      id: 1624138981933-8
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: requirement_developer_map_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: requirement_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+                  name: creation_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+            tableName: requirement_developer_map
+  - changeSet:
+      id: 1624138981933-9
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: user_role_map_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: role_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_id
+                  type: INTEGER
+              - column:
+                  name: context_info
+                  type: INTEGER
+            tableName: user_role_map
+  - changeSet:
+      id: 1624138981933-10
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: vote_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: is_upvote
+                  type: BOOLEAN
+              - column:
+                  constraints:
+                    nullable: false
+                  name: requirement_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+                  name: creation_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+            tableName: vote
+  - changeSet:
+      id: 1624138981933-11
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: attachment_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+                  name: creation_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: requirement_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(255)
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  constraints:
+                    nullable: false
+                  name: mime_type
+                  type: VARCHAR(255)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: identifier
+                  type: VARCHAR(900)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: file_url
+                  type: VARCHAR(1000)
+            tableName: attachment
+  - changeSet:
+      id: 1624138981933-12
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: schema_version_pkey
+                  name: installed_rank
+                  type: INTEGER
+              - column:
+                  name: version
+                  type: VARCHAR(50)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: description
+                  type: VARCHAR(200)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: type
+                  type: VARCHAR(20)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: script
+                  type: VARCHAR(1000)
+              - column:
+                  name: checksum
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: installed_by
+                  type: VARCHAR(100)
+              - column:
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+                  name: installed_on
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: execution_time
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: success
+                  type: BOOLEAN
+            tableName: schema_version
+  - changeSet:
+      id: 1624138981933-13
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: user_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  name: first_name
+                  type: VARCHAR(150)
+              - column:
+                  name: last_name
+                  type: VARCHAR(150)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: email
+                  type: VARCHAR(255)
+              - column:
+                  name: las2peer_id
+                  type: VARCHAR(128)
+              - column:
+                  name: user_name
+                  type: VARCHAR(255)
+              - column:
+                  name: profile_image
+                  type: TEXT
+              - column:
+                  constraints:
+                    nullable: false
+                  defaultValueBoolean: true
+                  name: email_lead_subscription
+                  type: BOOLEAN
+              - column:
+                  constraints:
+                    nullable: false
+                  defaultValueBoolean: true
+                  name: email_follow_subscription
+                  type: BOOLEAN
+              - column:
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+                  name: creation_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: last_login_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  defaultValueBoolean: true
+                  name: personalization_enabled
+                  type: BOOLEAN
+            tableName: user
+  - changeSet:
+      id: 1624138981933-14
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: privilege_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(100)
+            tableName: privilege
+  - changeSet:
+      id: 1624138981933-15
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: requirement_tag_map_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: tag_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: requirement_id
+                  type: INTEGER
+            tableName: requirement_tag_map
+  - changeSet:
+      id: 1624138981933-16
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: comment_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: message
+                  type: TEXT
+              - column:
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+                  name: creation_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: requirement_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_id
+                  type: INTEGER
+              - column:
+                  name: reply_to_comment_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  defaultValueBoolean: false
+                  name: deleted
+                  type: BOOLEAN
+            tableName: comment
+  - changeSet:
+      id: 1624138981933-17
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: requirement_follower_map_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: requirement_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+                  name: creation_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+            tableName: requirement_follower_map
+  - changeSet:
+      id: 1624138981933-18
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: role_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  name: name
+                  type: VARCHAR(50)
+            tableName: role
+  - changeSet:
+      id: 1624138981933-19
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: tag_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: project_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+                  name: creation_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(20)
+              - column:
+                  constraints:
+                    nullable: false
+                  name: colour
+                  type: VARCHAR(7)
+            tableName: tag
+  - changeSet:
+      id: 1624138981933-20
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: requirement_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: name
+                  type: VARCHAR(255)
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: realized
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+                  name: creation_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: last_updated_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+              - column:
+                  name: lead_developer_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: creator_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: project_id
+                  type: INTEGER
+              - column:
+                  name: additional_properties
+                  type: JSONB
+            tableName: requirement
+  - changeSet:
+      id: 1624138981933-21
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: project_follower_map_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: project_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: user_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: now()
+                  name: creation_date
+                  type: TIMESTAMP WITHOUT TIME ZONE
+            tableName: project_follower_map
+  - changeSet:
+      id: 1624138981933-22
+      author: thore (generated)
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: role_privilege_map_pkey
+                  name: id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: role_id
+                  type: INTEGER
+              - column:
+                  constraints:
+                    nullable: false
+                  name: privilege_id
+                  type: INTEGER
+            tableName: role_privilege_map
+  - changeSet:
+      id: 1624138981933-23
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: project_id
+            indexName: requirement_project
+            tableName: requirement
+  - changeSet:
+      id: 1624138981933-24
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: project_id
+            baseTableName: requirement
+            constraintName: requirement_project
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: project
+            validate: true
+  - changeSet:
+      id: 1624138981933-25
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: context_info
+            indexName: role_project_context
+            tableName: user_role_map
+  - changeSet:
+      id: 1624138981933-26
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: context_info
+            baseTableName: user_role_map
+            constraintName: role_project_context
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: project
+            validate: true
+  - changeSet:
+      id: 1624138981933-27
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: project_id
+            indexName: tag_project
+            tableName: tag
+  - changeSet:
+      id: 1624138981933-28
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: project_id
+            baseTableName: tag
+            constraintName: tag_project
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: project
+            validate: true
+  - changeSet:
+      id: 1624138981933-29
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: project_id
+            indexName: category_project
+            tableName: category
+  - changeSet:
+      id: 1624138981933-30
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: project_id
+            baseTableName: category
+            constraintName: category_project
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: project
+            validate: true
+  - changeSet:
+      id: 1624138981933-31
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: default_category_id
+            indexName: project_category
+            tableName: project
+  - changeSet:
+      id: 1624138981933-32
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: default_category_id
+            baseTableName: project
+            constraintName: project_category
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: category
+            validate: true
+  - changeSet:
+      id: 1624138981933-33
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: category_id
+            indexName: requirement_category_map_category
+            tableName: requirement_category_map
+  - changeSet:
+      id: 1624138981933-34
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: category_id
+            baseTableName: requirement_category_map
+            constraintName: requirement_category_map_category
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: category
+            validate: true
+  - changeSet:
+      id: 1624138981933-35
+      author: thore (generated)
+      changes:
+        - addUniqueConstraint:
+            columnNames: identifier, user_id, version
+            constraintName: personalisation_key
+            tableName: personalisation_data
+  - changeSet:
+      id: 1624138981933-36
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: category_id
+            indexName: category_follower_map_category
+            tableName: category_follower_map
+  - changeSet:
+      id: 1624138981933-37
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: category_id
+            baseTableName: category_follower_map
+            constraintName: category_follower_map_category
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: category
+            validate: true
+  - changeSet:
+      id: 1624138981933-38
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: success
+            indexName: schema_version_s_idx
+            tableName: schema_version
+  - changeSet:
+      id: 1624138981933-39
+      author: thore (generated)
+      changes:
+        - addUniqueConstraint:
+            columnNames: las2peer_id
+            constraintName: user_las2peer_id_key
+            tableName: user
+  - changeSet:
+      id: 1624138981933-40
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: user_role_map_user
+            tableName: user_role_map
+  - changeSet:
+      id: 1624138981933-41
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: user_role_map
+            constraintName: user_role_map_user
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: user
+            validate: true
+  - changeSet:
+      id: 1624138981933-42
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: vote_user
+            tableName: vote
+  - changeSet:
+      id: 1624138981933-43
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: vote
+            constraintName: vote_user
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: user
+            validate: true
+  - changeSet:
+      id: 1624138981933-44
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: privilege_id
+            indexName: role_privilege_map_privilege
+            tableName: role_privilege_map
+  - changeSet:
+      id: 1624138981933-45
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: privilege_id
+            baseTableName: role_privilege_map
+            constraintName: role_privilege_map_privilege
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: privilege
+            validate: true
+  - changeSet:
+      id: 1624138981933-46
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: comment_user
+            tableName: comment
+  - changeSet:
+      id: 1624138981933-47
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: comment
+            constraintName: comment_user
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: user
+            validate: true
+  - changeSet:
+      id: 1624138981933-48
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: reply_to_comment_id
+            indexName: reply_comment
+            tableName: comment
+  - changeSet:
+      id: 1624138981933-49
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: reply_to_comment_id
+            baseTableName: comment
+            constraintName: reply_comment
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: comment
+            validate: true
+  - changeSet:
+      id: 1624138981933-50
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: requirement_follower_map_user
+            tableName: requirement_follower_map
+  - changeSet:
+      id: 1624138981933-51
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: requirement_follower_map
+            constraintName: requirement_follower_map_user
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: user
+            validate: true
+  - changeSet:
+      id: 1624138981933-52
+      author: thore (generated)
+      changes:
+        - addUniqueConstraint:
+            columnNames: name
+            constraintName: role_name_key
+            tableName: role
+  - changeSet:
+      id: 1624138981933-53
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: role_id
+            indexName: role_privilege_map_role
+            tableName: role_privilege_map
+  - changeSet:
+      id: 1624138981933-54
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: role_id
+            baseTableName: role_privilege_map
+            constraintName: role_privilege_map_role
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: role
+            validate: true
+  - changeSet:
+      id: 1624138981933-55
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: child_id
+            indexName: role_role_map_child
+            tableName: role_role_map
+  - changeSet:
+      id: 1624138981933-56
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: child_id
+            baseTableName: role_role_map
+            constraintName: role_role_map_child
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: role
+            validate: true
+  - changeSet:
+      id: 1624138981933-57
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: parent_id
+            indexName: role_role_map_parent
+            tableName: role_role_map
+  - changeSet:
+      id: 1624138981933-58
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: parent_id
+            baseTableName: role_role_map
+            constraintName: role_role_map_parent
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: role
+            validate: true
+  - changeSet:
+      id: 1624138981933-59
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: role_id
+            indexName: user_role_map_role
+            tableName: user_role_map
+  - changeSet:
+      id: 1624138981933-60
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: role_id
+            baseTableName: user_role_map
+            constraintName: user_role_map_role
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: role
+            validate: true
+  - changeSet:
+      id: 1624138981933-61
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: creator_id
+            indexName: creator
+            tableName: requirement
+  - changeSet:
+      id: 1624138981933-62
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: creator_id
+            baseTableName: requirement
+            constraintName: creator
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: user
+            validate: true
+  - changeSet:
+      id: 1624138981933-63
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: lead_developer_id
+            indexName: lead_developer
+            tableName: requirement
+  - changeSet:
+      id: 1624138981933-64
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: lead_developer_id
+            baseTableName: requirement
+            constraintName: lead_developer
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: user
+            validate: true
+  - changeSet:
+      id: 1624138981933-65
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: requirement_id
+            indexName: requirement_tag_map_requirement
+            tableName: requirement_tag_map
+  - changeSet:
+      id: 1624138981933-66
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: requirement_id
+            baseTableName: requirement_tag_map
+            constraintName: requirement_tag_map_requirement
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: requirement
+            validate: true
+  - changeSet:
+      id: 1624138981933-67
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: requirement_id
+            indexName: vote_requirement
+            tableName: vote
+  - changeSet:
+      id: 1624138981933-68
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: requirement_id
+            baseTableName: vote
+            constraintName: vote_requirement
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: requirement
+            validate: true
+  - changeSet:
+      id: 1624138981933-69
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: project_id
+            indexName: project_follower_map_project
+            tableName: project_follower_map
+  - changeSet:
+      id: 1624138981933-70
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: project_id
+            baseTableName: project_follower_map
+            constraintName: project_follower_map_project
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: project
+            validate: true
+  - changeSet:
+      id: 1624138981933-71
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: project_follower_map_user
+            tableName: project_follower_map
+  - changeSet:
+      id: 1624138981933-72
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: project_follower_map
+            constraintName: project_follower_map_user
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: user
+            validate: true
+  - changeSet:
+      id: 1624138981933-73
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: project_id
+            indexName: feedback_project
+            tableName: feedback
+  - changeSet:
+      id: 1624138981933-74
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: project_id
+            baseTableName: feedback
+            constraintName: feedback_project
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: project
+            validate: true
+  - changeSet:
+      id: 1624138981933-75
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: leader_id
+            indexName: project_user
+            tableName: project
+  - changeSet:
+      id: 1624138981933-76
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: leader_id
+            baseTableName: project
+            constraintName: project_user
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: user
+            validate: true
+  - changeSet:
+      id: 1624138981933-77
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: leader_id
+            indexName: category_user
+            tableName: category
+  - changeSet:
+      id: 1624138981933-78
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: leader_id
+            baseTableName: category
+            constraintName: category_user
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: user
+            validate: true
+  - changeSet:
+      id: 1624138981933-79
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: personalisation_user
+            tableName: personalisation_data
+  - changeSet:
+      id: 1624138981933-80
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: personalisation_data
+            constraintName: personalisation_user
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: user
+            validate: true
+  - changeSet:
+      id: 1624138981933-81
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: category_follower_map_user
+            tableName: category_follower_map
+  - changeSet:
+      id: 1624138981933-82
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: category_follower_map
+            constraintName: category_follower_map_user
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: user
+            validate: true
+  - changeSet:
+      id: 1624138981933-83
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: requirement_id
+            indexName: requirement_category_map_requirement
+            tableName: requirement_category_map
+  - changeSet:
+      id: 1624138981933-84
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: requirement_id
+            baseTableName: requirement_category_map
+            constraintName: requirement_category_map_requirement
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: requirement
+            validate: true
+  - changeSet:
+      id: 1624138981933-85
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: requirement_id
+            indexName: requirement_developer_map_requirement
+            tableName: requirement_developer_map
+  - changeSet:
+      id: 1624138981933-86
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: requirement_id
+            baseTableName: requirement_developer_map
+            constraintName: requirement_developer_map_requirement
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: requirement
+            validate: true
+  - changeSet:
+      id: 1624138981933-87
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: requirement_developer_map_user
+            tableName: requirement_developer_map
+  - changeSet:
+      id: 1624138981933-88
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: requirement_developer_map
+            constraintName: requirement_developer_map_user
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: user
+            validate: true
+  - changeSet:
+      id: 1624138981933-89
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: requirement_id
+            indexName: attachment_requirement
+            tableName: attachment
+  - changeSet:
+      id: 1624138981933-90
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: requirement_id
+            baseTableName: attachment
+            constraintName: attachment_requirement
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: requirement
+            validate: true
+  - changeSet:
+      id: 1624138981933-91
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: user_id
+            indexName: attachment_user
+            tableName: attachment
+  - changeSet:
+      id: 1624138981933-92
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: user_id
+            baseTableName: attachment
+            constraintName: attachment_user
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: RESTRICT
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: user
+            validate: true
+  - changeSet:
+      id: 1624138981933-93
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: tag_id
+            indexName: requirement_tag_map_tag
+            tableName: requirement_tag_map
+  - changeSet:
+      id: 1624138981933-94
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: tag_id
+            baseTableName: requirement_tag_map
+            constraintName: requirement_tag_map_tag
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: tag
+            validate: true
+  - changeSet:
+      id: 1624138981933-95
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: requirement_id
+            indexName: comment_requirement
+            tableName: comment
+  - changeSet:
+      id: 1624138981933-96
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: requirement_id
+            baseTableName: comment
+            constraintName: comment_requirement
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: requirement
+            validate: true
+  - changeSet:
+      id: 1624138981933-97
+      author: thore (generated)
+      changes:
+        - createIndex:
+            columns:
+              - column:
+                  name: requirement_id
+            indexName: requirement_follower_map_requirement
+            tableName: requirement_follower_map
+  - changeSet:
+      id: 1624138981933-98
+      author: thore (generated)
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: requirement_id
+            baseTableName: requirement_follower_map
+            constraintName: requirement_follower_map_requirement
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: CASCADE
+            onUpdate: RESTRICT
+            referencedColumnNames: id
+            referencedTableName: requirement
+            validate: true
+  - changeSet:
+      id: load-permissions
+      author: thore
+      changes:
+        - sqlFile:
+            comment: Basic Role and Permission Maps
+            endDelimiter: \nGO
+            splitStatements: true
+            path: src/main/resources/base-permissions.sql
+            stripComments: true

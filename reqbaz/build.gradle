@@ -23,6 +23,7 @@ plugins {
     id "io.freefair.lombok" version "5.3.0"
     id 'com.github.ben-manes.versions' version '0.38.0'
     id 'jacoco'
+    id 'org.liquibase.gradle' version '2.0.3'
 }
 
 application {
@@ -52,10 +53,16 @@ dependencies {
     // Use JUnit test framework.
     testImplementation 'junit:junit:4.13'
 
+    liquibaseRuntime 'org.liquibase:liquibase-core:3.8.1'
+    liquibaseRuntime 'org.yaml:snakeyaml:1.15'
+    liquibaseRuntime 'org.postgresql:postgresql:42.2.12'
+    liquibaseRuntime 'javax.xml.bind:jaxb-api:2.3.1'
+
     // las2peer bundle which is not necessary in the runtime path
     // compileOnly will be moved into the lib dir afterwards
     compileOnly "i5:las2peer-bundle:${project.property('core.version')}"
     compileOnly "mysql:mysql-connector-java:${project.property('mysql.version')}"
+    compileOnly 'org.postgresql:postgresql:42.2.12'
     compileOnly 'org.hibernate:hibernate-validator:5.4.3.Final'
     compileOnly 'org.glassfish:jakarta.el:3.0.3'
     compileOnly 'javax.validation:validation-api:1.1.0.Final'
@@ -63,6 +70,7 @@ dependencies {
     // This is for the jooq generation only
     jooqGenerator "mysql:mysql-connector-java:${project.property('mysql.version')}"
     jooqGenerator "org.jooq:jooq-codegen:${project.property('jooq.version')}"
+    jooqGenerator 'org.postgresql:postgresql:42.2.12'
 
     implementation "org.flywaydb:flyway-core:7.7.1"
     implementation 'com.google.code.gson:gson:2.8.6'
@@ -151,22 +159,22 @@ jooq {
             generationTool {
                 logging = org.jooq.meta.jaxb.Logging.WARN
                 jdbc {
-                    driver = 'com.mysql.cj.jdbc.Driver'
-                    url = "jdbc:mysql://${project.property('db.hostname')}:${project.property('db.port')}/${project.property('db.name')}"
-                    user = "${project.property('db.user')}"
-                    password = "${project.property('db.password')}"
+                    driver = 'org.postgresql.Driver'
+                    url = "jdbc:postgresql://localhost:5432/reqbaz"
+                    user = "reqbaz"
+                    password = "reqbaz"
                 }
                 generator {
                     name = 'org.jooq.codegen.DefaultGenerator'
                     database {
-                        name = 'org.jooq.meta.mysql.MySQLDatabase'
-                        inputSchema = "${project.property('db.name')}"
-                        forcedTypes {
-                            forcedType {
-                                name = 'BOOLEAN'
-                                includeTypes = '(?i:TINYINT\\(1\\))'
-                            }
-                        }
+                        name = 'org.jooq.meta.postgres.PostgresDatabase'
+                        inputSchema = "reqbaz"
+//                        forcedTypes {
+//                            forcedType {
+//                                name = 'BOOLEAN'
+//                                includeTypes = '(?i:TINYINT\\(1\\))'
+//                            }
+//                        }
                     }
                     generate {
                         deprecated = false
@@ -195,11 +203,24 @@ flyway {
     locations = ["filesystem:$project.projectDir/src/main/resources/migrations"]
 }
 
-generateJooq.dependsOn flywayClean
-generateJooq.dependsOn flywayMigrate
+// liquibase migrations
+generateJooq.dependsOn dropAll
+generateJooq.dependsOn update
+
+liquibase {
+    activities {
+        main {
+            changeLogFile "$projectDir/src/main/resources/changelog.yaml"
+            url "jdbc:postgresql://localhost:5432/reqbaz"
+            username 'reqbaz'
+            password 'reqbaz'
+        }
+    }
+}
+
 
 // Build export directory which can be shipped on request
-task export (type: Copy, dependsOn: build) {
+task export(type: Copy, dependsOn: build) {
     into "$buildDir/export"
 
     into("service") {
