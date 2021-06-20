@@ -1,4 +1,4 @@
-INSERT INTO reqbaz.role
+INSERT INTO reqbaz."role"
     (id, name)
 VALUES (1, 'Anonymous'),
        (2, 'LoggedInUser'),
