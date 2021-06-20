@@ -1,21 +1,24 @@
 name: Gradle Build & Test
-on: [pull_request, push]
+on: [ pull_request, push ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     services:
-      mysql:
-        image: mysql:latest
+      postgres:
+        image: postgres:latest
         ports:
-          - 3306:3306
+          - 5432:5432
         env:
-          MYSQL_USER: reqbaz
-          MYSQL_PASSWORD: password
-          MYSQL_DATABASE: reqbaz
-          MYSQL_ROOT_PASSWORD: rootpw
-        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+          POSTGRES_USER: reqbaz
+          POSTGRES_PASSWORD: reqbaz
+          POSTGRES_DB: reqbaz
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - uses: actions/checkout@v2
@@ -23,11 +26,6 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 14
-      - name: Verify MySQL connection
-        run: |
-          while ! mysqladmin ping -h"127.0.0.1" -P"3306" --silent; do
-            sleep 1
-          done
       - name: Build with Gradle
         run: ./gradlew clean build --info
       - uses: codecov/codecov-action@v1

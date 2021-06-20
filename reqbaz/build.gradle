@@ -18,7 +18,6 @@ plugins {
     id 'java'
     id 'application'
     id 'idea'
-    id "org.flywaydb.flyway" version "7.7.1"
     id "nu.studer.jooq" version "5.2.1"
     id "io.freefair.lombok" version "5.3.0"
     id 'com.github.ben-manes.versions' version '0.38.0'
@@ -55,24 +54,20 @@ dependencies {
 
     liquibaseRuntime 'org.liquibase:liquibase-core:3.8.1'
     liquibaseRuntime 'org.yaml:snakeyaml:1.15'
-    liquibaseRuntime 'org.postgresql:postgresql:42.2.12'
+    liquibaseRuntime "org.postgresql:postgresql:${project.property('postgres.version')}"
     liquibaseRuntime 'javax.xml.bind:jaxb-api:2.3.1'
 
     // las2peer bundle which is not necessary in the runtime path
     // compileOnly will be moved into the lib dir afterwards
     compileOnly "i5:las2peer-bundle:${project.property('core.version')}"
-    compileOnly "mysql:mysql-connector-java:${project.property('mysql.version')}"
-    compileOnly 'org.postgresql:postgresql:42.2.12'
+    compileOnly "org.postgresql:postgresql:${project.property('postgres.version')}"
     compileOnly 'org.hibernate:hibernate-validator:5.4.3.Final'
     compileOnly 'org.glassfish:jakarta.el:3.0.3'
     compileOnly 'javax.validation:validation-api:1.1.0.Final'
 
     // This is for the jooq generation only
-    jooqGenerator "mysql:mysql-connector-java:${project.property('mysql.version')}"
     jooqGenerator "org.jooq:jooq-codegen:${project.property('jooq.version')}"
-    jooqGenerator 'org.postgresql:postgresql:42.2.12'
 
-    implementation "org.flywaydb:flyway-core:7.7.1"
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'org.apache.commons:commons-pool2:2.9.0'
     implementation 'org.apache.commons:commons-dbcp2:2.8.0'
@@ -86,6 +81,7 @@ dependencies {
 configurations {
     // This ensures las2peer is available in the tests, but won't be bundled
     testCompile.extendsFrom compileOnly
+    jooqGenerator.extendsFrom liquibaseRuntime
 }
 
 test {
@@ -160,9 +156,9 @@ jooq {
                 logging = org.jooq.meta.jaxb.Logging.WARN
                 jdbc {
                     driver = 'org.postgresql.Driver'
-                    url = "jdbc:postgresql://localhost:5432/reqbaz"
-                    user = "reqbaz"
-                    password = "reqbaz"
+                    url = "jdbc:postgresql://${project.property('db.hostname')}:${project.property('db.port')}/${project.property('db.name')}"
+                    user = "${project.property('db.user')}"
+                    password = "${project.property('db.password')}"
                 }
                 generator {
                     name = 'org.jooq.codegen.DefaultGenerator'
@@ -193,16 +189,6 @@ jooq {
     }
 }
 
-flyway {
-    url = "jdbc:mysql://${project.property('db.hostname')}:${project.property('db.port')}/${project.property('db.name')}"
-    user = "${project.property('db.user')}"
-    password = "${project.property('db.password')}"
-    schemas = ['reqbaz']
-    // Flyway now uses 'flyway_schema_history' to retain compatibility override this
-    table = 'schema_version'
-    locations = ["filesystem:$project.projectDir/src/main/resources/migrations"]
-}
-
 // liquibase migrations
 generateJooq.dependsOn dropAll
 generateJooq.dependsOn update
@@ -211,7 +197,7 @@ liquibase {
     activities {
         main {
             changeLogFile "$projectDir/src/main/resources/changelog.yaml"
-            url "jdbc:postgresql://localhost:5432/reqbaz"
+            url "jdbc:postgresql://${project.property('db.hostname')}:${project.property('db.port')}/${project.property('db.name')}"
             username 'reqbaz'
             password 'reqbaz'
         }
