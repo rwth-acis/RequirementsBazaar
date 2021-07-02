@@ -35,7 +35,6 @@ jobs:
         with:
           # list of Docker images to use as base name for tags
           images: |
-            rwth-acis/requirementsbazaar
             ghcr.io/rwth-acis/requirementsbazaar
           # generate Docker tags based on the following events/attributes
           tags: |
