@@ -1,0 +1,57 @@
+on: [ push ]
+
+name: Build Container
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: reqbaz
+          POSTGRES_PASSWORD: reqbaz
+          POSTGRES_DB: reqbaz
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 14
+        uses: actions/setup-java@v1
+        with:
+          java-version: 14
+      - name: Build release bundle with Gradle
+        run: ./gradlew export -x test #-Pservice.version=${{ steps.get_version.outputs.version-without-v }}
+      - name: Docker metadata setup
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          # list of Docker images to use as base name for tags
+          images: |
+            rwth-acis/requirementsbazaar
+            ghcr.io/rwth-acis/requirementsbazaar
+          # generate Docker tags based on the following events/attributes
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=sha
+      - name: Login to Packages Container registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
