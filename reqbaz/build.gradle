@@ -164,7 +164,7 @@ jooq {
                     name = 'org.jooq.codegen.DefaultGenerator'
                     database {
                         name = 'org.jooq.meta.postgres.PostgresDatabase'
-                        inputSchema = "reqbaz"
+                        inputSchema = "public"
 //                        forcedTypes {
 //                            forcedType {
 //                                name = 'BOOLEAN'
@@ -196,10 +196,11 @@ generateJooq.dependsOn update
 liquibase {
     activities {
         main {
+            defaultSchemaName 'public'
             changeLogFile "$projectDir/src/main/resources/changelog.yaml"
             url "jdbc:postgresql://${project.property('db.hostname')}:${project.property('db.port')}/${project.property('db.name')}"
-            username 'reqbaz'
-            password 'reqbaz'
+            username "${project.property('db.user')}"
+            password "${project.property('db.password')}"
         }
     }
 }

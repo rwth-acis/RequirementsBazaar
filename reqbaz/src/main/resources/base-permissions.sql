@@ -1,4 +1,4 @@
-INSERT INTO reqbaz.role
+INSERT INTO role
     (id, name)
 VALUES (1, 'Anonymous'),
        (2, 'LoggedInUser'),
@@ -7,7 +7,7 @@ VALUES (1, 'Anonymous'),
        (5, 'ProjectManager'),
        (6, 'ProjectMember');
 
-INSERT INTO reqbaz.privilege
+INSERT INTO privilege
     (id, name)
 VALUES (1, 'Create_PROJECT'),
        (2, 'Read_PROJECT'),
@@ -44,18 +44,18 @@ VALUES (1, 'Create_PROJECT'),
        (35, 'Modify_ADMIN_MEMBERS'),
        (36, 'Read_USERS');
 
-INSERT INTO reqbaz.user
+INSERT INTO "user"
 (first_name, last_name, email, las2peer_id, user_name, profile_image, email_lead_subscription,
  email_follow_subscription)
 VALUES (NULL, NULL, 'anonymous@requirements-bazaar.org', '-1722613621014065292', 'anonymous',
         'https://api.learning-layers.eu/profile.png', true, true);
 
-INSERT INTO reqbaz.user_role_map
+INSERT INTO user_role_map
     (role_id, user_id)
 VALUES (1, 1);
 
 
-INSERT INTO reqbaz.role_privilege_map
+INSERT INTO role_privilege_map
     (role_id, privilege_id)
 VALUES (1, 3),
        (1, 7),
@@ -96,7 +96,7 @@ VALUES (1, 3),
        (6, 10),
        (6, 32);
 
-INSERT INTO reqbaz.role_role_map
+INSERT INTO role_role_map
     (child_id, parent_id)
 VALUES (4, 3),
        (3, 5),
