@@ -399,61 +399,6 @@ databaseChangeLog:
                   type: VARCHAR(1000)
             tableName: attachment
   - changeSet:
-      id: 1624138981933-12
-      author: thore (generated)
-      changes:
-        - createTable:
-            columns:
-              - column:
-                  constraints:
-                    primaryKey: true
-                    primaryKeyName: schema_version_pkey
-                  name: installed_rank
-                  type: INTEGER
-              - column:
-                  name: version
-                  type: VARCHAR(50)
-              - column:
-                  constraints:
-                    nullable: false
-                  name: description
-                  type: VARCHAR(200)
-              - column:
-                  constraints:
-                    nullable: false
-                  name: type
-                  type: VARCHAR(20)
-              - column:
-                  constraints:
-                    nullable: false
-                  name: script
-                  type: VARCHAR(1000)
-              - column:
-                  name: checksum
-                  type: INTEGER
-              - column:
-                  constraints:
-                    nullable: false
-                  name: installed_by
-                  type: VARCHAR(100)
-              - column:
-                  constraints:
-                    nullable: false
-                  defaultValueComputed: now()
-                  name: installed_on
-                  type: TIMESTAMP WITHOUT TIME ZONE
-              - column:
-                  constraints:
-                    nullable: false
-                  name: execution_time
-                  type: INTEGER
-              - column:
-                  constraints:
-                    nullable: false
-                  name: success
-                  type: BOOLEAN
-            tableName: schema_version
-  - changeSet:
       id: 1624138981933-13
       author: thore (generated)
       changes:
@@ -974,16 +919,6 @@ databaseChangeLog:
             referencedColumnNames: id
             referencedTableName: category
             validate: true
-  - changeSet:
-      id: 1624138981933-38
-      author: thore (generated)
-      changes:
-        - createIndex:
-            columns:
-              - column:
-                  name: success
-            indexName: schema_version_s_idx
-            tableName: schema_version
   - changeSet:
       id: 1624138981933-39
       author: thore (generated)

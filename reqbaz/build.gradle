@@ -22,7 +22,7 @@ plugins {
     id "io.freefair.lombok" version "5.3.0"
     id 'com.github.ben-manes.versions' version '0.38.0'
     id 'jacoco'
-    id 'org.liquibase.gradle' version '2.0.3'
+    id 'org.liquibase.gradle' version '2.0.4'
 }
 
 application {
@@ -52,8 +52,8 @@ dependencies {
     // Use JUnit test framework.
     testImplementation 'junit:junit:4.13'
 
-    liquibaseRuntime 'org.liquibase:liquibase-core:3.8.1'
-    liquibaseRuntime 'org.yaml:snakeyaml:1.15'
+    liquibaseRuntime "org.liquibase:liquibase-core:${project.property('liquibase.version')}"
+    liquibaseRuntime 'org.yaml:snakeyaml:1.29'
     liquibaseRuntime "org.postgresql:postgresql:${project.property('postgres.version')}"
     liquibaseRuntime 'javax.xml.bind:jaxb-api:2.3.1'
 
@@ -165,12 +165,6 @@ jooq {
                     database {
                         name = 'org.jooq.meta.postgres.PostgresDatabase'
                         inputSchema = "public"
-//                        forcedTypes {
-//                            forcedType {
-//                                name = 'BOOLEAN'
-//                                includeTypes = '(?i:TINYINT\\(1\\))'
-//                            }
-//                        }
                     }
                     generate {
                         deprecated = false
@@ -197,7 +191,8 @@ liquibase {
     activities {
         main {
             defaultSchemaName 'public'
-            changeLogFile "$projectDir/src/main/resources/changelog.yaml"
+            changeLogFile "src/main/resources/changelog.yaml"
+            classpath "$projectDir"
             url "jdbc:postgresql://${project.property('db.hostname')}:${project.property('db.port')}/${project.property('db.name')}"
             username "${project.property('db.user')}"
             password "${project.property('db.password')}"
