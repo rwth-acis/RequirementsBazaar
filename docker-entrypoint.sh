@@ -4,27 +4,28 @@ set -e
 
 # print all comands to console if DEBUG is set
 if [[ ! -z "${DEBUG}" ]]; then
-    set -x
+  set -x
 fi
 
 # set some helpful variables
 export SERVICE_PROPERTY_FILE='etc/de.rwth.dbis.acis.bazaar.service.BazaarService.properties'
 export WEB_CONNECTOR_PROPERTY_FILE='etc/i5.las2peer.webConnector.WebConnector.properties'
-export SERVICE_VERSION=$(awk -F "=" '/service.version/ {print $2}' etc/ant_configuration/service.properties)
-export SERVICE_NAME=$(awk -F "=" '/service.name/ {print $2}' etc/ant_configuration/service.properties)
-export SERVICE_CLASS=$(awk -F "=" '/service.class/ {print $2}' etc/ant_configuration/service.properties)
+
+export SERVICE_VERSION=$(awk -F "=" '/service.version/ {print $2}' gradle.properties)
+export SERVICE_NAME=$(awk -F "=" '/service.name/ {print $2}' gradle.properties)
+export SERVICE_CLASS=$(awk -F "=" '/service.class/ {print $2}' gradle.properties)
 export SERVICE=${SERVICE_NAME}.${SERVICE_CLASS}@${SERVICE_VERSION}
 export POSTGRES_DATABASE='reqbaz'
 
 # check mandatory variables
-[[ -z "${POSTGRES_USER}" ]] && \
-    echo "Mandatory variable POSTGRES_USER is not set. Add -e POSTGRES_USER=reqbaz to your arguments." && exit 1
-[[ -z "${POSTGRES_PASSWORD}" ]] && \
-    echo "Mandatory variable POSTGRES_PASSWORD is not set. Add -e POSTGRES_PASSWORD=mypasswd to your arguments." && exit 1
+[[ -z "${POSTGRES_USER}" ]] &&
+  echo "Mandatory variable POSTGRES_USER is not set. Add -e POSTGRES_USER=reqbaz to your arguments." && exit 1
+[[ -z "${POSTGRES_PASSWORD}" ]] &&
+  echo "Mandatory variable POSTGRES_PASSWORD is not set. Add -e POSTGRES_PASSWORD=mypasswd to your arguments." && exit 1
 
 # set defaults for optional service parameters
-[[ -z "${POSTGRES_HOST}" ]] && export MYSQL_HOST='postgres'
-[[ -z "${POSTGRES_PORT}" ]] && export MYSQL_PORT='5432'
+[[ -z "${POSTGRES_HOST}" ]] && export POSTGRES_HOST='postgres'
+[[ -z "${POSTGRES_PORT}" ]] && export POSTGRES_PORT='5432'
 
 [[ -z "${SERVICE_PASSPHRASE}" ]] && export SERVICE_PASSPHRASE='Passphrase'
 [[ -z "${BAZAAR_LANG}" ]] && export BAZAAR_LANG='en'
@@ -49,8 +50,8 @@ export POSTGRES_DATABASE='reqbaz'
 
 # configure service properties
 
-function set_in_service_config {
-    sed -i "s?${1}[[:blank:]]*=.*?${1}=${2}?g" ${SERVICE_PROPERTY_FILE}
+function set_in_service_config() {
+  sed -i "s?${1}[[:blank:]]*=.*?${1}=${2}?g" ${SERVICE_PROPERTY_FILE}
 }
 set_in_service_config dbUserName ${POSTGRES_USER}
 set_in_service_config dbPassword ${POSTGRES_PASSWORD}
@@ -65,11 +66,10 @@ set_in_service_config smtpServer ${SMTP_SERVER}
 set_in_service_config emailFromAddress ${EMAIL_FROM_ADDRESS}
 set_in_service_config emailSummaryTimePeriodInMinutes ${EMAIL_SUMMARY_TIME_PERIOD_IN_MINUTES}
 
-
 # configure web connector properties
 
-function set_in_web_config {
-    sed -i "s?${1}[[:blank:]]*=.*?${1}=${2}?g" ${WEB_CONNECTOR_PROPERTY_FILE}
+function set_in_web_config() {
+  sed -i "s?${1}[[:blank:]]*=.*?${1}=${2}?g" ${WEB_CONNECTOR_PROPERTY_FILE}
 }
 set_in_web_config httpPort ${HTTP_PORT}
 set_in_web_config httpsPort ${HTTPS_PORT}
@@ -84,28 +84,27 @@ set_in_web_config oidcProviders ${OIDC_PROVIDERS}
 
 # wait for any bootstrap host to be available
 if [[ ! -z "${BOOTSTRAP}" ]]; then
-    echo "Waiting for any bootstrap host to become available..."
-    for host_port in ${BOOTSTRAP//,/ }; do
-        arr_host_port=(${host_port//:/ })
-        host=${arr_host_port[0]}
-        port=${arr_host_port[1]}
-        if { </dev/tcp/${host}/${port}; } 2>/dev/null; then
-            echo "${host_port} is available. Continuing..."
-            break
-        fi
-    done
+  echo "Waiting for any bootstrap host to become available..."
+  for host_port in ${BOOTSTRAP//,/ }; do
+    arr_host_port=(${host_port//:/ })
+    host=${arr_host_port[0]}
+    port=${arr_host_port[1]}
+    if { </dev/tcp/${host}/${port}; } 2>/dev/null; then
+      echo "${host_port} is available. Continuing..."
+      break
+    fi
+  done
 fi
 
 # prevent glob expansion in lib/*
 set -f
 LAUNCH_COMMAND='java -cp lib/*:service/* i5.las2peer.tools.L2pNodeLauncher -s service -p '"${LAS2PEER_PORT} ${SERVICE_EXTRA_ARGS}"
 if [[ ! -z "${BOOTSTRAP}" ]]; then
-    LAUNCH_COMMAND="${LAUNCH_COMMAND} -b ${BOOTSTRAP}"
+  LAUNCH_COMMAND="${LAUNCH_COMMAND} -b ${BOOTSTRAP}"
 fi
 
 # start the service within a las2peer node
-if [[ -z "${@}" ]]
-then
+if [[ -z "${@}" ]]; then
   exec ${LAUNCH_COMMAND} startService\("'""${SERVICE}""'", "'""${SERVICE_PASSPHRASE}""'"\) startWebConnector
 else
   exec ${LAUNCH_COMMAND} ${@}
