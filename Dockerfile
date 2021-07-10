@@ -14,6 +14,7 @@ WORKDIR /src
 COPY --chown=las2peer:las2peer ./reqbaz/build/export/ .
 COPY --chown=las2peer:las2peer docker-entrypoint.sh /src/docker-entrypoint.sh
 COPY --chown=las2peer:las2peer gradle.properties /src/gradle.properties
+RUN mkdir /src/log && chown -R las2peer:las2peer /src
 
 # run the rest as unprivileged user
 USER las2peer
