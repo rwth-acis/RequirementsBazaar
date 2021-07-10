@@ -1,0 +1,4 @@
+FROM liquibase/liquibase
+
+ADD reqbaz/src/main/resources/changelog.yaml reqbaz/src/main/resources/base-permissions.sql /liquibase/changelog
+CMD ["sh", "-c", "docker-entrypoint.sh --url="jdbc:postgresql://${HOST}:5432/reqbaz" --username=${USERNAME} --password=${PASSWORD} --classpath=/liquibase/changelog --changeLogFile=/liquibase/changelog/changelog.yaml update"]
