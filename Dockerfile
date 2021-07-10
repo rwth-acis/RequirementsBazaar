@@ -22,4 +22,5 @@ USER las2peer
 EXPOSE $HTTP_PORT
 EXPOSE $HTTPS_PORT
 EXPOSE $LAS2PEER_PORT
+
 ENTRYPOINT ["/src/docker-entrypoint.sh"]

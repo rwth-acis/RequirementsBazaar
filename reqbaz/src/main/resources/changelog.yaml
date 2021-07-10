@@ -1668,5 +1668,5 @@ databaseChangeLog:
             comment: Basic Role and Permission Maps
             endDelimiter: \nGO
             splitStatements: true
-            path: src/main/resources/base-permissions.sql
+            path: base-permissions.sql
             stripComments: true

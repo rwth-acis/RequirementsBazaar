@@ -191,8 +191,8 @@ liquibase {
     activities {
         main {
             defaultSchemaName 'public'
-            changeLogFile "src/main/resources/changelog.yaml"
-            classpath "$projectDir"
+            changeLogFile "changelog.yaml"
+            classpath "$projectDir/src/main/resources"
             url "jdbc:postgresql://${project.property('db.hostname')}:${project.property('db.port')}/${project.property('db.name')}"
             username "${project.property('db.user')}"
             password "${project.property('db.password')}"
