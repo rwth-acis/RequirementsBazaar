@@ -78,7 +78,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .groupBy(ACTIVITY.field(REQUIREMENT.ID)))
             .as("last_activity");
 
-    public static final Field<Object> VOTE_COUNT = select(DSL.count(DSL.nullif(VOTE.IS_UPVOTE, 0)))
+    public static final Field<Object> VOTE_COUNT = select(DSL.count(DSL.nullif(VOTE.IS_UPVOTE, false)))
             .from(VOTE)
             .where(VOTE.REQUIREMENT_ID.equal(REQUIREMENT.ID))
             .asField("voteCount");
@@ -201,8 +201,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             }
 
             //Filling up votes
-            Result<Record> voteQueryResult = jooq.select(DSL.count(DSL.nullif(vote.IS_UPVOTE, 0)).as("upVotes"))
-                    .select(DSL.count(DSL.nullif(vote.IS_UPVOTE, 1)).as("downVotes"))
+            Result<Record> voteQueryResult = jooq.select(DSL.count(DSL.nullif(vote.IS_UPVOTE, false)).as("upVotes"))
+                    .select(DSL.count(DSL.nullif(vote.IS_UPVOTE, true)).as("downVotes"))
                     .select(userVote.IS_UPVOTE.as("userVoted"))
                     .from(REQUIREMENT)
                     .leftOuterJoin(vote).on(vote.REQUIREMENT_ID.eq(REQUIREMENT.ID))

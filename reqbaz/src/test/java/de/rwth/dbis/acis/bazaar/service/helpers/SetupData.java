@@ -32,7 +32,7 @@ public abstract class SetupData {
         BasicDataSource dataSource = new BasicDataSource();
         // Deprecated according to jooq
         // dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUrl(dbUrl + "?useSSL=false&serverTimezone=UTC");
+        dataSource.setUrl(dbUrl);
         dataSource.setUsername(dbUserName);
         dataSource.setPassword(dbPassword);
         dataSource.setValidationQuery("SELECT 1;");
@@ -43,11 +43,11 @@ public abstract class SetupData {
 
     @Before
     public void setUp() throws Exception {
-        String url = "jdbc:mysql://localhost:3306/reqbaz";
+        String url = "jdbc:postgresql://localhost:5432/reqbaz";
 
-        DataSource dataSource = setupDataSource(url, "root", "rootpw");
+        DataSource dataSource = setupDataSource(url, "reqbaz", "reqbaz");
 
-        dalImpl = new DALFacadeImpl(dataSource, SQLDialect.MYSQL);
+        dalImpl = new DALFacadeImpl(dataSource, SQLDialect.POSTGRES);
         facade = dalImpl;
         jooq = dalImpl.getDslContext();
 

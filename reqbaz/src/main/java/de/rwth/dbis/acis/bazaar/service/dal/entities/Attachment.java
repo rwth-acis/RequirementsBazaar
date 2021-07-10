@@ -58,6 +58,7 @@ public class Attachment extends EntityBase implements Ownable {
     @Size(min = 1, max = 1000)
     private String fileUrl;
 
+    @NotNull
     @Min(value = 0)
     private int requirementId;
 

@@ -33,10 +33,8 @@ import org.jooq.impl.DSL;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.dal.jooq.Routines.udfNaturalsortformat;
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.CATEGORY;
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.CATEGORY_FOLLOWER_MAP;
-import static org.jooq.impl.DSL.val;
 
 /**
  * @since 6/9/2014
@@ -51,7 +49,7 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
         record.setLeaderId(entry.getCreator().getId());
         record.setCreationDate(LocalDateTime.now());
         if (entry.getAdditionalProperties() != null) {
-            record.setAdditionalProperties(JSON.json(entry.getAdditionalProperties().toString()));
+            record.setAdditionalProperties(JSONB.jsonb(entry.getAdditionalProperties().toString()));
         }
         return record;
     }
@@ -130,10 +128,10 @@ public class CategoryTransformer implements Transformer<Category, CategoryRecord
                     switch (sort.getSortDirection()) {
                         case DESC:
                             // 50 is derived from the name max length
-                            sortFields.add(udfNaturalsortformat(CATEGORY.NAME, val(50), val(".")).desc());
+                            sortFields.add(CATEGORY.NAME.desc());
                             break;
                         default:
-                            sortFields.add(udfNaturalsortformat(CATEGORY.NAME, val(50), val(".")).asc());
+                            sortFields.add(CATEGORY.NAME.asc());
                             break;
                     }
                     break;

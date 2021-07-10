@@ -33,9 +33,7 @@ import org.jooq.impl.DSL;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.dal.jooq.Routines.udfNaturalsortformat;
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
-import static org.jooq.impl.DSL.val;
 
 public class RequirementTransformer implements Transformer<Requirement, RequirementRecord> {
     @Override
@@ -47,7 +45,7 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
         record.setCreatorId(entry.getCreator().getId());
         record.setProjectId(entry.getProjectId());
         if (entry.getAdditionalProperties() != null) {
-            record.setAdditionalProperties(JSON.json(entry.getAdditionalProperties().toString()));
+            record.setAdditionalProperties(JSONB.jsonb(entry.getAdditionalProperties().toString()));
         }
         return record;
     }
@@ -140,9 +138,9 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
                     break;
                 case "name":
                     if (sort.getSortDirection() == Pageable.SortDirection.DESC) {
-                        sortFields.add(udfNaturalsortformat(REQUIREMENT.NAME, val(50), val(".")).desc());
+                        sortFields.add(REQUIREMENT.NAME.desc());
                     } else {
-                        sortFields.add(udfNaturalsortformat(REQUIREMENT.NAME, val(50), val(".")).asc());
+                        sortFields.add(REQUIREMENT.NAME.asc());
                     }
                     break;
                 case "vote":
