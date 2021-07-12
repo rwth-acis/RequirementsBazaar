@@ -45,7 +45,7 @@ public abstract class SetupData {
     public void setUp() throws Exception {
         String url = "jdbc:mysql://localhost:3306/reqbaz";
 
-        DataSource dataSource = setupDataSource(url, "root", "rootpw");
+        DataSource dataSource = setupDataSource(url, "root", "12345678");
 
         dalImpl = new DALFacadeImpl(dataSource, SQLDialect.MYSQL);
         facade = dalImpl;
