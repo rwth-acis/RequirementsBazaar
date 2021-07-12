@@ -1,0 +1,38 @@
+name: Gradle Build & Test
+on: [pull_request, push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:latest
+        ports:
+          - 3306:3306
+        env:
+          MYSQL_USER: reqbaz
+          MYSQL_PASSWORD: password
+          MYSQL_DATABASE: reqbaz
+          MYSQL_ROOT_PASSWORD: rootpw
+        options: --health-cmd="mysqladmin ping" --health-interval=5s --health-timeout=2s --health-retries=3
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 14
+        uses: actions/setup-java@v1
+        with:
+          java-version: 14
+      - name: Verify MySQL connection
+        run: |
+          while ! mysqladmin ping -h"127.0.0.1" -P"3306" --silent; do
+            sleep 1
+          done
+      - name: Build with Gradle
+        run: ./gradlew clean build --info
+      - uses: codecov/codecov-action@v1
+        with:
+          flags: unittests
+          files: ./reqbaz/build/reports/jacoco/test/jacocoTestReport.xml
+          fail_ci_if_error: true
+          verbose: true

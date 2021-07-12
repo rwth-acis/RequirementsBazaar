@@ -1,8 +1,7 @@
-Requirements Bazaar
-===================
+# Requirements Bazaar
 
-Idea
--------------------
+## Idea
+
 In years of research at RWTH Aachen we have developed and actually operated an **Open Innovation Platform for gathering requirements** for prototypes in large international academic projects. The last version of the current product is available under http://requirements-bazaar.org . End-users can enter their requirements by providing short descriptions including user stories, screenshots and other images. The requirements can then be shared amongst its users. On the other side of the chain, developers may take up ideas and transfer the accepted requirements to an issue system like JIRA.
 
 Over the last years it turned out that people want more lightweight and mobile-friendly tools; we found the old monolithic system to be very hard to maintain to add new features. Therefore we are currently redeveloping it from scratch integrating many ideas from our users and incorporating new research findings. We are further driven by a mobile-first approach to support a wide variety of devices. We additionally want to support various social features like sharing on social networks or blogs and allowing discussions and rating amongst end-users and developers.
@@ -15,52 +14,50 @@ The service is under development. You can participate by creating pull requests 
 
 More information about our microservice ecosystem is explained in our  **[<i class="icon-link "></i>Requirements-Bazaar wiki on Github](https://github.com/rwth-acis/RequirementsBazaar/wiki)**.
 
-----------
+---
 
-Service Documentation
--------------------
+## Service Documentation
+
 We use **[<i class="icon-link "></i>Swagger](http://swagger.io/specification/)** for documenting this microservice. You can use **[<i class="icon-link "></i>Swagger UI](http://swagger.io/swagger-ui/)** to inspect the API.
 Please use our deployed **[<i class="icon-link "></i>Swagger UI instance](https://requirements-bazaar.org/docs)** to inspect our API. You can authorize yourself via Oauth 2.0 by clicking at the `Authorize` button at the top. After you are authorized you can try out all the API calls directly from Swagger UI.
-To try out one API call open one method, fill the parameters and click `Try it out!`. The Swagger UI instance is connected to our development environment where we test nex features. So feel free to play around.
+To try out one API call open one method, fill the parameters and click `Try it out!`. The Swagger UI instance is also connected to our development environment where we test nex features. You can select this in the dropdown menu at the top. Feel free to play around there.
 
 API documentation endpoints:
 
  - `baseURL/bazaar/swagger.json`
 
-----------
+---
 
-Technology
--------------------
+## Technology
+
 Requirements bazaar itself is a web application, which is separated to a client-only side and a back-end side. This GitHub repo holds the codebase of the back-end side only. If you are looking for the front-end, take a look at this GitHub project: **[<i class="icon-link "></i>Requirement Bazaar Web Frontend](https://github.com/rwth-acis/RequirementsBazaar-WebFrontend)**
 
-The backend is built on Java technologies. As a service framework we use our in-house developed **[<i class="icon-link "></i>las2peer](https://github.com/rwth-acis/LAS2peer)** project. For persisting our data we use MySQL database and jOOQ to access it. User input validation is done using Jodd Vtor library and for serializing our data into JSON format, we use the Jackson library.
+The backend is built on Java technologies. As a service framework we use our in-house developed **[<i class="icon-link "></i>las2peer](https://github.com/rwth-acis/LAS2peer)** project. For persisting our data we use a MySQL database and jOOQ to access it and for serializing our data into JSON format, we use the Jackson library.
 
-Dependencies
--------------------
+## Dependencies
+
 In order to be able to run this service project the following components should be installed on your system:
 
- - JDK (min v1.8) + Java Cryptography Extension (JCE)
- - MySQL 5.7
- - Apache Ant to build
+ - JDK 14
+ - MySQL 5.7 (better 8)
+ - Gradle to build
 
-How to set up the database
--------------------
- 1. `git clone` this repo
- 2. To configure your database access look at the [Configuration](#configuration) section
- 3. Compile the project with `ant`
- 4. Create a new database called `reqbaz`, possibly with UTF-8 collation
- 5. Run `ant migrate-db` to create your db schema or migrate to a newer version while updating your service
- 6. If you need sample data run the file `\etc\add_reqbaz_demo_data.sql` or `\etc\add_reqbaz_demo_data_full.sql`
+## How to set up the database (non developer guide)
 
-Configuration
--------------------
+ 1. Download a release bundle from [GitHub](https://github.com/rwth-acis/RequirementsBazaar/releases)
+ 2. Create a new database called `reqbaz`, possibly with UTF-8 collation
+ 3. To configure your database access look at the [Configuration](#configuration) section
+ 4. Use flyway to migrate the database
+
+## Configuration
+
 You need to configure this service to work with your own specific environment. Here is the list of configuration variables:
 
 `\etc\de.rwth.dbis.acis.bazaar.service.BazaarService.properties`:
  - `dbUserName`:	    A database user's name, which will be used to access the database
  - `dbPassword`:	    The database user's password
  - `dbUrl`:			    JDBC Connection string to access the database. Modify it if you have changed the name of your database
- - `land`:              Default language setting
+ - `lang`:              Default language setting
  - `country`:           Default country setting
  - `baseURL`:           Base URL this service runs on
  - `frontendBaseURL`:    Base URL for the frontend which uses Requirements-Bazaar service
@@ -71,38 +68,43 @@ You need to configure this service to work with your own specific environment. H
 
 For other configuration settings, check the **[<i class="icon-link "></i>las2peer](https://github.com/rwth-acis/LAS2peer)** project.
 
-Build
--------------------
-For build management we use Ant. To build the cloned code, please using a console/terminal navigate to the home directory, where the build.xml file is located and run the following commands:
-
- - `ant`
- 
-You can also generate a bundled jar with all the dependencies with the command
- 
-  - `ant jar-big`
-
-How to run
--------------------
- 1. First please make sure you have already [set up the database](#how-to-set-up-the-database)
+### How to run
+ 1. First please make sure you have already [set up the database](#how-to-set-up-the-database).
  2. Make sure your [config settings](#configuration) are properly set.
- 3. [Build](#build)
- 4. Open a console/terminal window and navigate to the project directory
- 5. Run the `bin\start_network.bat` or `bin/start_network.sh` script
+ 3. When not using a release asset, check [Building](#building).
+ 4. Open a console/terminal window and navigate to the project directory.
+ 5. Run the `bin\start_network.bat` or `bin/start_network.sh` script.
 
- How to run using Docker
- -------------------
- Docker is providing the simplest way to run the Requirement Bazaar back-end. Just follow the following steps if Docker is already installed on your system:
+---
 
-  1. `git clone` this repo
-  2. `cd` into the cloned repo
-  3. `docker build -t rwthacis/reqbaz-service .`
-  4. `docker run -i -t --rm -v "$(pwd)":/build rwthacis/reqbaz-service`
+## Developer guide
 
-----------
+### Prerequisites
 
-Troubleshooting & FAQ
--------------------
- - I get Java encryption errors: Did you install Java Cryptography Extension?
+Building and testing requires a database which will be cleaned on every build.
+
+Set the credentials for this database in the gradle.properties and in the `reqbaz/etc` folder.
+This configuration folder is relevant for any testing related settings.
+
+In the `etc` folder on top level you may configure a different database if you want to distinguish between local testing and automated testing.
+However you'll have to apply the migrations with flyway manually to this database.
+
+### Building
+
+The build and test process is done with gradle. A simple `gradle build` should be sufficient to build the project and run the test cases.
+
+You may have to adjust either your global java environment or the one in your IDE to use Java 14 or the built asset won't start.
+
+### Debugging
+
+Add the debugger parameters below to your startscript and set up your IDE to connect to a remote debugging port.
+
+`-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5433`.
+
+Now you should be able to set breakpoints and inspect the runtime.
+
+## Troubleshooting & FAQ
+
  - I can not run the start script: Check if you have OS permission to run the file.
  - The service does not start: Check if all jars in the lib and service folder are readable.
  - The start script seems broken: Check if the start script has the correct encoding. If you ran the service on Unix use `dos2unix` to change the encoding.
