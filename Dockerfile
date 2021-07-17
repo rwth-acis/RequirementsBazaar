@@ -7,7 +7,7 @@ ENV LAS2PEER_PORT=9011
 
 RUN addgroup -g 1000 -S las2peer && \
     adduser -u 1000 -S las2peer -G las2peer
-RUN apk add --update bash && rm -f /var/cache/apk/*
+RUN apk add --update bash iproute2 && rm -f /var/cache/apk/*
 
 
 WORKDIR /src
