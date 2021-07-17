@@ -82,6 +82,11 @@ set_in_web_config crossOriginResourceMaxAge ${CROSS_ORIGIN_RESOURCE_MAX_AGE}
 set_in_web_config enableCrossOriginResourceSharing ${ENABLE_CROSS_ORIGIN_RESOURCE_SHARING}
 set_in_web_config oidcProviders ${OIDC_PROVIDERS}
 
+# set pod ip in pastry conf
+if [[ ! -z "${POD_IP}" ]]; then
+  echo external_address = ${POD_IP}:${LAS2PEER_PORT} > etc/pastry.properties
+fi
+
 # wait for any bootstrap host to be available
 if [[ ! -z "${BOOTSTRAP}" ]]; then
   echo "Waiting for any bootstrap host to become available..."
