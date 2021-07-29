@@ -385,9 +385,39 @@ public class DALFacadeImpl implements DALFacade {
                     e.printStackTrace();
                 }
             });
-
-
         }
+
+        // Synchronize attachments
+        if (modifiedRequirement.getAttachments() != null) {
+            // Check if tags have changed
+            for (Attachment attachment : modifiedRequirement.getAttachments()) {
+                try {
+                    Attachment internalAttachment = null;
+                    if (attachment.getId() != 0) {
+                        internalAttachment = getAttachmentById(attachment.getId());
+                    }
+
+                    // Check if attachment exists, otherwise create
+                    if (internalAttachment == null) {
+                        attachment.setRequirementId(modifiedRequirement.getId());
+                        attachment.setCreator(getUserById(userId));
+                        createAttachment(attachment);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // Remove tags no longer present
+            oldRequirement.getAttachments().stream().filter(attachment -> modifiedRequirement.getAttachments().contains(attachment)).forEach(attachment -> {
+                try {
+                    deleteAttachmentById(attachment.getId());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
         return getRequirementById(modifiedRequirement.getId(), userId);
     }
 
