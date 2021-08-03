@@ -86,7 +86,6 @@ set_in_web_config oidcProviders ${OIDC_PROVIDERS}
 if [[ ! -z "${POD_IP}" ]]; then
   echo external_address = ${POD_IP}:${LAS2PEER_PORT} > etc/pastry.properties
   echo socket_bindAddress = ${POD_IP} >> etc/pastry.properties
-
 fi
 
 # wait for any bootstrap host to be available

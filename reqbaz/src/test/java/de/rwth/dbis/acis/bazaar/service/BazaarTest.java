@@ -213,7 +213,7 @@ public class BazaarTest extends TestBase {
         try {
             MiniClient client = getClient();
 
-            String testRequirement = String.format("{\"name\": \"Test Requirements\",  \"description\": \"A test requirement\", \"categories\": [%s], \"projectId\": \"%s\", \"tags\": [{\"name\": \"CreateTest\", \"colour\": \"#FFFFFF\"}], \"additionalProperties\": {\"testProperty\": \"test\"}}", testProject.getDefaultCategoryId(), testProject.getId());
+            String testRequirement = String.format("{\"name\": \"Test Requirements\",  \"description\": \"A test requirement\", \"categories\": [%s], \"projectId\": \"%s\", \"tags\": [{\"name\": \"CreateTest\", \"colour\": \"#FFFFFF\"}], \"additionalProperties\": {\"testProperty\": \"test\"}, \"attachments\": [ { \"name\": \"wine.jpg\", \"mimeType\": \"image/jpeg\", \"identifier\": \"dc5562a3-fd6f-4401-b6d3-d97830cd2b5d\", \"fileUrl\": \"http://localhost/files/dc5562a3-fd6f-4401-b6d3-d97830cd2b5d\"}]}", testProject.getDefaultCategoryId(), testProject.getId());
             ClientResponse result = client.sendRequest("POST", mainPath + "requirements", testRequirement,
                     MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
             assertEquals(201, result.getHttpCode());
@@ -254,6 +254,7 @@ public class BazaarTest extends TestBase {
 
             // Test update
             createdRequirement.addProperty("description", "Updated Description");
+            createdRequirement.add("attachments", JsonParser.parseString("[{ \"name\": \"wine.jpg\", \"mimeType\": \"image/jpeg\", \"identifier\": \"06e42de9-fc36-4d31-b341-09f01d012d9c\", \"fileUrl\": \"http://localhost/files/06e42de9-fc36-4d31-b341-09f01d012d9c\"}]"));
             result = client.sendRequest("PUT", mainPath + "requirements", createdRequirement.toString(),
                     MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
             assertEquals(200, result.getHttpCode());

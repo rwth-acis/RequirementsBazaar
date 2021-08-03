@@ -89,6 +89,7 @@ public class BazaarService extends RESTService {
     private final List<BazaarFunctionRegistrar> functionRegistrar;
     private final NotificationDispatcher notificationDispatcher;
     private final DataSource dataSource;
+
     //CONFIG PROPERTIES
     protected String dbUserName;
     protected String dbPassword;
@@ -176,7 +177,6 @@ public class BazaarService extends RESTService {
         getResourceConfig().register(CategoryResource.class);
         getResourceConfig().register(RequirementsResource.class);
         getResourceConfig().register(CommentsResource.class);
-        getResourceConfig().register(AttachmentsResource.class);
         getResourceConfig().register(UsersResource.class);
         //getResourceConfig().register(PersonalisationDataResource.class);
         getResourceConfig().register(FeedbackResource.class);
