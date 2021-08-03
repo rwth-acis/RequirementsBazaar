@@ -27,6 +27,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.SystemRole;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreateValidation;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
@@ -426,15 +427,35 @@ public class BazaarService extends RESTService {
         @Path("/notifications")
         @ApiOperation(value = "This method sends all notifications (emails) in the waiting queue. Run this method before shutting down Requirements Bazaar.")
         @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Notifications send"),
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Notifications send"),
                 @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
                 @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
         })
         public Response sendNotifications() {
-            // TODO: Use authorization scopes to limit users who can run this method to admins
+            DALFacade dalFacade = null;
             try {
+                Agent agent = Context.getCurrent().getMainAgent();
+                String userId = agent.getIdentifier();
+                String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+                if (registrarErrors != null) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
+                }
+                dalFacade = bazaarService.getDBConnection();
+                Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, dalFacade.getRoleByName(SystemRole.SystemAdmin.name()), dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.notifications"));
+                }
                 bazaarService.notificationDispatcher.run();
-                return Response.status(Response.Status.CREATED).build();
+                return Response.status(Response.Status.OK).build();
+            } catch (BazaarException bex) {
+                if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                    return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else {
+                    Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Flushing notifications");
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                }
             } catch (Exception ex) {
                 BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
                 Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Send Notifications failed");

@@ -52,4 +52,21 @@ public class Role extends EntityBase {
             return false;
         }
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) {
+            return true;
+        }
+        if (!(o instanceof Role)) {
+            return false;
+        }
+        Role other = (Role) o;
+
+        if (isProjectScoped()) {
+            return id == other.id;
+        }
+        return name.equals(other.name);
+    }
+
 }

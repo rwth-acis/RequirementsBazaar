@@ -563,4 +563,30 @@ public class BazaarTest extends TestBase {
             fail(e.toString());
         }
     }
+
+
+    /**
+     * Test notification flush endpoint authorizations
+     */
+    @Test
+    public void testNotifications() {
+        try {
+            MiniClient client = getClient();
+            MiniClient adminClient = getAdminClient();
+
+            String path = mainPath + "notifications";
+            ClientResponse result = client.sendRequest("POST", path, "");
+            assertEquals(401, result.getHttpCode());
+
+            // Admin privilege check should pass
+            result = adminClient.sendRequest("POST", path, "");
+            assertEquals(200, result.getHttpCode());
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail(e.toString());
+        }
+    }
+
 }
