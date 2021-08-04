@@ -768,6 +768,12 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public Role getRoleByName(String role) throws BazaarException {
+        roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
+        return roleRepository.findByRoleName(role);
+    }
+
+    @Override
     public void removeUserFromProject(int userId, Integer context) throws BazaarException {
         roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
         roleRepository.removeUserFromRole(userId, context);

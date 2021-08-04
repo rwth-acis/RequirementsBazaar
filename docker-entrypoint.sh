@@ -10,23 +10,22 @@ fi
 # set some helpful variables
 export SERVICE_PROPERTY_FILE='etc/de.rwth.dbis.acis.bazaar.service.BazaarService.properties'
 export WEB_CONNECTOR_PROPERTY_FILE='etc/i5.las2peer.webConnector.WebConnector.properties'
-export SERVICE_VERSION=$(awk -F "=" '/service.version/ {print $2}' etc/ant_configuration/service.properties)
-export SERVICE_NAME=$(awk -F "=" '/service.name/ {print $2}' etc/ant_configuration/service.properties)
-export SERVICE_CLASS=$(awk -F "=" '/service.class/ {print $2}' etc/ant_configuration/service.properties)
+
+export SERVICE_VERSION=$(awk -F "=" '/service.version/ {print $2}' gradle.properties)
+export SERVICE_NAME=$(awk -F "=" '/service.name/ {print $2}' gradle.properties)
+export SERVICE_CLASS=$(awk -F "=" '/service.class/ {print $2}' gradle.properties)
 export SERVICE=${SERVICE_NAME}.${SERVICE_CLASS}@${SERVICE_VERSION}
-export DEMO_DATA_SQL='etc/migrations/add_reqbaz_demo_data.sql'
-export DEMO_DATA_SQL_FULL='etc/migrations/add_reqbaz_demo_data_full.sql'
-export MYSQL_DATABASE='reqbaz'
+export POSTGRES_DATABASE='reqbaz'
 
 # check mandatory variables
-[[ -z "${MYSQL_USER}" ]] &&
-  echo "Mandatory variable MYSQL_USER is not set. Add -e MYSQL_USER=myuser to your arguments." && exit 1
-[[ -z "${MYSQL_PASSWORD}" ]] &&
-  echo "Mandatory variable MYSQL_PASSWORD is not set. Add -e MYSQL_PASSWORD=mypasswd to your arguments." && exit 1
+[[ -z "${POSTGRES_USER}" ]] &&
+  echo "Mandatory variable POSTGRES_USER is not set. Add -e POSTGRES_USER=reqbaz to your arguments." && exit 1
+[[ -z "${POSTGRES_PASSWORD}" ]] &&
+  echo "Mandatory variable POSTGRES_PASSWORD is not set. Add -e POSTGRES_PASSWORD=mypasswd to your arguments." && exit 1
 
 # set defaults for optional service parameters
-[[ -z "${MYSQL_HOST}" ]] && export MYSQL_HOST='mysql'
-[[ -z "${MYSQL_PORT}" ]] && export MYSQL_PORT='3306'
+[[ -z "${POSTGRES_HOST}" ]] && export POSTGRES_HOST='postgres'
+[[ -z "${POSTGRES_PORT}" ]] && export POSTGRES_PORT='5432'
 
 [[ -z "${SERVICE_PASSPHRASE}" ]] && export SERVICE_PASSPHRASE='Passphrase'
 [[ -z "${BAZAAR_LANG}" ]] && export BAZAAR_LANG='en'
@@ -54,9 +53,9 @@ export MYSQL_DATABASE='reqbaz'
 function set_in_service_config() {
   sed -i "s?${1}[[:blank:]]*=.*?${1}=${2}?g" ${SERVICE_PROPERTY_FILE}
 }
-set_in_service_config dbUserName ${MYSQL_USER}
-set_in_service_config dbPassword ${MYSQL_PASSWORD}
-set_in_service_config dbUrl "jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}"
+set_in_service_config dbUserName ${POSTGRES_USER}
+set_in_service_config dbPassword ${POSTGRES_PASSWORD}
+set_in_service_config dbUrl "jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DATABASE}"
 set_in_service_config lang ${BAZAAR_LANG}
 set_in_service_config country ${BAZAAR_COUNTRY}
 set_in_service_config baseURL ${BASE_URL}
@@ -85,8 +84,8 @@ set_in_web_config oidcProviders ${OIDC_PROVIDERS}
 
 # set pod ip in pastry conf
 if [[ ! -z "${POD_IP}" ]]; then
-  echo external_address = ${POD_IP}:${LAS2PEER_PORT} >etc/pastry.properties
-  echo socket_bindAddress = ${POD_IP} >>etc/pastry.properties
+  echo external_address = ${POD_IP}:${LAS2PEER_PORT} > etc/pastry.properties
+  echo socket_bindAddress = ${POD_IP} >> etc/pastry.properties
 fi
 
 # wait for any bootstrap host to be available

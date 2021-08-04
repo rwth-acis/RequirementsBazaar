@@ -61,7 +61,7 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
             Result<Record> queryResult = jooq.selectFrom(
                     USER_ROLE_MAP
                             .join(roleTable).on(USER_ROLE_MAP.ROLE_ID.eq(roleTable.ID))
-                            .leftOuterJoin(ROLE_PRIVILEGE_MAP).on(ROLE_PRIVILEGE_MAP.ROLE_ID.eq(ROLE.ID))
+                            .leftOuterJoin(ROLE_PRIVILEGE_MAP).on(ROLE_PRIVILEGE_MAP.ROLE_ID.eq(roleTable.ID))
                             .leftOuterJoin(PRIVILEGE).on(PRIVILEGE.ID.eq(ROLE_PRIVILEGE_MAP.PRIVILEGE_ID))
             ).where(USER_ROLE_MAP.USER_ID.equal(userId).and(USER_ROLE_MAP.CONTEXT_INFO.eq(context).or(USER_ROLE_MAP.CONTEXT_INFO.isNull()))).fetch();
 
@@ -152,6 +152,7 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
         return new PaginationResult<>(total, pageable, projectMembers);
     }
 
+    @Override
     public ProjectRole getProjectRole(int userId, int projectId) throws BazaarException {
         List<Role> roles = listRolesOfUser(userId, projectId);
 
@@ -199,13 +200,17 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
     private void convertToRoles(List<Role> roles, de.rwth.dbis.acis.bazaar.dal.jooq.tables.Role roleTable,
                                 de.rwth.dbis.acis.bazaar.dal.jooq.tables.Privilege privilegeTable, Result<Record> queryResult) {
         for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(roleTable.ID).entrySet()) {
-            if (entry.getKey() == null) continue;
+            if (entry.getKey() == null) {
+                continue;
+            }
             Result<Record> records = entry.getValue();
 
             List<Privilege> rolesToAddPrivileges = new ArrayList<>();
 
             for (Map.Entry<Integer, Result<Record>> privilegeEntry : records.intoGroups(privilegeTable.ID).entrySet()) {
-                if (privilegeEntry.getKey() == null) continue;
+                if (privilegeEntry.getKey() == null) {
+                    continue;
+                }
                 Result<Record> privileges = privilegeEntry.getValue();
 
                 Privilege privilege = Privilege.builder().name(new PrivilegeEnumConverter().from(privileges.getValues(privilegeTable.NAME).get(0)))
