@@ -222,8 +222,8 @@ task export(type: Copy, dependsOn: build) {
     }
     into("sql") {
         from processResources
-        include "migrations/*.sql"
-        rename 'migrations/(.+)', '$1'
+        include "*.sql"
+        include "changelog.yaml"
     }
 }
 
