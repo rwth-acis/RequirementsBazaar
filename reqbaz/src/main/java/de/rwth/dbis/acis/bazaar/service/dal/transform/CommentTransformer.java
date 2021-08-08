@@ -26,7 +26,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
@@ -42,7 +42,7 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
         record.setMessage(entity.getMessage());
         record.setRequirementId(entity.getRequirementId());
         record.setReplyToCommentId(entity.getReplyToComment());
-        record.setCreationDate(LocalDateTime.now());
+        record.setCreationDate(OffsetDateTime.now());
         record.setDeleted(entity.getDeleted());
         return record;
     }
@@ -76,14 +76,14 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
     }
 
     @Override
-    public Map<Field, Object> getUpdateMap(final Comment entity) {
-        HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
+    public Map<Field, Object> getUpdateMap(Comment entity) {
+        HashMap<Field, Object> updateMap = new HashMap<>() {{
             put(COMMENT.REQUIREMENT_ID, entity.getRequirementId());
             put(COMMENT.MESSAGE, entity.getMessage());
             put(COMMENT.DELETED, entity.getDeleted());
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(COMMENT.LAST_UPDATED_DATE, LocalDateTime.now());
+            updateMap.put(COMMENT.LAST_UPDATED_DATE, OffsetDateTime.now());
         }
         return updateMap;
     }
@@ -132,7 +132,9 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
     @Override
     public Condition getSearchCondition(String search) throws Exception {
         //throw new Exception("Search is not supported!");
-        if(search != "")  return COMMENT.MESSAGE.likeIgnoreCase("%" + search + "%");
+        if (search != "") {
+            return COMMENT.MESSAGE.likeIgnoreCase("%" + search + "%");
+        }
         return DSL.trueCondition();
     }
 
@@ -146,32 +148,29 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
                 conditions.add(
                         COMMENT.USER_ID.eq(Integer.parseInt(filterEntry.getValue()))
                 );
-            }else
-
-            if(filterEntry.getKey().equals("following")){
+            } else if (filterEntry.getKey().equals("following")) {
                 conditions.add(
                         COMMENT.REQUIREMENT_ID.in(
                                 DSL.<Integer>select(REQUIREMENT_FOLLOWER_MAP.REQUIREMENT_ID)
                                         .from(REQUIREMENT_FOLLOWER_MAP)
                                         .where(REQUIREMENT_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue())))
-                                .union(
-                                        DSL.select(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID)
-                                                .from(REQUIREMENT_CATEGORY_MAP)
-                                                .join(CATEGORY_FOLLOWER_MAP)
-                                                .on(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.eq(CATEGORY_FOLLOWER_MAP.CATEGORY_ID)
-                                                .and(CATEGORY_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue()))))
-                                ).union(
-                                        DSL.<Integer>select(REQUIREMENT.ID)
-                                                .from(REQUIREMENT)
-                                                .join(PROJECT_FOLLOWER_MAP)
-                                                .on(REQUIREMENT.PROJECT_ID.eq(PROJECT_FOLLOWER_MAP.PROJECT_ID)
-                                                        .and(PROJECT_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue()))))
-                                )
+                                        .union(
+                                                DSL.select(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID)
+                                                        .from(REQUIREMENT_CATEGORY_MAP)
+                                                        .join(CATEGORY_FOLLOWER_MAP)
+                                                        .on(REQUIREMENT_CATEGORY_MAP.CATEGORY_ID.eq(CATEGORY_FOLLOWER_MAP.CATEGORY_ID)
+                                                                .and(CATEGORY_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue()))))
+                                        ).union(
+                                                DSL.<Integer>select(REQUIREMENT.ID)
+                                                        .from(REQUIREMENT)
+                                                        .join(PROJECT_FOLLOWER_MAP)
+                                                        .on(REQUIREMENT.PROJECT_ID.eq(PROJECT_FOLLOWER_MAP.PROJECT_ID)
+                                                                .and(PROJECT_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue()))))
+                                        )
                         )
                 );
 
-            }else
-            if(filterEntry.getKey().equals("replies")) {
+            } else if (filterEntry.getKey().equals("replies")) {
                 de.rwth.dbis.acis.bazaar.dal.jooq.tables.Comment SUB_COMMENTS = COMMENT.as("sub_comments");
                 de.rwth.dbis.acis.bazaar.dal.jooq.tables.Comment IN_COMMENTS = COMMENT.as("in_comments");
                 conditions.add(
@@ -179,17 +178,17 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
                                 DSL.select(IN_COMMENTS.ID)
                                         .from(IN_COMMENTS)
                                         .leftSemiJoin(SUB_COMMENTS).on(
-                                        (
-                                                IN_COMMENTS.REPLY_TO_COMMENT_ID.eq(SUB_COMMENTS.REPLY_TO_COMMENT_ID)                //Refering same thread/base-comment
-                                                        .and(
-                                                                IN_COMMENTS.CREATION_DATE.greaterThan(SUB_COMMENTS.CREATION_DATE)   //replies have greater timestamp than the users comment
-                                                        ).and(
-                                                        SUB_COMMENTS.USER_ID.eq(Integer.parseInt(filterEntry.getValue()))       //Comments the user wrote
+                                                (
+                                                        IN_COMMENTS.REPLY_TO_COMMENT_ID.eq(SUB_COMMENTS.REPLY_TO_COMMENT_ID)                //Refering same thread/base-comment
+                                                                .and(
+                                                                        IN_COMMENTS.CREATION_DATE.greaterThan(SUB_COMMENTS.CREATION_DATE)   //replies have greater timestamp than the users comment
+                                                                ).and(
+                                                                        SUB_COMMENTS.USER_ID.eq(Integer.parseInt(filterEntry.getValue()))       //Comments the user wrote
+                                                                )
+                                                ).or(
+                                                        IN_COMMENTS.REPLY_TO_COMMENT_ID.eq(SUB_COMMENTS.ID).and(SUB_COMMENTS.USER_ID.eq(Integer.parseInt(filterEntry.getValue())))   //User is Thread-Owner
                                                 )
-                                        ).or(
-                                                IN_COMMENTS.REPLY_TO_COMMENT_ID.eq(SUB_COMMENTS.ID).and(SUB_COMMENTS.USER_ID.eq(Integer.parseInt(filterEntry.getValue())))   //User is Thread-Owner
-                                        )
-                                ).where(IN_COMMENTS.USER_ID.notEqual(Integer.parseInt(filterEntry.getValue())))             // Remove Users "Own" Comments
+                                        ).where(IN_COMMENTS.USER_ID.notEqual(Integer.parseInt(filterEntry.getValue())))             // Remove Users "Own" Comments
                         )
                 );
             }
@@ -208,7 +207,7 @@ public class CommentTransformer implements Transformer<Comment, CommentRecord> {
 
             }else
   */
-            else{
+            else {
 
                 conditions.add(
                         DSL.falseCondition()

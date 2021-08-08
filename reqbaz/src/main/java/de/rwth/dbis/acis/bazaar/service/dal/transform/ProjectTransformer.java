@@ -30,7 +30,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.repositories.ProjectRepositoryImpl;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
@@ -45,7 +45,7 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
         record.setLeaderId(entry.getLeader().getId());
         record.setVisibility(entry.getVisibility());
         record.setDefaultCategoryId(entry.getDefaultCategoryId());
-        record.setCreationDate(LocalDateTime.now());
+        record.setCreationDate(OffsetDateTime.now());
         if (entry.getAdditionalProperties() != null) {
             record.setAdditionalProperties(JSONB.jsonb(entry.getAdditionalProperties().toString()));
         }
@@ -116,7 +116,7 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
             }
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(PROJECT.LAST_UPDATED_DATE, LocalDateTime.now());
+            updateMap.put(PROJECT.LAST_UPDATED_DATE, OffsetDateTime.now());
         }
         return updateMap;
     }

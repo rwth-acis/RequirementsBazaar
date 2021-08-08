@@ -25,7 +25,7 @@ databaseChangeLog:
                     nullable: false
                   defaultValueComputed: now()
                   name: creation_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
               - column:
                   name: email
                   type: VARCHAR(255)
@@ -68,10 +68,10 @@ databaseChangeLog:
                     nullable: false
                   defaultValueComputed: now()
                   name: creation_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
               - column:
                   name: last_updated_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
               - column:
                   constraints:
                     nullable: false
@@ -136,10 +136,10 @@ databaseChangeLog:
                     nullable: false
                   defaultValueComputed: now()
                   name: creation_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
               - column:
                   name: last_updated_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
               - column:
                   constraints:
                     nullable: false
@@ -172,11 +172,11 @@ databaseChangeLog:
                     nullable: false
                   defaultValueComputed: now()
                   name: creation_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
               - column:
                   defaultValueComputed: now()
                   name: last_updated_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
               - column:
                   constraints:
                     nullable: false
@@ -224,7 +224,7 @@ databaseChangeLog:
                     nullable: false
                   defaultValueComputed: now()
                   name: creation_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
             tableName: category_follower_map
   - changeSet:
       id: 1624138981933-7
@@ -278,7 +278,7 @@ databaseChangeLog:
                     nullable: false
                   defaultValueComputed: now()
                   name: creation_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
             tableName: requirement_developer_map
   - changeSet:
       id: 1624138981933-9
@@ -340,7 +340,7 @@ databaseChangeLog:
                     nullable: false
                   defaultValueComputed: now()
                   name: creation_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
             tableName: vote
   - changeSet:
       id: 1624138981933-11
@@ -360,10 +360,10 @@ databaseChangeLog:
                     nullable: false
                   defaultValueComputed: now()
                   name: creation_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
               - column:
                   name: last_updated_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
               - column:
                   constraints:
                     nullable: false
@@ -448,13 +448,13 @@ databaseChangeLog:
                     nullable: false
                   defaultValueComputed: now()
                   name: creation_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
               - column:
                   name: last_updated_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
               - column:
                   name: last_login_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
               - column:
                   defaultValueBoolean: true
                   name: personalization_enabled
@@ -526,10 +526,10 @@ databaseChangeLog:
                     nullable: false
                   defaultValueComputed: now()
                   name: creation_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
               - column:
                   name: last_updated_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
               - column:
                   constraints:
                     nullable: false
@@ -578,7 +578,7 @@ databaseChangeLog:
                     nullable: false
                   defaultValueComputed: now()
                   name: creation_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
             tableName: requirement_follower_map
   - changeSet:
       id: 1624138981933-18
@@ -620,7 +620,7 @@ databaseChangeLog:
                     nullable: false
                   defaultValueComputed: now()
                   name: creation_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
               - column:
                   constraints:
                     nullable: false
@@ -655,16 +655,16 @@ databaseChangeLog:
                   type: TEXT
               - column:
                   name: realized
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
               - column:
                   constraints:
                     nullable: false
                   defaultValueComputed: now()
                   name: creation_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
               - column:
                   name: last_updated_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
               - column:
                   name: lead_developer_id
                   type: INTEGER
@@ -710,7 +710,7 @@ databaseChangeLog:
                     nullable: false
                   defaultValueComputed: now()
                   name: creation_date
-                  type: TIMESTAMP WITHOUT TIME ZONE
+                  type: TIMESTAMP WITH TIME ZONE
             tableName: project_follower_map
   - changeSet:
       id: 1624138981933-22

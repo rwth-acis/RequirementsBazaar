@@ -21,11 +21,10 @@ import java.time.format.DateTimeParseException;
  */
 public abstract class TestBase extends SetupData {
 
-    private static final String testPass = "adamspass";
-    private static final String adminPass = "evespass";
-
     static final String mainPath = "bazaar/";
     static final String testVersion = "1.0.0";
+    private static final String testPass = "adamspass";
+    private static final String adminPass = "evespass";
     private static LocalNode node;
     private static WebConnector connector;
     private static ByteArrayOutputStream logStream;
@@ -108,7 +107,7 @@ public abstract class TestBase extends SetupData {
     }
 
     boolean isValidISO8601(String dateStr) {
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
         try {
             dateFormatter.parse(dateStr);
         } catch (DateTimeParseException e) {

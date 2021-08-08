@@ -29,7 +29,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 @Api(value = "feedback")
@@ -54,9 +54,8 @@ import java.util.*;
 @Path("/feedback")
 public class FeedbackResource {
 
-    private BazaarService bazaarService;
-
     private final L2pLogger logger = L2pLogger.getInstance(CommentsResource.class.getName());
+    private final BazaarService bazaarService;
 
     public FeedbackResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
@@ -65,9 +64,9 @@ public class FeedbackResource {
     /**
      * This method returns the list of feedback for a given project.
      *
-     * @param projectId     id of the project
-     * @param page          page number
-     * @param perPage       number of projects by page
+     * @param projectId id of the project
+     * @param page      page number
+     * @param perPage   number of projects by page
      * @return Response with comments as a JSON array.
      */
     public Response getFeedbackForProject(int projectId, int page, int perPage) {
@@ -82,7 +81,9 @@ public class FeedbackResource {
             PageInfo pageInfo = new PageInfo(page, perPage);
             // Take Object for generic error handling
             Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
-            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+            if (violations.size() > 0) {
+                ExceptionHandler.getInstance().handleViolations(violations);
+            }
 
             dalFacade = bazaarService.getDBConnection();
             //Todo use requirement's projectId for security context, not the one sent from client
@@ -91,12 +92,12 @@ public class FeedbackResource {
             Project project = dalFacade.getProjectById(projectId, internalUserId);
 
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_FEEDBACK, project.getId(), dalFacade);
-                if (!authorized) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.feedback.read"));
-                }
+            if (!authorized) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.feedback.read"));
+            }
 
             PaginationResult<Feedback> feedbackResult = dalFacade.getFeedbackByProject(projectId, pageInfo);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_43,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_43,
                     projectId, Activity.DataType.FEEDBACK, internalUserId);
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{
@@ -155,7 +156,9 @@ public class FeedbackResource {
 
             dalFacade = bazaarService.getDBConnection();
             Set<ConstraintViolation<Object>> violations = bazaarService.validateCreate(givenFeedback);
-            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+            if (violations.size() > 0) {
+                ExceptionHandler.getInstance().handleViolations(violations);
+            }
 
             Feedback createdFeedback = dalFacade.createFeedback(givenFeedback);
             return Response.status(Response.Status.CREATED).entity(createdFeedback.toJSON()).build();

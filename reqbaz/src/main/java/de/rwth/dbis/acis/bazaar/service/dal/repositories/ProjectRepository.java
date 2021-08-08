@@ -26,7 +26,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
@@ -42,9 +42,9 @@ public interface ProjectRepository extends Repository<Project> {
 
     boolean belongsToPublicProject(int id) throws BazaarException;
 
-    Statistic getStatisticsForVisibleProjects(int userId, LocalDateTime timestamp) throws BazaarException;
+    Statistic getStatisticsForVisibleProjects(int userId, OffsetDateTime timestamp) throws BazaarException;
 
-    Statistic getStatisticsForProject(int userId, int projectId, LocalDateTime timestamp) throws BazaarException;
+    Statistic getStatisticsForProject(int userId, int projectId, OffsetDateTime timestamp) throws BazaarException;
 
     List<Integer> listAllProjectIds(Pageable pageable, int userId) throws BazaarException;
 

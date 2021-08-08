@@ -39,7 +39,8 @@ import org.jooq.impl.DSL;
 
 import javax.sql.DataSource;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -259,14 +260,14 @@ public class DALFacadeImpl implements DALFacade {
     public Statistic getStatisticsForAllProjects(int userId, Calendar since) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         Timestamp timestamp = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
-        return projectRepository.getStatisticsForVisibleProjects(userId, timestamp.toLocalDateTime());
+        return projectRepository.getStatisticsForVisibleProjects(userId, timestamp.toLocalDateTime().atOffset(ZoneOffset.UTC));
     }
 
     @Override
     public Statistic getStatisticsForProject(int userId, int projectId, Calendar since) throws BazaarException {
         projectRepository = (projectRepository != null) ? projectRepository : new ProjectRepositoryImpl(dslContext);
         Timestamp timestamp = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
-        return projectRepository.getStatisticsForProject(userId, projectId, timestamp.toLocalDateTime());
+        return projectRepository.getStatisticsForProject(userId, projectId, timestamp.toLocalDateTime().atOffset(ZoneOffset.UTC));
     }
 
     @Override
@@ -432,7 +433,7 @@ public class DALFacadeImpl implements DALFacade {
     @Override
     public Requirement setRequirementToRealized(int requirementId, int userId) throws Exception {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
-        requirementRepository.setRealized(requirementId, LocalDateTime.now());
+        requirementRepository.setRealized(requirementId, OffsetDateTime.now());
         return getRequirementById(requirementId, userId);
     }
 
@@ -467,7 +468,7 @@ public class DALFacadeImpl implements DALFacade {
     public Statistic getStatisticsForRequirement(int userId, int requirementId, Calendar since) throws BazaarException {
         requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
         Timestamp timestamp = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
-        return requirementRepository.getStatisticsForRequirement(userId, requirementId, timestamp.toLocalDateTime());
+        return requirementRepository.getStatisticsForRequirement(userId, requirementId, timestamp.toLocalDateTime().atOffset(ZoneOffset.UTC));
     }
 
     @Override
@@ -540,7 +541,7 @@ public class DALFacadeImpl implements DALFacade {
     public Statistic getStatisticsForCategory(int userId, int categoryId, Calendar since) throws BazaarException {
         categoryRepository = (categoryRepository != null) ? categoryRepository : new CategoryRepositoryImpl(dslContext);
         Timestamp timestamp = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
-        return categoryRepository.getStatisticsForCategory(userId, categoryId, timestamp.toLocalDateTime());
+        return categoryRepository.getStatisticsForCategory(userId, categoryId, timestamp.toLocalDateTime().atOffset(ZoneOffset.UTC));
     }
 
     @Override

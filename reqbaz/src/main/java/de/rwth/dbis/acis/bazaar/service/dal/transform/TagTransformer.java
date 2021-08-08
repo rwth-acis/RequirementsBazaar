@@ -5,7 +5,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Tag;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import org.jooq.*;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.TAG;
@@ -17,7 +17,7 @@ public class TagTransformer implements Transformer<Tag, TagRecord> {
         record.setProjectId(entity.getProjectId());
         record.setName(entity.getName());
         record.setColour(entity.getColour());
-        record.setCreationDate(LocalDateTime.now());
+        record.setCreationDate(OffsetDateTime.now());
         return record;
     }
 

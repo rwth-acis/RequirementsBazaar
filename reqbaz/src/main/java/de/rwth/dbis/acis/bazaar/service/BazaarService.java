@@ -69,7 +69,7 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 
@@ -396,7 +396,7 @@ public class BazaarService extends RESTService {
                 Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
                 Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
                 Statistic platformStatistics = dalFacade.getStatisticsForAllProjects(internalUserId, sinceCal);
-                bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_2,
+                bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_2,
                         0, Activity.DataType.STATISTIC, internalUserId);
                 return Response.ok(platformStatistics.toJSON()).build();
             } catch (BazaarException bex) {

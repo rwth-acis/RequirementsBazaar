@@ -30,7 +30,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.repositories.RequirementRepositoryIm
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
@@ -41,7 +41,7 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
         RequirementRecord record = new RequirementRecord();
         record.setDescription(entry.getDescription());
         record.setName(entry.getName());
-        record.setCreationDate(LocalDateTime.now());
+        record.setCreationDate(OffsetDateTime.now());
         record.setCreatorId(entry.getCreator().getId());
         record.setProjectId(entry.getProjectId());
         if (entry.getAdditionalProperties() != null) {
@@ -109,7 +109,7 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
             }
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(REQUIREMENT.LAST_UPDATED_DATE, LocalDateTime.now());
+            updateMap.put(REQUIREMENT.LAST_UPDATED_DATE, OffsetDateTime.now());
         }
         return updateMap;
     }
