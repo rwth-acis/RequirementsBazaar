@@ -38,6 +38,7 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 
 - Updated all dependencies, most notably las2peer 1.0.0 [#68](https://github.com/rwth-acis/RequirementsBazaar/pull/68)
 - Updated las2peer to 1.1.0 and thereby requiring Java 14 [#73](https://github.com/rwth-acis/RequirementsBazaar/pull/73)
+- Updated las2peer to 1.1.2 [#115](https://github.com/rwth-acis/RequirementsBazaar/pull/115)
 - Changed buildsystem to use gradle [#73](https://github.com/rwth-acis/RequirementsBazaar/pull/73)
 - Automatically generate jooq code from migration files at build
   time [#73](https://github.com/rwth-acis/RequirementsBazaar/pull/73)
@@ -71,10 +72,15 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
   redacted [#103](https://github.com/rwth-acis/RequirementsBazaar/pull/103).
 - Comments for a requirement are no longer paginated but instead return all
   comments [#103](https://github.com/rwth-acis/RequirementsBazaar/pull/103).
+- Postgres is now the backend database [#112](https://github.com/rwth-acis/RequirementsBazaar/pull/112)
+- Attachments are now updated via PUT towards the requirement
+  endpoint [#114](https://github.com/rwth-acis/RequirementsBazaar/pull/114).
+- All timestamps now contain timezone information [#115](https://github.com/rwth-acis/RequirementsBazaar/pull/115)
 
 ### Removed
 
 - Personalisation endpoints [#94](https://github.com/rwth-acis/RequirementsBazaar/pull/94)
+- Attachment endpoint [#114](https://github.com/rwth-acis/RequirementsBazaar/pull/114)
 
 ## [0.7.2] - 2017-10-25
 
