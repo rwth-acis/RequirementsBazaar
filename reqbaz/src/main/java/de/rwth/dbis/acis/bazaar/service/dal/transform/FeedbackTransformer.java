@@ -5,7 +5,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Feedback;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import org.jooq.*;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.FEEDBACK;
@@ -18,7 +18,7 @@ public class FeedbackTransformer implements Transformer<Feedback, FeedbackRecord
         record.setFeedback(entity.getFeedback());
         record.setEmail(entity.getEMail());
         record.setRequirementId(entity.getRequirementId());
-        record.setCreationDate(LocalDateTime.now());
+        record.setCreationDate(OffsetDateTime.now());
         return record;
     }
 
@@ -57,7 +57,8 @@ public class FeedbackTransformer implements Transformer<Feedback, FeedbackRecord
                 put(FEEDBACK.REQUIREMENT_ID, entity.getRequirementId());
             }
         }};
-        return updateMap;    }
+        return updateMap;
+    }
 
     @Override
     public Collection<? extends SortField<?>> getSortFields(List<Pageable.SortField> sorts) {

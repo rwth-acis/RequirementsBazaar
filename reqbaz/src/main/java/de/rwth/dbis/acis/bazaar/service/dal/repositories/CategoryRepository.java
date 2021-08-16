@@ -26,7 +26,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
@@ -46,7 +46,7 @@ public interface CategoryRepository extends Repository<Category> {
 
     boolean belongsToPublicProject(int id) throws BazaarException;
 
-    Statistic getStatisticsForCategory(int userId, int categoryId, LocalDateTime timestamp) throws BazaarException;
+    Statistic getStatisticsForCategory(int userId, int categoryId, OffsetDateTime timestamp) throws BazaarException;
 
     List<Category> getFollowedCategories(int userId, int count) throws BazaarException;
 }

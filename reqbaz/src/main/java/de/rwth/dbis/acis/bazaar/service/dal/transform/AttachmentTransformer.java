@@ -25,7 +25,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Attachment;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import org.jooq.*;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.ATTACHMENT;
@@ -43,7 +43,7 @@ public class AttachmentTransformer implements Transformer<Attachment, Attachment
         record.setMimeType(entity.getMimeType());
         record.setIdentifier(entity.getIdentifier());
         record.setFileUrl(entity.getFileUrl());
-        record.setCreationDate(LocalDateTime.now());
+        record.setCreationDate(OffsetDateTime.now());
         return record;
     }
 
@@ -78,11 +78,11 @@ public class AttachmentTransformer implements Transformer<Attachment, Attachment
     }
 
     @Override
-    public Map<Field, Object> getUpdateMap(final Attachment entity) {
-        HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
+    public Map<Field, Object> getUpdateMap(Attachment entity) {
+        HashMap<Field, Object> updateMap = new HashMap<>() {{
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(ATTACHMENT.LAST_UPDATED_DATE, LocalDateTime.now());
+            updateMap.put(ATTACHMENT.LAST_UPDATED_DATE, OffsetDateTime.now());
         }
         return updateMap;
     }

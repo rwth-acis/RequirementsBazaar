@@ -26,7 +26,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 public interface RequirementRepository extends Repository<Requirement> {
@@ -45,11 +45,11 @@ public interface RequirementRepository extends Repository<Requirement> {
 
     Requirement findById(int id, int userId, List<String> embed) throws Exception;
 
-    void setRealized(int id, LocalDateTime realized) throws BazaarException;
+    void setRealized(int id, OffsetDateTime realized) throws BazaarException;
 
     void setLeadDeveloper(int id, Integer userId) throws BazaarException;
 
-    Statistic getStatisticsForRequirement(int userId, int requirementId, LocalDateTime timestamp) throws BazaarException;
+    Statistic getStatisticsForRequirement(int userId, int requirementId, OffsetDateTime timestamp) throws BazaarException;
 
     List<Requirement> getFollowedRequirements(int userId, int count) throws BazaarException;
 }

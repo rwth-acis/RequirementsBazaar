@@ -14,7 +14,7 @@ import i5.las2peer.api.Context;
 import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.logging.L2pLogger;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.TimerTask;
 
 /**
@@ -22,27 +22,30 @@ import java.util.TimerTask;
  */
 public class NotificationDispatcherImp extends TimerTask implements NotificationDispatcher {
 
-    private L2pLogger logger = L2pLogger.getInstance(NotificationDispatcherImp.class.getName());
+    private final L2pLogger logger = L2pLogger.getInstance(NotificationDispatcherImp.class.getName());
     private ActivityDispatcher activityDispatcher;
     private EmailDispatcher emailDispatcher;
     private BazaarService bazaarService;
     private ObjectMapper mapper;
 
+    @Override
     public void setBazaarService(BazaarService service) {
-        this.bazaarService = service;
+        bazaarService = service;
     }
 
+    @Override
     public void setActivityDispatcher(ActivityDispatcher activityDispatcher) {
         this.activityDispatcher = activityDispatcher;
     }
 
+    @Override
     public void setEmailDispatcher(EmailDispatcher emailDispatcher) {
         this.emailDispatcher = emailDispatcher;
     }
 
     @Override
-    public void dispatchNotification(final LocalDateTime creationDate, final Activity.ActivityAction activityAction, final MonitoringEvent mobSOSEvent,
-                                     final int dataId, final Activity.DataType dataType, final int userId) {
+    public void dispatchNotification(OffsetDateTime creationDate, Activity.ActivityAction activityAction, MonitoringEvent mobSOSEvent,
+                                     int dataId, Activity.DataType dataType, int userId) {
 
         // Filters to generate JSON elements
         FilterProvider filters =

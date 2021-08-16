@@ -26,7 +26,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import org.jooq.Record;
 import org.jooq.*;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.USER;
@@ -44,7 +44,7 @@ public class UserTransformer implements Transformer<User, UserRecord> {
         record.setEmailLeadSubscription(entity.isEmailLeadSubscription());
         record.setEmailFollowSubscription(entity.isEmailFollowSubscription());
         record.setPersonalizationEnabled(entity.isPersonalizationEnabled());
-        record.setCreationDate(LocalDateTime.now());
+        record.setCreationDate(OffsetDateTime.now());
 
         return record;
     }
@@ -99,8 +99,8 @@ public class UserTransformer implements Transformer<User, UserRecord> {
     }
 
     @Override
-    public Map<Field, Object> getUpdateMap(final User entity) {
-        HashMap<Field, Object> updateMap = new HashMap<Field, Object>() {{
+    public Map<Field, Object> getUpdateMap(User entity) {
+        HashMap<Field, Object> updateMap = new HashMap<>() {{
             if (entity.getEMail() != null) {
                 put(USER.EMAIL, entity.getEMail());
             }
@@ -127,7 +127,7 @@ public class UserTransformer implements Transformer<User, UserRecord> {
             }
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(USER.LAST_UPDATED_DATE, LocalDateTime.now());
+            updateMap.put(USER.LAST_UPDATED_DATE, OffsetDateTime.now());
         }
         return updateMap;
     }
