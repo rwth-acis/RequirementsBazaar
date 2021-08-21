@@ -178,8 +178,12 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
 
     @Override
     public Condition getSearchCondition(String search) throws Exception {
-        return REQUIREMENT.NAME.likeIgnoreCase("%" + search + "%")
-                .or(REQUIREMENT.DESCRIPTION.likeIgnoreCase("%" + search + "%"));
+        // Catch issues with empty tsvector matching causing nothing to be found
+        if (search.equals("")) {
+            return REQUIREMENT.NAME.likeIgnoreCase("%");
+        }
+        return DSL.condition("to_tsvector({0} || {1}) @@ websearch_to_tsquery({2})",
+                REQUIREMENT.NAME, REQUIREMENT.DESCRIPTION, search);
     }
 
     @Override

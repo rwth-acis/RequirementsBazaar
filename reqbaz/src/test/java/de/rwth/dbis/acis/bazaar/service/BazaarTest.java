@@ -115,7 +115,7 @@ public class BazaarTest extends TestBase {
             MiniClient client = getClient();
             MiniClient adminClient = getAdminClient();
 
-            ClientResponse result = client.sendRequest("GET", mainPath + "projects", "");
+            ClientResponse result = client.sendRequest("GET", mainPath + "projects?recursive=true", "");
 
             assertEquals(200, result.getHttpCode());
             JsonElement response = JsonParser.parseString(result.getResponse());
