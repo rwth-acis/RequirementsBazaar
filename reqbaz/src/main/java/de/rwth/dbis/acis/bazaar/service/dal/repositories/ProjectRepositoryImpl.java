@@ -140,6 +140,15 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                 .where(LAST_ACTIVITY.field(PROJECT.ID).equal(PROJECT.ID))
                 .asField("lastActivity");
 
+        List<Integer> matchingRequirementProjects = null;
+        if (pageable.getOptions().getOrDefault("recursive", false)) {
+            matchingRequirementProjects = jooq.selectDistinct().from(REQUIREMENT)
+                    .where(DSL.condition("to_tsvector({0} || {1}) @@ websearch_to_tsquery({2})",
+                            REQUIREMENT.NAME, REQUIREMENT.DESCRIPTION, pageable.getSearch()))
+                    .fetch().getValues(REQUIREMENT.PROJECT_ID);
+            searchCondition = searchCondition.or(PROJECT.ID.in(matchingRequirementProjects));
+        }
+
         Result<Record> queryResults = jooq.select(PROJECT.fields())
                 .select(idCount)
                 .select(CATEGORY_COUNT)
@@ -202,7 +211,6 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
             }
 
             project = filteredProjects.left.get(0);
-
 
         } catch (BazaarException be) {
             ExceptionHandler.getInstance().convertAndThrowException(be);

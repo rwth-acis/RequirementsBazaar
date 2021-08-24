@@ -85,8 +85,8 @@ public class ProjectsResource {
             @ApiParam(value = "Sort", required = false, allowMultiple = true, allowableValues = "name,date,last_activity,requirement,follower") @DefaultValue("name") @QueryParam("sort") List<String> sort,
             @ApiParam(value = "SortDirection", allowableValues = "ASC,DESC") @QueryParam("sortDirection") String sortDirection,
             @ApiParam(value = "Filter", required = false, allowMultiple = true, allowableValues = "all, created, following") @QueryParam("filters") List<String> filters,
-            @ApiParam(value = "Ids", required = false, allowMultiple = true) @QueryParam("ids") List<Integer> ids) {
-
+            @ApiParam(value = "Ids", required = false, allowMultiple = true) @QueryParam("ids") List<Integer> ids,
+            @ApiParam(value = "Also search in projects requirements", required = false) @DefaultValue("false") @QueryParam("recursive") boolean recursive) {
         DALFacade dalFacade = null;
         try {
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -108,7 +108,11 @@ public class ProjectsResource {
             for (String filterOption : filters) {
                 filterMap.put(filterOption, internalUserId.toString());
             }
-            PageInfo pageInfo = new PageInfo(page, perPage, filterMap, sortList, search, ids);
+
+            HashMap<String, Boolean> options = new HashMap<>();
+            options.put("recursive", recursive);
+
+            PageInfo pageInfo = new PageInfo(page, perPage, filterMap, sortList, search, ids, null, options);
 
             // Take Object for generic error handling
             Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
