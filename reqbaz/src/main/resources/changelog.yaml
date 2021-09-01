@@ -1682,3 +1682,15 @@ databaseChangeLog:
             schemaName: public
             tableName: user
             where: las2peer_id='-1722613621014065292'
+  - changeSet:
+      id: add-user-privacyclaim
+      author: thore
+      changes:
+        - addColumn:
+            tableName: user
+            columns:
+              - column:
+                  constraints:
+                    nullable: true
+                  name: privacy_policy_accepted
+                  type: TIMESTAMP WITH TIME ZONE
