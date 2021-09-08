@@ -45,7 +45,6 @@ public class UserTransformer implements Transformer<User, UserRecord> {
         record.setEmailFollowSubscription(entity.isEmailFollowSubscription());
         record.setPersonalizationEnabled(entity.isPersonalizationEnabled());
         record.setCreationDate(OffsetDateTime.now());
-        record.setPrivacyPolicyAccepted(OffsetDateTime.now());
         return record;
     }
 

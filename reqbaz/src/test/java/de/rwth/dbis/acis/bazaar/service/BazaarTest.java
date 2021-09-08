@@ -442,7 +442,7 @@ public class BazaarTest extends TestBase {
             assertTrue(response.has("email"));
             assertTrue(response.has("emailFollowSubscription"));
             assertTrue(response.has("privacyPolicyAccepted"));
-            assertTrue(response.get("privacyPolicyAccepted").getAsBoolean());
+            assertFalse(response.get("privacyPolicyAccepted").getAsBoolean());
 
             result = client.sendRequest("GET", mainPath + "users/" + initUser.getId(), "");
             System.out.println(result.toString());
