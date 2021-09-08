@@ -2,9 +2,9 @@ on:
   push:
     # Sequence of patterns matched against refs/tags
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+-rc\.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
-name: Create Pre-Release
+name: Create Release
 
 jobs:
   build:
@@ -46,9 +46,9 @@ jobs:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }}
           body: |
-            This is a pre-release. For changes please check the [Changelog](https://github.com/rwth-acis/RequirementsBazaar/blob/develop/CHANGELOG.md).
+            This is the ${{ steps.get_version.outputs.version }} release. For changes please check the [Changelog](https://github.com/rwth-acis/RequirementsBazaar/blob/develop/CHANGELOG.md).
           draft: false
-          prerelease: true
+          prerelease: false
       - name: Upload Release Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
