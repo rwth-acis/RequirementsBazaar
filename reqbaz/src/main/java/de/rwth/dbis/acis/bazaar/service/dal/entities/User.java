@@ -22,6 +22,8 @@ package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.SerializerViews;
 import lombok.Builder;
@@ -86,6 +88,12 @@ public class User extends EntityBase {
     @JsonView(SerializerViews.Private.class)
     private OffsetDateTime lastLoginDate;
 
+    @JsonIgnore
+    private OffsetDateTime privacyPolicy;
+
+    @JsonIgnore
+    private OffsetDateTime lastPrivacyPolicyVersion;
+
     @JsonView(SerializerViews.Private.class)
     public String getEMail() {
         return eMail;
@@ -123,4 +131,14 @@ public class User extends EntityBase {
     public int hashCode() {
         return Objects.hash(id, userName, firstName, lastName, eMail, las2peerId, profileImage, emailLeadSubscription, emailFollowSubscription, personalizationEnabled, creationDate, lastUpdatedDate, lastLoginDate);
     }
+
+    @JsonProperty("privacyPolicyAccepted")
+    @JsonView(SerializerViews.Private.class)
+    private Boolean privacyPolicyAccepted() {
+        if (privacyPolicy == null) {
+            return false;
+        }
+        return privacyPolicy.isAfter(lastPrivacyPolicyVersion);
+    }
+
 }

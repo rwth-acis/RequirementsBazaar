@@ -161,7 +161,6 @@ public class UsersResource {
     public Response getUser(@PathParam("userId") int userId) {
         DALFacade dalFacade = null;
         try {
-            // TODO: check whether the current user may request this project
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
             if (registrarErrors != null) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
@@ -227,6 +226,8 @@ public class UsersResource {
             User user = dalFacade.getUserById(internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_54,
                     internalUserId, Activity.DataType.USER, internalUserId);
+
+            user.setLastPrivacyPolicyVersion(bazaarService.getPrivacyPolicyVersion());
 
             return Response.ok(user.toPrivateJSON()).build();
         } catch (BazaarException bex) {
@@ -436,6 +437,64 @@ public class UsersResource {
             BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
             logger.warning(bex.getMessage());
             Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get entityOverview failed");
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+        } finally {
+            bazaarService.closeDBConnection(dalFacade);
+        }
+    }
+
+    /**
+     * Allows a user to accept the most recent privacy policy
+     *
+     * @return Response with the updated user as a JSON object.
+     */
+    @PUT
+    @Path("/me/privacy")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "This method allows to set that a user has accepted the most recent privacy policy.")
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the updated user", response = User.class),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+    })
+    public Response acceptPrivacyPolicy() {
+        DALFacade dalFacade = null;
+        try {
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
+            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registrarErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
+            }
+
+            // Block anonymous user
+            if (userId.equals("anonymous")) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.user.read"));
+            }
+
+            dalFacade = bazaarService.getDBConnection();
+
+            User user = dalFacade.getUserById(dalFacade.getUserIdByLAS2PeerId(userId));
+            user.setPrivacyPolicy(OffsetDateTime.now());
+
+            user = dalFacade.modifyUser(user);
+            user.setLastPrivacyPolicyVersion(bazaarService.getPrivacyPolicyVersion());
+
+            return Response.ok(user.toPrivateJSON()).build();
+        } catch (BazaarException bex) {
+            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } else {
+                logger.warning(bex.getMessage());
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get active user");
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            }
+        } catch (Exception ex) {
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get active user");
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);

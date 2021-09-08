@@ -69,7 +69,10 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 
@@ -104,6 +107,7 @@ public class BazaarService extends RESTService {
     protected String smtpServer;
     protected String emailFromAddress;
     protected String emailSummaryTimePeriodInMinutes;
+    protected String privacyPolicyVersion;
 
     public BazaarService() throws Exception {
         setFieldValues();
@@ -185,6 +189,12 @@ public class BazaarService extends RESTService {
 
     public String getBaseURL() {
         return baseURL;
+    }
+
+    public OffsetDateTime getPrivacyPolicyVersion() {
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ISO_DATE;
+        LocalDate tmp = LocalDate.from(timeFormatter.parse(Objects.requireNonNullElse(privacyPolicyVersion, "2000-01-01")));
+        return tmp.atStartOfDay().atOffset(ZoneOffset.UTC);
     }
 
     public String notifyRegistrars(EnumSet<BazaarFunction> functions) {

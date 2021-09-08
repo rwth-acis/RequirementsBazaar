@@ -441,6 +441,8 @@ public class BazaarTest extends TestBase {
             assertTrue(response.isJsonObject());
             assertTrue(response.has("email"));
             assertTrue(response.has("emailFollowSubscription"));
+            assertTrue(response.has("privacyPolicyAccepted"));
+            assertFalse(response.get("privacyPolicyAccepted").getAsBoolean());
 
             result = client.sendRequest("GET", mainPath + "users/" + initUser.getId(), "");
             System.out.println(result.toString());
@@ -450,6 +452,13 @@ public class BazaarTest extends TestBase {
             assertTrue(response.isJsonObject());
             assertFalse(response.has("email"));
             assertFalse(response.has("emailFollowSubscription"));
+            assertFalse(response.has("privacyPolicyAccepted"));
+
+
+            // Test privacy policy update entpoint
+            result = client.sendRequest("PUT", mainPath + "users/me/privacy", "",
+                    MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
+            assertEquals(200, result.getHttpCode());
 
         } catch (Exception e) {
             e.printStackTrace();

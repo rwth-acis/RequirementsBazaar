@@ -45,7 +45,6 @@ public class UserTransformer implements Transformer<User, UserRecord> {
         record.setEmailFollowSubscription(entity.isEmailFollowSubscription());
         record.setPersonalizationEnabled(entity.isPersonalizationEnabled());
         record.setCreationDate(OffsetDateTime.now());
-
         return record;
     }
 
@@ -65,6 +64,7 @@ public class UserTransformer implements Transformer<User, UserRecord> {
                 .lastUpdatedDate(record.getLastUpdatedDate())
                 .lastLoginDate(record.getLastLoginDate())
                 .personalizationEnabled(record.getPersonalizationEnabled())
+                .privacyPolicy(record.getPrivacyPolicyAccepted())
                 .build();
     }
 
@@ -80,6 +80,7 @@ public class UserTransformer implements Transformer<User, UserRecord> {
                 .emailLeadSubscription(queryResult.getValues(user.EMAIL_LEAD_SUBSCRIPTION).get(0))
                 .emailFollowSubscription(queryResult.getValues(user.EMAIL_FOLLOW_SUBSCRIPTION).get(0))
                 .personalizationEnabled(queryResult.getValues(user.PERSONALIZATION_ENABLED).get(0))
+                .privacyPolicy(queryResult.getValues(user.PRIVACY_POLICY_ACCEPTED).get(0))
                 .build();
     }
 
@@ -124,6 +125,9 @@ public class UserTransformer implements Transformer<User, UserRecord> {
             }
             if (entity.isPersonalizationEnabled() != null) {
                 put(USER.PERSONALIZATION_ENABLED, entity.isPersonalizationEnabled());
+            }
+            if (entity.getPrivacyPolicy() != null) {
+                put(USER.PRIVACY_POLICY_ACCEPTED, entity.getPrivacyPolicy());
             }
         }};
         if (!updateMap.isEmpty()) {
