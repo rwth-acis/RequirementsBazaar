@@ -39,7 +39,7 @@ import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -78,7 +78,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                     .groupBy(ACTIVITY.field(REQUIREMENT.ID)))
             .as("last_activity");
 
-    public static final Field<Object> VOTE_COUNT = select(DSL.count(DSL.nullif(VOTE.IS_UPVOTE, 0)))
+    public static final Field<Object> VOTE_COUNT = select(DSL.count(DSL.nullif(VOTE.IS_UPVOTE, false)))
             .from(VOTE)
             .where(VOTE.REQUIREMENT_ID.equal(REQUIREMENT.ID))
             .asField("voteCount");
@@ -185,7 +185,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             Requirement requirement = transformer.getEntityFromTableRecord(requirementRecord);
             UserContext.Builder userContext = UserContext.builder();
 
-            requirement.setLastActivity((LocalDateTime) queryResult.getValue(lastActivity));
+            requirement.setLastActivity((OffsetDateTime) queryResult.getValue(lastActivity));
 
             UserTransformer userTransformer = new UserTransformer();
             //Filling up Creator
@@ -201,8 +201,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             }
 
             //Filling up votes
-            Result<Record> voteQueryResult = jooq.select(DSL.count(DSL.nullif(vote.IS_UPVOTE, 0)).as("upVotes"))
-                    .select(DSL.count(DSL.nullif(vote.IS_UPVOTE, 1)).as("downVotes"))
+            Result<Record> voteQueryResult = jooq.select(DSL.count(DSL.nullif(vote.IS_UPVOTE, false)).as("upVotes"))
+                    .select(DSL.count(DSL.nullif(vote.IS_UPVOTE, true)).as("downVotes"))
                     .select(userVote.IS_UPVOTE.as("userVoted"))
                     .from(REQUIREMENT)
                     .leftOuterJoin(vote).on(vote.REQUIREMENT_ID.eq(REQUIREMENT.ID))
@@ -409,11 +409,11 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     }
 
     @Override
-    public void setRealized(int id, LocalDateTime realized) throws BazaarException {
+    public void setRealized(int id, OffsetDateTime realized) throws BazaarException {
         try {
             jooq.update(REQUIREMENT)
                     .set(REQUIREMENT.REALIZED, realized)
-                    .set(REQUIREMENT.LAST_UPDATED_DATE, LocalDateTime.now())
+                    .set(REQUIREMENT.LAST_UPDATED_DATE, OffsetDateTime.now())
                     .where(REQUIREMENT.ID.eq(id))
                     .execute();
         } catch (Exception e) {
@@ -426,7 +426,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
         try {
             jooq.update(REQUIREMENT)
                     .set(REQUIREMENT.LEAD_DEVELOPER_ID, userId)
-                    .set(REQUIREMENT.LAST_UPDATED_DATE, LocalDateTime.now())
+                    .set(REQUIREMENT.LAST_UPDATED_DATE, OffsetDateTime.now())
                     .where(REQUIREMENT.ID.eq(id))
                     .execute();
         } catch (Exception e) {
@@ -435,7 +435,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     }
 
     @Override
-    public Statistic getStatisticsForRequirement(int userId, int requirementId, LocalDateTime timestamp) throws BazaarException {
+    public Statistic getStatisticsForRequirement(int userId, int requirementId, OffsetDateTime timestamp) throws BazaarException {
         Statistic result = null;
         try {
             // If you want to change something here, please know what you are doing! Its SQL and even worse JOOQ :-|

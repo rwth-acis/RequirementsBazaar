@@ -31,7 +31,7 @@ import lombok.extern.jackson.Jacksonized;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 
 @EqualsAndHashCode(callSuper = true)
@@ -74,17 +74,17 @@ public class User extends EntityBase {
     @JsonView(SerializerViews.Private.class)
     private Boolean personalizationEnabled;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Europe/Berlin")
     @JsonView(SerializerViews.Private.class)
-    private LocalDateTime creationDate;
+    private OffsetDateTime creationDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Europe/Berlin")
     @JsonView(SerializerViews.Private.class)
-    private LocalDateTime lastUpdatedDate;
+    private OffsetDateTime lastUpdatedDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Europe/Berlin")
     @JsonView(SerializerViews.Private.class)
-    private LocalDateTime lastLoginDate;
+    private OffsetDateTime lastLoginDate;
 
     @JsonView(SerializerViews.Private.class)
     public String getEMail() {

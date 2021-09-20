@@ -41,6 +41,8 @@ public class PageInfo implements Pageable {
     private final String search;
     private final List<Integer> ids;
     private final List<String> embed;
+    private final Map<String, Boolean> options;
+
 
     public PageInfo(int pageNumber, int pageSize) {
         this(pageNumber, pageSize, new HashMap<>(), new ArrayList<>(), null, null);
@@ -63,8 +65,11 @@ public class PageInfo implements Pageable {
         this(pageNumber, pageSize, filters, sorts, search, ids, null);
     }
 
-
     public PageInfo(int pageNumber, int pageSize, Map<String, String> filters, List<SortField> sorts, String search, List<Integer> ids, List<String> embed) {
+        this(pageNumber, pageSize, filters, sorts, search, ids, embed, new HashMap<>());
+    }
+
+    public PageInfo(int pageNumber, int pageSize, Map<String, String> filters, List<SortField> sorts, String search, List<Integer> ids, List<String> embed, Map<String, Boolean> options) {
         this.pageNumber = pageNumber;
         this.pageSize = pageSize;
         this.filters = filters;
@@ -72,6 +77,7 @@ public class PageInfo implements Pageable {
         this.search = search != null ? search : "";
         this.ids = ids != null ? ids : new ArrayList<>();
         this.embed = embed;
+        this.options = options;
     }
 
     @Override
@@ -107,6 +113,11 @@ public class PageInfo implements Pageable {
     @Override
     public List<String> getEmbed() {
         return embed;
+    }
+
+    @Override
+    public Map<String, Boolean> getOptions() {
+        return options;
     }
 
     @Override

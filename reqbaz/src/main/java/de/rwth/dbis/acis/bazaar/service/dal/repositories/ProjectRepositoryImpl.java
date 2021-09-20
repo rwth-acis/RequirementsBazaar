@@ -40,7 +40,7 @@ import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -140,6 +140,15 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
                 .where(LAST_ACTIVITY.field(PROJECT.ID).equal(PROJECT.ID))
                 .asField("lastActivity");
 
+        List<Integer> matchingRequirementProjects = null;
+        if (pageable.getOptions().getOrDefault("recursive", false)) {
+            matchingRequirementProjects = jooq.selectDistinct().from(REQUIREMENT)
+                    .where(DSL.condition("to_tsvector({0} || {1}) @@ websearch_to_tsquery({2})",
+                            REQUIREMENT.NAME, REQUIREMENT.DESCRIPTION, pageable.getSearch()))
+                    .fetch().getValues(REQUIREMENT.PROJECT_ID);
+            searchCondition = searchCondition.or(PROJECT.ID.in(matchingRequirementProjects));
+        }
+
         Result<Record> queryResults = jooq.select(PROJECT.fields())
                 .select(idCount)
                 .select(CATEGORY_COUNT)
@@ -168,7 +177,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
             project.setNumberOfCategories((Integer) queryResult.getValue(CATEGORY_COUNT));
             project.setNumberOfRequirements((Integer) queryResult.getValue(REQUIREMENT_COUNT));
             project.setNumberOfFollowers((Integer) queryResult.getValue(FOLLOWER_COUNT));
-            project.setLastActivity((LocalDateTime) queryResult.getValue(lastActivity));
+            project.setLastActivity((OffsetDateTime) queryResult.getValue(lastActivity));
             if (userId != 1) {
                 userContext.isFollower(0 != (Integer) queryResult.getValue(isFollower));
             }
@@ -202,7 +211,6 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
             }
 
             project = filteredProjects.left.get(0);
-
 
         } catch (BazaarException be) {
             ExceptionHandler.getInstance().convertAndThrowException(be);
@@ -310,7 +318,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
     }
 
     @Override
-    public Statistic getStatisticsForVisibleProjects(int userId, LocalDateTime timestamp) throws BazaarException {
+    public Statistic getStatisticsForVisibleProjects(int userId, OffsetDateTime timestamp) throws BazaarException {
         Statistic result = null;
         try {
             // If you want to change something here, please know what you are doing! Its SQL and even worse JOOQ :-|
@@ -368,7 +376,7 @@ public class ProjectRepositoryImpl extends RepositoryImpl<Project, ProjectRecord
     }
 
     @Override
-    public Statistic getStatisticsForProject(int userId, int projectId, LocalDateTime timestamp) throws
+    public Statistic getStatisticsForProject(int userId, int projectId, OffsetDateTime timestamp) throws
             BazaarException {
         Statistic result = null;
         try {

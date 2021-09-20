@@ -14,7 +14,7 @@ import lombok.extern.jackson.Jacksonized;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +29,7 @@ public class Requirement extends EntityBase implements Ownable {
 
     private int id;
 
+    @NotNull
     @Size(min = 1, max = 50, message = "name must be between 1 and 50 characters")
     private String name;
 
@@ -36,8 +37,8 @@ public class Requirement extends EntityBase implements Ownable {
     @Size(min = 1, message = "Description can't be empty")
     private String description;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
-    private LocalDateTime realized;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Europe/Berlin")
+    private OffsetDateTime realized;
 
     @Min(value = 0)
     @NotNull(message = "A project id must be provided", groups = CreateValidation.class)
@@ -57,14 +58,14 @@ public class Requirement extends EntityBase implements Ownable {
     @lombok.Builder.Default
     private List<Tag> tags = new ArrayList<>();
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
-    private LocalDateTime creationDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Europe/Berlin")
+    private OffsetDateTime creationDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
-    private LocalDateTime lastUpdatedDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Europe/Berlin")
+    private OffsetDateTime lastUpdatedDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
-    private LocalDateTime lastActivity;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Europe/Berlin")
+    private OffsetDateTime lastActivity;
 
     private Integer numberOfComments;
     private Integer numberOfAttachments;

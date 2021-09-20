@@ -34,6 +34,13 @@ import java.util.List;
  */
 public class AuthorizationManager {
 
+    public static void SyncPrivileges(DALFacade facade) throws BazaarException {
+        EnumSet<PrivilegeEnum> privileges = EnumSet.allOf(PrivilegeEnum.class);
+        for (PrivilegeEnum privilege : privileges) {
+            facade.createPrivilegeIfNotExists(privilege);
+        }
+    }
+
     public boolean isAuthorized(int userId, PrivilegeEnum privilege, DALFacade facade) throws BazaarException {
         List<Role> userRoles = facade.getRolesByUserId(userId, null);
 
@@ -48,17 +55,26 @@ public class AuthorizationManager {
 
     }
 
+    public boolean isAuthorized(int userId, Role role, DALFacade facade) throws BazaarException {
+        List<Role> userRoles = facade.getRolesByUserId(userId, null);
+
+        return userRoles.contains(role);
+
+    }
 
     public boolean isAuthorized(List<Role> userRoles, PrivilegeEnum privilege, DALFacade facade) throws BazaarException {
-        if (userRoles == null || userRoles.isEmpty()) return false;
+        if (userRoles == null || userRoles.isEmpty()) {
+            return false;
+        }
         for (Role role : userRoles) {
             if (hasPrivilege(role, privilege)) {
                 return true;
             } else {
                 List<Role> parents = facade.getParentsForRole(role.getId());
                 if (parents != null && !parents.isEmpty()) {
-                    if (isAuthorized(parents, privilege, facade))
+                    if (isAuthorized(parents, privilege, facade)) {
                         return true;
+                    }
                 }
             }
         }
@@ -69,17 +85,11 @@ public class AuthorizationManager {
         List<Privilege> privileges = role.getPrivileges();
         if (privileges != null && !privileges.isEmpty()) {
             for (Privilege privilege : privileges) {
-                if (privilege.getName() == demandedPrivilege)
+                if (privilege.getName() == demandedPrivilege) {
                     return true;
+                }
             }
         }
         return false;
-    }
-
-    public static void SyncPrivileges(DALFacade facade) throws BazaarException {
-        EnumSet<PrivilegeEnum> privileges = EnumSet.allOf(PrivilegeEnum.class);
-        for (PrivilegeEnum privilege : privileges) {
-            facade.createPrivilegeIfNotExists(privilege);
-        }
     }
 }

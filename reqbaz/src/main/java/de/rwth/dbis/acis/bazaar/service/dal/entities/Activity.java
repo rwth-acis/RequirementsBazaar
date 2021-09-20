@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.extern.jackson.Jacksonized;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -19,8 +19,8 @@ public class Activity extends EntityBase {
 
     private final transient int id;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
-    private final LocalDateTime creationDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Europe/Berlin")
+    private final OffsetDateTime creationDate;
 
     private final ActivityAction activityAction;
     private final String dataUrl;

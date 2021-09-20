@@ -30,7 +30,7 @@ import lombok.extern.jackson.Jacksonized;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -58,16 +58,17 @@ public class Attachment extends EntityBase implements Ownable {
     @Size(min = 1, max = 1000)
     private String fileUrl;
 
+    @NotNull
     @Min(value = 0)
     private int requirementId;
 
     private User creator;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
-    private LocalDateTime creationDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Europe/Berlin")
+    private OffsetDateTime creationDate;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Europe/Berlin")
-    private LocalDateTime lastUpdatedDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Europe/Berlin")
+    private OffsetDateTime lastUpdatedDate;
 
     @Override
     public boolean isOwner(User user) {

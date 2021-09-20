@@ -40,7 +40,7 @@ import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
@@ -160,7 +160,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
             category.setCreator(userTransformer.getEntityFromTableRecord(userRecord));
             category.setNumberOfRequirements((Integer) queryResult.getValue(REQUIREMENT_COUNT));
             category.setNumberOfFollowers((Integer) queryResult.getValue(FOLLOWER_COUNT));
-            category.setLastActivity((LocalDateTime) queryResult.getValue(lastActivity));
+            category.setLastActivity((OffsetDateTime) queryResult.getValue(lastActivity));
             if (userId != 1) {
                 userContext.isFollower((Integer) queryResult.getValue(isFollower) != 0);
             }
@@ -291,7 +291,7 @@ public class CategoryRepositoryImpl extends RepositoryImpl<Category, CategoryRec
     }
 
     @Override
-    public Statistic getStatisticsForCategory(int userId, int categoryId, LocalDateTime timestamp) throws BazaarException {
+    public Statistic getStatisticsForCategory(int userId, int categoryId, OffsetDateTime timestamp) throws BazaarException {
         Statistic result = null;
         try {
             // If you want to change something here, please know what you are doing! Its SQL and even worse JOOQ :-|

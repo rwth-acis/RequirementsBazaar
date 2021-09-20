@@ -30,12 +30,10 @@ import de.rwth.dbis.acis.bazaar.service.dal.repositories.ProjectRepositoryImpl;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
-import static de.rwth.dbis.acis.bazaar.dal.jooq.Routines.udfNaturalsortformat;
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
-import static org.jooq.impl.DSL.val;
 
 public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
 
@@ -47,9 +45,9 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
         record.setLeaderId(entry.getLeader().getId());
         record.setVisibility(entry.getVisibility());
         record.setDefaultCategoryId(entry.getDefaultCategoryId());
-        record.setCreationDate(LocalDateTime.now());
+        record.setCreationDate(OffsetDateTime.now());
         if (entry.getAdditionalProperties() != null) {
-            record.setAdditionalProperties(JSON.json(entry.getAdditionalProperties().toString()));
+            record.setAdditionalProperties(JSONB.jsonb(entry.getAdditionalProperties().toString()));
         }
         return record;
     }
@@ -118,7 +116,7 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
             }
         }};
         if (!updateMap.isEmpty()) {
-            updateMap.put(PROJECT.LAST_UPDATED_DATE, LocalDateTime.now());
+            updateMap.put(PROJECT.LAST_UPDATED_DATE, OffsetDateTime.now());
         }
         return updateMap;
     }
@@ -134,9 +132,9 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
                 case "name":
                     if (sort.getSortDirection() == Pageable.SortDirection.DESC) {
                         // 50 is derived from the max length of the project name
-                        sortFields.add(udfNaturalsortformat(PROJECT.NAME, val(50), val(".")).desc());
+                        sortFields.add(PROJECT.NAME.desc());
                     } else {
-                        sortFields.add(udfNaturalsortformat(PROJECT.NAME, val(50), val(".")).asc());
+                        sortFields.add(PROJECT.NAME.asc());
 
                     }
                     break;
@@ -199,8 +197,12 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
 
     @Override
     public Condition getSearchCondition(String search) throws Exception {
-        return PROJECT.NAME.likeIgnoreCase("%" + search + "%")
-                .or(PROJECT.DESCRIPTION.likeIgnoreCase("%" + search + "%"));
+        // Catch issues with empty tsvector matching causing nothing to be found
+        if (search.equals("")) {
+            return PROJECT.NAME.likeIgnoreCase("%");
+        }
+        return DSL.condition("to_tsvector({0} || {1}) @@ websearch_to_tsquery({2})",
+                PROJECT.NAME, PROJECT.DESCRIPTION, search);
     }
 
     @Override

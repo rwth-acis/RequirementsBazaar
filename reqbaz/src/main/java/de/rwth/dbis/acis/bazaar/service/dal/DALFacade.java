@@ -652,6 +652,8 @@ public interface DALFacade {
     void createPrivilegeIfNotExists(PrivilegeEnum privilege) throws BazaarException;
 
     void addUserToRole(int userId, String roleName, Integer context) throws BazaarException;
+
+    Role getRoleByName(String role) throws BazaarException;
     //endregion
 
 

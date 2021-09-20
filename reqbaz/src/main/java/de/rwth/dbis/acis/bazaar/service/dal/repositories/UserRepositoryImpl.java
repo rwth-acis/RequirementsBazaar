@@ -34,10 +34,12 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import i5.las2peer.api.security.AgentLockedException;
 import i5.las2peer.security.PassphraseAgentImpl;
-import org.jooq.*;
+import org.jooq.DSLContext;
+import org.jooq.Field;
 import org.jooq.Record;
+import org.jooq.Result;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +73,7 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
     /**
      * Hash agent sub field. This was needed to update from las2peer 0.6.* to 0.7.*.
      * The las2peer id changed, and with the hashAgentSub method the old las2peer id can be generated.
+     *
      * @param agent
      * @return hashed agent sub
      * @throws BazaarException
@@ -106,7 +109,7 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
     @Override
     public void updateLastLoginDate(int userId) throws Exception {
         try {
-            jooq.update(USER).set(USER.LAST_LOGIN_DATE, LocalDateTime.now())
+            jooq.update(USER).set(USER.LAST_LOGIN_DATE, OffsetDateTime.now())
                     .where(USER.ID.equal(userId))
                     .execute();
         } catch (Exception e) {
@@ -161,7 +164,9 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
             }
             List<User> developers = new ArrayList<>();
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(developer.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
+                if (entry.getKey() == null) {
+                    continue;
+                }
                 Result<Record> records = entry.getValue();
                 developers.add(
                         userTransformer.getEntityFromQueryResult(developer, records)
@@ -171,7 +176,9 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
 
             List<User> commentCreators = new ArrayList<>();
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(commentCreator.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
+                if (entry.getKey() == null) {
+                    continue;
+                }
                 Result<Record> records = entry.getValue();
                 commentCreators.add(
                         userTransformer.getEntityFromQueryResult(commentCreator, records)
@@ -181,7 +188,9 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
 
             List<User> attachmentCreators = new ArrayList<>();
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(attachmentCreator.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
+                if (entry.getKey() == null) {
+                    continue;
+                }
                 Result<Record> records = entry.getValue();
                 attachmentCreators.add(
                         userTransformer.getEntityFromQueryResult(attachmentCreator, records)
@@ -246,7 +255,9 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
 
             List<User> requirementCreators = new ArrayList<>();
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(requirementCreator.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
+                if (entry.getKey() == null) {
+                    continue;
+                }
                 Result<Record> records = entry.getValue();
                 requirementCreators.add(
                         userTransformer.getEntityFromQueryResult(requirementCreator, records)
@@ -256,7 +267,9 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
 
             List<User> leadDevelopers = new ArrayList<>();
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(leadDeveloper.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
+                if (entry.getKey() == null) {
+                    continue;
+                }
                 Result<Record> records = entry.getValue();
                 leadDevelopers.add(
                         userTransformer.getEntityFromQueryResult(leadDeveloper, records)
@@ -266,7 +279,9 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
 
             List<User> developers = new ArrayList<>();
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(developer.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
+                if (entry.getKey() == null) {
+                    continue;
+                }
                 Result<Record> records = entry.getValue();
                 developers.add(
                         userTransformer.getEntityFromQueryResult(developer, records)
@@ -276,7 +291,9 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
 
             List<User> commentCreators = new ArrayList<>();
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(commentCreator.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
+                if (entry.getKey() == null) {
+                    continue;
+                }
                 Result<Record> records = entry.getValue();
                 commentCreators.add(
                         userTransformer.getEntityFromQueryResult(commentCreator, records)
@@ -286,7 +303,9 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
 
             List<User> attachmentCreators = new ArrayList<>();
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(attachmentCreator.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
+                if (entry.getKey() == null) {
+                    continue;
+                }
                 Result<Record> records = entry.getValue();
                 attachmentCreators.add(
                         userTransformer.getEntityFromQueryResult(attachmentCreator, records)
@@ -358,7 +377,9 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
 
             List<User> categoriesLeaders = new ArrayList<>();
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(categoryLeader.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
+                if (entry.getKey() == null) {
+                    continue;
+                }
                 Result<Record> records = entry.getValue();
                 categoriesLeaders.add(
                         userTransformer.getEntityFromQueryResult(categoryLeader, records)
@@ -368,7 +389,9 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
 
             List<User> requirementCreators = new ArrayList<>();
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(requirementCreator.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
+                if (entry.getKey() == null) {
+                    continue;
+                }
                 Result<Record> records = entry.getValue();
                 requirementCreators.add(
                         userTransformer.getEntityFromQueryResult(requirementCreator, records)
@@ -378,7 +401,9 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
 
             List<User> leadDevelopers = new ArrayList<>();
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(leadDeveloper.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
+                if (entry.getKey() == null) {
+                    continue;
+                }
                 Result<Record> records = entry.getValue();
                 leadDevelopers.add(
                         userTransformer.getEntityFromQueryResult(leadDeveloper, records)
@@ -388,7 +413,9 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
 
             List<User> developers = new ArrayList<>();
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(developer.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
+                if (entry.getKey() == null) {
+                    continue;
+                }
                 Result<Record> records = entry.getValue();
                 developers.add(
                         userTransformer.getEntityFromQueryResult(developer, records)
@@ -398,7 +425,9 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
 
             List<User> commentCreators = new ArrayList<>();
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(commentCreator.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
+                if (entry.getKey() == null) {
+                    continue;
+                }
                 Result<Record> records = entry.getValue();
                 commentCreators.add(
                         userTransformer.getEntityFromQueryResult(commentCreator, records)
@@ -408,7 +437,9 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
 
             List<User> attachmentCreators = new ArrayList<>();
             for (Map.Entry<Integer, Result<Record>> entry : queryResult.intoGroups(attachmentCreator.ID).entrySet()) {
-                if (entry.getKey() == null) continue;
+                if (entry.getKey() == null) {
+                    continue;
+                }
                 Result<Record> records = entry.getValue();
                 attachmentCreators.add(
                         userTransformer.getEntityFromQueryResult(attachmentCreator, records)
@@ -650,6 +681,7 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
         return entries;
     }
 
+    @Override
     public List<User> search(Pageable pageable) throws BazaarException {
         List<User> entries = null;
         try {

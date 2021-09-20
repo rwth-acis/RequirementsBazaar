@@ -11,7 +11,7 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,11 +36,11 @@ public class EmailDispatcher {
         this.emailFromAddress = emailFromAddress;
         this.bazaarService = bazaarService;
         this.frontendBaseURL = frontendBaseURL;
-        this.notificationSummery = new LinkedHashMap<>();
+        notificationSummery = new LinkedHashMap<>();
         this.emailSummaryTimePeriodInMinutes = emailSummaryTimePeriodInMinutes;
     }
 
-    public void addEmailNotification(LocalDateTime creationDate, Activity.ActivityAction activityAction,
+    public void addEmailNotification(OffsetDateTime creationDate, Activity.ActivityAction activityAction,
                                      int dataId, Activity.DataType dataType, int userId, Activity.AdditionalObject additionalObject) {
         DALFacade dalFacade;
         try {
@@ -89,7 +89,7 @@ public class EmailDispatcher {
         }
     }
 
-    private Email generateEmail(List<User> recipients, LocalDateTime creationDate, Activity.ActivityAction activityAction,
+    private Email generateEmail(List<User> recipients, OffsetDateTime creationDate, Activity.ActivityAction activityAction,
                                 int dataId, Activity.DataType dataType, Activity.AdditionalObject additionalObject) throws Exception {
         DALFacade dalFacade = bazaarService.getDBConnection();
         String subject = "";
@@ -244,7 +244,7 @@ public class EmailDispatcher {
                     emailBuilder.message(message);
                     emailBuilder.closing(closing);
                     emailBuilder.footer(footer);
-                    emailBuilder.creationDate(LocalDateTime.now());
+                    emailBuilder.creationDate(OffsetDateTime.now());
                     Email summary = emailBuilder.build();
                     sendEmail(summary);
 
@@ -279,7 +279,7 @@ public class EmailDispatcher {
                 text = text.concat(mail.getFooter());
                 mailMessage.setText(text);
                 mailMessage.setHeader("X-Mailer", "msgsend");
-                mailMessage.setSentDate(java.sql.Timestamp.valueOf(mail.getCreationDate()));
+                mailMessage.setSentDate(java.sql.Timestamp.valueOf(mail.getCreationDate().toLocalDateTime()));
 
                 Transport.send(mailMessage);
 

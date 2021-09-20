@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.jackson.Jacksonized;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Set;
 
 @EqualsAndHashCode(callSuper = true)
@@ -23,13 +23,13 @@ public class Email extends EntityBase {
     private final String message;
     private final String closing;
     private final String footer;
-    private final LocalDateTime creationDate;
-
-    public void removeRecipient(User user) {
-        recipients.remove(user);
-    }
+    private final OffsetDateTime creationDate;
 
     public static Activity.Builder getBuilder() {
         return new Activity.Builder();
+    }
+
+    public void removeRecipient(User user) {
+        recipients.remove(user);
     }
 }

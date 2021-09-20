@@ -16,7 +16,7 @@ import i5.las2peer.api.Context;
 import i5.las2peer.logging.L2pLogger;
 
 import javax.ws.rs.core.Response;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 /**
  * Created by martin on 15.02.2016.
@@ -28,7 +28,7 @@ public class ActivityDispatcher {
     private final String activityOrigin;
     private final String baseURL;
     private final String frontendBaseURL;
-    private BazaarService bazaarService;
+    private final BazaarService bazaarService;
 
     public ActivityDispatcher(BazaarService bazaarService, String activityTrackerService, String activityOrigin, String baseURL, String frontendBaseURL) {
         this.bazaarService = bazaarService;
@@ -38,7 +38,7 @@ public class ActivityDispatcher {
         this.frontendBaseURL = frontendBaseURL;
     }
 
-    public void sendActivityOverRMI(LocalDateTime creationDate, Activity.ActivityAction activityAction,
+    public void sendActivityOverRMI(OffsetDateTime creationDate, Activity.ActivityAction activityAction,
                                     int dataId, Activity.DataType dataType, int userId, Activity.AdditionalObject additionalObject) {
         DALFacade dalFacade;
         try {
@@ -93,7 +93,7 @@ public class ActivityDispatcher {
             } else if (dataType.equals(Activity.DataType.USER)) {
                 resourcePath = "users";
                 frontendResourcePath = "users" + "/" + dataId;
-             }
+            }
             resourcePath = resourcePath + "/" + String.valueOf(dataId);
             if (parentResourcePath != null) {
                 parentResourcePath = parentResourcePath + "/" + String.valueOf(parentDataId);

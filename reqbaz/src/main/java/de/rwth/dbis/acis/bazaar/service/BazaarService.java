@@ -27,6 +27,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.SystemRole;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreateValidation;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
@@ -68,7 +69,7 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 
@@ -83,6 +84,13 @@ import java.util.*;
 @ServicePath("/bazaar")
 public class BazaarService extends RESTService {
 
+    private static final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule()).setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    private final L2pLogger logger = L2pLogger.getInstance(BazaarService.class.getName());
+    private final ValidatorFactory validatorFactory;
+    private final List<BazaarFunctionRegistrar> functionRegistrar;
+    private final NotificationDispatcher notificationDispatcher;
+    private final DataSource dataSource;
+
     //CONFIG PROPERTIES
     protected String dbUserName;
     protected String dbPassword;
@@ -96,28 +104,6 @@ public class BazaarService extends RESTService {
     protected String smtpServer;
     protected String emailFromAddress;
     protected String emailSummaryTimePeriodInMinutes;
-
-    private ValidatorFactory validatorFactory;
-    private List<BazaarFunctionRegistrar> functionRegistrar;
-    private NotificationDispatcher notificationDispatcher;
-    private DataSource dataSource;
-
-    private final L2pLogger logger = L2pLogger.getInstance(BazaarService.class.getName());
-    private static ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule()).setSerializationInclusion(JsonInclude.Include.NON_NULL);
-
-    @Override
-    protected void initResources() {
-        getResourceConfig().register(Resource.class);
-        getResourceConfig().register(ProjectsResource.class);
-        getResourceConfig().register(CategoryResource.class);
-        getResourceConfig().register(RequirementsResource.class);
-        getResourceConfig().register(CommentsResource.class);
-        getResourceConfig().register(AttachmentsResource.class);
-        getResourceConfig().register(UsersResource.class);
-        //getResourceConfig().register(PersonalisationDataResource.class);
-        getResourceConfig().register(FeedbackResource.class);
-        getResourceConfig().register(WebhookResource.class);
-    }
 
     public BazaarService() throws Exception {
         setFieldValues();
@@ -174,136 +160,32 @@ public class BazaarService extends RESTService {
         notificationDispatcher.setBazaarService(this);
     }
 
-    public String getBaseURL() {
-        return baseURL;
+    public static DataSource setupDataSource(String dbUrl, String dbUserName, String dbPassword) {
+        BasicDataSource dataSource = new BasicDataSource();
+        dataSource.setUrl(dbUrl);
+        dataSource.setUsername(dbUserName);
+        dataSource.setPassword(dbPassword);
+        dataSource.setValidationQuery("SELECT 1;");
+        dataSource.setTestOnBorrow(true); // test each connection when borrowing from the pool with the validation query
+        dataSource.setMaxConnLifetimeMillis(1000 * 60 * 60); // max connection life time 1h. mysql drops connection after 8h.
+        return dataSource;
     }
 
+    @Override
+    protected void initResources() {
+        getResourceConfig().register(Resource.class);
+        getResourceConfig().register(ProjectsResource.class);
+        getResourceConfig().register(CategoryResource.class);
+        getResourceConfig().register(RequirementsResource.class);
+        getResourceConfig().register(CommentsResource.class);
+        getResourceConfig().register(UsersResource.class);
+        //getResourceConfig().register(PersonalisationDataResource.class);
+        getResourceConfig().register(FeedbackResource.class);
+        getResourceConfig().register(WebhookResource.class);
+    }
 
-    @Api(value = "/", description = "Bazaar service")
-    @SwaggerDefinition(
-            info = @Info(
-                    title = "Requirements Bazaar",
-                    version = "0.9.0",
-                    description = "Requirements Bazaar project",
-                    termsOfService = "http://requirements-bazaar.org",
-                    contact = @Contact(
-                            name = "Requirements Bazaar Dev Team",
-                            url = "http://requirements-bazaar.org",
-                            email = "info@requirements-bazaar.org"
-                    ),
-                    license = @License(
-                            name = "Apache2",
-                            url = "http://requirements-bazaar.org/license"
-                    )
-            ),
-            schemes = SwaggerDefinition.Scheme.HTTPS
-    )
-    @Path("/")
-    public static class Resource {
-
-        private final BazaarService bazaarService = (BazaarService) Context.getCurrent().getService();
-
-        /**
-         * This method allows to retrieve the service name version.
-         *
-         * @return Response with service name version as a JSON object.
-         */
-        @GET
-        @Path("/version")
-        @Produces(MediaType.APPLICATION_JSON)
-        @ApiOperation(value = "This method allows to retrieve the service name version.")
-        @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns service name version"),
-                @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
-        })
-        public Response getServiceNameVersion() {
-            try {
-                String serviceNameVersion = Context.getCurrent().getService().getAgent().getServiceNameVersion().toString();
-                return Response.ok("{\"version\": \"" + serviceNameVersion + "\"}").build();
-            } catch (ServiceException ex) {
-                BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get service name version failed");
-                bazaarService.logger.warning(bex.getMessage());
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
-        }
-
-        /**
-         * This method allows to retrieve statistics over all projects.
-         *
-         * @param since timestamp since filter, ISO-8601 e.g. 2017-12-30 or 2017-12-30T18:30:00Z
-         * @return Response with statistics as a JSON object.
-         */
-        @GET
-        @Path("/statistics")
-        @Produces(MediaType.APPLICATION_JSON)
-        @ApiOperation(value = "This method allows to retrieve statistics over all projects.")
-        @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns statistics", response = Statistic.class),
-                @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
-                @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
-        })
-        public Response getStatistics(
-                @ApiParam(value = "Since timestamp, ISO-8601 e.g. 2017-12-30 or 2017-12-30T18:30:00Z", required = false) @QueryParam("since") String since) {
-            DALFacade dalFacade = null;
-            try {
-                String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-                if (registrarErrors != null) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-                }
-                Agent agent = Context.getCurrent().getMainAgent();
-                String userId = agent.getIdentifier();
-                dalFacade = bazaarService.getDBConnection();
-                Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-                Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
-                Statistic platformStatistics = dalFacade.getStatisticsForAllProjects(internalUserId, sinceCal);
-                bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_2,
-                        0, Activity.DataType.STATISTIC, internalUserId);
-                return Response.ok(platformStatistics.toJSON()).build();
-            } catch (BazaarException bex) {
-                if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                    return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-                } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                    return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-                } else {
-                    bazaarService.logger.warning(bex.getMessage());
-                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-                }
-            } catch (Exception ex) {
-                BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get statistics failed");
-                bazaarService.logger.warning(bex.getMessage());
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } finally {
-                bazaarService.closeDBConnection(dalFacade);
-            }
-        }
-
-        /**
-         * This method sends all notifications (emails) in the waiting queue. Run this method before shutting down Requirements Bazaar.
-         *
-         * @return Response
-         */
-        @POST
-        @Path("/notifications")
-        @ApiOperation(value = "This method sends all notifications (emails) in the waiting queue. Run this method before shutting down Requirements Bazaar.")
-        @ApiResponses(value = {
-                @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Notifications send"),
-                @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
-                @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
-        })
-        public Response sendNotifications() {
-            // TODO: Use authorization scopes to limit users who can run this method to admins
-            try {
-                bazaarService.notificationDispatcher.run();
-                return Response.status(Response.Status.CREATED).build();
-            } catch (Exception ex) {
-                BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Send Notifications failed");
-                bazaarService.logger.warning(bex.getMessage());
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
-        }
+    public String getBaseURL() {
+        return baseURL;
     }
 
     public String notifyRegistrars(EnumSet<BazaarFunction> functions) {
@@ -387,26 +269,14 @@ public class BazaarService extends RESTService {
         }
     }
 
-    public static DataSource setupDataSource(String dbUrl, String dbUserName, String dbPassword) {
-        BasicDataSource dataSource = new BasicDataSource();
-        // Deprecated according to jooq
-        // dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-        dataSource.setUrl(dbUrl + "?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true" +
-                "");
-        dataSource.setUsername(dbUserName);
-        dataSource.setPassword(dbPassword);
-        dataSource.setValidationQuery("SELECT 1;");
-        dataSource.setTestOnBorrow(true); // test each connection when borrowing from the pool with the validation query
-        dataSource.setMaxConnLifetimeMillis(1000 * 60 * 60); // max connection life time 1h. mysql drops connection after 8h.
-        return dataSource;
-    }
-
     public DALFacade getDBConnection() throws Exception { // TODO: Specify Exception
-        return new DALFacadeImpl(dataSource, SQLDialect.MYSQL);
+        return new DALFacadeImpl(dataSource, SQLDialect.POSTGRES);
     }
 
     public void closeDBConnection(DALFacade dalFacade) {
-        if (dalFacade == null) return;
+        if (dalFacade == null) {
+            return;
+        }
         dalFacade.close();
     }
 
@@ -447,6 +317,153 @@ public class BazaarService extends RESTService {
         responseBuilder = responseBuilder.header("X-Total-Pages", String.valueOf(paginationResult.getTotalPages()));
         responseBuilder = responseBuilder.header("X-Total", String.valueOf(paginationResult.getTotal()));
         return responseBuilder;
+    }
+
+    @Api(value = "/", description = "Bazaar service")
+    @SwaggerDefinition(
+            info = @Info(
+                    title = "Requirements Bazaar",
+                    version = "0.9.0",
+                    description = "Requirements Bazaar project",
+                    termsOfService = "http://requirements-bazaar.org",
+                    contact = @Contact(
+                            name = "Requirements Bazaar Dev Team",
+                            url = "http://requirements-bazaar.org",
+                            email = "info@requirements-bazaar.org"
+                    ),
+                    license = @License(
+                            name = "Apache2",
+                            url = "http://requirements-bazaar.org/license"
+                    )
+            ),
+            schemes = SwaggerDefinition.Scheme.HTTPS
+    )
+    @Path("/")
+    public static class Resource {
+
+        private final BazaarService bazaarService = (BazaarService) Context.getCurrent().getService();
+
+        /**
+         * This method allows to retrieve the service name version.
+         *
+         * @return Response with service name version as a JSON object.
+         */
+        @GET
+        @Path("/version")
+        @Produces(MediaType.APPLICATION_JSON)
+        @ApiOperation(value = "This method allows to retrieve the service name version.")
+        @ApiResponses(value = {
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns service name version"),
+                @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+        })
+        public Response getServiceNameVersion() {
+            try {
+                String serviceNameVersion = Context.getCurrent().getService().getAgent().getServiceNameVersion().toString();
+                return Response.ok("{\"version\": \"" + serviceNameVersion + "\"}").build();
+            } catch (ServiceException ex) {
+                BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get service name version failed");
+                bazaarService.logger.warning(bex.getMessage());
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            }
+        }
+
+        /**
+         * This method allows to retrieve statistics over all projects.
+         *
+         * @param since timestamp since filter, ISO-8601 e.g. 2017-12-30 or 2017-12-30T18:30:00Z
+         * @return Response with statistics as a JSON object.
+         */
+        @GET
+        @Path("/statistics")
+        @Produces(MediaType.APPLICATION_JSON)
+        @ApiOperation(value = "This method allows to retrieve statistics over all projects.")
+        @ApiResponses(value = {
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns statistics", response = Statistic.class),
+                @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+                @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+        })
+        public Response getStatistics(
+                @ApiParam(value = "Since timestamp, ISO-8601 e.g. 2017-12-30 or 2017-12-30T18:30:00Z", required = false) @QueryParam("since") String since) {
+            DALFacade dalFacade = null;
+            try {
+                String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+                if (registrarErrors != null) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
+                }
+                Agent agent = Context.getCurrent().getMainAgent();
+                String userId = agent.getIdentifier();
+                dalFacade = bazaarService.getDBConnection();
+                Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+                Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
+                Statistic platformStatistics = dalFacade.getStatisticsForAllProjects(internalUserId, sinceCal);
+                bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_2,
+                        0, Activity.DataType.STATISTIC, internalUserId);
+                return Response.ok(platformStatistics.toJSON()).build();
+            } catch (BazaarException bex) {
+                if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                    return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                    return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else {
+                    bazaarService.logger.warning(bex.getMessage());
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                }
+            } catch (Exception ex) {
+                BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get statistics failed");
+                bazaarService.logger.warning(bex.getMessage());
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } finally {
+                bazaarService.closeDBConnection(dalFacade);
+            }
+        }
+
+        /**
+         * This method sends all notifications (emails) in the waiting queue. Run this method before shutting down Requirements Bazaar.
+         *
+         * @return Response
+         */
+        @POST
+        @Path("/notifications")
+        @ApiOperation(value = "This method sends all notifications (emails) in the waiting queue. Run this method before shutting down Requirements Bazaar.")
+        @ApiResponses(value = {
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Notifications send"),
+                @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+                @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+        })
+        public Response sendNotifications() {
+            DALFacade dalFacade = null;
+            try {
+                Agent agent = Context.getCurrent().getMainAgent();
+                String userId = agent.getIdentifier();
+                String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+                if (registrarErrors != null) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
+                }
+                dalFacade = bazaarService.getDBConnection();
+                Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, dalFacade.getRoleByName(SystemRole.SystemAdmin.name()), dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.notifications"));
+                }
+                bazaarService.notificationDispatcher.run();
+                return Response.status(Response.Status.OK).build();
+            } catch (BazaarException bex) {
+                if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                    return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else {
+                    Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Flushing notifications");
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                }
+            } catch (Exception ex) {
+                BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Send Notifications failed");
+                bazaarService.logger.warning(bex.getMessage());
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            }
+        }
     }
 
 }

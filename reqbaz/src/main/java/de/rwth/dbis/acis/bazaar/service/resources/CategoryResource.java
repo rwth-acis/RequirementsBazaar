@@ -26,7 +26,7 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
 import java.net.HttpURLConnection;
 import java.text.MessageFormat;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 
@@ -52,9 +52,8 @@ import java.util.*;
 @Path("/categories")
 public class CategoryResource {
 
-    private BazaarService bazaarService;
-
     private final L2pLogger logger = L2pLogger.getInstance(CategoryResource.class.getName());
+    private final BazaarService bazaarService;
 
     public CategoryResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
@@ -88,7 +87,9 @@ public class CategoryResource {
             PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>(), sortList, search);
             // Take Object for generic error handling
             Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
-            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+            if (violations.size() > 0) {
+                ExceptionHandler.getInstance().handleViolations(violations);
+            }
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
@@ -107,7 +108,7 @@ public class CategoryResource {
                 }
             }
             PaginationResult<Category> categoriesResult = dalFacade.listCategoriesByProjectId(projectId, pageInfo, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_13,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_13,
                     projectId, Activity.DataType.PROJECT, internalUserId);
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{
@@ -177,7 +178,7 @@ public class CategoryResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Category categoryToReturn = dalFacade.getCategoryById(categoryId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_15,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_15,
                     categoryId, Activity.DataType.CATEGORY, internalUserId);
             if (dalFacade.isCategoryPublic(categoryId)) {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_CATEGORY, categoryToReturn.getProjectId(), dalFacade);
@@ -240,7 +241,9 @@ public class CategoryResource {
             }
             // Take Object for generic error handling
             Set<ConstraintViolation<Object>> violations = bazaarService.validateCreate(categoryToCreate);
-            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+            if (violations.size() > 0) {
+                ExceptionHandler.getInstance().handleViolations(violations);
+            }
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
@@ -300,7 +303,9 @@ public class CategoryResource {
             String userId = agent.getIdentifier();
             // Take Object for generic error handling
             Set<ConstraintViolation<Object>> violations = bazaarService.validate(categoryToUpdate);
-            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+            if (violations.size() > 0) {
+                ExceptionHandler.getInstance().handleViolations(violations);
+            }
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
@@ -434,7 +439,7 @@ public class CategoryResource {
             }
             dalFacade.followCategory(internalUserId, categoryId);
             Category category = dalFacade.getCategoryById(categoryId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.FOLLOW, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_19,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.FOLLOW, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_19,
                     category.getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.status(Response.Status.CREATED).entity(category.toJSON()).build();
         } catch (BazaarException bex) {
@@ -490,7 +495,7 @@ public class CategoryResource {
             }
             dalFacade.unFollowCategory(internalUserId, categoryId);
             Category category = dalFacade.getCategoryById(categoryId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.UNFOLLOW, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_20,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UNFOLLOW, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_20,
                     category.getId(), Activity.DataType.CATEGORY, internalUserId);
             return Response.ok(category.toJSON()).build();
         } catch (BazaarException bex) {
@@ -546,7 +551,7 @@ public class CategoryResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Category category = dalFacade.getCategoryById(categoryId, internalUserId);
             Statistic categoryStatistics = dalFacade.getStatisticsForCategory(internalUserId, categoryId, sinceCal);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_21,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_21,
                     categoryId, Activity.DataType.CATEGORY, internalUserId);
             return Response.ok(categoryStatistics.toJSON()).build();
         } catch (BazaarException bex) {
@@ -598,7 +603,7 @@ public class CategoryResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Category category = dalFacade.getCategoryById(categoryId, internalUserId);
             CategoryContributors categoryContributors = dalFacade.listContributorsForCategory(categoryId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_22,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_22,
                     categoryId, Activity.DataType.CATEGORY, internalUserId);
             return Response.ok(categoryContributors.toJSON()).build();
         } catch (BazaarException bex) {
@@ -653,13 +658,15 @@ public class CategoryResource {
             PageInfo pageInfo = new PageInfo(page, perPage);
             // Take Object for generic error handling
             Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
-            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
+            if (violations.size() > 0) {
+                ExceptionHandler.getInstance().handleViolations(violations);
+            }
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Category category = dalFacade.getCategoryById(categoryId, internalUserId);
             PaginationResult<User> categoryFollowers = dalFacade.listFollowersForCategory(categoryId, pageInfo);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_23,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_23,
                     categoryId, Activity.DataType.CATEGORY, internalUserId);
             Map<String, List<String>> parameter = new HashMap<>();
             parameter.put("page", new ArrayList() {{

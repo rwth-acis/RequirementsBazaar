@@ -44,6 +44,12 @@ public interface Pageable {
 
     List<String> getEmbed();
 
+    Map<String, Boolean> getOptions();
+
+    enum SortDirection {
+        DEFAULT, ASC, DESC
+    }
+
     class SortField {
         String field;
         SortDirection sortDirection;
@@ -68,9 +74,5 @@ public interface Pageable {
         public SortDirection getSortDirection() {
             return sortDirection;
         }
-    }
-
-    enum SortDirection {
-        DEFAULT, ASC, DESC
     }
 }

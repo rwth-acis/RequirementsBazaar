@@ -28,7 +28,7 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 @Api(value = "requirements", description = "Requirements resource")
@@ -125,7 +125,7 @@ public class RequirementsResource {
                 requirementsResult = dalFacade.listAllRequirements(pageInfo, internalUserId);
             }
             //TODO NotificationDispatcher tries to find Requirement with id 0 as additional Object, need to implement logic for multiple
-            //bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_3,
+            //bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_3,
             //       0, Activity.DataType.REQUIREMENT, internalUserId);
 
             Map<String, List<String>> parameter = new HashMap<>();
@@ -222,7 +222,7 @@ public class RequirementsResource {
                 }
             }
             PaginationResult<Requirement> requirementsResult = dalFacade.listRequirementsByProject(projectId, pageInfo, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_14,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_14,
                     projectId, Activity.DataType.PROJECT, internalUserId);
 
             Map<String, List<String>> parameter = new HashMap<>();
@@ -324,7 +324,7 @@ public class RequirementsResource {
                 }
             }
             PaginationResult<Requirement> requirementsResult = dalFacade.listRequirementsByCategory(categoryId, pageInfo, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_24,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_24,
                     categoryId, Activity.DataType.CATEGORY, internalUserId);
 
             Map<String, List<String>> parameter = new HashMap<>();
@@ -399,7 +399,7 @@ public class RequirementsResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_25,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_25,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             if (dalFacade.isRequirementPublic(requirementId)) {
                 boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, requirement.getProjectId(), dalFacade);
@@ -512,7 +512,7 @@ public class RequirementsResource {
                 }
             }
             createdRequirement = dalFacade.getRequirementById(createdRequirement.getId(), internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_26,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_26,
                     createdRequirement.getId(), Activity.DataType.REQUIREMENT, internalUserId);
             return Response.status(Response.Status.CREATED).entity(createdRequirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -540,7 +540,6 @@ public class RequirementsResource {
      * @return Response with updated requirement as a JSON object.
      */
     @PUT
-    //@Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method updates a requirement.")
@@ -578,7 +577,7 @@ public class RequirementsResource {
             dalFacade.followRequirement(internalUserId, requirementToUpdate.getId());
             Requirement updatedRequirement = dalFacade.modifyRequirement(requirementToUpdate, internalUserId);
 
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_27,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_27,
                     updatedRequirement.getId(), Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(updatedRequirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -635,7 +634,7 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.delete"));
             }
             Requirement deletedRequirement = dalFacade.deleteRequirementById(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.DELETE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_28,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.DELETE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_28,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(deletedRequirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -690,7 +689,7 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.create"));
             }
             Requirement requirement = dalFacade.setUserAsLeadDeveloper(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.LEADDEVELOP, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_29,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.LEADDEVELOP, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_29,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -749,7 +748,7 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "You are not lead developer.");
             }
             requirement = dalFacade.deleteUserAsLeadDeveloper(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.UNLEADDEVELOP, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_30,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UNLEADDEVELOP, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_30,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -806,7 +805,7 @@ public class RequirementsResource {
             dalFacade.wantToDevelop(internalUserId, requirementId);
             dalFacade.followRequirement(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.DEVELOP, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_31,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.DEVELOP, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_31,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -862,7 +861,7 @@ public class RequirementsResource {
             }
             dalFacade.notWantToDevelop(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.UNDEVELOP, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_32,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UNDEVELOP, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_32,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -918,7 +917,7 @@ public class RequirementsResource {
             }
             dalFacade.followRequirement(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.FOLLOW, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_33,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.FOLLOW, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_33,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -974,7 +973,7 @@ public class RequirementsResource {
             }
             dalFacade.unFollowRequirement(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.UNFOLLOW, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_34,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UNFOLLOW, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_34,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -1035,7 +1034,7 @@ public class RequirementsResource {
             if (direction.isUpVote()) {
                 dalFacade.followRequirement(internalUserId, requirementId);
             }
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.VOTE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_35,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.VOTE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_35,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.status(Response.Status.SEE_OTHER).location(URI.create(bazaarService.getBaseURL() + "requirements/" + requirementId)).build();
         } catch (BazaarException bex) {
@@ -1091,7 +1090,7 @@ public class RequirementsResource {
             }
             dalFacade.unVote(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.UNVOTE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_36,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UNVOTE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_36,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.status(Response.Status.SEE_OTHER).location(URI.create(bazaarService.getBaseURL() + "requirements/" + requirementId)).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -1147,7 +1146,7 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.create"));
             }
             requirement = dalFacade.setRequirementToRealized(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.REALIZE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_37,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.REALIZE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_37,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -1202,7 +1201,7 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.delete"));
             }
             Requirement requirement = dalFacade.setRequirementToUnRealized(requirementId, internalUserId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.UNREALIZE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_38,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UNREALIZE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_38,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
@@ -1257,7 +1256,7 @@ public class RequirementsResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
             Statistic requirementStatistics = dalFacade.getStatisticsForRequirement(internalUserId, requirementId, sinceCal);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_39,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_39,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirementStatistics.toJSON()).build();
         } catch (BazaarException bex) {
@@ -1319,7 +1318,7 @@ public class RequirementsResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             PaginationResult<User> requirementDevelopers = dalFacade.listDevelopersForRequirement(requirementId, pageInfo);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_40,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_40,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
 
             Map<String, List<String>> parameter = new HashMap<>();
@@ -1384,7 +1383,7 @@ public class RequirementsResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             RequirementContributors requirementContributors = dalFacade.listContributorsForRequirement(requirementId);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_41,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_41,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirementContributors.toJSON()).build();
         } catch (BazaarException bex) {
@@ -1446,7 +1445,7 @@ public class RequirementsResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             PaginationResult<User> requirementFollowers = dalFacade.listFollowersForRequirement(requirementId, pageInfo);
-            bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_42,
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_42,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
 
             Map<String, List<String>> parameter = new HashMap<>();
@@ -1524,8 +1523,72 @@ public class RequirementsResource {
     })
     public Response getAttachmentsForRequirement(@PathParam("requirementId") int requirementId,
                                                  @ApiParam(value = "Page number", required = false) @DefaultValue("0") @QueryParam("page") int page,
-                                                 @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) throws Exception {
-        AttachmentsResource attachmentsResource = new AttachmentsResource();
-        return attachmentsResource.getAttachmentsForRequirement(requirementId, page, perPage);
+                                                 @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
+        DALFacade dalFacade = null;
+        try {
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
+            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registrarErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
+            }
+            PageInfo pageInfo = new PageInfo(page, perPage);
+            Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
+            if (violations.size() > 0) {
+                ExceptionHandler.getInstance().handleViolations(violations);
+            }
+
+            dalFacade = bazaarService.getDBConnection();
+            //Todo use requirement's projectId for security context, not the one sent from client
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
+            Project project = dalFacade.getProjectById(requirement.getProjectId(), internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_44,
+                    requirement.getId(), Activity.DataType.REQUIREMENT, internalUserId);
+            if (dalFacade.isRequirementPublic(requirementId)) {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT, project.getId(), dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
+                }
+            } else {
+                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_COMMENT, project.getId(), dalFacade);
+                if (!authorized) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.read"));
+                }
+            }
+            PaginationResult<Attachment> attachmentsResult = dalFacade.listAttachmentsByRequirementId(requirementId, pageInfo);
+
+            Map<String, List<String>> parameter = new HashMap<>();
+            parameter.put("page", new ArrayList() {{
+                add(String.valueOf(page));
+            }});
+            parameter.put("per_page", new ArrayList() {{
+                add(String.valueOf(perPage));
+            }});
+
+            Response.ResponseBuilder responseBuilder = Response.ok();
+            responseBuilder = responseBuilder.entity(attachmentsResult.toJSON());
+            responseBuilder = bazaarService.paginationLinks(responseBuilder, attachmentsResult, "requirements/" + String.valueOf(requirementId) + "/attachments", parameter);
+            responseBuilder = bazaarService.xHeaderFields(responseBuilder, attachmentsResult);
+
+            return responseBuilder.build();
+        } catch (BazaarException bex) {
+            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } else {
+                logger.warning(bex.getMessage());
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get attachments for requirement " + requirementId);
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            }
+        } catch (Exception ex) {
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get attachments for requirement " + requirementId);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+        } finally {
+            bazaarService.closeDBConnection(dalFacade);
+        }
     }
 }
