@@ -1,0 +1,36 @@
+name: Gradle Build & Test
+on: [ pull_request, push ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: reqbaz
+          POSTGRES_PASSWORD: reqbaz
+          POSTGRES_DB: reqbaz
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 14
+        uses: actions/setup-java@v1
+        with:
+          java-version: 14
+      - name: Build with Gradle
+        run: ./gradlew clean build --info
+      - uses: codecov/codecov-action@v1
+        with:
+          flags: unittests
+          files: ./reqbaz/build/reports/jacoco/test/jacocoTestReport.xml
+          fail_ci_if_error: true
+          verbose: true
