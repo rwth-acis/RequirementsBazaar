@@ -32,14 +32,14 @@ API documentation endpoints:
 
 Requirements bazaar itself is a web application, which is separated to a client-only side and a back-end side. This GitHub repo holds the codebase of the back-end side only. If you are looking for the front-end, take a look at this GitHub project: **[<i class="icon-link "></i>Requirement Bazaar Web Frontend](https://github.com/rwth-acis/RequirementsBazaar-WebFrontend)**
 
-The backend is built on Java technologies. As a service framework we use our in-house developed **[<i class="icon-link "></i>las2peer](https://github.com/rwth-acis/LAS2peer)** project. For persisting our data we use a MySQL database and jOOQ to access it and for serializing our data into JSON format, we use the Jackson library.
+The backend is built on Java technologies. As a service framework we use our in-house developed **[<i class="icon-link "></i>las2peer](https://github.com/rwth-acis/LAS2peer)** project. For persisting our data we use a PostgreSQL database and jOOQ to access it and for serializing our data into JSON format, we use the Jackson library.
 
 ## Dependencies
 
 In order to be able to run this service project the following components should be installed on your system:
 
  - JDK 14
- - MySQL 5.7 (better 8)
+ - PostgreSQL 12 or newer
  - Gradle to build
 
 ## How to set up the database (non developer guide)
@@ -47,7 +47,7 @@ In order to be able to run this service project the following components should 
  1. Download a release bundle from [GitHub](https://github.com/rwth-acis/RequirementsBazaar/releases)
  2. Create a new database called `reqbaz`, possibly with UTF-8 collation
  3. To configure your database access look at the [Configuration](#configuration) section
- 4. Use flyway to migrate the database
+ 4. Use liquibase to migrate the database
 
 ## Configuration
 
@@ -87,7 +87,7 @@ Set the credentials for this database in the gradle.properties and in the `reqba
 This configuration folder is relevant for any testing related settings.
 
 In the `etc` folder on top level you may configure a different database if you want to distinguish between local testing and automated testing.
-However you'll have to apply the migrations with flyway manually to this database.
+However you'll have to apply the migrations with liquibase manually to this database.
 
 ### Building
 
