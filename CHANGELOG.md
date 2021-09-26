@@ -10,6 +10,12 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 
 ## [Unreleased]
 
+## [0.9.1] - 2021-09-26
+
+### Changed
+
+- Fixed permission for realize and unrealize endpoints
+
 ## [0.9.0] - 2021-09-08
 
 ### Added
@@ -35,7 +41,8 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
   entity [#108](https://github.com/rwth-acis/RequirementsBazaar/pull/108).
 - Projects, categories and requirements now have an `additionalProperties` object which allows storing and providing
   additional context as plain json [#109](https://github.com/rwth-acis/RequirementsBazaar/pull/109).
-- The projects endpoint now has a recursive flag which includes projects with requirements matching the search term into the results [#116](https://github.com/rwth-acis/RequirementsBazaar/pull/116)
+- The projects endpoint now has a recursive flag which includes projects with requirements matching the search term into
+  the results [#116](https://github.com/rwth-acis/RequirementsBazaar/pull/116)
 
 ### Changed
 
