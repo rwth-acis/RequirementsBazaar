@@ -1196,11 +1196,15 @@ public class RequirementsResource {
             }
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Realize_REQUIREMENT, dalFacade);
+
+            Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Realize_REQUIREMENT, requirement.getProjectId(), dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.realize"));
             }
-            Requirement requirement = dalFacade.setRequirementToUnRealized(requirementId, internalUserId);
+
+            requirement = dalFacade.setRequirementToUnRealized(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UNREALIZE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_38,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirement.toJSON()).build();
