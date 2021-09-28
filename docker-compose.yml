@@ -1,0 +1,97 @@
+version: '3.7'
+
+services:
+  rb-postgres:
+    image: postgres:13
+    container_name: rb-postgres
+    environment:
+      POSTGRES_DB: reqbaz
+      POSTGRES_USER: reqbaz
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5434:5432
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+
+  init-rb-database:
+    image: ghcr.io/rwth-acis/requirementsbazaar-init:develop
+    environment:
+      HOST: rb-postgres
+      USERNAME: reqbaz
+      PASSWORD: reqbaz
+    depends_on:
+      - rb-postgres
+
+  reqbaz:
+    image: ghcr.io/rwth-acis/requirementsbazaar:develop
+    restart: unless-stopped
+    environment:
+      LAS2PEER_PORT: "9011"
+      HTTP_PORT: "8080"
+      POSTGRES_HOST: rb-postgres
+      POSTGRES_USER: reqbaz
+      POSTGRES_PASSWORD: reqbaz
+      BASE_URL: http://localhost:8080/bazaar/
+      ACTIVITY_TRACKER_ORIGIN: http://localhost:8080/bazaar/
+    ports:
+      - 8080:8080
+      - 9011:9011/udp
+      - 9011:9011/tcp
+    #volumes:
+    #  - ./c-node-storage:/src/node-storage
+    depends_on:
+      - init-rb-database
+
+  file_service:
+    image: registry.tech4comp.dbis.rwth-aachen.de/rwthacis/las2peer-file-service:develop
+    restart: unless-stopped
+    environment:
+      LAS2PEER_PORT: "9013"
+      HTTP_PORT: "8082"
+      BOOTSTRAP: reqbaz:9011
+    ports:
+      - 8082:8082
+      - 9013:9013/udp
+      - 9013:9013/tcp
+    depends_on:
+      - reqbaz
+
+  at-postgres:
+    image: postgres:13
+    container_name: at-postgres
+    environment:
+      POSTGRES_DB: reqbaztrack
+      POSTGRES_USER: reqbaztrack
+      POSTGRES_PASSWORD: password
+    ports:
+      - 5436:5432
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+
+  init-at-database:
+    image: ghcr.io/rwth-acis/activitytracker-init:develop
+    environment:
+      HOST: at-postgres
+      USERNAME: reqbaztrack
+      PASSWORD: reqbaztrack
+    depends_on:
+      - rb-postgres
+
+  activity_tracker:
+    image: ghcr.io/rwth-acis/activitytracker:develop
+    restart: unless-stopped
+    environment:
+      LAS2PEER_PORT: "9012"
+      HTTP_PORT: "8081"
+      POSTGRES_HOST: at-postgres
+      POSTGRES_USER: reqbaztrack
+      POSTGRES_PASSWORD: reqbaztrack
+      BOOTSTRAP: reqbaz:9011
+    ports:
+      - 8081:8081
+      - 9012:9012/udp
+      - 9012:9012/tcp
+    #volumes:
+    #  - ./c-node-storage:/src/node-storage
+    depends_on:
+      - init-at-database
