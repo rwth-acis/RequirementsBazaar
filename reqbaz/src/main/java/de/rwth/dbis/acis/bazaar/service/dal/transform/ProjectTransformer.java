@@ -202,7 +202,18 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
             return PROJECT.NAME.likeIgnoreCase("%");
         }
         return DSL.condition("to_tsvector({0} || {1}) @@ websearch_to_tsquery({2})",
-                PROJECT.NAME, PROJECT.DESCRIPTION, search);
+                PROJECT.NAME, PROJECT.DESCRIPTION, search)
+                /*
+                 * Workaround: ts_vector based search only works on full words that also
+                 * need to be recognized by an internal english dictionary.
+                 *
+                 * This simple addition enables simple substring based autocomplete
+                 * search while keeping the ts_vector based search for project descriptions.
+                 *
+                 * At some point we should think about a better search solution like
+                 * Elasticsearch for the whole system.
+                 */
+                .or(PROJECT.NAME.likeIgnoreCase("%" + search + "%"));
     }
 
     @Override
@@ -220,7 +231,7 @@ public class ProjectTransformer implements Transformer<Project, ProjectRecord> {
             } else if (filterEntry.getKey().equals("following")) {
                 conditions.add(
                         PROJECT.ID.in(
-                                DSL.<Integer>select(PROJECT_FOLLOWER_MAP.PROJECT_ID)
+                                DSL.select(PROJECT_FOLLOWER_MAP.PROJECT_ID)
                                         .from(PROJECT_FOLLOWER_MAP)
                                         .where(PROJECT_FOLLOWER_MAP.USER_ID.eq(Integer.parseInt(filterEntry.getValue())))
                         )
