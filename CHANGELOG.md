@@ -10,6 +10,13 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 
 ## [Unreleased]
 
+## [0.9.2] - 2021-11-16
+
+### Changed
+
+- Fixed project search API which did not return projects for incomplete words
+  [#121](https://github.com/rwth-acis/RequirementsBazaar/pull/124)
+
 ## [0.9.1] - 2021-09-26
 
 ### Changed
