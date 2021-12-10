@@ -1104,7 +1104,7 @@ public class ProjectsResource {
     }
 
     @DELETE
-    @Path("/{projectId}/members/{memberId}")
+    @Path("/{projectId}/members/{memberUserId}")
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method allows to remove a project member.")
     @ApiResponses(value = {
@@ -1113,7 +1113,9 @@ public class ProjectsResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response removeMember(@PathParam("projectId") int projectId, @PathParam("memberId") int memberId) {
+    public Response removeMember(
+            @ApiParam(value = "Project to remove the user from") @PathParam("projectId") int projectId,
+            @ApiParam(value = "User ID of the member to remove") @PathParam("memberUserId") int memberUserId) {
         DALFacade dalFacade = null;
         try {
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
@@ -1127,7 +1129,7 @@ public class ProjectsResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
             // Get roles of the member to modify to prevent admins being removed by managers
-            List<Role> modifiedMemberRoles = dalFacade.getRolesByUserId(memberId, projectId);
+            List<Role> modifiedMemberRoles = dalFacade.getRolesByUserId(memberUserId, projectId);
 
             // Only Admins should be able to remove admins.
             // Differentiate here by checking if a user is a project admin
@@ -1140,7 +1142,7 @@ public class ProjectsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.modify"));
             }
 
-            dalFacade.removeUserFromProject(memberId, projectId);
+            dalFacade.removeUserFromProject(memberUserId, projectId);
 
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_6, projectId, Activity.DataType.PROJECT, internalUserId);
 
