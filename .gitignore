@@ -16,6 +16,7 @@ log/
 etc/ivy/ivy.jar
 /service
 /etc/startup
+/etc/launcher-configuration.ini
 *.iml
 /.idea
 restMapping.xml
