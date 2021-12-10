@@ -653,6 +653,8 @@ public interface DALFacade {
 
     void addUserToRole(int userId, String roleName, Integer context) throws BazaarException;
 
+    void updateUserRole(int recordId, int userId, String roleName, Integer context) throws BazaarException;
+
     Role getRoleByName(String role) throws BazaarException;
     //endregion
 

@@ -39,6 +39,8 @@ public interface RoleRepository extends Repository<Role> {
 
     void addUserToRole(int userId, String roleName, Integer context) throws BazaarException;
 
+    void updateUserRole(int recordId, int userId, String roleName, Integer context) throws BazaarException;
+
     Role findByRoleName(String roleName) throws BazaarException;
 
     PaginationResult<ProjectMember> listProjectMembers(int projectId, Pageable pageable) throws BazaarException;

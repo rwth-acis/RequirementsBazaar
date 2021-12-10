@@ -998,7 +998,14 @@ public class ProjectsResource {
 
             for (ProjectMember projectMember : projectMembers) {
                 User member = dalFacade.getUserById(projectMember.getUserId());
-                dalFacade.addUserToRole(member.getId(), projectMember.getRole().name(), projectId);
+
+                if (projectMember.getId() == 0) {
+                    // add new member to project
+                    dalFacade.addUserToRole(member.getId(), projectMember.getRole().name(), projectId);
+                } else {
+                    // update an existing members role
+                    dalFacade.updateUserRole(projectMember.getId(), projectMember.getUserId(), projectMember.getRole().name(), projectId);
+                }
 
                 bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_6, projectId, Activity.DataType.PROJECT, internalUserId);
             }

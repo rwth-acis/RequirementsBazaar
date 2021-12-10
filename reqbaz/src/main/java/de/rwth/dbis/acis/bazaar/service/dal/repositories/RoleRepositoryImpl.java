@@ -34,6 +34,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
+import static org.jooq.impl.DSL.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,6 +88,28 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
                 .returning()
                 .fetchOne();
 
+    }
+
+    @Override
+    public void updateUserRole(int recordId, int userId, String roleName, Integer context) throws BazaarException {
+        Role role = findByRoleName(roleName);
+
+        boolean recordExists = jooq.fetchExists(jooq.selectOne()
+                .from(USER_ROLE_MAP)
+                .where(USER_ROLE_MAP.ID.eq(recordId)
+                        .and(USER_ROLE_MAP.USER_ID.eq(userId))
+                        .and(USER_ROLE_MAP.CONTEXT_INFO.eq(context))));
+
+        if (recordExists) {
+            jooq.update(USER_ROLE_MAP)
+                .set(USER_ROLE_MAP.ROLE_ID, role.getId())
+                .where(USER_ROLE_MAP.ID.eq(recordId)
+                    .and(USER_ROLE_MAP.USER_ID.eq(userId))
+                    .and(USER_ROLE_MAP.CONTEXT_INFO.eq(context)))
+                .execute();
+        } else {
+            addUserToRole(userId, roleName, context);
+        }
     }
 
     @Override

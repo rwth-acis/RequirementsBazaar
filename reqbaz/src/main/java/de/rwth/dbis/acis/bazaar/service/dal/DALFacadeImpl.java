@@ -769,6 +769,12 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public void updateUserRole(int recordId, int userId, String roleName, Integer context) throws BazaarException {
+        roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
+        roleRepository.updateUserRole(recordId, userId, roleName, context);
+    }
+
+    @Override
     public Role getRoleByName(String role) throws BazaarException {
         roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
         return roleRepository.findByRoleName(role);
