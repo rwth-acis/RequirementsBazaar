@@ -31,6 +31,7 @@ restMapping.xml
 .metadata
 .idea/workspace.xml
 /bin/start_network.sh
+/bin/start_network-debug.sh
 /bin/start_network.bat
 
 
