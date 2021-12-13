@@ -945,6 +945,90 @@ public class ProjectsResource {
     }
 
     /**
+     * Add a member to the project
+     *
+     * @param projectId      id of the project to update
+     * @param projectMember The new project member
+     * @return
+     */
+    @POST
+    @Path("/{projectId}/members")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "This method allows to add a project member.")
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Member added"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_CONFLICT, message = "User is already member"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+    })
+    public Response addMember(@PathParam("projectId") int projectId,
+                                 @ApiParam(value = "New project member", required = true) ProjectMember projectMember) {
+        DALFacade dalFacade = null;
+        try {
+            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registrarErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
+            }
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
+
+            // Take Object for generic error handling
+            Set<ConstraintViolation<Object>> violations = bazaarService.validate(projectMember);
+            if (violations.size() > 0) {
+                ExceptionHandler.getInstance().handleViolations(violations);
+            }
+
+            dalFacade = bazaarService.getDBConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+            PrivilegeEnum privilege = PrivilegeEnum.Modify_MEMBERS;
+            // Only Admins should be able to create new admins.
+            // Differentiate here
+            if (projectMember.getRole() == ProjectRole.ProjectAdmin) {
+                privilege = PrivilegeEnum.Modify_ADMIN_MEMBERS;
+            }
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, privilege, projectId, dalFacade);
+            if (!authorized) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.modify"));
+            }
+
+            // ensure the given user exists
+            dalFacade.getUserById(projectMember.getUserId());
+
+            // we want to *add* a member so throw error if user is already member
+            if (dalFacade.isUserProjectMember(projectId, projectMember.getUserId())) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.validation.project_member.already_exists"));
+            }
+
+            dalFacade.addUserToRole(projectMember.getUserId(), projectMember.getRole().name(), projectId);
+
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_6, projectId, Activity.DataType.PROJECT, internalUserId);
+
+            // TODO Return 'location' header to conform to HTTP specification
+            return Response.status(Response.Status.CREATED).build();
+        } catch (BazaarException bex) {
+            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } else {
+                logger.warning(bex.getMessage());
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Update project");
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            }
+        } catch (Exception ex) {
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Update project");
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+        } finally {
+            bazaarService.closeDBConnection(dalFacade);
+        }
+    }
+
+    /**
      * Allows to update a certain project.
      *
      * @param projectId      id of the project to update
@@ -962,7 +1046,7 @@ public class ProjectsResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response updateMembership(@PathParam("projectId") int projectId,
+    public Response updateMember(@PathParam("projectId") int projectId,
                                      @ApiParam(value = "New or updated project member", required = true) List<ProjectMember> projectMembers) {
         DALFacade dalFacade = null;
         try {
