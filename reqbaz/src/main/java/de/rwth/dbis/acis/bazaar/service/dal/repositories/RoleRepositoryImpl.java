@@ -34,15 +34,16 @@ import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.jooq.DSLContext;
 import org.jooq.Record;
 import org.jooq.Result;
-import static org.jooq.impl.DSL.*;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
 
 /**
+ *
  * @since 2/17/2015
  */
 public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> implements RoleRepository {
@@ -77,39 +78,99 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
     }
 
     @Override
+    public List<Integer> findRoleIdsByContext(int userId, Integer context) {
+        List<UserRoleMapRecord> queryResult = jooq.select().from(USER_ROLE_MAP)
+                .where(USER_ROLE_MAP.USER_ID.eq(userId)
+                        .and(USER_ROLE_MAP.CONTEXT_INFO.eq(context)))
+                .fetchInto(UserRoleMapRecord.class);
+
+        return queryResult.stream().map(UserRoleMapRecord::getRoleId).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean hasUserRole(int userId, String roleName, Integer context) throws BazaarException {
+        Role role = findByRoleName(roleName);
+        return hasUserRole(userId, role.getId(), context);
+    }
+
+    @Override
+    public boolean hasUserRole(int userId, int roleId, Integer context) throws BazaarException {
+        return jooq.fetchExists(jooq.selectOne()
+                .from(USER_ROLE_MAP)
+                .where(USER_ROLE_MAP.USER_ID.eq(userId))
+                .and(USER_ROLE_MAP.ROLE_ID.eq(roleId))
+                .and(USER_ROLE_MAP.CONTEXT_INFO.eq(context)));
+    }
+
+    @Override
+    public boolean hasUserAnyRoleInContext(int userId, int context) {
+        return jooq.fetchExists(jooq.selectOne()
+                .from(USER_ROLE_MAP)
+                .where(USER_ROLE_MAP.USER_ID.eq(userId))
+                .and(USER_ROLE_MAP.CONTEXT_INFO.eq(context)));
+    }
+
+    @Override
     public void addUserToRole(int userId, String roleName, Integer context) throws BazaarException {
         Role role = findByRoleName(roleName);
+        addUserToRole(userId, role.getId(), context);
+    }
+
+    @Override
+    public void addUserToRole(int userId, int roleId, Integer context) throws BazaarException {
+        if (hasUserRole(userId, roleId, context)) {
+            // role already assigned
+            return;
+        }
+
         UserRoleMapRecord record = new UserRoleMapRecord();
-        record.setRoleId(role.getId());
+        record.setRoleId(roleId);
         record.setUserId(userId);
         record.setContextInfo(context);
         UserRoleMapRecord inserted = jooq.insertInto(USER_ROLE_MAP)
                 .set(record)
                 .returning()
                 .fetchOne();
-
     }
 
     @Override
-    public void updateUserRole(int recordId, int userId, String roleName, Integer context) throws BazaarException {
+    public void removeUserFromRole(int userId, String roleName, Integer context) throws BazaarException {
         Role role = findByRoleName(roleName);
+        removeUserFromRole(userId, role.getId(), context);
+    }
 
-        boolean recordExists = jooq.fetchExists(jooq.selectOne()
-                .from(USER_ROLE_MAP)
-                .where(USER_ROLE_MAP.ID.eq(recordId)
-                        .and(USER_ROLE_MAP.USER_ID.eq(userId))
-                        .and(USER_ROLE_MAP.CONTEXT_INFO.eq(context))));
-
-        if (recordExists) {
-            jooq.update(USER_ROLE_MAP)
-                .set(USER_ROLE_MAP.ROLE_ID, role.getId())
-                .where(USER_ROLE_MAP.ID.eq(recordId)
-                    .and(USER_ROLE_MAP.USER_ID.eq(userId))
-                    .and(USER_ROLE_MAP.CONTEXT_INFO.eq(context)))
+    @Override
+    public void removeUserFromRole(int userId, int roleId, Integer context) throws BazaarException {
+        jooq.deleteFrom(USER_ROLE_MAP)
+                .where(USER_ROLE_MAP.USER_ID.eq(userId)
+                        .and(USER_ROLE_MAP.ROLE_ID.eq(roleId))
+                        .and(USER_ROLE_MAP.CONTEXT_INFO.eq(context)))
                 .execute();
-        } else {
-            addUserToRole(userId, roleName, context);
-        }
+    }
+
+    @Override
+    public void removeUserFromRolesByContext(int userId, int context) {
+        jooq.deleteFrom(USER_ROLE_MAP)
+                .where(USER_ROLE_MAP.USER_ID.eq(userId)
+                        .and(USER_ROLE_MAP.CONTEXT_INFO.eq(context)))
+                .execute();
+    }
+
+    @Override
+    public void replaceUserRole(int userId, String oldRoleName, String newRoleName, Integer context) throws BazaarException {
+        Role oldRole = findByRoleName(oldRoleName);
+        Role newRole = findByRoleName(newRoleName);
+        replaceUserRole(userId, oldRole.getId(), newRole.getId(), context);
+    }
+
+    @Override
+    public void replaceUserRole(int userId, int oldRoleId, int newRoleId, Integer context) throws BazaarException {
+        /*
+         * We added this method so the repository can optimize the replace directly in SQL
+         * TODO optimize this instead of this default implementation
+         */
+        removeUserFromRole(userId, oldRoleId, context);
+        addUserToRole(userId, newRoleId, context);
     }
 
     @Override
@@ -187,11 +248,6 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
             }
         }
         return null;
-    }
-
-    @Override
-    public void removeUserFromRole(int userId, Integer context) throws BazaarException {
-        jooq.deleteFrom(USER_ROLE_MAP).where(USER_ROLE_MAP.USER_ID.equal(userId).and(USER_ROLE_MAP.CONTEXT_INFO.eq(context))).execute();
     }
 
     @Override

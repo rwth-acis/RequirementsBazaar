@@ -212,6 +212,19 @@ public interface DALFacade {
     Statistic getStatisticsForProject(int userId, int projectId, Calendar since) throws BazaarException;
 
     /**
+     * Returns the count most recent active projects followed by the user
+     *
+     * @param userId id of the follower
+     * @param count  how many should be returned
+     * @return Followed projects ordered by last activity
+     */
+    List<Project> getFollowedProjects(int userId, int count) throws BazaarException;
+
+    //endregion
+
+    //region ProjectMember
+
+    /**
      * Get the members of a project and their according role
      *
      * @param projectId
@@ -220,22 +233,33 @@ public interface DALFacade {
     PaginationResult<ProjectMember> getProjectMembers(int projectId, Pageable pageable) throws BazaarException;
 
     /**
-     * Allows to remove a role from a user
+     * Returns whether a certain user is member of a project (with any role).
      *
+     * @param projectId
      * @param userId
-     * @param context
-     * @throws BazaarException
+     * @return
      */
-    void removeUserFromProject(int userId, Integer context) throws BazaarException;
+    boolean isUserProjectMember(int projectId, int userId) throws BazaarException;
 
     /**
-     * Returns the count most recent active projects followed by the user
+     * Updates a users role in a project and ensures a user has only one role assigned in
+     * a certain project.
      *
-     * @param userId id of the follower
-     * @param count  how many should be returned
-     * @return Followed projects ordered by last activity
+     * @param projectId
+     * @param userId
+     * @param roleName
+     * @throws BazaarException
      */
-    List<Project> getFollowedProjects(int userId, int count) throws BazaarException;
+    void updateProjectMemberRole(int projectId, int userId, String roleName) throws BazaarException;
+
+    /**
+     * Removes the given user from the project.
+     *
+     * @param userId
+     * @param projectId
+     * @throws BazaarException
+     */
+    void removeUserFromProject(int userId, int projectId) throws BazaarException;
 
     //endregion
 
@@ -651,11 +675,33 @@ public interface DALFacade {
 
     void createPrivilegeIfNotExists(PrivilegeEnum privilege) throws BazaarException;
 
+    Role getRoleByName(String role) throws BazaarException;
+
+    boolean hasUserRole(int userId, String roleName, Integer context) throws BazaarException;
+
+    /**
+     * Returns whether a user has any role in a certain context.
+     *
+     * @param userId
+     * @param context (required)
+     * @return
+     */
+    boolean hasUserAnyRoleInContext(int userId, int context);
+
     void addUserToRole(int userId, String roleName, Integer context) throws BazaarException;
 
-    void updateUserRole(int recordId, int userId, String roleName, Integer context) throws BazaarException;
+    void removeUserFromRole(int userId, String roleName, Integer context) throws BazaarException;
 
-    Role getRoleByName(String role) throws BazaarException;
+    /**
+     * Remove the user from all roles assigned in a certain context.
+     *
+     * @param userId
+     * @param context (required for this methdod!)
+     */
+    void removeUserFromRolesByContext(int userId, int context) throws BazaarException;
+
+    void replaceUserRole(int userId, String oldRoleName, String newRoleName, Integer context) throws BazaarException;
+
     //endregion
 
 

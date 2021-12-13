@@ -948,7 +948,7 @@ public class ProjectsResource {
      * Allows to update a certain project.
      *
      * @param projectId      id of the project to update
-     * @param projectMembers New or modified project members
+     * @param projectMembers One or more modified project members
      * @return Response with the updated project as a JSON object.
      */
     @PUT
@@ -997,15 +997,10 @@ public class ProjectsResource {
             }
 
             for (ProjectMember projectMember : projectMembers) {
-                User member = dalFacade.getUserById(projectMember.getUserId());
+                // ensure the given user exists
+                dalFacade.getUserById(projectMember.getUserId());
 
-                if (projectMember.getId() == 0) {
-                    // add new member to project
-                    dalFacade.addUserToRole(member.getId(), projectMember.getRole().name(), projectId);
-                } else {
-                    // update an existing members role
-                    dalFacade.updateUserRole(projectMember.getId(), projectMember.getUserId(), projectMember.getRole().name(), projectId);
-                }
+                dalFacade.updateProjectMemberRole(projectId, projectMember.getUserId(), projectMember.getRole().name());
 
                 bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_6, projectId, Activity.DataType.PROJECT, internalUserId);
             }
