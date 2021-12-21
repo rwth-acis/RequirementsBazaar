@@ -44,6 +44,7 @@ import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @since 6/14/2014
@@ -763,9 +764,39 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public boolean hasUserRole(int userId, String roleName, Integer context) throws BazaarException {
+        roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
+        return roleRepository.hasUserRole(userId, roleName, context);
+    }
+
+    @Override
+    public boolean hasUserAnyRoleInContext(int userId, int context) {
+        roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
+        return roleRepository.hasUserAnyRoleInContext(userId, context);
+    }
+
+    @Override
     public void addUserToRole(int userId, String roleName, Integer context) throws BazaarException {
         roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
         roleRepository.addUserToRole(userId, roleName, context);
+    }
+
+    @Override
+    public void removeUserFromRole(int userId, String roleName, Integer context) throws BazaarException {
+        roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
+        roleRepository.removeUserFromRole(userId, roleName, context);
+    }
+
+    @Override
+    public void removeUserFromRolesByContext(int userId, int context) throws BazaarException {
+        roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
+        roleRepository.removeUserFromRolesByContext(userId, context);
+    }
+
+    @Override
+    public void replaceUserRole(int userId, String oldRoleName, String newRoleName, Integer context) throws BazaarException {
+        roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
+        roleRepository.replaceUserRole(userId, oldRoleName, newRoleName, context);
     }
 
     @Override
@@ -775,9 +806,37 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
-    public void removeUserFromProject(int userId, Integer context) throws BazaarException {
+    public void updateProjectMemberRole(int projectId, int userId, String roleName) throws BazaarException {
         roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
-        roleRepository.removeUserFromRole(userId, context);
+
+        /*
+         * NOTE: Do NOT use getProjectRole here! This would return 'virtually' assigned project roles e.g., for
+         * a user with the SystemAdmin role. In this case the replaceUserRole would not work as expected
+         * because there is no actually stored role to replace!
+         *
+         * TODO Refactor this again so these concepts are not mixed up!
+         */
+        Optional<Integer> prevRole = roleRepository.findRoleIdsByContext(userId, projectId).stream().findFirst();
+
+        Role newRole = roleRepository.findByRoleName(roleName);
+
+        if (prevRole.isPresent()) {
+            roleRepository.replaceUserRole(userId, prevRole.get(), newRole.getId(), projectId);
+        } else {
+            roleRepository.addUserToRole(userId, newRole.getId(), projectId);
+        }
+    }
+
+    @Override
+    public void removeUserFromProject(int userId, int projectId) throws BazaarException {
+        roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
+        roleRepository.removeUserFromRolesByContext(userId, projectId);
+    }
+
+    @Override
+    public boolean isUserProjectMember(int projectId, int userId) {
+        roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
+        return roleRepository.hasUserAnyRoleInContext(userId, projectId);
     }
 
     @Override
