@@ -35,11 +35,65 @@ import java.util.List;
 public interface RoleRepository extends Repository<Role> {
     List<Role> listParentsForRole(int roleId) throws BazaarException;
 
+    /**
+     * Returns the roles of a user in the given context including 'globally' assigned roles (i.e., roles
+     * stored with context 'null').<br>
+     * <br>
+     * NOTE: This is th higher level function which should be user for authorization / access control.
+     *
+     * @param userId
+     * @param context
+     * @return
+     * @throws BazaarException
+     */
     List<Role> listRolesOfUser(int userId, Integer context) throws BazaarException;
 
+    /**
+     * Returns <i>exactly</i> the roles that are assigned to a user in th given context.<br>
+     * In contrast to 'listRolesOfUser' this is only a straightforward database query which does
+     * not apply any knowledge about higher level roles (i.e. SystemAdmin which may override
+     * locally assigned roles like 'ProjectMember')
+     *
+     * @param userId
+     * @param context
+     * @return
+     */
+    List<Integer> findRoleIdsByContext(int userId, Integer context);
+
+    boolean hasUserRole(int userId, String roleName, Integer context) throws BazaarException;
+    boolean hasUserRole(int userId, int roleId, Integer context) throws BazaarException;
+
+    /**
+     * Returns whether a user has any role in a certain context.
+     *
+     * @param userId
+     * @param context (required)
+     * @return
+     */
+    boolean hasUserAnyRoleInContext(int userId, int context);
+
     void addUserToRole(int userId, String roleName, Integer context) throws BazaarException;
+    void addUserToRole(int userId, int roleId, Integer context) throws BazaarException;
+
+    void removeUserFromRole(int userId, String roleName, Integer context) throws BazaarException;
+    void removeUserFromRole(int userId, int roleId, Integer context) throws BazaarException;
+
+    /**
+     * Remove the user from all roles assigned in a certain context.
+     *
+     * @param userId
+     * @param context (required for this methdod!)
+     */
+    void removeUserFromRolesByContext(int userId, int context) throws BazaarException;
+
+    void replaceUserRole(int userId, String oldRoleName, String newRoleName, Integer context) throws BazaarException;
+    void replaceUserRole(int userId, int oldRoleId, int newRoleId, Integer context) throws BazaarException;
 
     Role findByRoleName(String roleName) throws BazaarException;
+
+    //
+    // project member specific methods -> TODO move to some higher level service!
+    //
 
     PaginationResult<ProjectMember> listProjectMembers(int projectId, Pageable pageable) throws BazaarException;
 
@@ -52,6 +106,4 @@ public interface RoleRepository extends Repository<Role> {
      * @throws BazaarException
      */
     ProjectRole getProjectRole(int userId, int projectId) throws BazaarException;
-
-    void removeUserFromRole(int userId, Integer context) throws BazaarException;
 }
