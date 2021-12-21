@@ -10,6 +10,18 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 
 ## [Unreleased]
 
+## [0.9.3] - 2021-12-21
+
+### Added
+
+- Build generates a script to start the las2peer node in debug mode for easier debugging [a0ae55f](https://github.com/rwth-acis/RequirementsBazaar/commit/a0ae55f6e08c57a93ed2cf4533a47151e2a24ef4)
+
+### Changed
+
+- Fixed bug in project member API which allowed adding the same users multiple times to the same project.
+  Also, fixed PUT request to update the role of members if they already exists
+  [#130](https://github.com/rwth-acis/RequirementsBazaar/pull/130)
+
 ## [0.9.2] - 2021-11-16
 
 ### Changed
