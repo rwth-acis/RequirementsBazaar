@@ -181,6 +181,7 @@ public class BazaarService extends RESTService {
         getResourceConfig().register(UsersResource.class);
         //getResourceConfig().register(PersonalisationDataResource.class);
         getResourceConfig().register(FeedbackResource.class);
+        getResourceConfig().register(WebhookResource.class);
     }
 
     public String getBaseURL() {
