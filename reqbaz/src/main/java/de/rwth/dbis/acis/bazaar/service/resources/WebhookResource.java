@@ -30,6 +30,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.EnumSet;
 
 @Api(value = "webhook")
@@ -206,7 +207,7 @@ public class WebhookResource {
                     projectToReturn.setAdditionalProperties(objectNode);
                     Project updatedProject = dalFacade.modifyProject(projectToReturn);
 
-                    bazaarService.getNotificationDispatcher().dispatchNotification(LocalDateTime.now(), Activity.ActivityAction.UPDATE,
+                    bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UPDATE,
                             MonitoringEvent.SERVICE_CUSTOM_ERROR_6,updatedProject.getId(), Activity.DataType.PROJECT, internalUserId);
 
                     // close db connection
