@@ -10,6 +10,9 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 
 ## [Unreleased]
 
+
+## [0.10.0] - 2022-01-22
+
 ### Added
 
 - Add webhook resource to process events from GitHub repositories connected to a project
