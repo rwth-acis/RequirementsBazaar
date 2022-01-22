@@ -10,6 +10,18 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 
 ## [Unreleased]
 
+
+## [0.10.0] - 2022-01-22
+
+### Added
+
+- Add webhook resource to process events from GitHub repositories connected to a project
+  [#132](https://github.com/rwth-acis/RequirementsBazaar/pull/132)
+  - update a project when new GiHub release is available
+  - links GitHub issues to requirements if they are referenced by a Requirements Bazaar URL
+  - updates requirements when the linked issue changes its status
+  - Users need to use the project name with whitespaces removed as secret in the webhook
+
 ## [0.9.3] - 2021-12-21
 
 ### Added
