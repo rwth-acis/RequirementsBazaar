@@ -27,6 +27,7 @@ import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 
+import java.time.OffsetDateTime;
 import java.util.Calendar;
 import java.util.List;
 
@@ -210,6 +211,17 @@ public interface DALFacade {
     Statistic getStatisticsForAllProjects(int userId, Calendar since) throws BazaarException;
 
     Statistic getStatisticsForProject(int userId, int projectId, Calendar since) throws BazaarException;
+
+    /**
+     * Returns user statistics in the given time interval.
+     *
+     * @param start interval start
+     * @param end interval end
+     *
+     * @return statistics about the users during th given interval
+     * @throws BazaarException
+     */
+    UserStatistics getUserStatistics(OffsetDateTime start, OffsetDateTime end) throws BazaarException;
 
     /**
      * Returns the count most recent active projects followed by the user

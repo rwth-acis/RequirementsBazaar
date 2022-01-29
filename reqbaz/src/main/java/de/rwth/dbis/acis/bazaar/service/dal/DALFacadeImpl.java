@@ -272,6 +272,13 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public UserStatistics getUserStatistics(OffsetDateTime start, OffsetDateTime end) throws BazaarException {
+        userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
+        // I don't like the default handling in this whole class... (maybe refactor this)
+        return userRepository.getUserStatistics(start, end);
+    }
+
+    @Override
     public PaginationResult<User> listFollowersForProject(int projectId, Pageable pageable) throws BazaarException {
         userRepository = (userRepository != null) ? userRepository : new UserRepositoryImpl(dslContext);
         return userRepository.findAllByFollowing(projectId, 0, 0, pageable);
