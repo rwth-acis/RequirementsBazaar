@@ -10,6 +10,12 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 
 ## [Unreleased]
 
+## [0.11.0] - 2022-01-29
+
+- Add endpoint to get user statistics for a certain time period (active users, new users)
+  [#136](https://github.com/rwth-acis/RequirementsBazaar/pull/136)
+
+### Added
 
 ## [0.10.0] - 2022-01-22
 
