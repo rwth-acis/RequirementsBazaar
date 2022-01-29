@@ -20,15 +20,13 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
-import de.rwth.dbis.acis.bazaar.service.dal.entities.CategoryContributors;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.ProjectContributors;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementContributors;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import i5.las2peer.security.PassphraseAgentImpl;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
@@ -68,4 +66,15 @@ public interface UserRepository extends Repository<User> {
      * @throws BazaarException
      */
     List<User> search(Pageable pageable) throws BazaarException;
+
+    /**
+     * Returns user statistics in the given time interval.
+     *
+     * @param start interval start
+     * @param end interval end
+     *
+     * @return statistics about the users during th given interval
+     * @throws BazaarException
+     */
+    UserStatistics getUserStatistics(OffsetDateTime start, OffsetDateTime end) throws BazaarException;
 }

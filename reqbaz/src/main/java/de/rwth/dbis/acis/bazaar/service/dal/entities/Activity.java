@@ -41,6 +41,7 @@ public class Activity extends EntityBase {
 
     public enum DataType {
         STATISTIC,
+        USER_STATISTICS,
         PROJECT,
         CATEGORY,
         REQUIREMENT,

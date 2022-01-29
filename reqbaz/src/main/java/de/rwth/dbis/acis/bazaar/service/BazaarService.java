@@ -25,10 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacadeImpl;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Statistic;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.SystemRole;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.CreateValidation;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
@@ -69,7 +66,9 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.*;
 
 
@@ -400,6 +399,64 @@ public class BazaarService extends RESTService {
                 bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_2,
                         0, Activity.DataType.STATISTIC, internalUserId);
                 return Response.ok(platformStatistics.toJSON()).build();
+            } catch (BazaarException bex) {
+                if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                    return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                    return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                } else {
+                    bazaarService.logger.warning(bex.getMessage());
+                    return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+                }
+            } catch (Exception ex) {
+                BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get statistics failed");
+                bazaarService.logger.warning(bex.getMessage());
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } finally {
+                bazaarService.closeDBConnection(dalFacade);
+            }
+        }
+
+        /**
+         * This method allows to retrieve statistics about the users of the Requirements Bazaar.
+         *
+         * @param start time interval start filter, ISO-8601 e.g. 2017-12-30 or 2017-12-30T18:30:00Z
+         * @param end time interval end filter, ISO-8601 e.g. 2017-12-30 or 2017-12-30T18:30:00Z
+         * @return Response with statistics as a JSON object.
+         */
+        @GET
+        @Path("/user-statistics")
+        @Produces(MediaType.APPLICATION_JSON)
+        @ApiOperation(value = "This method allows to retrieve statistics about the users of the Requirements Bazaar.")
+        @ApiResponses(value = {
+                @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns statistics", response = Statistic.class),
+                @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+                @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+        })
+        public Response getUserStatistics(
+                @ApiParam(value = "Start timestamp, ISO-8601 e.g. 2017-12-30 or 2017-12-30T18:30:00Z", required = false) @QueryParam("start") String start,
+                @ApiParam(value = "End timestamp, ISO-8601 e.g. 2017-12-30 or 2017-12-30T18:30:00Z", required = false) @QueryParam("end") String end) {
+            DALFacade dalFacade = null;
+            try {
+                String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+                if (registrarErrors != null) {
+                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
+                }
+                dalFacade = bazaarService.getDBConnection();
+
+                // parse dates and apply default (start: timestamp 0, end: NOW)
+                OffsetDateTime startDateTime = Optional.ofNullable(start)
+                        .map(str -> DatatypeConverter.parseDateTime(str).toInstant().atOffset(ZoneOffset.UTC))
+                        // NOTE: OffsetDateTime.MIN somehow causes an SQL error
+                        .orElse(new java.sql.Timestamp(0).toLocalDateTime().atOffset(ZoneOffset.UTC));
+                OffsetDateTime endDateTime = Optional.ofNullable(end)
+                        .map(str -> DatatypeConverter.parseDateTime(str).toInstant().atOffset(ZoneOffset.UTC))
+                        .orElse(OffsetDateTime.now());
+
+                UserStatistics userStatistics = dalFacade.getUserStatistics(startDateTime, endDateTime);
+
+                return Response.ok(userStatistics.toJSON()).build();
             } catch (BazaarException bex) {
                 if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
                     return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();

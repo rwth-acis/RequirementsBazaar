@@ -21,10 +21,7 @@
 package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UserRecord;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.CategoryContributors;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.ProjectContributors;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.RequirementContributors;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.User;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.UserTransformer;
@@ -38,6 +35,8 @@ import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.Record;
 import org.jooq.Result;
+import org.jooq.exception.DataAccessException;
+import org.jooq.impl.DSL;
 
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -703,5 +702,32 @@ public class UserRepositoryImpl extends RepositoryImpl<User, UserRecord> impleme
         }
 
         return entries;
+    }
+
+    @Override
+    public UserStatistics getUserStatistics(OffsetDateTime start, OffsetDateTime end) throws BazaarException {
+        UserStatistics result = null;
+        try {
+            Record numberOfActiveUsersRecord = jooq
+                    .select(DSL.countDistinct(USER.ID).as("numberOfActiveUsers"))
+                    .from(USER)
+                    .where(USER.LAST_LOGIN_DATE.between(start, end))
+                    .fetchOne();
+
+            Record numberOfNewUsersRecord = jooq
+                    .select(DSL.countDistinct(USER.ID).as("numberOfNewUsers"))
+                    .from(USER)
+                    .where(USER.CREATION_DATE.between(start, end))
+                    .fetchOne();
+
+            result = UserStatistics.builder()
+                    .numberOfActiveUsers((Integer) numberOfActiveUsersRecord.get("numberOfActiveUsers"))
+                    .numberOfNewUsers((Integer) numberOfNewUsersRecord.get("numberOfNewUsers"))
+                    .build();
+
+        } catch (DataAccessException e) {
+            ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN);
+        }
+        return result;
     }
 }
