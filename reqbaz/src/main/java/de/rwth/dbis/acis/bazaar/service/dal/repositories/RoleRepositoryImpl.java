@@ -191,7 +191,7 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
 
     @Override
     public PaginationResult<ProjectMember> listProjectMembers(int projectId, Pageable pageable) throws BazaarException {
-        List<ProjectMember> projectMembers = null;
+        List<ProjectMember> projectMembers = new ArrayList<>();
         int total = 0;
 
         try {
@@ -206,7 +206,6 @@ public class RoleRepositoryImpl extends RepositoryImpl<Role, RoleRecord> impleme
 
             if (queryResult != null && !queryResult.isEmpty()) {
                 total = queryResult.size();
-                projectMembers = new ArrayList<>();
                 for (Record entry : queryResult) {
                     User user = User.builder()
                             .eMail(entry.getValue(userTable.EMAIL))
