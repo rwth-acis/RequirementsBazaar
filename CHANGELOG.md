@@ -10,6 +10,14 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 
 ## [Unreleased]
 
+## [0.11.1] - 2022-02-10
+
+### Changed
+
+- Fix error response for /projects/{id}/members when project has no members
+  [#136](https://github.com/rwth-acis/RequirementsBazaar/pull/139)
+
+
 ## [0.11.0] - 2022-01-29
 
 ### Added
