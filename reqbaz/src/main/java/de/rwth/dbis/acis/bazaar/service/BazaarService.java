@@ -39,6 +39,7 @@ import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcherImp;
 import de.rwth.dbis.acis.bazaar.service.resources.*;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
+import de.rwth.dbis.acis.bazaar.service.twitter.TweetDispatcher;
 import i5.las2peer.api.Context;
 import i5.las2peer.api.ManualDeployment;
 import i5.las2peer.api.ServiceException;
@@ -88,6 +89,7 @@ public class BazaarService extends RESTService {
     private final ValidatorFactory validatorFactory;
     private final List<BazaarFunctionRegistrar> functionRegistrar;
     private final NotificationDispatcher notificationDispatcher;
+    private final TweetDispatcher tweetDispatcher;
     private final DataSource dataSource;
 
     //CONFIG PROPERTIES
@@ -103,6 +105,8 @@ public class BazaarService extends RESTService {
     protected String smtpServer;
     protected String emailFromAddress;
     protected String emailSummaryTimePeriodInMinutes;
+    protected String twitterClientId;
+    protected String twitterClientSecret;
 
     public BazaarService() throws Exception {
         setFieldValues();
@@ -156,6 +160,8 @@ public class BazaarService extends RESTService {
 
         }
 
+        tweetDispatcher = new TweetDispatcher(twitterClientId, twitterClientSecret);
+
         notificationDispatcher.setBazaarService(this);
     }
 
@@ -181,6 +187,7 @@ public class BazaarService extends RESTService {
         //getResourceConfig().register(PersonalisationDataResource.class);
         getResourceConfig().register(FeedbackResource.class);
         getResourceConfig().register(WebhookResource.class);
+        getResourceConfig().register(AdminResource.class);
     }
 
     public String getBaseURL() {
@@ -216,6 +223,10 @@ public class BazaarService extends RESTService {
 
     public NotificationDispatcher getNotificationDispatcher() {
         return notificationDispatcher;
+    }
+
+    public TweetDispatcher getTweetDispatcher() {
+        return tweetDispatcher;
     }
 
     private void registerUserAtFirstLogin() throws Exception {
