@@ -108,12 +108,17 @@ public class AdminResource {
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public Response authorizeTwitterAccount() {
+        return handleAuthenticatedRequest(
+                SystemRole.SystemAdmin.name(),
+                "SystemAdmin role is required to link ReqBaz Twitter account",
+                (dalFacade, internalUserId) -> {
+                    String redirectUri = buildTwitterAuthRedirectUri();
+                    logger.info("redirectUri: " + redirectUri);
+                    String authorizationUrl = bazaarService.getTweetDispatcher().getAuthorizationUrl(redirectUri);
 
-        String redirectUri = buildTwitterAuthRedirectUri();
-        logger.info("redirectUri: " + redirectUri);
-        String authorizationUrl = bazaarService.getTweetDispatcher().getAuthorizationUrl(redirectUri);
-
-        return Response.seeOther(URI.create(authorizationUrl)).build();
+                    return Response.seeOther(URI.create(authorizationUrl)).build();
+                },
+                "Failed to init Twitter authentication process");
     }
 
     @GET
@@ -127,7 +132,9 @@ public class AdminResource {
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
     public Response twitterAuthCallback(@QueryParam("code") String code) {
-
+        /*
+         * No authentication here, because this callback is called by Twitter during authentication.
+         */
         bazaarService.getTweetDispatcher().handleAuthCallback(buildTwitterAuthRedirectUri(), code);
 
         return Response.ok().build();
