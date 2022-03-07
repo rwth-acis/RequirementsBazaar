@@ -74,48 +74,27 @@ public class AdminResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response triggerTweet(){
-        DALFacade dalFacade = null;
-        try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
-            dalFacade = bazaarService.getDBConnection();
-            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+    public Response triggerTweet() {
+        return handleAuthenticatedRequest(
+                SystemRole.SystemAdmin.name(),
+                "Only Administrators can manually trigger a tweet",
+                ((dalFacade, internalUserId) -> {
+                    //// actual operation - start
 
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, dalFacade.getRoleByName(SystemRole.SystemAdmin.name()), dalFacade);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "Only Administrators can manually trigger a tweet");
-            }
+                    bazaarService.getTweetDispatcher().publishTweet("Hello World! (from ReqBaz), refactored");
 
-            //// actual operation -start
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("success", true);
 
-            bazaarService.getTweetDispatcher().publishTweet("Hello World! (from ReqBaz), refactored");
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.enable(SerializationFeature.INDENT_OUTPUT);
+                    String json = mapper.writeValueAsString(response);
+                    return Response.ok(json).build();
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            //// actual operation - end
-
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.enable(SerializationFeature.INDENT_OUTPUT);
-            String json = mapper.writeValueAsString(response);
-            return Response.ok(json).build();
-        } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Triggering weekly Tweet failed");
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
-        } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Automated Tweet failed");
-            logger.warning(bex.getMessage());
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-        }
+                    //// actual operation - end
+                }),
+                "Triggering weekly Tweet manually failed"
+        );
     }
 
     @GET
@@ -159,5 +138,72 @@ public class AdminResource {
                 .path(AdminResource.class)
                 .path(AdminResource.class, "twitterAuthCallback")
                 .build().toString();
+    }
+
+    /**
+     * Helper function to reduce duplicated code in every request handler that does the following:
+     *
+     * 1. Register a new agent if requesting user has not one (first login handler)
+     * 2. Translate agentId into a ReqBaz internal user ID
+     * 3. Ensure the authenticated user has the role which is required for the operation
+     * 4. [ call actual request handler ]
+     * 5. Catch all exceptions and translate them to appropriate HTTP responses (handle authentication/authorization
+     *     exceptions with special HTTP status code)
+     *
+     * @param requiredRole the role required for the request
+     * @param authorizationErrorMessage error message in case of an authorization error
+     * @param handler the actual request handler that is called after authorization
+     * @param errorMessage error message in other case (uncaught exception)
+     * @return the resposne to the request
+     */
+    private Response handleAuthenticatedRequest(
+            String requiredRole,
+            String authorizationErrorMessage,
+            BazaarRequestHandler handler,
+            String errorMessage) {
+        DALFacade dalFacade;
+        try {
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
+            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registrarErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
+            }
+            dalFacade = bazaarService.getDBConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, dalFacade.getRoleByName(requiredRole), dalFacade);
+            if (!authorized) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, authorizationErrorMessage);
+            }
+
+            //// actual operation -start
+            return handler.handle(dalFacade, internalUserId);
+
+        } catch (BazaarException bex) {
+            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } else {
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, errorMessage);
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            }
+        } catch (Exception ex) {
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, errorMessage);
+            logger.warning(bex.getMessage());
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+        }
+    }
+
+    @FunctionalInterface
+    private interface BazaarRequestHandler {
+
+        /**
+         *
+         * @param dalFacade facade for the DAL
+         * @param internalUserId user ID of the authenticated user
+         * @return response for the request
+         */
+        Response handle(DALFacade dalFacade, Integer internalUserId) throws Exception;
     }
 }
