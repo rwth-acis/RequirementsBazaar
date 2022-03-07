@@ -1,7 +1,13 @@
 package de.rwth.dbis.acis.bazaar.service.twitter;
 
+import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
+import java.util.NoSuchElementException;
 
+import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
+import de.rwth.dbis.acis.bazaar.service.dal.entities.LinkedTwitterAccount;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import i5.las2peer.logging.L2pLogger;
 import io.github.redouane59.twitter.TwitterClient;
 import io.github.redouane59.twitter.dto.others.BearerToken;
@@ -16,9 +22,8 @@ public class TweetDispatcher {
     private final String clientId;
     private final String clientSecret;
 
-    // Keep this in-memory for now
-    // Next step: -> store token in database
-    private BearerToken tempBearerToken;
+    // Keep this in-memory
+    private LinkedTwitterAccount linkedTwitterAccount;
 
     public TweetDispatcher(String clientId, String clientSecret) {
         this.clientId = clientId;
@@ -33,8 +38,8 @@ public class TweetDispatcher {
      *
      * @param text the text of the Tweet
      */
-    public void publishTweet(String text) {
-        TwitterClient twitterClient = createAuthenticatedTwitterClient();
+    public void publishTweet(DALFacade dalFacade, String text) throws BazaarException {
+        TwitterClient twitterClient = createAuthenticatedTwitterClient(dalFacade);
         logger.info("Publishing Tweet: " + text);
 
         final TweetParameters tweetParameters = TweetParameters.builder()
@@ -57,7 +62,7 @@ public class TweetDispatcher {
                 Arrays.asList(Scope.TWEET_READ, Scope.TWEET_WRITE, Scope.USERS_READ, Scope.OFFLINE_ACCESS));
     }
 
-    public void handleAuthCallback(String redirectUri, String code) {
+    public void handleAuthCallback(DALFacade dalFacade, String redirectUri, String code) throws Exception {
         TwitterClient twitterClient = createTwitterClientForAuthentication();
 
         // BearerToken bearerToken = twitterClient.getOAuth2AccessToken(clientId, clientSecret, code, CODE_CHALLENGE, redirectUri);
@@ -69,8 +74,19 @@ public class TweetDispatcher {
         logger.info("Twitter refreshToken: " + bearerToken.getRefreshToken());
 
         // store in-memory
-        this.tempBearerToken = bearerToken;
-        // TODO Store in database
+        OffsetDateTime now = OffsetDateTime.now();
+        LinkedTwitterAccount linkedTwitterAccount = LinkedTwitterAccount.builder()
+                .linkedByUserId(424242) // TODO Use from OAuth challenge
+                .creationDate(now)
+                .lastUpdatedDate(now)
+                .accessToken(bearerToken.getAccessToken())
+                .refreshToken(bearerToken.getRefreshToken())
+                .expirationDate(now.plus(bearerToken.getExpiresIn(), ChronoUnit.SECONDS))
+                .build();
+
+        // store in database (overrides previous linked account)
+        dalFacade.replaceLinkedTwitterAccount(linkedTwitterAccount);
+        this.linkedTwitterAccount = linkedTwitterAccount;
     }
 
     /**
@@ -80,6 +96,7 @@ public class TweetDispatcher {
      */
     private TwitterClient createTwitterClientForAuthentication() {
         return new TwitterClient(TwitterCredentials.builder()
+                // TODO DO NOT HARDCODE!
                 .apiKey("gMPXcP40Nf2Fm2pqOb8Nd4MNR")
                 .apiSecretKey("pdC8TwRxiw50DglEvFIt7ryIkW56Bq4y0UfLEHp5wtdHYzZhQ2")
                 .build());
@@ -91,14 +108,20 @@ public class TweetDispatcher {
      *
      * @return
      */
-    private TwitterClient createAuthenticatedTwitterClient() {
+    private TwitterClient createAuthenticatedTwitterClient(DALFacade dalFacade) throws BazaarException {
+        if (linkedTwitterAccount == null) {
+            linkedTwitterAccount = dalFacade.getLinkedTwitterAccount()
+                    .orElseThrow(() -> new NoSuchElementException("No linked Twitter account"));
+        }
+
         /*
          * TODO Check expired and refresh if necessary.
          */
         return new TwitterClient(TwitterCredentials.builder()
+                // TODO DO NOT HARDCODE!
                 .apiKey("gMPXcP40Nf2Fm2pqOb8Nd4MNR")
                         .apiSecretKey("pdC8TwRxiw50DglEvFIt7ryIkW56Bq4y0UfLEHp5wtdHYzZhQ2")
-                .accessToken(tempBearerToken.getAccessToken())
+                .accessToken(linkedTwitterAccount.getAccessToken())
                 .build());
     }
 }

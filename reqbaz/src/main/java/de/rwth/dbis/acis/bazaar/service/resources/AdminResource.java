@@ -8,7 +8,6 @@ import java.util.Map;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -21,7 +20,6 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
-import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Context;
 import i5.las2peer.api.logging.MonitoringEvent;
@@ -81,7 +79,7 @@ public class AdminResource {
                 ((dalFacade, internalUserId) -> {
                     //// actual operation - start
 
-                    bazaarService.getTweetDispatcher().publishTweet("Hello World! (from ReqBaz), refactored");
+                    bazaarService.getTweetDispatcher().publishTweet(dalFacade,"Hello World! (from ReqBaz), refactored");
 
                     Map<String, Object> response = new HashMap<>();
                     response.put("success", true);
@@ -131,11 +129,12 @@ public class AdminResource {
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response twitterAuthCallback(@QueryParam("code") String code) {
+    public Response twitterAuthCallback(@QueryParam("code") String code) throws Exception {
         /*
          * No authentication here, because this callback is called by Twitter during authentication.
          */
-        bazaarService.getTweetDispatcher().handleAuthCallback(buildTwitterAuthRedirectUri(), code);
+        bazaarService.getTweetDispatcher().handleAuthCallback(bazaarService.getDBConnection(),
+                buildTwitterAuthRedirectUri(), code);
 
         return Response.ok().build();
     }

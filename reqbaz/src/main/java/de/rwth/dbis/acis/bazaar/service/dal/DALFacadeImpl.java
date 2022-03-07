@@ -71,6 +71,7 @@ public class DALFacadeImpl implements DALFacade {
     private FeedbackRepository feedbackRepository;
     private TagRepository tagRepository;
     private RequirementTagRepository requirementTagRepository;
+    private LinkedTwitterAccountRepository linkedTwitterAccountRepository;
 
     public DALFacadeImpl(DataSource dataSource, SQLDialect dialect) {
         dslContext = DSL.using(dataSource, dialect);
@@ -959,4 +960,37 @@ public class DALFacadeImpl implements DALFacade {
         roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);
         return roleRepository.listProjectMembers(projectId, pageable);
     }
+
+    // region LinkedTwitterAccount
+
+    @Override
+    public Optional<LinkedTwitterAccount> getLinkedTwitterAccount() throws BazaarException {
+        linkedTwitterAccountRepository = (linkedTwitterAccountRepository != null)
+                ? linkedTwitterAccountRepository : new LinkedTwitterAccountRepositoryImpl(dslContext);
+        return linkedTwitterAccountRepository.findCurrentlyLinked();
+    }
+
+    @Override
+    public void replaceLinkedTwitterAccount(LinkedTwitterAccount newLinkedAccount) throws Exception {
+        linkedTwitterAccountRepository = (linkedTwitterAccountRepository != null)
+                ? linkedTwitterAccountRepository : new LinkedTwitterAccountRepositoryImpl(dslContext);
+
+        // ensure we only store 1 linked account at once
+        // so first, remove all existing
+        for (LinkedTwitterAccount linkedAccounts : linkedTwitterAccountRepository.findAll()) {
+            linkedTwitterAccountRepository.delete(linkedAccounts.getId());
+        }
+
+        linkedTwitterAccountRepository.add(newLinkedAccount);
+    }
+
+    @Override
+    public void updateLinkedTwitterAccount(LinkedTwitterAccount linkedTwitterAccount) throws Exception {
+        linkedTwitterAccountRepository = (linkedTwitterAccountRepository != null)
+                ? linkedTwitterAccountRepository : new LinkedTwitterAccountRepositoryImpl(dslContext);
+
+        linkedTwitterAccountRepository.update(linkedTwitterAccount);
+    }
+
+    // endregion LinkedTwitterAccount
 }

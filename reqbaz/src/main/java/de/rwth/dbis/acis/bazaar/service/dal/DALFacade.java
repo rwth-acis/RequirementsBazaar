@@ -30,6 +30,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import java.time.OffsetDateTime;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 
 
 public interface DALFacade {
@@ -830,4 +831,21 @@ public interface DALFacade {
      */
     void untagRequirement(int tagId, int requirementId) throws Exception;
     // endregion tags
+
+
+    // region LinkedTwitterAccount
+
+    /**
+     * returns the currently linked account
+     *
+     * @return
+     * @throws BazaarException
+     */
+    Optional<LinkedTwitterAccount> getLinkedTwitterAccount() throws BazaarException;
+
+    void replaceLinkedTwitterAccount(LinkedTwitterAccount newLinkedAccount) throws Exception;
+
+    void updateLinkedTwitterAccount(LinkedTwitterAccount linkedTwitterAccount) throws Exception;
+
+    // endregion LinkedTwitterAccount
 }
