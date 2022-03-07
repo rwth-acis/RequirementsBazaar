@@ -1,10 +1,11 @@
 package de.rwth.dbis.acis.bazaar.service.twitter;
 
-import java.util.*;
+import java.util.Arrays;
 
 import i5.las2peer.logging.L2pLogger;
 import io.github.redouane59.twitter.TwitterClient;
 import io.github.redouane59.twitter.dto.others.BearerToken;
+import io.github.redouane59.twitter.dto.tweet.TweetParameters;
 import io.github.redouane59.twitter.signature.Scope;
 import io.github.redouane59.twitter.signature.TwitterCredentials;
 
@@ -27,12 +28,20 @@ public class TweetDispatcher {
         logger.info("Twitter clientSecret: " + clientSecret);
     }
 
-
+    /**
+     * Publishes a plain text Tweet.
+     *
+     * @param text the text of the Tweet
+     */
     public void publishTweet(String text) {
         TwitterClient twitterClient = createAuthenticatedTwitterClient();
         logger.info("Publishing Tweet: " + text);
 
-        // TODO Implement me
+        final TweetParameters tweetParameters = TweetParameters.builder()
+                .text(text)
+                .build();
+
+        TwitterClientBearerTokenRequestSupport.postTweet(twitterClient, tweetParameters);
     }
 
     // TODO Should this be more dynamic (e.g., some encoding of user who started auth process) ?

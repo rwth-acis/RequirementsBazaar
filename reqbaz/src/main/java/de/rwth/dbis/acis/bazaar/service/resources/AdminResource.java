@@ -93,7 +93,7 @@ public class AdminResource {
 
             //// actual operation -start
 
-            bazaarService.getTweetDispatcher().publishTweet("Hello World! (from ReqBaz)");
+            bazaarService.getTweetDispatcher().publishTweet("Hello World! (from ReqBaz), refactored");
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
