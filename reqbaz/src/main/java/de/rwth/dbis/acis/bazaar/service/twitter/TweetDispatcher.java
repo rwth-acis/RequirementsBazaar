@@ -14,23 +14,33 @@ import io.github.redouane59.twitter.dto.others.BearerToken;
 import io.github.redouane59.twitter.dto.tweet.TweetParameters;
 import io.github.redouane59.twitter.signature.Scope;
 import io.github.redouane59.twitter.signature.TwitterCredentials;
+import org.apache.commons.lang3.StringUtils;
 
 public class TweetDispatcher {
 
     private final L2pLogger logger = L2pLogger.getInstance(TweetDispatcher.class.getName());
 
+    private final String apiKey;
+    private final String apiKeySecret;
     private final String clientId;
     private final String clientSecret;
 
     // Keep this in-memory
     private LinkedTwitterAccount linkedTwitterAccount;
 
-    public TweetDispatcher(String clientId, String clientSecret) {
+    public TweetDispatcher(String apiKey, String apiKeySecret, String clientId, String clientSecret) {
+        this.apiKey = apiKey;
+        this.apiKeySecret = apiKeySecret;
         this.clientId = clientId;
         this.clientSecret = clientSecret;
 
+        logger.info("Twitter apiKey: " + apiKey);
+        logger.info("Twitter apiKeySecret: " + apiKeySecret);
         logger.info("Twitter clientId: " + clientId);
         logger.info("Twitter clientSecret: " + clientSecret);
+        if (StringUtils.isAnyBlank(apiKey, apiKeySecret, clientId, clientSecret)) {
+            logger.warning("Tweeting functionality cannot be used without Twitter API credentials!");
+        }
     }
 
     /**
@@ -95,10 +105,11 @@ public class TweetDispatcher {
      * @return
      */
     private TwitterClient createTwitterClientForAuthentication() {
+        ensureCredentialsConfigured();
+
         return new TwitterClient(TwitterCredentials.builder()
-                // TODO DO NOT HARDCODE!
-                .apiKey("gMPXcP40Nf2Fm2pqOb8Nd4MNR")
-                .apiSecretKey("pdC8TwRxiw50DglEvFIt7ryIkW56Bq4y0UfLEHp5wtdHYzZhQ2")
+                .apiKey(apiKey)
+                .apiSecretKey(apiKeySecret)
                 .build());
     }
 
@@ -109,6 +120,8 @@ public class TweetDispatcher {
      * @return
      */
     private TwitterClient createAuthenticatedTwitterClient(DALFacade dalFacade) throws BazaarException {
+        ensureCredentialsConfigured();
+
         if (linkedTwitterAccount == null) {
             linkedTwitterAccount = dalFacade.getLinkedTwitterAccount()
                     .orElseThrow(() -> new NoSuchElementException("No linked Twitter account"));
@@ -118,10 +131,15 @@ public class TweetDispatcher {
          * TODO Check expired and refresh if necessary.
          */
         return new TwitterClient(TwitterCredentials.builder()
-                // TODO DO NOT HARDCODE!
-                .apiKey("gMPXcP40Nf2Fm2pqOb8Nd4MNR")
-                        .apiSecretKey("pdC8TwRxiw50DglEvFIt7ryIkW56Bq4y0UfLEHp5wtdHYzZhQ2")
+                .apiKey(apiKey)
+                .apiSecretKey(apiKeySecret)
                 .accessToken(linkedTwitterAccount.getAccessToken())
                 .build());
+    }
+
+    private void ensureCredentialsConfigured() {
+        if (StringUtils.isAnyBlank(apiKey, apiKeySecret, clientId, clientSecret)) {
+            throw new IllegalStateException("Missing Twitter API credentials");
+        }
     }
 }

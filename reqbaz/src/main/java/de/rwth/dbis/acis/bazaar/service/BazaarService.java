@@ -67,7 +67,6 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.*;
@@ -105,6 +104,8 @@ public class BazaarService extends RESTService {
     protected String smtpServer;
     protected String emailFromAddress;
     protected String emailSummaryTimePeriodInMinutes;
+    protected String twitterApiKey;
+    protected String twitterApiKeySecret;
     protected String twitterClientId;
     protected String twitterClientSecret;
 
@@ -160,7 +161,7 @@ public class BazaarService extends RESTService {
 
         }
 
-        tweetDispatcher = new TweetDispatcher(twitterClientId, twitterClientSecret);
+        tweetDispatcher = new TweetDispatcher(twitterApiKey, twitterApiKeySecret, twitterClientId, twitterClientSecret);
 
         notificationDispatcher.setBazaarService(this);
     }
