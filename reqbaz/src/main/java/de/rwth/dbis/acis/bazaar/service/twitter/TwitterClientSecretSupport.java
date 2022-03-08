@@ -55,4 +55,36 @@ public class TwitterClientSecretSupport {
                 .makeRequest(Verb.POST, url, headers, params, null, false, BearerToken.class)
                 .orElseThrow(NoSuchElementException::new);
     }
+
+    /**
+     * Variant of {@link TwitterClient#getOAuth2RefreshToken(String, String)}
+     * that uses <i>clientId</i> and <i>clientSecret</i> for authorization.<br>
+     *
+     * @param twitterClient
+     * @param clientId
+     * @param clientSecret
+     * @param refreshToken
+     * @return
+     */
+    public static BearerToken refreshOAuth2AccessTokenWithSecret(
+            TwitterClient twitterClient,
+            String clientId,
+            String clientSecret,
+            String refreshToken) {
+
+        String url = URLHelper.ACCESS_TOKEN_URL;
+        Map<String, String> params = new HashMap<>();
+        params.put("client_id", clientId);
+        params.put("refresh_token", refreshToken);
+        params.put("grant_type", "refresh_token");
+
+        String valueToEncode = clientId + ":" + clientSecret;
+        String encodedValue = Base64.getEncoder().encodeToString(valueToEncode.getBytes());
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Authorization", "Basic " + encodedValue);
+
+        return twitterClient.getRequestHelperV2()
+                .makeRequest(Verb.POST, url, headers, params, null, false, BearerToken.class)
+                .orElseThrow(NoSuchElementException::new);
+    }
 }

@@ -7,7 +7,6 @@ import java.util.NoSuchElementException;
 
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.LinkedTwitterAccount;
-import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import i5.las2peer.logging.L2pLogger;
 import io.github.redouane59.twitter.TwitterClient;
 import io.github.redouane59.twitter.dto.others.BearerToken;
@@ -48,7 +47,7 @@ public class TweetDispatcher {
      *
      * @param text the text of the Tweet
      */
-    public void publishTweet(DALFacade dalFacade, String text) throws BazaarException {
+    public void publishTweet(DALFacade dalFacade, String text) throws Exception {
         TwitterClient twitterClient = createAuthenticatedTwitterClient(dalFacade);
         logger.info("Publishing Tweet: " + text);
 
@@ -91,12 +90,16 @@ public class TweetDispatcher {
                 .lastUpdatedDate(now)
                 .accessToken(bearerToken.getAccessToken())
                 .refreshToken(bearerToken.getRefreshToken())
-                .expirationDate(now.plus(bearerToken.getExpiresIn(), ChronoUnit.SECONDS))
+                .expirationDate(calcTokenExpirationDate(bearerToken))
                 .build();
 
         // store in database (overrides previous linked account)
         dalFacade.replaceLinkedTwitterAccount(linkedTwitterAccount);
         this.linkedTwitterAccount = linkedTwitterAccount;
+    }
+
+    private OffsetDateTime calcTokenExpirationDate(BearerToken bearerToken) {
+        return OffsetDateTime.now().plus(bearerToken.getExpiresIn(), ChronoUnit.SECONDS);
     }
 
     /**
@@ -119,7 +122,7 @@ public class TweetDispatcher {
      *
      * @return
      */
-    private TwitterClient createAuthenticatedTwitterClient(DALFacade dalFacade) throws BazaarException {
+    private TwitterClient createAuthenticatedTwitterClient(DALFacade dalFacade) throws Exception {
         ensureCredentialsConfigured();
 
         if (linkedTwitterAccount == null) {
@@ -127,14 +130,29 @@ public class TweetDispatcher {
                     .orElseThrow(() -> new NoSuchElementException("No linked Twitter account"));
         }
 
-        /*
-         * TODO Check expired and refresh if necessary.
-         */
+        if (linkedTwitterAccount.isTokenExpired()) {
+            logger.info("Twitter access token is expired. Refreshing...");
+            refreshAccessToken(dalFacade);
+        }
+
         return new TwitterClient(TwitterCredentials.builder()
                 .apiKey(apiKey)
                 .apiSecretKey(apiKeySecret)
                 .accessToken(linkedTwitterAccount.getAccessToken())
                 .build());
+    }
+
+    private void refreshAccessToken(DALFacade dalFacade) throws Exception {
+        TwitterClient twitterClient = createTwitterClientForAuthentication();
+
+        BearerToken bearerToken = TwitterClientSecretSupport.refreshOAuth2AccessTokenWithSecret(twitterClient,
+                clientId, clientSecret, linkedTwitterAccount.getRefreshToken());
+
+        linkedTwitterAccount.updateToken(bearerToken.getAccessToken(), bearerToken.getRefreshToken(),
+                calcTokenExpirationDate(bearerToken));
+
+        dalFacade.updateLinkedTwitterAccount(linkedTwitterAccount);
+        logger.info("Twitter access token refreshed successfully");
     }
 
     private void ensureCredentialsConfigured() {
