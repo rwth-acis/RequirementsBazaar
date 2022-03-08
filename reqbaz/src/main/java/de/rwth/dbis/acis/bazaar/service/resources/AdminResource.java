@@ -5,6 +5,7 @@ import java.net.URI;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -63,23 +64,26 @@ public class AdminResource {
     }
 
     @POST
-    @Path("/trigger-weekly-tweet")
+    @Path("/twitter/test-tweet")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    @ApiOperation(value = "Tweet latest projects")
+    @ApiOperation(value = "Post a test Tweet on twitter")
     @ApiResponses(value = {
             @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns OK"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
-    public Response triggerTweet() {
+    public Response postTestTweet() {
         return handleAuthenticatedRequest(
                 SystemRole.SystemAdmin.name(),
                 "Only Administrators can manually trigger a tweet",
                 ((dalFacade, internalUserId) -> {
                     //// actual operation - start
 
-                    bazaarService.getTweetDispatcher().publishTweet(dalFacade,"Hello World! (from ReqBaz), refactored");
+                    int randomNumber = new Random().nextInt(4242);
+
+                    bazaarService.getTweetDispatcher().publishTweet(dalFacade,
+                            "Hello World! (from ReqBaz). Here's some random number: " + randomNumber);
 
                     Map<String, Object> response = new HashMap<>();
                     response.put("success", true);
@@ -91,7 +95,7 @@ public class AdminResource {
 
                     //// actual operation - end
                 }),
-                "Triggering weekly Tweet manually failed"
+                "Posting a test Tweet failed"
         );
     }
 
