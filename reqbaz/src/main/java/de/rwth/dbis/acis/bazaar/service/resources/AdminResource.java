@@ -11,8 +11,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import de.rwth.dbis.acis.bazaar.service.BazaarFunction;
 import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
@@ -27,6 +30,8 @@ import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.api.security.Agent;
 import i5.las2peer.logging.L2pLogger;
 import io.swagger.annotations.*;
+import lombok.Builder;
+import lombok.Getter;
 
 /**
  * Parent endpoint for global, administrative operations and queries
@@ -105,7 +110,7 @@ public class AdminResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Authorize ReqBaz to control a certain Twitter account.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns OK"),
+            @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns OK", response = TwitterAuthRedirect.class),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
     })
@@ -118,13 +123,10 @@ public class AdminResource {
                     logger.info("redirectUri: " + redirectUri);
                     String authorizationUrl = bazaarService.getTweetDispatcher().getAuthorizationUrl(redirectUri);
 
-                    Map<String, Object> response = new HashMap<>();
-                    response.put("redirectUri", authorizationUrl);
-
-                    ObjectMapper mapper = new ObjectMapper();
-                    mapper.enable(SerializationFeature.INDENT_OUTPUT);
-                    String json = mapper.writeValueAsString(response);
-                    return Response.ok(json).build();
+                    TwitterAuthRedirect redirect = TwitterAuthRedirect.builder()
+                            .redirectUrl(authorizationUrl)
+                            .build();
+                    return Response.ok(redirect.toJSON()).build();
                 },
                 "Failed to init Twitter authentication process");
     }
@@ -221,5 +223,21 @@ public class AdminResource {
          * @return response for the request
          */
         Response handle(DALFacade dalFacade, Integer internalUserId) throws Exception;
+    }
+
+    @Getter
+    @Builder
+    public static class TwitterAuthRedirect {
+
+        /** URL where the user should be redirected to */
+        private String redirectUrl;
+
+        public String toJSON() throws JsonProcessingException {
+            // TODO Refactor (multiple classes have this helper method!)
+            return new ObjectMapper()
+                    .registerModule(new JavaTimeModule())
+                    .setSerializationInclusion(JsonInclude.Include.NON_NULL)
+                    .writeValueAsString(this);
+        }
     }
 }
