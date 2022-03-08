@@ -118,7 +118,13 @@ public class AdminResource {
                     logger.info("redirectUri: " + redirectUri);
                     String authorizationUrl = bazaarService.getTweetDispatcher().getAuthorizationUrl(redirectUri);
 
-                    return Response.seeOther(URI.create(authorizationUrl)).build();
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("redirectUri", authorizationUrl);
+
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.enable(SerializationFeature.INDENT_OUTPUT);
+                    String json = mapper.writeValueAsString(response);
+                    return Response.ok(json).build();
                 },
                 "Failed to init Twitter authentication process");
     }
@@ -140,7 +146,7 @@ public class AdminResource {
         bazaarService.getTweetDispatcher().handleAuthCallback(bazaarService.getDBConnection(),
                 buildTwitterAuthRedirectUri(), code);
 
-        return Response.ok().build();
+        return Response.ok("You can close this tab now.").build();
     }
 
     private String buildTwitterAuthRedirectUri() {
