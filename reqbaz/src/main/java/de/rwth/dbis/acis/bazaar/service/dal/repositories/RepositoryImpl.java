@@ -34,6 +34,7 @@ import org.jooq.exception.DataAccessException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @since 6/9/2014
@@ -110,7 +111,9 @@ public class RepositoryImpl<E extends EntityBase, R extends Record> implements R
 
             List<R> queryResults = jooq.selectFrom(transformer.getTable()).fetchInto(transformer.getRecordClass());
 
-
+            entries.addAll(queryResults.stream()
+                    .map(transformer::getEntityFromTableRecord)
+                    .collect(Collectors.toList()));
         } catch (DataAccessException e) {
             ExceptionHandler.getInstance().convertAndThrowException(e, ExceptionLocation.REPOSITORY, ErrorCode.UNKNOWN, e.getMessage());
         }
