@@ -101,7 +101,11 @@ public class WeeklyNewProjectsTweetTask extends TimerTask {
             throw new IllegalStateException("Invalid frontend base URL: " + bazaarService.getFrontendBaseURL());
         }
 
-        return "This week, we welcome " + projects.size() + " new projects. Check them out at " + latestProjectsLink;
+        // we can use indices 0, and 1 because we expect size >= 2 in this method
+        return "This week, we welcome " + projects.size() + " new projects."
+                + " Among others, '"  + projects.get(0).getName() + "'"
+                + " and '"  + projects.get(1).getName() + "'."
+                + " Check them out at " + latestProjectsLink;
     }
 
     private String buildProjectFrontendLink(Project project) {
