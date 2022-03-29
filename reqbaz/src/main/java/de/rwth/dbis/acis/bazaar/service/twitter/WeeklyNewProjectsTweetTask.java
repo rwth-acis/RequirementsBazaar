@@ -73,6 +73,11 @@ public class WeeklyNewProjectsTweetTask extends TimerTask {
             return; // No projects -> no tweet
         }
 
+        if (!bazaarService.getTweetDispatcher().hasLinkedTwitterAccount()) {
+            logger.info("Cannot post weekly tweet. No linked Twitter account.");
+            return;
+        }
+
         String text;
         if (projectsCreatedLastWeek.size() == 1) {
             text = buildMessageOneProject(projectsCreatedLastWeek.get(0));

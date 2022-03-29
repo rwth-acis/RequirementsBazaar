@@ -5,8 +5,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 
+import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.LinkedTwitterAccount;
+import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import i5.las2peer.logging.L2pLogger;
 import io.github.redouane59.twitter.TwitterClient;
 import io.github.redouane59.twitter.dto.others.BearerToken;
@@ -19,6 +21,7 @@ public class TweetDispatcher {
 
     private final L2pLogger logger = L2pLogger.getInstance(TweetDispatcher.class.getName());
 
+    private final BazaarService bazaarService;
     private final String apiKey;
     private final String apiKeySecret;
     private final String clientId;
@@ -27,7 +30,8 @@ public class TweetDispatcher {
     // Keep this in-memory
     private LinkedTwitterAccount linkedTwitterAccount;
 
-    public TweetDispatcher(String apiKey, String apiKeySecret, String clientId, String clientSecret) {
+    public TweetDispatcher(BazaarService bazaarService, String apiKey, String apiKeySecret, String clientId, String clientSecret) {
+        this.bazaarService = bazaarService;
         this.apiKey = apiKey;
         this.apiKeySecret = apiKeySecret;
         this.clientId = clientId;
@@ -114,6 +118,17 @@ public class TweetDispatcher {
                 .apiKey(apiKey)
                 .apiSecretKey(apiKeySecret)
                 .build());
+    }
+
+    /**
+     * Returns whether the instance has a linked Twitter account to post tweets with.
+     *
+     * @return
+     * @throws BazaarException
+     */
+    public boolean hasLinkedTwitterAccount() throws Exception {
+        DALFacade dalFacade = bazaarService.getDBConnection();
+        return dalFacade.getLinkedTwitterAccount().isPresent();
     }
 
     /**

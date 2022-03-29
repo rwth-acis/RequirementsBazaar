@@ -165,7 +165,7 @@ public class BazaarService extends RESTService {
 
         }
 
-        tweetDispatcher = new TweetDispatcher(twitterApiKey, twitterApiKeySecret, twitterClientId, twitterClientSecret);
+        tweetDispatcher = new TweetDispatcher(this, twitterApiKey, twitterApiKeySecret, twitterClientId, twitterClientSecret);
 
         new WeeklyNewProjectsTweetTask(this).schedule(timer);
 
