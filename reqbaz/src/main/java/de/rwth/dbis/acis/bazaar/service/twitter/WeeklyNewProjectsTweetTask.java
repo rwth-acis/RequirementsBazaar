@@ -1,8 +1,6 @@
 package de.rwth.dbis.acis.bazaar.service.twitter;
 
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
@@ -95,8 +93,11 @@ public class WeeklyNewProjectsTweetTask extends TimerTask {
     private String buildMessageMultipleProjects(List<Project> projects) {
         String latestProjectsLink;
         try {
-            // TODO We need a query param for sortBy=date or similar in frontend
-            latestProjectsLink = new URIBuilder(bazaarService.getFrontendBaseURL()).setPath("/projects").build().toString();
+            latestProjectsLink = new URIBuilder(bazaarService.getFrontendBaseURL())
+                    .setPath("/projects")
+                    .addParameter("sort", "date")
+                    .addParameter("order", "d") // all except 'a' encodes descending order
+                    .build().toString();
         } catch (URISyntaxException e) {
             throw new IllegalStateException("Invalid frontend base URL: " + bazaarService.getFrontendBaseURL());
         }
