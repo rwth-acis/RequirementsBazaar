@@ -51,7 +51,8 @@ public class TweetDispatcher {
      *
      * @param text the text of the Tweet
      */
-    public void publishTweet(DALFacade dalFacade, String text) throws Exception {
+    public void publishTweet(String text) throws Exception {
+        DALFacade dalFacade = bazaarService.getDBConnection();
         TwitterClient twitterClient = createAuthenticatedTwitterClient(dalFacade);
         logger.info("Publishing Tweet: " + text);
 
@@ -75,7 +76,8 @@ public class TweetDispatcher {
                 Arrays.asList(Scope.TWEET_READ, Scope.TWEET_WRITE, Scope.USERS_READ, Scope.OFFLINE_ACCESS));
     }
 
-    public void handleAuthCallback(DALFacade dalFacade, String redirectUri, String code) throws Exception {
+    public void handleAuthCallback(String redirectUri, String code) throws Exception {
+        DALFacade dalFacade = bazaarService.getDBConnection();
         TwitterClient twitterClient = createTwitterClientForAuthentication();
 
         // BearerToken bearerToken = twitterClient.getOAuth2AccessToken(clientId, clientSecret, code, CODE_CHALLENGE, redirectUri);

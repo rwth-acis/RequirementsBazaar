@@ -85,7 +85,7 @@ public class WeeklyNewProjectsTweetTask extends TimerTask {
             text = buildMessageMultipleProjects(projectsCreatedLastWeek);
         }
 
-        bazaarService.getTweetDispatcher().publishTweet(bazaarService.getDBConnection(), text);
+        bazaarService.getTweetDispatcher().publishTweet(text);
     }
 
     private String buildMessageOneProject(Project project) {

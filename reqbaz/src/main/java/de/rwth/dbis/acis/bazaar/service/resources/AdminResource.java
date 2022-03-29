@@ -87,7 +87,7 @@ public class AdminResource {
 
                     int randomNumber = new Random().nextInt(4242);
 
-                    bazaarService.getTweetDispatcher().publishTweet(dalFacade,
+                    bazaarService.getTweetDispatcher().publishTweet(
                             "Hello World! (from ReqBaz). Here's some random number: " + randomNumber);
 
                     Map<String, Object> response = new HashMap<>();
@@ -145,8 +145,7 @@ public class AdminResource {
         /*
          * No authentication here, because this callback is called by Twitter during authentication.
          */
-        bazaarService.getTweetDispatcher().handleAuthCallback(bazaarService.getDBConnection(),
-                buildTwitterAuthRedirectUri(), code);
+        bazaarService.getTweetDispatcher().handleAuthCallback(buildTwitterAuthRedirectUri(), code);
 
         return Response.ok("You can close this tab now.").build();
     }
