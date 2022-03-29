@@ -25,6 +25,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
+import de.rwth.dbis.acis.bazaar.service.twitter.WeeklyNewProjectsTweetTask;
 import i5.las2peer.api.Context;
 import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.api.security.Agent;
@@ -101,6 +102,43 @@ public class AdminResource {
                     //// actual operation - end
                 }),
                 "Posting a test Tweet failed"
+        );
+    }
+
+    @POST
+    @Path("/twitter/trigger-new-projects-tweet")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Manually trigger the Tweet about new projects")
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpURLConnection.HTTP_CREATED, message = "Returns OK"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+    })
+    public Response triggerNewProjectsTweet() {
+        return handleAuthenticatedRequest(
+                SystemRole.SystemAdmin.name(),
+                "Only Administrators can manually trigger a the tweet",
+                ((dalFacade, internalUserId) -> {
+                    //// actual operation - start
+
+                    int randomNumber = new Random().nextInt(4242);
+
+                    // Manually call task that is usually called by scheduler
+                    WeeklyNewProjectsTweetTask task = new WeeklyNewProjectsTweetTask(bazaarService);
+                    task.tweetNewProjects();
+
+                    Map<String, Object> response = new HashMap<>();
+                    response.put("success", true);
+
+                    ObjectMapper mapper = new ObjectMapper();
+                    mapper.enable(SerializationFeature.INDENT_OUTPUT);
+                    String json = mapper.writeValueAsString(response);
+                    return Response.ok(json).build();
+
+                    //// actual operation - end
+                }),
+                "Posting 'new projects Tweet' failed"
         );
     }
 

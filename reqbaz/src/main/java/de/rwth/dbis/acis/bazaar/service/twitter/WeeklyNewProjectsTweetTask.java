@@ -65,7 +65,7 @@ public class WeeklyNewProjectsTweetTask extends TimerTask {
         }
     }
 
-    private void tweetNewProjects() throws Exception {
+    public void tweetNewProjects() throws Exception {
         List<Project> projectsCreatedLastWeek = getProjectsCreatedInLastWeek();
 
         if (projectsCreatedLastWeek.isEmpty()) {
