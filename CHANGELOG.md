@@ -10,6 +10,17 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 
 ## [Unreleased]
 
+## [0.12.0] - 2022-04-03
+
+### Added
+
+- Requirements Bazaar can have a 'linked Twitter account' which can be used for tweeting about new projects, etc. The
+  acts as an OAuth 2.0 application for Twitter and a Twitter user can give the service access
+  to an account. The internal `TweetDispatcher` refreshes the access token for the Twitter API automatically when it expires.
+  [#143](https://github.com/rwth-acis/RequirementsBazaar/pull/143)
+- If a Twitter account is linked, Requirements Bazaar publishes a weekly Tweet (on Sunday afternoon, 4 pm) about new projects
+  [#146](https://github.com/rwth-acis/RequirementsBazaar/pull/146)
+
 ## [0.11.1] - 2022-02-10
 
 ### Changed
