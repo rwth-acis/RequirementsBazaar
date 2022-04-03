@@ -40,6 +40,7 @@ import de.rwth.dbis.acis.bazaar.service.notification.NotificationDispatcherImp;
 import de.rwth.dbis.acis.bazaar.service.resources.*;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import de.rwth.dbis.acis.bazaar.service.twitter.TweetDispatcher;
+import de.rwth.dbis.acis.bazaar.service.twitter.WeeklyNewProjectsTweetTask;
 import i5.las2peer.api.Context;
 import i5.las2peer.api.ManualDeployment;
 import i5.las2peer.api.ServiceException;
@@ -51,6 +52,7 @@ import i5.las2peer.logging.L2pLogger;
 import i5.las2peer.restMapper.RESTService;
 import i5.las2peer.restMapper.annotations.ServicePath;
 import io.swagger.annotations.*;
+import lombok.Getter;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.http.client.utils.URIBuilder;
 import org.jooq.SQLDialect;
@@ -144,6 +146,8 @@ public class BazaarService extends RESTService {
             notificationDispatcher.setActivityDispatcher(new ActivityDispatcher(this, activityTrackerService, activityOrigin, baseURL, frontendBaseURL));
         }
 
+        Timer timer = new Timer();
+
         if (!smtpServer.isEmpty()) {
             Properties props = System.getProperties();
             props.put("mail.smtp.host", smtpServer);
@@ -152,7 +156,7 @@ public class BazaarService extends RESTService {
             if (!emailSummaryTimePeriodInMinutes.isEmpty()) {
                 try {
                     // This task is scheduled to run every 60 seconds * emailSummaryTimePeriodInMinutes
-                    Timer timer = new Timer();
+
                     timer.scheduleAtFixedRate((NotificationDispatcherImp) notificationDispatcher, 0, 60000 * Integer.valueOf(emailSummaryTimePeriodInMinutes));
                 } catch (Exception ex) {
                     logger.warning(ex.getMessage());
@@ -161,7 +165,9 @@ public class BazaarService extends RESTService {
 
         }
 
-        tweetDispatcher = new TweetDispatcher(twitterApiKey, twitterApiKeySecret, twitterClientId, twitterClientSecret);
+        tweetDispatcher = new TweetDispatcher(this, twitterApiKey, twitterApiKeySecret, twitterClientId, twitterClientSecret);
+
+        new WeeklyNewProjectsTweetTask(this).schedule(timer);
 
         notificationDispatcher.setBazaarService(this);
     }
@@ -293,6 +299,10 @@ public class BazaarService extends RESTService {
 
     public ObjectMapper getMapper() {
         return mapper;
+    }
+
+    public String getFrontendBaseURL() {
+        return frontendBaseURL;
     }
 
     public Response.ResponseBuilder paginationLinks(Response.ResponseBuilder responseBuilder, PaginationResult paginationResult,
