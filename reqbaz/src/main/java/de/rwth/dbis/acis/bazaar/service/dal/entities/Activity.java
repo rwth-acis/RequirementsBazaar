@@ -71,6 +71,7 @@ public class Activity extends EntityBase {
     }
 
     @Data
+    @lombok.Builder
     public static class AdditionalObject {
         @JsonFilter("ActivityFilter")
         @NonNull
@@ -78,14 +79,17 @@ public class Activity extends EntityBase {
 
         @JsonFilter("ActivityFilter")
         @NonNull
+        private User user;
+
+        /* re-ordered properties because lombok enforces the constructor order:
+         * first: required parameters (non-null)
+         * then: other parameters
+         */
+
+        @JsonFilter("ActivityFilter")
         private Category category;
 
         @JsonFilter("ActivityFilter")
-        @NonNull
         private Requirement requirement;
-
-        @JsonFilter("ActivityFilter")
-        @NonNull
-        private User user;
     }
 }

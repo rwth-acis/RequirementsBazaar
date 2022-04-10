@@ -90,30 +90,54 @@ public class NotificationDispatcherImp extends TimerTask implements Notification
             User user = dalFacade.getUserById(userId);
             if (dataType.equals(Activity.DataType.PROJECT) && dataId != 0) {
                 Project project = dalFacade.getProjectById(dataId, userId);
-                additionalObject = new Activity.AdditionalObject(project, null, null, user);
+                additionalObject = Activity.AdditionalObject.builder()
+                        .project(project)
+                        .user(user)
+                        .build();
             } else if (dataType.equals(Activity.DataType.CATEGORY)) {
                 Category category = dalFacade.getCategoryById(dataId, userId);
                 Project project = dalFacade.getProjectById(category.getProjectId(), userId);
-                additionalObject = new Activity.AdditionalObject(project, category, null, user);
+                additionalObject = Activity.AdditionalObject.builder()
+                        .project(project)
+                        .category(category)
+                        .user(user)
+                        .build();
             } else if (dataType.equals(Activity.DataType.REQUIREMENT)) {
                 Requirement requirement = dalFacade.getRequirementById(dataId, userId);
                 Category category = dalFacade.getCategoryById(requirement.getCategories().get(0), userId);
                 Project project = dalFacade.getProjectById(requirement.getProjectId(), userId);
-                additionalObject = new Activity.AdditionalObject(project, category, requirement, user);
+                additionalObject = Activity.AdditionalObject.builder()
+                        .project(project)
+                        .category(category)
+                        .requirement(requirement)
+                        .user(user)
+                        .build();
             } else if (dataType.equals(Activity.DataType.COMMENT)) {
                 Comment comment = dalFacade.getCommentById(dataId);
                 Requirement requirement = dalFacade.getRequirementById(comment.getRequirementId(), userId);
                 Category category = dalFacade.getCategoryById(requirement.getCategories().get(0), userId);
                 Project project = dalFacade.getProjectById(requirement.getProjectId(), userId);
-                additionalObject = new Activity.AdditionalObject(project, category, requirement, user);
+                additionalObject = Activity.AdditionalObject.builder()
+                        .project(project)
+                        .category(category)
+                        .requirement(requirement)
+                        .user(user)
+                        .build();
             } else if (dataType.equals(Activity.DataType.ATTACHMENT)) {
                 Attachment attachment = dalFacade.getAttachmentById(dataId);
                 Requirement requirement = dalFacade.getRequirementById(attachment.getRequirementId(), userId);
                 Category category = dalFacade.getCategoryById(requirement.getCategories().get(0), userId);
                 Project project = dalFacade.getProjectById(requirement.getProjectId(), userId);
-                additionalObject = new Activity.AdditionalObject(project, category, requirement, user);
+                additionalObject = Activity.AdditionalObject.builder()
+                        .project(project)
+                        .category(category)
+                        .requirement(requirement)
+                        .user(user)
+                        .build();
             } else {
-                additionalObject = new Activity.AdditionalObject(null, null, null, user);
+                additionalObject = Activity.AdditionalObject.builder()
+                        .user(user)
+                        .build();
             }
         } catch (Exception e) {
             logger.warning(e.getMessage());
