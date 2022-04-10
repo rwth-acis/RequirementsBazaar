@@ -10,6 +10,11 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 
 ## [Unreleased]
 
+### Changed
+
+- Fixed wrong requirement link in email notifications
+  [#151](https://github.com/rwth-acis/RequirementsBazaar/pull/151)
+
 ## [0.12.0] - 2022-04-03
 
 ### Added
