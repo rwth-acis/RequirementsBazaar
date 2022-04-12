@@ -205,10 +205,7 @@ public class WebhookResource {
 
                     // save the updated Project additionalProperties
                     projectToReturn.setAdditionalProperties(objectNode);
-                    Project updatedProject = dalFacade.modifyProject(projectToReturn);
-
-                    bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UPDATE,
-                            MonitoringEvent.SERVICE_CUSTOM_ERROR_6,updatedProject.getId(), Activity.DataType.PROJECT, internalUserId);
+                    dalFacade.modifyProject(projectToReturn);
 
                     // close db connection
                     bazaarService.closeDBConnection(dalFacade);
