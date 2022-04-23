@@ -178,6 +178,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT.ID.eq(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID))
                 .where(requirementFilter)
                 .and(isAuthorizedCondition)
+                .limit(pageable.getPageSize())
+                .offset(pageable.getOffset())
                 .fetch();
 
         for (Record queryResult : queryResults) {
