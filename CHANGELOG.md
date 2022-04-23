@@ -10,6 +10,15 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 
 ## [Unreleased]
 
+## [0.12.3] - 2022-04-23
+
+### Changed
+- Stopped dispatching 'project update' notifications when GitHub webhook updates project
+  [#154](https://github.com/rwth-acis/RequirementsBazaar/pull/154)
+- Fixed not working pagination for `/categories/{id}/requirements` and `/requirements` resources. The `page` and
+  `perPage` query params were ignored before which resulted in all requirements being returned with the first request.
+  [#156](https://github.com/rwth-acis/RequirementsBazaar/pull/156)
+
 ## [0.12.1] - 2022-04-10
 
 ### Changed
