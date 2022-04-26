@@ -629,7 +629,7 @@ public class RequirementsResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirementToDelete = dalFacade.getRequirementById(requirementId, internalUserId);
             Project project = dalFacade.getProjectById(requirementToDelete.getProjectId(), internalUserId);
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, project.getId(), dalFacade);
+            boolean authorized = isUserAuthorizedToDeleteRequirement(dalFacade, internalUserId, project, requirementToDelete);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.delete"));
             }
@@ -655,6 +655,26 @@ public class RequirementsResource {
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
+    }
+
+    /**
+     * Returns whether the given user is authorized to delete a certain requirement.
+     *
+     * @param dalFacade facade for database access
+     * @param userId the user to test authorization for
+     * @param projectOfRequirement the project of which the requirement is part of
+     * @param requirement the requirement to delete
+     * @return
+     * @throws BazaarException
+     */
+    private boolean isUserAuthorizedToDeleteRequirement(DALFacade dalFacade, Integer userId, Project projectOfRequirement, Requirement requirement) throws BazaarException {
+        // If user is author they can delete it (independent of privilege)
+        if (requirement.isOwner(userId)) {
+            return true;
+        }
+        // Check whether the suer has the required privilege
+        return new AuthorizationManager()
+                .isAuthorized(userId, PrivilegeEnum.Modify_REQUIREMENT, projectOfRequirement.getId(), dalFacade);
     }
 
     /**
