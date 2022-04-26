@@ -10,6 +10,11 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 
 ## [Unreleased]
 
+### Changed
+- Creator of a requirement is always allowed to delete the requirement (independent of roles and privileges)
+  [#159](https://github.com/rwth-acis/RequirementsBazaar/pull/159)
+
+
 ## [0.12.3] - 2022-04-23
 
 ### Changed
