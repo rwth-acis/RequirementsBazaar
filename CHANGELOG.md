@@ -10,6 +10,16 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 
 ## [Unreleased]
 
+## [0.12.4] - 2022-04-26
+
+### Changed
+- Creator of a requirement is always allowed to delete the requirement (independent of roles and privileges)
+  [#159](https://github.com/rwth-acis/RequirementsBazaar/pull/159)
+- Stop redirecting to requirement resource after DELETE on user vote (`/bazaar/requirements/{id}/votes`).
+  This caused some clients which are strictly implementing HTTP spec to delete the requirement too when the request
+  should only remove the vote of a user. See [#141](https://github.com/rwth-acis/RequirementsBazaar/pull/141)
+
+
 ## [0.12.3] - 2022-04-23
 
 ### Changed
