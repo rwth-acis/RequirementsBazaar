@@ -23,6 +23,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.User;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.CommentRecord;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.UserRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Comment;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.EntityContextFactory;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
@@ -45,11 +46,14 @@ import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
 
 public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord> implements CommentRepository {
 
+    private final DALFacade dalFacade;
+
     /**
      * @param jooq DSLContext for JOOQ connection
      */
-    public CommentRepositoryImpl(DSLContext jooq) {
+    public CommentRepositoryImpl(DSLContext jooq, DALFacade dalFacade) {
         super(jooq, new CommentTransformer());
+        this.dalFacade = dalFacade;
     }
 
 
@@ -148,7 +152,7 @@ public class CommentRepositoryImpl extends RepositoryImpl<Comment, CommentRecord
             for (Record record : queryResults) {
                 if (entry == null || transformer.getEntityFromTableRecord(record.into(CommentRecord.class)).getId() != entry.getId()) {
                     entry = convertToCommentWithUser(record, creatorUser);
-                    entry.setContext(EntityContextFactory.create(pageable.getEmbed(), record));
+                    entry.setContext(EntityContextFactory.create(pageable.getEmbed(), record, dalFacade));
                     comments.add(entry);
                 }
             }

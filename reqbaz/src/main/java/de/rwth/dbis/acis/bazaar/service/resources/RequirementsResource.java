@@ -467,7 +467,10 @@ public class RequirementsResource {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.create"));
             }
 
+            // TODO Refactor this! Such logic should be moved to the constructor
             requirementToCreate.setCreator(dalFacade.getUserById(internalUserId));
+            requirementToCreate.setLastUpdatingUser(requirementToCreate.getCreator());
+            requirementToCreate.setLastUpdatedDate(OffsetDateTime.now());
             // Take Object for generic error handling
             Set<ConstraintViolation<Object>> violations = bazaarService.validateCreate(requirementToCreate);
             if (violations.size() > 0) {

@@ -23,6 +23,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.repositories;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementCategoryMapRecord;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementRecord;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.TagRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.*;
 import de.rwth.dbis.acis.bazaar.service.dal.transform.RequirementTransformer;
@@ -99,15 +100,25 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             .asField("followerCount");
 
     de.rwth.dbis.acis.bazaar.dal.jooq.tables.User creatorUser = USER.as("creatorUser");
+    de.rwth.dbis.acis.bazaar.dal.jooq.tables.User lastUpdatingUser = USER.as("lastUpdatingUser");
     de.rwth.dbis.acis.bazaar.dal.jooq.tables.User leadDeveloperUser = USER.as("leadDeveloperUser");
     de.rwth.dbis.acis.bazaar.dal.jooq.tables.Vote vote = VOTE.as("vote");
     de.rwth.dbis.acis.bazaar.dal.jooq.tables.Vote userVote = VOTE.as("userVote");
 
     /**
+     * Value used for last_updating_user_id in case the user is unknown.
+     * (This value is used for legacy reasons because the user was not tracked form the beginning.)
+     */
+    public static final int LAST_UPDATING_USER_UNKNOWN = -1;
+
+    private final DALFacade dalFacade;
+
+    /**
      * @param jooq DSLContext object to initialize JOOQ connection. For more see JOOQ documentation.
      */
-    public RequirementRepositoryImpl(DSLContext jooq) {
-        super(jooq, new RequirementTransformer());
+    public RequirementRepositoryImpl(DSLContext jooq, DALFacade dalFacade) {
+        super(jooq, new RequirementTransformer(dalFacade));
+        this.dalFacade = dalFacade;
     }
 
     private ImmutablePair<List<Requirement>, Integer> getFilteredRequirements(Collection<Condition> requirementFilter, Pageable pageable, int userId) throws Exception {
@@ -167,11 +178,13 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 .select(isDeveloper)
                 .select(isContributor)
                 .select(creatorUser.fields())
+                .select(lastUpdatingUser.fields())
                 .select(leadDeveloperUser.fields())
                 .select(PROJECT.fields())
                 .select(lastActivity)
                 .from(REQUIREMENT)
                 .join(creatorUser).on(creatorUser.ID.equal(REQUIREMENT.CREATOR_ID))
+                .leftOuterJoin(lastUpdatingUser).on(lastUpdatingUser.ID.equal(REQUIREMENT.LAST_UPDATING_USER_ID))
                 .leftOuterJoin(leadDeveloperUser).on(leadDeveloperUser.ID.equal(REQUIREMENT.LEAD_DEVELOPER_ID))
                 .leftOuterJoin(PROJECT).on(PROJECT.ID.equal(REQUIREMENT.PROJECT_ID))
                 .leftOuterJoin(LAST_ACTIVITY).on(REQUIREMENT.ID.eq(LAST_ACTIVITY.field(REQUIREMENT.ID)))
@@ -194,6 +207,11 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             requirement.setCreator(
                     userTransformer.getEntityFromTableRecord(queryResult.into(creatorUser))
             );
+
+            // add last updating user, if not unknown
+            if (requirementRecord.get(REQUIREMENT.LAST_UPDATING_USER_ID) != LAST_UPDATING_USER_UNKNOWN) {
+                requirement.setLastUpdatingUser(userTransformer.getEntityFromTableRecord(queryResult.into(lastUpdatingUser)));
+            }
 
             //Filling up LeadDeveloper
             if (queryResult.getValue(leadDeveloperUser.ID) != null) {
@@ -256,7 +274,7 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 requirement.setAttachments(attachmentList);
             }
 
-            requirement.setContext(EntityContextFactory.create(pageable.getEmbed(), queryResult));
+            requirement.setContext(EntityContextFactory.create(pageable.getEmbed(), queryResult, dalFacade));
             requirement.setUserContext(userContext.build());
             requirements.add(requirement);
         }

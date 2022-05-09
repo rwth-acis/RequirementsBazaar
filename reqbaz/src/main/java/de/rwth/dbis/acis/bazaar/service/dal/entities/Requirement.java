@@ -64,6 +64,11 @@ public class Requirement extends EntityBase implements Ownable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Europe/Berlin")
     private OffsetDateTime lastUpdatedDate;
 
+    /**
+     * {@link User} who last updated the requirement.
+     */
+    private User lastUpdatingUser;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Europe/Berlin")
     private OffsetDateTime lastActivity;
 
