@@ -294,37 +294,37 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public List<Requirement> listRequirements(Pageable pageable) throws BazaarException {
-        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext, this);
         return requirementRepository.findAll(pageable);
     }
 
     @Override
     public PaginationResult<Requirement> listRequirementsByProject(int projectId, Pageable pageable, int userId) throws BazaarException {
-        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext, this);
         return requirementRepository.findAllByProject(projectId, pageable, userId);
     }
 
     @Override
     public PaginationResult<Requirement> listRequirementsByCategory(int categoryId, Pageable pageable, int userId) throws BazaarException {
-        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext, this);
         return requirementRepository.findAllByCategory(categoryId, pageable, userId);
     }
 
     @Override
     public PaginationResult<Requirement> listAllRequirements(Pageable pageable, int userId) throws BazaarException {
-        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext, this);
         return requirementRepository.findAll(pageable, userId);
     }
 
     @Override
     public Requirement getRequirementById(int requirementId, int userId) throws Exception {
-        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext, this);
         return requirementRepository.findById(requirementId, userId);
     }
 
     @Override
     public Requirement createRequirement(Requirement requirement, int userId) throws Exception {
-        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext, this);
         Requirement newRequirement = requirementRepository.add(requirement);
         for (Integer category : requirement.getCategories()) {
             addCategoryTag(newRequirement.getId(), category);
@@ -337,7 +337,7 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public Requirement modifyRequirement(Requirement modifiedRequirement, int userId) throws Exception {
-        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext, this);
         Requirement oldRequirement = getRequirementById(modifiedRequirement.getId(), userId);
         requirementRepository.update(modifiedRequirement);
 
@@ -433,7 +433,7 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public Requirement deleteRequirementById(int requirementId, int userId) throws Exception {
-        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext, this);
         Requirement requirement = requirementRepository.findById(requirementId, userId);
         requirementRepository.delete(requirementId);
         return requirement;
@@ -441,48 +441,48 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public Requirement setRequirementToRealized(int requirementId, int userId) throws Exception {
-        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext, this);
         requirementRepository.setRealized(requirementId, OffsetDateTime.now());
         return getRequirementById(requirementId, userId);
     }
 
     @Override
     public Requirement setRequirementToUnRealized(int requirementId, int userId) throws Exception {
-        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext, this);
         requirementRepository.setRealized(requirementId, null);
         return getRequirementById(requirementId, userId);
     }
 
     @Override
     public Requirement setUserAsLeadDeveloper(int requirementId, int userId) throws Exception {
-        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext, this);
         requirementRepository.setLeadDeveloper(requirementId, userId);
         return getRequirementById(requirementId, userId);
     }
 
     @Override
     public Requirement deleteUserAsLeadDeveloper(int requirementId, int userId) throws Exception {
-        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext, this);
         requirementRepository.setLeadDeveloper(requirementId, null);
         return getRequirementById(requirementId, userId);
     }
 
     @Override
     public boolean isRequirementPublic(int requirementId) throws BazaarException {
-        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext, this);
         return requirementRepository.belongsToPublicProject(requirementId);
     }
 
     @Override
     public Statistic getStatisticsForRequirement(int userId, int requirementId, Calendar since) throws BazaarException {
-        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext, this);
         Timestamp timestamp = since == null ? new java.sql.Timestamp(0) : new java.sql.Timestamp(since.getTimeInMillis());
         return requirementRepository.getStatisticsForRequirement(userId, requirementId, timestamp.toLocalDateTime().atOffset(ZoneOffset.UTC));
     }
 
     @Override
     public List<Requirement> getFollowedRequirements(int userId, int count) throws BazaarException {
-        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+        requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext, this);
         return requirementRepository.getFollowedRequirements(userId, count);
     }
 
@@ -594,45 +594,45 @@ public class DALFacadeImpl implements DALFacade {
 
     @Override
     public List<Comment> listCommentsByRequirementId(int requirementId) throws BazaarException {
-        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
+        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext, this);
         return commentRepository.findAllByRequirementId(requirementId);
     }
 
     @Override
     public PaginationResult<Comment> listAllComments(Pageable pageable) throws BazaarException {
-        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
+        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext, this);
         return commentRepository.findAllComments(pageable);
     }
 
     @Override
     public PaginationResult<Comment> listAllAnswers(Pageable pageable, int userId) throws BazaarException {
-        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
+        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext, this);
         return commentRepository.findAllAnswers(pageable, userId);
     }
 
     @Override
     public Comment getCommentById(int commentId) throws Exception {
-        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
+        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext, this);
         return commentRepository.findById(commentId);
     }
 
     @Override
     public Comment createComment(Comment comment) throws Exception {
-        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
+        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext, this);
         Comment newComment = commentRepository.add(comment);
         return commentRepository.findById(newComment.getId());
     }
 
     @Override
     public Comment updateComment(Comment comment) throws Exception {
-        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
+        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext, this);
         commentRepository.update(comment);
         return commentRepository.findById(comment.getId());
     }
 
     @Override
     public Comment deleteCommentById(int commentId) throws Exception {
-        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext);
+        commentRepository = (commentRepository != null) ? commentRepository : new CommentRepositoryImpl(dslContext, this);
         Comment comment = commentRepository.findById(commentId);
         if (commentRepository.hasAnswers(commentId)) {
             comment.setDeleted(true);
@@ -871,7 +871,7 @@ public class DALFacadeImpl implements DALFacade {
                     result.projects(projectRepository.listAllProjectIds(pageable, userId));
                 }
                 case "requirements" -> {
-                    requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext);
+                    requirementRepository = (requirementRepository != null) ? requirementRepository : new RequirementRepositoryImpl(dslContext, this);
                     result.requirements(requirementRepository.listAllRequirementIds(pageable, userId));
                 }
                 case "categories" -> {

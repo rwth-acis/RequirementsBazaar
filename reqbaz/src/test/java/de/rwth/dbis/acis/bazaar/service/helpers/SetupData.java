@@ -14,6 +14,7 @@ import org.junit.After;
 import org.junit.Before;
 
 import javax.sql.DataSource;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -89,6 +90,8 @@ public abstract class SetupData {
                     .categories(List.of(testProject.getDefaultCategoryId()))
                     .projectId(testProject.getId())
                     .creator(initUser)
+                    .lastUpdatingUser(initUser)
+                    .lastUpdatedDate(OffsetDateTime.now())
                     .build();
             testRequirement = facade.createRequirement(testRequirement, initUser.getId());
         }

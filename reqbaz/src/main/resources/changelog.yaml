@@ -1,3 +1,6 @@
+#
+# IMPORTANT: Add change sets at the end of the file!
+#
 databaseChangeLog:
   - changeSet:
       id: 22-03-07-add-linked-twitter-account
@@ -1722,3 +1725,16 @@ databaseChangeLog:
             schemaName: public
             tableName: user
             where: las2peer_id='-1722613621014065292'
+  - changeSet:
+      id: 22-05-08-add-lastUpdatingUserId-column
+      author: fxjordan
+      changes:
+        - addColumn:
+            tableName: requirement
+            columns:
+              - column:
+                  name: last_updating_user_id
+                  type: INTEGER
+                  defaultValue: -1 # user is unknown (legacy data reasons)
+                  constraints:
+                    nullable: false

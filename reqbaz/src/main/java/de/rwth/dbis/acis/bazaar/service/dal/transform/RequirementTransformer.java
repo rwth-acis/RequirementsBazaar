@@ -24,9 +24,14 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.dal.repositories.RequirementRepositoryImpl;
+import i5.las2peer.api.Context;
+import i5.las2peer.api.security.Agent;
+import i5.las2peer.api.security.AnonymousAgent;
+import lombok.RequiredArgsConstructor;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
@@ -35,7 +40,11 @@ import java.util.*;
 
 import static de.rwth.dbis.acis.bazaar.dal.jooq.Tables.*;
 
+@RequiredArgsConstructor
 public class RequirementTransformer implements Transformer<Requirement, RequirementRecord> {
+
+    private final DALFacade dalFacade;
+
     @Override
     public RequirementRecord createRecord(Requirement entry) {
         RequirementRecord record = new RequirementRecord();
@@ -43,6 +52,9 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
         record.setName(entry.getName());
         record.setCreationDate(OffsetDateTime.now());
         record.setCreatorId(entry.getCreator().getId());
+        record.setLastUpdatedDate(entry.getLastUpdatedDate());
+        record.setLastUpdatingUserId(Optional.ofNullable(entry.getLastUpdatingUser().getId())
+                .orElse(RequirementRepositoryImpl.LAST_UPDATING_USER_UNKNOWN));
         record.setProjectId(entry.getProjectId());
         if (entry.getAdditionalProperties() != null) {
             record.setAdditionalProperties(JSONB.jsonb(entry.getAdditionalProperties().toString()));
@@ -108,8 +120,20 @@ public class RequirementTransformer implements Transformer<Requirement, Requirem
                 put(REQUIREMENT.ADDITIONAL_PROPERTIES, entry.getAdditionalProperties());
             }
         }};
-        if (!updateMap.isEmpty()) {
+
+        Agent agent = Context.getCurrent().getMainAgent();
+        // only set the last_updated_date if it was updated by a user (not, for example, by a webhook)
+        if (!updateMap.isEmpty() && !(agent instanceof AnonymousAgent)) {
+            String userId = agent.getIdentifier();
+            Integer internalUserId;
+            try {
+                internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            } catch (Exception e) {
+                throw new RuntimeException("Cannot resolve ID of authenticated user", e);
+            }
+
             updateMap.put(REQUIREMENT.LAST_UPDATED_DATE, OffsetDateTime.now());
+            updateMap.put(REQUIREMENT.LAST_UPDATING_USER_ID, internalUserId);
         }
         return updateMap;
     }
