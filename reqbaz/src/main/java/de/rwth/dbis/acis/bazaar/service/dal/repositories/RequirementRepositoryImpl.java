@@ -34,10 +34,12 @@ import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.jetbrains.annotations.NotNull;
 import org.jooq.Record;
 import org.jooq.*;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
+import org.web3j.abi.datatypes.Int;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -50,34 +52,45 @@ import static org.jooq.impl.DSL.*;
 public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, RequirementRecord> implements RequirementRepository {
 
     // derived table for activities inside requirement
-    public static final Table<?> ACTIVITY = table(
-            select(REQUIREMENT.ID, REQUIREMENT.CREATION_DATE)
+    public static final Table<Record3<Integer, OffsetDateTime, Integer>> ACTIVITY = table(
+            select(REQUIREMENT.ID, REQUIREMENT.CREATION_DATE.as("last_activity"), REQUIREMENT.CREATOR_ID.as("last_activity_user_id"))
                     .from(REQUIREMENT)
                     .unionAll(
-                            select(REQUIREMENT.ID, REQUIREMENT.LAST_UPDATED_DATE)
+                            select(REQUIREMENT.ID, REQUIREMENT.LAST_UPDATED_DATE, REQUIREMENT.LAST_UPDATING_USER_ID)
                                     .from(REQUIREMENT))
                     .unionAll(
-                            select(COMMENT.REQUIREMENT_ID, COMMENT.CREATION_DATE)
+                            select(COMMENT.REQUIREMENT_ID, COMMENT.CREATION_DATE, COMMENT.USER_ID)
                                     .from(COMMENT))
                     .unionAll(
-                            select(COMMENT.REQUIREMENT_ID, COMMENT.LAST_UPDATED_DATE)
+                            select(COMMENT.REQUIREMENT_ID, COMMENT.LAST_UPDATED_DATE, COMMENT.USER_ID)
                                     .from(COMMENT))
                     .unionAll(
-                            select(ATTACHMENT.REQUIREMENT_ID, ATTACHMENT.CREATION_DATE)
+                            select(ATTACHMENT.REQUIREMENT_ID, ATTACHMENT.CREATION_DATE, ATTACHMENT.USER_ID)
                                     .from(ATTACHMENT))
                     .unionAll(
-                            select(ATTACHMENT.REQUIREMENT_ID, ATTACHMENT.LAST_UPDATED_DATE)
+                            select(ATTACHMENT.REQUIREMENT_ID, ATTACHMENT.LAST_UPDATED_DATE, ATTACHMENT.USER_ID)
                                     .from(ATTACHMENT))
     ).as("ACTIVITY");
+
+    public static final Select<Record2<Integer, OffsetDateTime>> LATEST_ACTIVITIES_SUB_QUERY = select(
+            ACTIVITY.field(REQUIREMENT.ID),
+            max(ACTIVITY.field("last_activity", OffsetDateTime.class)))
+            .from(ACTIVITY)
+            .groupBy(ACTIVITY.field(REQUIREMENT.ID));
 
     // derived table for last activity inside requirement
     public static final Table<?> LAST_ACTIVITY = table(
             select(
                     ACTIVITY.field(REQUIREMENT.ID),
-                    max(ACTIVITY.field(REQUIREMENT.CREATION_DATE)).as("last_activity"))
+                    ACTIVITY.field("last_activity", OffsetDateTime.class),
+                    ACTIVITY.field("last_activity_user_id", Integer.class) // ID of user who performed the lats activity
+            )
                     .from(ACTIVITY)
-                    .groupBy(ACTIVITY.field(REQUIREMENT.ID)))
-            .as("last_activity");
+                    .where(row(ACTIVITY.field(REQUIREMENT.ID), ACTIVITY.field("last_activity", OffsetDateTime.class))
+                            .in(
+                                    LATEST_ACTIVITIES_SUB_QUERY
+                            ))
+    );
 
     public static final Field<Object> VOTE_COUNT = select(DSL.count(DSL.nullif(VOTE.IS_UPVOTE, false)))
             .from(VOTE)
@@ -149,6 +162,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
         Field<Object> lastActivity = DSL.select(LAST_ACTIVITY.field("last_activity")).from(LAST_ACTIVITY)
                 .where(LAST_ACTIVITY.field(REQUIREMENT.ID).equal(REQUIREMENT.ID))
                 .asField("lastActivity");
+        Field<Integer> lastActivityUserId = LAST_ACTIVITY.field("last_activity_user_id", Integer.class);
+        de.rwth.dbis.acis.bazaar.dal.jooq.tables.User lastActivityUser = USER.as("lastActivityUser");
 
         // Contributors = {Creator, Lead Developer, Developers, Comments creators,  Attachments creators}
         // This code could be improved so that not only "1" or "0" will return but how much contributions an user made
@@ -182,12 +197,15 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 .select(leadDeveloperUser.fields())
                 .select(PROJECT.fields())
                 .select(lastActivity)
+                .select(lastActivityUserId)
+                .select(lastActivityUser.fields())
                 .from(REQUIREMENT)
                 .join(creatorUser).on(creatorUser.ID.equal(REQUIREMENT.CREATOR_ID))
                 .leftOuterJoin(lastUpdatingUser).on(lastUpdatingUser.ID.equal(REQUIREMENT.LAST_UPDATING_USER_ID))
                 .leftOuterJoin(leadDeveloperUser).on(leadDeveloperUser.ID.equal(REQUIREMENT.LEAD_DEVELOPER_ID))
                 .leftOuterJoin(PROJECT).on(PROJECT.ID.equal(REQUIREMENT.PROJECT_ID))
                 .leftOuterJoin(LAST_ACTIVITY).on(REQUIREMENT.ID.eq(LAST_ACTIVITY.field(REQUIREMENT.ID)))
+                .leftOuterJoin(lastActivityUser).on(lastActivityUser.ID.equal(lastActivityUserId))
                 .leftOuterJoin(REQUIREMENT_CATEGORY_MAP).on(REQUIREMENT.ID.eq(REQUIREMENT_CATEGORY_MAP.REQUIREMENT_ID))
                 .where(requirementFilter)
                 .and(isAuthorizedCondition)
@@ -211,6 +229,11 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             // add last updating user, if not unknown
             if (requirementRecord.get(REQUIREMENT.LAST_UPDATING_USER_ID) != LAST_UPDATING_USER_UNKNOWN) {
                 requirement.setLastUpdatingUser(userTransformer.getEntityFromTableRecord(queryResult.into(lastUpdatingUser)));
+            }
+
+            // add last activity user, if not unknown
+            if (queryResult.get(lastActivityUserId) != LAST_UPDATING_USER_UNKNOWN) {
+                requirement.setLastActivityUser(userTransformer.getEntityFromTableRecord(queryResult.into(lastActivityUser)));
             }
 
             //Filling up LeadDeveloper

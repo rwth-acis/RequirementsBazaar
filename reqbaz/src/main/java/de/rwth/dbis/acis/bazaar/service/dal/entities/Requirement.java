@@ -69,6 +69,15 @@ public class Requirement extends EntityBase implements Ownable {
      */
     private User lastUpdatingUser;
 
+    /**
+     * {@link User} who performed the last activity on the requirement.
+     * This user may be different from {@link #lastUpdatingUser} because this also involves commenting
+     * and adding attachments.<br>
+     * <br>
+     * See {@link de.rwth.dbis.acis.bazaar.service.dal.repositories.RequirementRepositoryImpl#ACTIVITY} for the query specification.
+     */
+    private User lastActivityUser;
+
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone = "Europe/Berlin")
     private OffsetDateTime lastActivity;
 
