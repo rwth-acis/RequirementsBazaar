@@ -91,7 +91,7 @@ public class FeedbackResource {
 
             Project project = dalFacade.getProjectById(projectId, internalUserId);
 
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_FEEDBACK, project.getId(), dalFacade);
+            boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_FEEDBACK, project.getId(), dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.feedback.read"));
             }

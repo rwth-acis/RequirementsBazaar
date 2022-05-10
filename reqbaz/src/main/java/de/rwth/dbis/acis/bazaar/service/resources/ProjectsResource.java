@@ -201,12 +201,12 @@ public class ProjectsResource {
             }
 
             if (projectToReturn.getVisibility()) {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_PROJECT, projectId, dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_PUBLIC_PROJECT, projectId, dalFacade);
                 if (!authorized) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
                 }
             } else {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PROJECT, projectId, dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_PROJECT, projectId, dalFacade);
                 if (!authorized) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.read"));
                 }
@@ -330,7 +330,7 @@ public class ProjectsResource {
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_PROJECT, projectToUpdate.getId(), dalFacade);
+            boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Modify_PROJECT, projectToUpdate.getId(), dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.modify"));
             }
@@ -388,7 +388,7 @@ public class ProjectsResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
             Project projectToDelete = dalFacade.getProjectById(projectId, internalUserId);
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_PROJECT, projectId, dalFacade);
+            boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Delete_PROJECT, projectId, dalFacade);
             if (!authorized && !projectToDelete.isOwner(internalUserId)) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.delete"));
             }
@@ -841,12 +841,12 @@ public class ProjectsResource {
             }
 
             if (project.getVisibility()) {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PUBLIC_PROJECT, projectId, dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_PUBLIC_PROJECT, projectId, dalFacade);
                 if (!authorized) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
                 }
             } else {
-                boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PROJECT, projectId, dalFacade);
+                boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_PROJECT, projectId, dalFacade);
                 if (!authorized) {
                     ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.read"));
                 }
@@ -989,7 +989,7 @@ public class ProjectsResource {
                 privilege = PrivilegeEnum.Modify_ADMIN_MEMBERS;
             }
 
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, privilege, projectId, dalFacade);
+            boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, privilege, projectId, dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.modify"));
             }
@@ -1075,7 +1075,7 @@ public class ProjectsResource {
                 }
             });
 
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, privilege.get(), projectId, dalFacade);
+            boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, privilege.get(), projectId, dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.modify"));
             }
@@ -1155,7 +1155,7 @@ public class ProjectsResource {
                 privilege = PrivilegeEnum.Read_PROJECT;
             }
 
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, privilege, projectId, dalFacade);
+            boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, privilege, projectId, dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.modify"));
             }
@@ -1223,7 +1223,7 @@ public class ProjectsResource {
             if (modifiedMemberRoles.stream().anyMatch(role -> role.getName().equals(ProjectRole.ProjectAdmin.name()))) {
                 privilege = PrivilegeEnum.Modify_ADMIN_MEMBERS;
             }
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, privilege, projectId, dalFacade);
+            boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, privilege, projectId, dalFacade);
             if (!authorized) {
                 ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.modify"));
             }
