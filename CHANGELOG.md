@@ -10,6 +10,21 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 
 ## [Unreleased]
 
+## [0.13.0] - 2022-05-11
+
+### Added
+- Add information about the user who last updated a requirement to API responses (in the `lastUpdatingUser` property)
+  [#164](https://github.com/rwth-acis/RequirementsBazaar/pull/164)
+- Add information about the user who performed the last activity on a requirement to API responses (in the `lastActivityUser` property).
+  Editing, commenting, and adding attachments are examples for activities.
+  [#165](https://github.com/rwth-acis/RequirementsBazaar/pull/165)
+
+### Changed
+- Fixed authorization error which caused members of a project not being able to start (or stop) developing a requirement
+  [#167](https://github.com/rwth-acis/RequirementsBazaar/pull/167)
+- Migrate to new OIDC domain (auth.las2peer.org)
+  [#168](https://github.com/rwth-acis/RequirementsBazaar/pull/168)
+
 ## [0.12.4] - 2022-04-26
 
 ### Changed
