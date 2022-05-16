@@ -41,6 +41,18 @@ public class AuthorizationManager {
         }
     }
 
+    /**
+     * Returns whether the given user has a given <i>privilege</i> in the <i>whole system</i>.<br>
+     * <br>
+     * Use {@link #isAuthorizedInContext(int, PrivilegeEnum, Integer, DALFacade)} in case a privilege
+     * is only required in a certain context (e.g., per project)!
+     *
+     * @param userId ID of the user to check permission for
+     * @param privilege the privilege to check
+     * @param facade facade for data access
+     * @return
+     * @throws BazaarException
+     */
     public boolean isAuthorized(int userId, PrivilegeEnum privilege, DALFacade facade) throws BazaarException {
         List<Role> userRoles = facade.getRolesByUserId(userId, null);
 
@@ -48,7 +60,20 @@ public class AuthorizationManager {
 
     }
 
-    public boolean isAuthorized(int userId, PrivilegeEnum privilege, Integer context, DALFacade facade) throws BazaarException {
+    /**
+     * Returns whether the given user has a given <i>privilege</i> in a certain <i>context</i>.
+     * <br>
+     * Different to {@link #isAuthorized(int, PrivilegeEnum, DALFacade)} this not checks for global
+     * authorization, but for <i>local</i> authorization (e.g., only in a certain project).
+     *
+     * @param userId ID of the user to check permission for
+     * @param privilege the privilege to check
+     * @param context the context (e.g., project) in which to check the privilege
+     * @param facade facade for data access
+     * @return
+     * @throws BazaarException
+     */
+    public boolean isAuthorizedInContext(int userId, PrivilegeEnum privilege, Integer context, DALFacade facade) throws BazaarException {
         List<Role> userRoles = facade.getRolesByUserId(userId, context);
 
         return isAuthorized(userRoles, privilege, facade);

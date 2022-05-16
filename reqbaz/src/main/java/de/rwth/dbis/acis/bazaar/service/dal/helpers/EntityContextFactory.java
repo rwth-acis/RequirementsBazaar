@@ -4,6 +4,7 @@ package de.rwth.dbis.acis.bazaar.service.dal.helpers;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.CategoryRecord;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.ProjectRecord;
 import de.rwth.dbis.acis.bazaar.dal.jooq.tables.records.RequirementRecord;
+import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Category;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.EntityContext;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
@@ -21,7 +22,7 @@ public class EntityContextFactory{
     private static RequirementTransformer requirementTransformer;
 
 
-    public static EntityContext create(List<String> embed, Record record){
+    public static EntityContext create(List<String> embed, Record record, DALFacade dalFacade){
         EntityContext.Builder contextBuilder = EntityContext.builder();
         if(embed != null) {
             for (String entry : embed) {
@@ -33,7 +34,7 @@ public class EntityContextFactory{
                     //context.category(transformToCategory(record));
 
                 } else if (entry.equalsIgnoreCase("requirement")) {
-                    contextBuilder.requirement(transformToRequirement(record));
+                    contextBuilder.requirement(transformToRequirement(record, dalFacade));
                 }
             }
         }
@@ -50,8 +51,8 @@ public class EntityContextFactory{
         CategoryRecord categoryRecord = record.into(CategoryRecord.class);
         return categoryTransformer.getEntityFromTableRecord(categoryRecord);
     }
-    private static Requirement transformToRequirement(Record record){
-        requirementTransformer = (requirementTransformer != null) ? requirementTransformer : new RequirementTransformer();
+    private static Requirement transformToRequirement(Record record, DALFacade dalFacade){
+        requirementTransformer = (requirementTransformer != null) ? requirementTransformer : new RequirementTransformer(dalFacade);
         RequirementRecord requirementRecord= record.into(RequirementRecord.class);
         return requirementTransformer.getEntityFromTableRecord(requirementRecord);
     }
