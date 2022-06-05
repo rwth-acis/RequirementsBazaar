@@ -10,6 +10,13 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 
 ## [Unreleased]
 
+## [0.13.1] - 2022-06-05
+
+### Changed
+- Fixed SQL query bug error when loading last activity of a requirement
+  [#170](https://github.com/rwth-acis/RequirementsBazaar/pull/170)
+
+
 ## [0.13.0] - 2022-05-11
 
 ### Added
