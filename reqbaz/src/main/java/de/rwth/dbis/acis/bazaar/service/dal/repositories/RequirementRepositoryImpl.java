@@ -81,15 +81,29 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
     // derived table for last activity inside requirement
     public static final Table<?> LAST_ACTIVITY = table(
             select(
+                    /*
+                     * NOTE:
+                     * We need to GROUP BY here AGAIN and use MAX last_activity and MAX last_activity_user_id!
+                     *
+                     * Otherwise we can get:
+                     *  - SQL subquery errors (subquery returning more than one result)
+                     *  - duplicate requirements in responses
+                     * if the following holds (this was a problem e.g. with the ReqBaz project):
+                     *  - a requirement has no known last_updating_user (legacy reasons: value is -1)
+                     *  - the creation_date and last_updated_date are equal (exact)
+                     * This results in the TWO candiates matching the MAX last_activity during the JOIN, which would
+                     * not be a problem if the did not have different user IDs.
+                     */
                     ACTIVITY.field(REQUIREMENT.ID),
-                    ACTIVITY.field("last_activity", OffsetDateTime.class),
-                    ACTIVITY.field("last_activity_user_id", Integer.class) // ID of user who performed the lats activity
+                    max(ACTIVITY.field("last_activity", OffsetDateTime.class)).as("last_activity"),
+                    max(ACTIVITY.field("last_activity_user_id", Integer.class)).as("last_activity_user_id") // ID of user who performed the lats activity
             )
                     .from(ACTIVITY)
                     .where(row(ACTIVITY.field(REQUIREMENT.ID), ACTIVITY.field("last_activity", OffsetDateTime.class))
                             .in(
                                     LATEST_ACTIVITIES_SUB_QUERY
                             ))
+            .groupBy(ACTIVITY.field(REQUIREMENT.ID))
     );
 
     public static final Field<Object> VOTE_COUNT = select(DSL.count(DSL.nullif(VOTE.IS_UPVOTE, false)))
