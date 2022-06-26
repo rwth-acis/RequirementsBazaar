@@ -20,6 +20,8 @@ import i5.las2peer.api.security.Agent;
 import i5.las2peer.api.security.AnonymousAgent;
 import i5.las2peer.logging.L2pLogger;
 import io.swagger.annotations.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import javax.validation.ConstraintViolation;
 import javax.ws.rs.*;
@@ -911,6 +913,84 @@ public class RequirementsResource {
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
+    }
+
+    /**
+     * This method moves the requirement to another category or even another project.
+     *
+     * @param requirementId id of the requirement
+     * @return Response with requirement as a JSON object.
+     */
+    @POST
+    @Path("/{requirementId}/move")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "This method moves the requirement to another category or even another project.")
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Returns the requirement", response = Requirement.class),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+    })
+    public Response moveRequirement(@PathParam("requirementId") int requirementId, NewRequirementLocation requirementLocation) {
+        DALFacade dalFacade = null;
+        try {
+            Agent agent = Context.getCurrent().getMainAgent();
+            String userId = agent.getIdentifier();
+            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
+            if (registrarErrors != null) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
+            }
+            dalFacade = bazaarService.getDBConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            // ensure requirement exists
+            Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
+            // ensure target project exists
+            Project targetProject = dalFacade.getProjectById(requirementLocation.getProjectId(), internalUserId);
+            // ensure target category exists
+            Category targetCategory = dalFacade.getCategoryById(requirementLocation.getCategoryId(), internalUserId);
+            // ensure target category is in target project
+            if (targetCategory.getProjectId() != targetProject.getId()) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.VALIDATION, Localization.getInstance().getResourceBundle().getString("error.validation.categoryNotInTargetProject"));
+            }
+            boolean authorizedToModifyRequirement = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, requirement.getProjectId(), dalFacade);
+            boolean authorizedToCreateRequirementInTargetProject = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Create_REQUIREMENT, targetProject.getId(), dalFacade);
+            if (!(authorizedToModifyRequirement && authorizedToCreateRequirementInTargetProject)) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.move"));
+            }
+
+            requirement.setProjectId(targetProject.getId());
+            requirement.setCategories(Arrays.asList(targetCategory.getId()));
+            dalFacade.modifyRequirement(requirement, internalUserId);
+
+            // refresh requirement object
+            requirement = dalFacade.getRequirementById(requirementId, internalUserId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.MOVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_99,
+                    requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            return Response.ok(requirement.toJSON()).build();
+        } catch (BazaarException bex) {
+            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            } else {
+                logger.warning(bex.getMessage());
+                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Move requirement " + requirementId);
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            }
+        } catch (Exception ex) {
+            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+            logger.warning(bex.getMessage());
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Move requirement " + requirementId);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+        } finally {
+            bazaarService.closeDBConnection(dalFacade);
+        }
+    }
+
+    @Getter
+    public static class NewRequirementLocation {
+        private int projectId;
+        private int categoryId;
     }
 
     /**

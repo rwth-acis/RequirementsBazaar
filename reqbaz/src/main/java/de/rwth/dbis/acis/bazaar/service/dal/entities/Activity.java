@@ -67,7 +67,8 @@ public class Activity extends EntityBase {
         FOLLOW,
         UNFOLLOW,
         LEADDEVELOP,
-        UNLEADDEVELOP
+        UNLEADDEVELOP,
+        MOVE;
     }
 
     @Data
