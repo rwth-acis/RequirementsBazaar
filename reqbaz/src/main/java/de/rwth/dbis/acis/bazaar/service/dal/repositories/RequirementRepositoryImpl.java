@@ -316,6 +316,8 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
             boolean authorizedToModifyRequirement = new AuthorizationManager().isAuthorizedInContext(userId, PrivilegeEnum.Modify_REQUIREMENT, requirement.getProjectId(), dalFacade);
             userContext.isMoveAllowed(authorizedToModifyRequirement);
 
+            userContext.isDeleteAllowed(authorizedToModifyRequirement || requirement.isOwner(userId));
+
             requirement.setContext(EntityContextFactory.create(pageable.getEmbed(), queryResult, dalFacade));
             requirement.setUserContext(userContext.build());
             requirements.add(requirement);

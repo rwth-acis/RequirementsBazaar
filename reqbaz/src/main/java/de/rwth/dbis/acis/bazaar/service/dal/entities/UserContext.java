@@ -47,6 +47,11 @@ public class UserContext extends EntityBase {
     )
     private Boolean isMoveAllowed;
 
+    @ApiModelProperty(
+            value = "Whether the user has privilege to delete the requirement, category, or project."
+    )
+    private Boolean isDeleteAllowed;
+
     @JsonIgnore
     @Override
     public int getId() {
