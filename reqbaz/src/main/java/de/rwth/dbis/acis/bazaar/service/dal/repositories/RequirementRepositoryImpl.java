@@ -33,6 +33,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
+import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.jetbrains.annotations.NotNull;
 import org.jooq.Record;
@@ -310,6 +311,10 @@ public class RequirementRepositoryImpl extends RepositoryImpl<Requirement, Requi
                 List<Attachment> attachmentList = attachmentRepository.findAllByRequirementId(requirement.getId(), new PageInfo(0, 1000, new HashMap<>())).getElements();
                 requirement.setAttachments(attachmentList);
             }
+
+            // TODO We should refactor here: the same authorization check is made in the RequirementResource#moveRequirement(..) method
+            boolean authorizedToModifyRequirement = new AuthorizationManager().isAuthorizedInContext(userId, PrivilegeEnum.Modify_REQUIREMENT, requirement.getProjectId(), dalFacade);
+            userContext.isMoveAllowed(authorizedToModifyRequirement);
 
             requirement.setContext(EntityContextFactory.create(pageable.getEmbed(), queryResult, dalFacade));
             requirement.setUserContext(userContext.build());
