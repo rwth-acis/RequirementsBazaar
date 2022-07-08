@@ -42,6 +42,16 @@ public class UserContext extends EntityBase {
     )
     private Boolean isContributor;
 
+    @ApiModelProperty(
+            value = "Whether the user has privilege to move the requirement. Only returned when requesting requirement resources."
+    )
+    private Boolean isMoveAllowed;
+
+    @ApiModelProperty(
+            value = "Whether the user has privilege to delete the requirement, category, or project."
+    )
+    private Boolean isDeleteAllowed;
+
     @JsonIgnore
     @Override
     public int getId() {
