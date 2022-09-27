@@ -1,5 +1,5 @@
 # Build final container without build dependencies etc.
-FROM openjdk:14-jdk-alpine
+FROM openjdk:17-jdk-alpine
 
 ENV HTTP_PORT=8080
 ENV HTTPS_PORT=8443
