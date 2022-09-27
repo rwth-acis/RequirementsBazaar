@@ -222,7 +222,7 @@ task export(type: Copy, dependsOn: build) {
         from jar
     }
     into("lib") {
-        from configurations.compileOnly
+        from configurations.compileClasspath
     }
     into("bin") {
         from "../bin"
