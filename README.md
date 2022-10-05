@@ -38,7 +38,7 @@ The backend is built on Java technologies. As a service framework we use our in-
 
 In order to be able to run this service project the following components should be installed on your system:
 
- - JDK 14
+ - JDK 17
  - PostgreSQL 12 or newer
  - Gradle to build
 
