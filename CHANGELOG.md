@@ -10,6 +10,24 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 
 ## [Unreleased]
 
+## [0.16.0] - 2022-10-05
+
+### Changed
+- Upgraded to las2peer 1.2.3 and Java 17
+  [#175](https://github.com/rwth-acis/RequirementsBazaar/pull/175)
+- Fixed bug which caused new users being unable to login
+  [#173](https://github.com/rwth-acis/RequirementsBazaar/issues/173)
+
+
+## [0.15.0] - 2022-08-07
+
+### Added
+- Add API for moving requirements to other project and category
+  [#171](https://github.com/rwth-acis/RequirementsBazaar/pull/171)
+- Return user authorization information in API responses (`isDeleteAllowed`, `isMoveAllowed`)
+  [#172](https://github.com/rwth-acis/RequirementsBazaar/pull/172)
+
+
 ## [0.13.1] - 2022-06-05
 
 ### Changed
