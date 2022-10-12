@@ -323,6 +323,12 @@ public class RequirementsResource {
             createdRequirement = dalFacade.getRequirementById(createdRequirement.getId(), internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_26,
                     createdRequirement.getId(), Activity.DataType.REQUIREMENT, internalUserId);
+
+            // trigger Gamification Framework
+            bazaarService.getGamificationManager().triggerCreateRequirementAction(internalUserId);
+            // add notifications to response
+            createdRequirement.setGamificationNotifications(bazaarService.getGamificationManager().getUserNotifications(internalUserId));
+
             return Response.status(Response.Status.CREATED).entity(createdRequirement.toJSON()).build();
         } catch (BazaarException bex) {
             return resourceHelper.handleBazaarException(bex, "Create requirement", logger);
