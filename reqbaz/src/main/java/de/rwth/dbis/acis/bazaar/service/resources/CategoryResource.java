@@ -1,5 +1,6 @@
 package de.rwth.dbis.acis.bazaar.service.resources;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import de.rwth.dbis.acis.bazaar.service.BazaarFunction;
 import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
@@ -18,6 +19,7 @@ import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.api.security.Agent;
 import i5.las2peer.logging.L2pLogger;
 import io.swagger.annotations.*;
+import org.jetbrains.annotations.NotNull;
 
 import javax.validation.ConstraintViolation;
 import javax.ws.rs.*;
@@ -25,6 +27,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.DatatypeConverter;
 import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.time.OffsetDateTime;
 import java.util.*;
@@ -76,37 +79,13 @@ public class CategoryResource {
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
-            List<Pageable.SortField> sortList = new ArrayList<>();
-            for (String sortOption : sort) {
-                Pageable.SortField sortField = new Pageable.SortField(sortOption, sortDirection);
-                sortList.add(sortField);
-            }
+            checkRegistrarErrors(registrarErrors);
+            List<Pageable.SortField> sortList = getSortFieldList(sort, sortDirection);
             PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>(), sortList, search);
             // Take Object for generic error handling
-            Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
-            if (violations.size() > 0) {
-                ExceptionHandler.getInstance().handleViolations(violations);
-            }
-
+            checkViolations(pageInfo);
             dalFacade = bazaarService.getDBConnection();
-            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            if (dalFacade.getProjectById(projectId, internalUserId) == null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.NOT_FOUND, String.format(Localization.getInstance().getResourceBundle().getString("error.resource.notfound"), "category"));
-            }
-            if (dalFacade.isProjectPublic(projectId)) {
-                boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_PUBLIC_CATEGORY, projectId, dalFacade);
-                if (!authorized) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
-                }
-            } else {
-                boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_CATEGORY, projectId, dalFacade);
-                if (!authorized) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.read"));
-                }
-            }
+            Integer internalUserId = getInternalUserId(projectId, dalFacade, userId);
             PaginationResult<Category> categoriesResult = dalFacade.listCategoriesByProjectId(projectId, pageInfo, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_13,
                     projectId, Activity.DataType.PROJECT, internalUserId);
@@ -124,10 +103,7 @@ public class CategoryResource {
             }
             parameter.put("sort", sort);
 
-            Response.ResponseBuilder responseBuilder = Response.ok();
-            responseBuilder = responseBuilder.entity(categoriesResult.toJSON());
-            responseBuilder = bazaarService.paginationLinks(responseBuilder, categoriesResult, "projects/" + String.valueOf(projectId) + "/categories", parameter);
-            responseBuilder = bazaarService.xHeaderFields(responseBuilder, categoriesResult);
+            Response.ResponseBuilder responseBuilder = buildCategoryForProjectResponse(projectId, categoriesResult, parameter);
 
             return responseBuilder.build();
         } catch (BazaarException bex) {
@@ -147,6 +123,57 @@ public class CategoryResource {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         } finally {
             bazaarService.closeDBConnection(dalFacade);
+        }
+    }
+
+    private Response.ResponseBuilder buildCategoryForProjectResponse(int projectId, PaginationResult<Category> categoriesResult, Map<String, List<String>> parameter) throws JsonProcessingException, URISyntaxException {
+        Response.ResponseBuilder responseBuilder = Response.ok();
+        responseBuilder = responseBuilder.entity(categoriesResult.toJSON());
+        responseBuilder = bazaarService.paginationLinks(responseBuilder, categoriesResult, "projects/" + String.valueOf(projectId) + "/categories", parameter);
+        responseBuilder = bazaarService.xHeaderFields(responseBuilder, categoriesResult);
+        return responseBuilder;
+    }
+
+    @NotNull
+    private static Integer getInternalUserId(int projectId, DALFacade dalFacade, String userId) throws Exception {
+        Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+        if (dalFacade.getProjectById(projectId, internalUserId) == null) {
+            ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.NOT_FOUND, String.format(Localization.getInstance().getResourceBundle().getString("error.resource.notfound"), "category"));
+        }
+        if (dalFacade.isProjectPublic(projectId)) {
+            boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_PUBLIC_CATEGORY, projectId, dalFacade);
+            if (!authorized) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
+            }
+        } else {
+            boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_CATEGORY, projectId, dalFacade);
+            if (!authorized) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.read"));
+            }
+        }
+        return internalUserId;
+    }
+
+    private void checkViolations(PageInfo pageInfo) throws BazaarException {
+        Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
+        if (violations.size() > 0) {
+            ExceptionHandler.getInstance().handleViolations(violations);
+        }
+    }
+
+    @NotNull
+    private static List<Pageable.SortField> getSortFieldList(List<String> sort, String sortDirection) {
+        List<Pageable.SortField> sortList = new ArrayList<>();
+        for (String sortOption : sort) {
+            Pageable.SortField sortField = new Pageable.SortField(sortOption, sortDirection);
+            sortList.add(sortField);
+        }
+        return sortList;
+    }
+
+    private static void checkRegistrarErrors(String registrarErrors) throws BazaarException {
+        if (registrarErrors != null) {
+            ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
         }
     }
 
@@ -172,9 +199,7 @@ public class CategoryResource {
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            checkRegistrarErrors(registrarErrors);
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Category categoryToReturn = dalFacade.getCategoryById(categoryId, internalUserId);
@@ -236,9 +261,7 @@ public class CategoryResource {
             // TODO: check whether the current user may create a new project
             // TODO: check whether all required parameters are entered
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            checkRegistrarErrors(registrarErrors);
             // Take Object for generic error handling
             Set<ConstraintViolation<Object>> violations = bazaarService.validateCreate(categoryToCreate);
             if (violations.size() > 0) {
@@ -296,9 +319,7 @@ public class CategoryResource {
         DALFacade dalFacade = null;
         try {
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            checkRegistrarErrors(registrarErrors);
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
             // Take Object for generic error handling
@@ -363,9 +384,7 @@ public class CategoryResource {
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            checkRegistrarErrors(registrarErrors);
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Category categoryToDelete = dalFacade.getCategoryById(categoryId, internalUserId);
@@ -428,9 +447,7 @@ public class CategoryResource {
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            checkRegistrarErrors(registrarErrors);
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_FOLLOW, dalFacade);
@@ -484,9 +501,7 @@ public class CategoryResource {
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            checkRegistrarErrors(registrarErrors);
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_FOLLOW, dalFacade);
@@ -541,9 +556,7 @@ public class CategoryResource {
         DALFacade dalFacade = null;
         try {
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            checkRegistrarErrors(registrarErrors);
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
             Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
@@ -596,9 +609,7 @@ public class CategoryResource {
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            checkRegistrarErrors(registrarErrors);
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Category category = dalFacade.getCategoryById(categoryId, internalUserId);
@@ -652,15 +663,10 @@ public class CategoryResource {
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
             String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            checkRegistrarErrors(registrarErrors);
             PageInfo pageInfo = new PageInfo(page, perPage);
             // Take Object for generic error handling
-            Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
-            if (violations.size() > 0) {
-                ExceptionHandler.getInstance().handleViolations(violations);
-            }
+            checkViolations(pageInfo);
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
