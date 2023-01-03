@@ -85,7 +85,7 @@ public class DALFacadeTest extends SetupData {
 
         assertEquals(project.getName(), projectById.getName());
         assertEquals(project.getDescription(), projectById.getDescription());
-        assertEquals("An 😀awesome 😃string with a few 😉emojis!", projectById.getDescription());
+        assertEquals("An \uD83D\uDE00awesome \uD83D\uDE03string with a few \uD83D\uDE09emojis!", projectById.getDescription());
         assertEquals(project.getLeader().getId(), projectById.getLeader().getId());
         assertEquals(project.getVisibility(), projectById.getVisibility());
         assertTrue(projectById.isOwner(initUser));
