@@ -2,12 +2,21 @@ package de.rwth.dbis.acis.bazaar.service.resources.helpers;
 
 import de.rwth.dbis.acis.bazaar.service.BazaarFunction;
 import de.rwth.dbis.acis.bazaar.service.BazaarService;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
+import de.rwth.dbis.acis.bazaar.service.dal.helpers.Pageable;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
+import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
+import i5.las2peer.api.Context;
+import i5.las2peer.api.logging.MonitoringEvent;
+import i5.las2peer.api.security.Agent;
+import i5.las2peer.logging.L2pLogger;
 import org.jetbrains.annotations.NotNull;
 
+import javax.validation.ConstraintViolation;
+import javax.ws.rs.core.Response;
 import java.util.*;
 
 public class ResourceHelper {
@@ -35,7 +44,7 @@ public class ResourceHelper {
 
         parameter.put("page", pageList);
         parameter.put("per_page", perPageList);
-        if (search != "") {
+        if (search != null) {
             ArrayList<String> searchList = new ArrayList<>();
             searchList.add(search);
             parameter.put("search", searchList);
@@ -46,4 +55,59 @@ public class ResourceHelper {
         }
         return parameter;
     }
+
+    @NotNull
+    public List<Pageable.SortField> getSortFieldList(List<String> sort, String sortDirection) {
+        List<Pageable.SortField> sortList = new ArrayList<>();
+        for (String sortOption : sort) {
+            Pageable.SortField sortField = new Pageable.SortField(sortOption, sortDirection);
+            sortList.add(sortField);
+        }
+        return sortList;
+    }
+
+    public void handleGenericError(Set<ConstraintViolation<Object>> bazaarService) throws BazaarException {
+        Set<ConstraintViolation<Object>> violations = bazaarService;
+        if (violations.size() > 0) {
+            ExceptionHandler.getInstance().handleViolations(violations);
+        }
+    }
+
+    public void checkViolations(PageInfo pageInfo) throws BazaarException {
+        Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
+        if (violations.size() > 0) {
+            ExceptionHandler.getInstance().handleViolations(violations);
+        }
+    }
+
+    public void checkAuthorization(boolean internalUserId, String key) throws BazaarException {
+        boolean authorized = internalUserId;
+        if (!authorized) {
+            ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString(key));
+        }
+    }
+
+    public String getUserId() throws BazaarException {
+        Agent agent = Context.getCurrent().getMainAgent();
+        String userId = agent.getIdentifier();
+        checkRegistrarErrors();
+        return userId;
+    }
+
+    @NotNull
+    public HashMap<String, String> getFilterMap(List<String> filters, Integer internalUserId) {
+        HashMap<String, String> filterMap = new HashMap<>();
+        for (String filterOption : filters) {
+            filterMap.put(filterOption, internalUserId.toString());
+        }
+        return filterMap;
+    }
+
+    public Response handleException(Exception ex, String key, L2pLogger logger) {
+        BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
+        logger.warning(bex.getMessage());
+        Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, key);
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+    }
+
 }
