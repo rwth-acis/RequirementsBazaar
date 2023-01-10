@@ -13,6 +13,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
+import de.rwth.dbis.acis.bazaar.service.resources.helpers.ResourceHelper;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Context;
 import i5.las2peer.api.logging.MonitoringEvent;
@@ -56,8 +57,11 @@ public class ProjectsResource {
     private final L2pLogger logger = L2pLogger.getInstance(ProjectsResource.class.getName());
     private final BazaarService bazaarService;
 
+    private ResourceHelper resourceHelper;
+
     public ProjectsResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
+        resourceHelper = new ResourceHelper(bazaarService);
     }
 
     /**
@@ -89,10 +93,7 @@ public class ProjectsResource {
             @ApiParam(value = "Also search in projects requirements", required = false) @DefaultValue("false") @QueryParam("recursive") boolean recursive) {
         DALFacade dalFacade = null;
         try {
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            resourceHelper.checkRegistrarErrors();
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
             List<Pageable.SortField> sortList = new ArrayList<>();
@@ -184,10 +185,7 @@ public class ProjectsResource {
     public Response getProject(@PathParam("projectId") int projectId) {
         DALFacade dalFacade = null;
         try {
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            resourceHelper.checkRegistrarErrors();
 
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
@@ -253,10 +251,7 @@ public class ProjectsResource {
     public Response createProject(@ApiParam(value = "Project entity", required = true) Project projectToCreate) {
         DALFacade dalFacade = null;
         try {
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            resourceHelper.checkRegistrarErrors();
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
 
@@ -315,10 +310,7 @@ public class ProjectsResource {
     public Response updateProject(@ApiParam(value = "Project entity", required = true) Project projectToUpdate) {
         DALFacade dalFacade = null;
         try {
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            resourceHelper.checkRegistrarErrors();
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
 
@@ -380,10 +372,7 @@ public class ProjectsResource {
         try {
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            resourceHelper.checkRegistrarErrors();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
@@ -437,10 +426,7 @@ public class ProjectsResource {
         try {
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            resourceHelper.checkRegistrarErrors();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_FOLLOW, dalFacade);
@@ -493,10 +479,7 @@ public class ProjectsResource {
         try {
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            resourceHelper.checkRegistrarErrors();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_FOLLOW, dalFacade);
@@ -550,10 +533,7 @@ public class ProjectsResource {
             @ApiParam(value = "Since timestamp, ISO-8601 e.g. 2017-12-30 or 2017-12-30T18:30:00Z", required = false) @QueryParam("since") String since) {
         DALFacade dalFacade = null;
         try {
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            resourceHelper.checkRegistrarErrors();
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
             dalFacade = bazaarService.getDBConnection();
@@ -604,10 +584,7 @@ public class ProjectsResource {
         try {
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            resourceHelper.checkRegistrarErrors();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             ProjectContributors projectContributors = dalFacade.listContributorsForProject(projectId);
@@ -659,10 +636,7 @@ public class ProjectsResource {
         try {
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            resourceHelper.checkRegistrarErrors();
             PageInfo pageInfo = new PageInfo(page, perPage);
 
             // Take Object for generic error handling
@@ -826,10 +800,7 @@ public class ProjectsResource {
         try {
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            resourceHelper.checkRegistrarErrors();
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
@@ -904,10 +875,7 @@ public class ProjectsResource {
         try {
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            resourceHelper.checkRegistrarErrors();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
@@ -966,10 +934,7 @@ public class ProjectsResource {
                                  @ApiParam(value = "New project member", required = true) ProjectMember projectMember) {
         DALFacade dalFacade = null;
         try {
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            resourceHelper.checkRegistrarErrors();
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
 
@@ -1050,10 +1015,7 @@ public class ProjectsResource {
                                      @ApiParam(value = "New or updated project member", required = true) List<ProjectMember> projectMembers) {
         DALFacade dalFacade = null;
         try {
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            resourceHelper.checkRegistrarErrors();
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
 
@@ -1131,10 +1093,7 @@ public class ProjectsResource {
 
         DALFacade dalFacade = null;
         try {
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            resourceHelper.checkRegistrarErrors();
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
 
@@ -1204,10 +1163,7 @@ public class ProjectsResource {
             @ApiParam(value = "User ID of the member to remove") @PathParam("memberUserId") int memberUserId) {
         DALFacade dalFacade = null;
         try {
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            resourceHelper.checkRegistrarErrors();
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
 

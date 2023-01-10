@@ -24,6 +24,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
+import de.rwth.dbis.acis.bazaar.service.resources.helpers.ResourceHelper;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import de.rwth.dbis.acis.bazaar.service.twitter.WeeklyNewProjectsTweetTask;
 import i5.las2peer.api.Context;
@@ -62,11 +63,14 @@ public class AdminResource {
     private L2pLogger logger = L2pLogger.getInstance(AdminResource.class.getName());
     private BazaarService bazaarService;
 
+    private ResourceHelper resourceHelper;
+
     @javax.ws.rs.core.Context
     UriInfo uriInfo;
 
     public AdminResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
+        resourceHelper = new ResourceHelper(bazaarService);
     }
 
     @POST
@@ -220,10 +224,7 @@ public class AdminResource {
         try {
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            resourceHelper.checkRegistrarErrors();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 

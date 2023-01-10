@@ -13,6 +13,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
+import de.rwth.dbis.acis.bazaar.service.resources.helpers.ResourceHelper;
 import i5.las2peer.api.Context;
 import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.api.security.Agent;
@@ -58,12 +59,15 @@ public class WebhookResource {
     private L2pLogger logger = L2pLogger.getInstance(WebhookResource.class.getName());
     private BazaarService bazaarService;
 
+    private ResourceHelper resourceHelper;
+
     private static final char[] HEX = {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
     };
 
     public WebhookResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
+        resourceHelper = new ResourceHelper(bazaarService);
     }
 
     /**
@@ -107,10 +111,7 @@ public class WebhookResource {
             // DB Operations
             DALFacade dalFacade = null;
 
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION,BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if(registrarErrors != null){
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            resourceHelper.checkRegistrarErrors();
 
             Agent agent = Context.getCurrent().getMainAgent();
             String userId = agent.getIdentifier();
