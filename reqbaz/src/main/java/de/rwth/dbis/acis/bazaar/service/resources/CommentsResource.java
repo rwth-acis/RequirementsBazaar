@@ -129,18 +129,7 @@ public class CommentsResource {
             //bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_3,
             //        0, Activity.DataType.COMMENT, internalUserId);
 
-            Map<String, List<String>> parameter = new HashMap<>();
-            parameter.put("page", new ArrayList() {{
-                add(String.valueOf(page));
-            }});
-            parameter.put("per_page", new ArrayList() {{
-                add(String.valueOf(perPage));
-            }});
-            if (search != null) {
-                parameter.put("search", new ArrayList() {{
-                    add(String.valueOf(search));
-                }});
-            }
+            Map<String, List<String>> parameter = resourceHelper.getSortResponseMap(page,perPage,search,sort);
             parameter.put("embedParents", embedParents);
             parameter.put("sort", sort);
             parameter.put("filters", filters);

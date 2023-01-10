@@ -6,13 +6,14 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.EnumSet;
+import java.util.*;
 
 public class ResourceHelper {
     private final BazaarService bazaarService;
 
-    public ResourceHelper(BazaarService service){
+    public ResourceHelper(BazaarService service) {
         this.bazaarService = service;
     }
 
@@ -21,5 +22,28 @@ public class ResourceHelper {
         if (registrarErrors != null) {
             ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
         }
+    }
+
+    @NotNull
+    public Map<String, List<String>> getSortResponseMap(int page, int perPage, String search, List<String> sort) {
+        Map<String, List<String>> parameter = new HashMap<>();
+
+        ArrayList<String> pageList = new ArrayList<>();
+        pageList.add(String.valueOf(page));
+        ArrayList<String> perPageList = new ArrayList<>();
+        perPageList.add(String.valueOf(perPage));
+
+        parameter.put("page", pageList);
+        parameter.put("per_page", perPageList);
+        if (search != "") {
+            ArrayList<String> searchList = new ArrayList<>();
+            searchList.add(search);
+            parameter.put("search", searchList);
+        }
+
+        if (sort != null) {
+            parameter.put("sort", sort);
+        }
+        return parameter;
     }
 }
