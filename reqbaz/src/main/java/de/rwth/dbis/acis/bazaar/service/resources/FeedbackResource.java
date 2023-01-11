@@ -1,6 +1,5 @@
 package de.rwth.dbis.acis.bazaar.service.resources;
 
-import de.rwth.dbis.acis.bazaar.service.BazaarFunction;
 import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
@@ -10,19 +9,13 @@ import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PageInfo;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.PaginationResult;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
-import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
-import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
-import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
-import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 import de.rwth.dbis.acis.bazaar.service.resources.helpers.ResourceHelper;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Context;
 import i5.las2peer.api.logging.MonitoringEvent;
-import i5.las2peer.api.security.Agent;
 import i5.las2peer.logging.L2pLogger;
 import io.swagger.annotations.*;
 
-import javax.validation.ConstraintViolation;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -31,7 +24,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
 import java.time.OffsetDateTime;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 @Api(value = "feedback")
 @SwaggerDefinition(
@@ -58,7 +52,7 @@ public class FeedbackResource {
     private final L2pLogger logger = L2pLogger.getInstance(CommentsResource.class.getName());
     private final BazaarService bazaarService;
 
-    private ResourceHelper resourceHelper;
+    private final ResourceHelper resourceHelper;
 
     public FeedbackResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
@@ -76,15 +70,9 @@ public class FeedbackResource {
     public Response getFeedbackForProject(int projectId, int page, int perPage) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            resourceHelper.checkRegistrarErrors();
+            String userId = resourceHelper.getUserId();
             PageInfo pageInfo = new PageInfo(page, perPage);
-            // Take Object for generic error handling
-            Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
-            if (violations.size() > 0) {
-                ExceptionHandler.getInstance().handleViolations(violations);
-            }
+            resourceHelper.handleGenericError(bazaarService.validate(pageInfo));
 
             dalFacade = bazaarService.getDBConnection();
             //Todo use requirement's projectId for security context, not the one sent from client
@@ -92,15 +80,12 @@ public class FeedbackResource {
 
             Project project = dalFacade.getProjectById(projectId, internalUserId);
 
-            boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_FEEDBACK, project.getId(), dalFacade);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.feedback.read"));
-            }
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_FEEDBACK, project.getId(), dalFacade), "error.authorization.feedback.read");
 
             PaginationResult<Feedback> feedbackResult = dalFacade.getFeedbackByProject(projectId, pageInfo);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_43,
                     projectId, Activity.DataType.FEEDBACK, internalUserId);
-            Map<String, List<String>> parameter = resourceHelper.getSortResponseMap(page,perPage,null,null);
+            Map<String, List<String>> parameter = resourceHelper.getSortResponseMap(page, perPage, null, null);
 
             Response.ResponseBuilder responseBuilder = Response.ok();
             responseBuilder = responseBuilder.entity(feedbackResult.toJSON());
@@ -109,20 +94,9 @@ public class FeedbackResource {
 
             return responseBuilder.build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get feedback for project " + projectId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Get feedback for project " + projectId, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get feedback for project " + projectId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Get feedback for project " + projectId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
@@ -147,30 +121,15 @@ public class FeedbackResource {
     public Response sendFeedback(@ApiParam(value = "Feedback entity", required = true) Feedback givenFeedback) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-
+            String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
-            Set<ConstraintViolation<Object>> violations = bazaarService.validateCreate(givenFeedback);
-            if (violations.size() > 0) {
-                ExceptionHandler.getInstance().handleViolations(violations);
-            }
-
+            resourceHelper.handleGenericError(bazaarService.validateCreate(givenFeedback));
             Feedback createdFeedback = dalFacade.createFeedback(givenFeedback);
             return Response.status(Response.Status.CREATED).entity(createdFeedback.toJSON()).build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Create feedback");
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Create feedback", logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Create feedback");
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Create feedback", logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }

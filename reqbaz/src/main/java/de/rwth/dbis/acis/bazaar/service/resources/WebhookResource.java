@@ -3,25 +3,17 @@ package de.rwth.dbis.acis.bazaar.service.resources;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import de.rwth.dbis.acis.bazaar.service.BazaarFunction;
 import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
-import de.rwth.dbis.acis.bazaar.service.dal.entities.Activity;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Project;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Requirement;
-import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
-import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
-import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
-import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import de.rwth.dbis.acis.bazaar.service.resources.helpers.ResourceHelper;
 import i5.las2peer.api.Context;
-import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.api.security.Agent;
 import i5.las2peer.logging.L2pLogger;
 import io.swagger.annotations.*;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
-import net.minidev.json.parser.ParseException;
 import org.apache.http.HttpStatus;
 
 import javax.crypto.Mac;
@@ -30,9 +22,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.util.EnumSet;
 
 @Api(value = "webhook")
 @SwaggerDefinition(
@@ -56,10 +45,10 @@ import java.util.EnumSet;
 @Path("/webhook/{projectId}/github")
 public class WebhookResource {
 
-    private L2pLogger logger = L2pLogger.getInstance(WebhookResource.class.getName());
-    private BazaarService bazaarService;
+    private final L2pLogger logger = L2pLogger.getInstance(WebhookResource.class.getName());
+    private final BazaarService bazaarService;
 
-    private ResourceHelper resourceHelper;
+    private final ResourceHelper resourceHelper;
 
     private static final char[] HEX = {
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
@@ -213,8 +202,6 @@ public class WebhookResource {
                 }
             }
 
-        } catch (ParseException | BazaarException e) {
-            e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -232,9 +219,9 @@ public class WebhookResource {
         char[] result = new char[2 * amount];
 
         int j = 0;
-        for (int i = 0; i < amount; i++) {
-            result[j++] = HEX[(0xF0 & bytes[i]) >>> 4];
-            result[j++] = HEX[(0x0F & bytes[i])];
+        for (byte aByte : bytes) {
+            result[j++] = HEX[(0xF0 & aByte) >>> 4];
+            result[j++] = HEX[(0x0F & aByte)];
         }
         return result;
     }

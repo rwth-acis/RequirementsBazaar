@@ -1,22 +1,10 @@
 package de.rwth.dbis.acis.bazaar.service.resources;
 
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import de.rwth.dbis.acis.bazaar.service.BazaarFunction;
 import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.SystemRole;
@@ -28,12 +16,20 @@ import de.rwth.dbis.acis.bazaar.service.resources.helpers.ResourceHelper;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import de.rwth.dbis.acis.bazaar.service.twitter.WeeklyNewProjectsTweetTask;
 import i5.las2peer.api.Context;
-import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.api.security.Agent;
 import i5.las2peer.logging.L2pLogger;
 import io.swagger.annotations.*;
 import lombok.Builder;
 import lombok.Getter;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import java.net.HttpURLConnection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * Parent endpoint for global, administrative operations and queries
@@ -60,10 +56,10 @@ import lombok.Getter;
 @Path("/admin")
 public class AdminResource {
 
-    private L2pLogger logger = L2pLogger.getInstance(AdminResource.class.getName());
-    private BazaarService bazaarService;
+    private final L2pLogger logger = L2pLogger.getInstance(AdminResource.class.getName());
+    private final BazaarService bazaarService;
 
-    private ResourceHelper resourceHelper;
+    private final ResourceHelper resourceHelper;
 
     @javax.ws.rs.core.Context
     UriInfo uriInfo;
@@ -237,17 +233,10 @@ public class AdminResource {
             return handler.handle(dalFacade, internalUserId);
 
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, errorMessage);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, errorMessage, logger);
+
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, errorMessage);
-            logger.warning(bex.getMessage());
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, errorMessage, logger);
         }
     }
 
