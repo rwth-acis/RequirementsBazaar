@@ -105,10 +105,7 @@ public class CategoryResource {
                 return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
             }
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get categories for project " + projectId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex,"Get categories for project ",logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }

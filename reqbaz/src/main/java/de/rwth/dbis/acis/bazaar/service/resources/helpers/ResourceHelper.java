@@ -66,9 +66,9 @@ public class ResourceHelper {
         return sortList;
     }
 
-    public void handleGenericError(Set<ConstraintViolation<Object>> bazaarService) throws BazaarException {
-        Set<ConstraintViolation<Object>> violations = bazaarService;
-        if (violations.size() > 0) {
+    public void handleGenericError(Set<ConstraintViolation<Object>> violations) throws BazaarException {
+        Set<ConstraintViolation<Object>> violationSet = violations;
+        if (violationSet.size() > 0) {
             ExceptionHandler.getInstance().handleViolations(violations);
         }
     }
@@ -80,8 +80,7 @@ public class ResourceHelper {
         }
     }
 
-    public void checkAuthorization(boolean internalUserId, String key) throws BazaarException {
-        boolean authorized = internalUserId;
+    public void checkAuthorization(boolean authorized, String key) throws BazaarException {
         if (!authorized) {
             ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString(key));
         }
@@ -108,6 +107,18 @@ public class ResourceHelper {
         logger.warning(bex.getMessage());
         Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, key);
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+    }
+
+    public Response handleBazaarException(BazaarException bex, String key, L2pLogger logger) {
+        if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
+            return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+        } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
+            return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+        } else {
+            logger.warning(bex.getMessage());
+            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, key);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+        }
     }
 
 }
