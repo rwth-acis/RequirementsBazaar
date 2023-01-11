@@ -22,12 +22,10 @@ import i5.las2peer.logging.L2pLogger;
 import io.swagger.annotations.*;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.DatatypeConverter;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.time.OffsetDateTime;
@@ -57,8 +55,7 @@ public class RequirementsResource {
 
     private final L2pLogger logger = L2pLogger.getInstance(RequirementsResource.class.getName());
     private final BazaarService bazaarService;
-
-    private ResourceHelper resourceHelper;
+    private final ResourceHelper resourceHelper;
 
     public RequirementsResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
@@ -947,7 +944,7 @@ public class RequirementsResource {
             String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            Calendar sinceCal = getSinceCal(since);
+            Calendar sinceCal = resourceHelper.getSinceCal(since);
             Statistic requirementStatistics = dalFacade.getStatisticsForRequirement(internalUserId, requirementId, sinceCal);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_39,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
@@ -959,11 +956,6 @@ public class RequirementsResource {
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
-    }
-
-    @Nullable
-    private static Calendar getSinceCal(String since) {
-        return since == null ? null : DatatypeConverter.parseDateTime(since);
     }
 
     /**

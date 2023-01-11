@@ -14,9 +14,11 @@ import i5.las2peer.api.logging.MonitoringEvent;
 import i5.las2peer.api.security.Agent;
 import i5.las2peer.logging.L2pLogger;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.validation.ConstraintViolation;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.DatatypeConverter;
 import java.util.*;
 
 public class ResourceHelper {
@@ -119,6 +121,12 @@ public class ResourceHelper {
             Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, key);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
         }
+    }
+
+    @Nullable
+    public Calendar getSinceCal(String since) {
+        Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
+        return sinceCal;
     }
 
 }
