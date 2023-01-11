@@ -291,8 +291,11 @@ public class CommentsResource {
 
             Comment internalComment = dalFacade.getCommentById(commentToUpdate.getId());
             Requirement requirement = dalFacade.getRequirementById(internalComment.getRequirementId(), internalUserId);
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Modify_COMMENT, requirement.getProjectId(), dalFacade), "error.authorization.comment.modify");
 
+            boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Modify_COMMENT, requirement.getProjectId(), dalFacade);
+            if (!authorized && !internalComment.isOwner(internalUserId)) {
+                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.modify"));
+            }
             internalComment.setMessage(commentToUpdate.getMessage());
 
             Comment updatedComment = dalFacade.updateComment(internalComment);
