@@ -74,7 +74,7 @@ public class PersonalisationDataResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PERSONALISATION_DATA, dalFacade), "error.authorization.personalisationData.read");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PERSONALISATION_DATA, dalFacade), "error.authorization.personalisationData.read", true);
             PersonalisationData data = dalFacade.getPersonalisationData(internalUserId, key, version);
             return Response.ok(data.toJSON()).build();
         } catch (BazaarException bex) {
@@ -109,7 +109,7 @@ public class PersonalisationDataResource {
             String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_PERSONALISATION_DATA, dalFacade), "error.authorization.comment.create");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_PERSONALISATION_DATA, dalFacade), "error.authorization.comment.create", true);
             PersonalisationData fullData = PersonalisationData.builder().key(key).userId(internalUserId).version(version).value(data.getValue()).build();
             resourceHelper.handleGenericError(bazaarService.validateCreate(fullData));
             dalFacade.setPersonalisationData(fullData);

@@ -80,7 +80,7 @@ public class FeedbackResource {
 
             Project project = dalFacade.getProjectById(projectId, internalUserId);
 
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_FEEDBACK, project.getId(), dalFacade), "error.authorization.feedback.read");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_FEEDBACK, project.getId(), dalFacade), "error.authorization.feedback.read", true);
 
             PaginationResult<Feedback> feedbackResult = dalFacade.getFeedbackByProject(projectId, pageInfo);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_43,

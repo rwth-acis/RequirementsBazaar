@@ -305,7 +305,7 @@ public class RequirementsResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
             resourceHelper.checkRegistrarErrors();
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Create_REQUIREMENT, requirementToCreate.getProjectId(), dalFacade), "error.authorization.requirement.create");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Create_REQUIREMENT, requirementToCreate.getProjectId(), dalFacade), "error.authorization.requirement.create", true);
 
             // TODO Refactor this! Such logic should be moved to the constructor
             requirementToCreate.setCreator(dalFacade.getUserById(internalUserId));
@@ -433,7 +433,7 @@ public class RequirementsResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirementToDelete = dalFacade.getRequirementById(requirementId, internalUserId);
             Project project = dalFacade.getProjectById(requirementToDelete.getProjectId(), internalUserId);
-            resourceHelper.checkAuthorization(isUserAuthorizedToDeleteRequirement(dalFacade, internalUserId, project, requirementToDelete), "error.authorization.requirement.delete");
+            resourceHelper.checkAuthorization(isUserAuthorizedToDeleteRequirement(dalFacade, internalUserId, project, requirementToDelete), "error.authorization.requirement.delete", true);
             Requirement deletedRequirement = dalFacade.deleteRequirementById(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.DELETE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_28,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
@@ -489,7 +489,7 @@ public class RequirementsResource {
             String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, dalFacade), "error.authorization.vote.create");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, dalFacade), "error.authorization.vote.create", true);
             Requirement requirement = dalFacade.setUserAsLeadDeveloper(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.LEADDEVELOP, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_29,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
@@ -525,7 +525,7 @@ public class RequirementsResource {
             String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, dalFacade), "error.authorization.vote.delete");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, dalFacade), "error.authorization.vote.delete", true);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             ensureCatIsInProject(requirement.getLeadDeveloper().getId() != internalUserId, ErrorCode.AUTHORIZATION, "You are not lead developer.");
             requirement = dalFacade.deleteUserAsLeadDeveloper(requirementId, internalUserId);
@@ -564,7 +564,7 @@ public class RequirementsResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Create_DEVELOP, requirement.getProjectId(), dalFacade), "error.authorization.develop.create");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Create_DEVELOP, requirement.getProjectId(), dalFacade), "error.authorization.develop.create", true);
             dalFacade.wantToDevelop(internalUserId, requirementId);
             dalFacade.followRequirement(internalUserId, requirementId);
 
@@ -605,7 +605,7 @@ public class RequirementsResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Delete_DEVELOP, requirement.getProjectId(), dalFacade), "error.authorization.develop.delete");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Delete_DEVELOP, requirement.getProjectId(), dalFacade), "error.authorization.develop.delete", true);
             dalFacade.notWantToDevelop(internalUserId, requirementId);
 
             // refresh requirement object
@@ -711,7 +711,7 @@ public class RequirementsResource {
             String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_FOLLOW, dalFacade), "error.authorization.follow.create");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_FOLLOW, dalFacade), "error.authorization.follow.create", true);
             dalFacade.followRequirement(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.FOLLOW, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_33,
@@ -748,7 +748,7 @@ public class RequirementsResource {
             String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_FOLLOW, dalFacade), "error.authorization.follow.delete");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_FOLLOW, dalFacade), "error.authorization.follow.delete", true);
             dalFacade.unFollowRequirement(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UNFOLLOW, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_34,
@@ -785,10 +785,9 @@ public class RequirementsResource {
         DALFacade dalFacade = null;
         try {
             String userId = resourceHelper.getUserId();
-
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_VOTE, dalFacade), "error.authorization.vote.create");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_VOTE, dalFacade), "error.authorization.vote.create", true);
             dalFacade.vote(internalUserId, requirementId, direction.isUpVote());
             followUpvote(requirementId, direction, dalFacade, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.VOTE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_35,
@@ -831,7 +830,7 @@ public class RequirementsResource {
             String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_VOTE, dalFacade), "error.authorization.vote.delete");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_VOTE, dalFacade), "error.authorization.vote.delete", true);
             dalFacade.unVote(internalUserId, requirementId);
             return Response.noContent().build();
         } catch (BazaarException bex) {
@@ -866,7 +865,7 @@ public class RequirementsResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Realize_REQUIREMENT, requirement.getProjectId(), dalFacade), "error.authorization.requirement.realize");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Realize_REQUIREMENT, requirement.getProjectId(), dalFacade), "error.authorization.requirement.realize", true);
             requirement = dalFacade.setRequirementToRealized(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.REALIZE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_37,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
@@ -904,7 +903,7 @@ public class RequirementsResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
 
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Realize_REQUIREMENT, requirement.getProjectId(), dalFacade), "error.authorization.requirement.realize");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Realize_REQUIREMENT, requirement.getProjectId(), dalFacade), "error.authorization.requirement.realize", true);
 
             requirement = dalFacade.setRequirementToUnRealized(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UNREALIZE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_38,
@@ -1169,9 +1168,9 @@ public class RequirementsResource {
 
     private void isPublicCheck(boolean dalFacade, Integer internalUserId, PrivilegeEnum read_PUBLIC_COMMENT, int project, DALFacade dalFacade1, PrivilegeEnum read_COMMENT, String key) throws BazaarException {
         if (dalFacade) {
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, read_PUBLIC_COMMENT, project, dalFacade1), "error.authorization.anonymous");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, read_PUBLIC_COMMENT, project, dalFacade1), ResourceHelper.ERROR_ANONYMUS, true);
         } else {
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, read_COMMENT, project, dalFacade1), key);
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, read_COMMENT, project, dalFacade1), key, true);
         }
     }
 }

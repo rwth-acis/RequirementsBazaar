@@ -149,9 +149,7 @@ public class CommentsResource {
     public Response getCommentsForRequirement(int requirementId) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            resourceHelper.checkRegistrarErrors();
+            String userId = resourceHelper.getUserId();
 
             dalFacade = bazaarService.getDBConnection();
             //Todo use requirement's projectId for security context, not the one sent from client
@@ -178,9 +176,9 @@ public class CommentsResource {
 
     private void checkIsPublic(boolean dalFacade, Integer internalUserId, int project, DALFacade dalFacade1) throws BazaarException {
         if (dalFacade) {
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT, project, dalFacade1), "error.authorization.anonymous");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT, project, dalFacade1), ResourceHelper.ERROR_ANONYMUS, true);
         } else {
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_COMMENT, project, dalFacade1), "error.authorization.comment.read");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_COMMENT, project, dalFacade1), "error.authorization.comment.read", true);
         }
     }
 
@@ -241,15 +239,14 @@ public class CommentsResource {
     public Response createComment(@ApiParam(value = "Comment entity", required = true) Comment commentToCreate) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
+            String userId = resourceHelper.getUserId();
             // TODO: check whether the current user may create a new requirement
             // TODO: check whether all required parameters are entered
             resourceHelper.checkRegistrarErrors();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(commentToCreate.getRequirementId(), internalUserId);
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Create_COMMENT, requirement.getProjectId(), dalFacade), "error.authorization.comment.create");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Create_COMMENT, requirement.getProjectId(), dalFacade), "error.authorization.comment.create", true);
             commentToCreate.setCreator(dalFacade.getUserById(internalUserId));
             resourceHelper.handleGenericError(bazaarService.validateCreate(commentToCreate));
 
@@ -292,10 +289,8 @@ public class CommentsResource {
             Comment internalComment = dalFacade.getCommentById(commentToUpdate.getId());
             Requirement requirement = dalFacade.getRequirementById(internalComment.getRequirementId(), internalUserId);
 
-            boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Modify_COMMENT, requirement.getProjectId(), dalFacade);
-            if (!authorized && !internalComment.isOwner(internalUserId)) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.modify"));
-            }
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Modify_COMMENT, requirement.getProjectId(), dalFacade), "error.authorization.comment.modify", !internalComment.isOwner(internalUserId));
+
             internalComment.setMessage(commentToUpdate.getMessage());
 
             Comment updatedComment = dalFacade.updateComment(internalComment);
@@ -339,7 +334,7 @@ public class CommentsResource {
             Comment commentToDelete = dalFacade.getCommentById(commentId);
             Requirement requirement = dalFacade.getRequirementById(commentToDelete.getRequirementId(), internalUserId);
 
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Modify_COMMENT, requirement.getProjectId(), dalFacade), "error.authorization.comment.modify");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Modify_COMMENT, requirement.getProjectId(), dalFacade), "error.authorization.comment.modify", true);
             Comment deletedComment = dalFacade.deleteCommentById(commentId);
             bazaarService.getNotificationDispatcher().dispatchNotification(deletedComment.getCreationDate(), Activity.ActivityAction.DELETE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_48,
                     deletedComment.getId(), Activity.DataType.COMMENT, internalUserId);

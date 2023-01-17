@@ -9,9 +9,6 @@ import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.SystemRole;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
-import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
-import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
-import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import de.rwth.dbis.acis.bazaar.service.resources.helpers.ResourceHelper;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import de.rwth.dbis.acis.bazaar.service.twitter.WeeklyNewProjectsTweetTask;
@@ -223,11 +220,7 @@ public class AdminResource {
             resourceHelper.checkRegistrarErrors();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, dalFacade.getRoleByName(requiredRole), dalFacade);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, authorizationErrorMessage);
-            }
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, dalFacade.getRoleByName(requiredRole), dalFacade), authorizationErrorMessage, true);
 
             //// actual operation -start
             return handler.handle(dalFacade, internalUserId);

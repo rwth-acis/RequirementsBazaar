@@ -24,6 +24,8 @@ import java.util.*;
 public class ResourceHelper {
     private final BazaarService bazaarService;
 
+    public static final String ERROR_ANONYMUS = "error.authorization.anonymous";
+
     public ResourceHelper(BazaarService service) {
         this.bazaarService = service;
     }
@@ -82,8 +84,8 @@ public class ResourceHelper {
         }
     }
 
-    public void checkAuthorization(boolean authorized, String key) throws BazaarException {
-        if (!authorized) {
+    public void checkAuthorization(boolean authorized, String key, boolean additionalCheck) throws BazaarException {
+        if (!authorized && additionalCheck) {
             ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString(key));
         }
     }

@@ -83,7 +83,7 @@ public class UsersResource {
             String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_USERS, dalFacade), "error.authorization.anonymous");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_USERS, dalFacade), ResourceHelper.ERROR_ANONYMUS, true);
 
             PageInfo pageInfo = new PageInfo(page, perPage, new HashMap<>(), new ArrayList<>(), search);
             resourceHelper.handleGenericError(bazaarService.validate(pageInfo));
@@ -167,7 +167,7 @@ public class UsersResource {
             String userId = resourceHelper.getUserId();
 
             // Block anonymous user
-            resourceHelper.checkAuthorization(!userId.equals("anonymous"), "error.authorization.user.read");
+            resourceHelper.checkAuthorization(!userId.equals("anonymous"), "error.authorization.user.read", true);
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
@@ -205,7 +205,7 @@ public class UsersResource {
             String userId = resourceHelper.getUserId();
 
             // Block anonymous user
-            resourceHelper.checkAuthorization(!userId.equals("anonymous"), "error.authorization.user.read");
+            resourceHelper.checkAuthorization(!userId.equals("anonymous"), "error.authorization.user.read", true);
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);

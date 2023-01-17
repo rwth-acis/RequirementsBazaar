@@ -178,7 +178,7 @@ public class ProjectsResource {
     }
 
     @NotNull
-    private static Project getProjectToReturn(int projectId, DALFacade dalFacade, Integer internalUserId) throws Exception {
+    private Project getProjectToReturn(int projectId, DALFacade dalFacade, Integer internalUserId) throws Exception {
         Project projectToReturn = dalFacade.getProjectById(projectId, internalUserId);
 
         if (projectToReturn == null) {
@@ -186,15 +186,9 @@ public class ProjectsResource {
         }
 
         if (projectToReturn.getVisibility()) {
-            boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_PUBLIC_PROJECT, projectId, dalFacade);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
-            }
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_PUBLIC_PROJECT, projectId, dalFacade), ResourceHelper.ERROR_ANONYMUS, true);
         } else {
-            boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_PROJECT, projectId, dalFacade);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.read"));
-            }
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_PROJECT, projectId, dalFacade), "error.authorization.project.read", true);
         }
         return projectToReturn;
     }
@@ -224,7 +218,7 @@ public class ProjectsResource {
             resourceHelper.handleGenericError(bazaarService.validateCreate(projectToCreate));
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_PROJECT, dalFacade), "error.authorization.project.create");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_PROJECT, dalFacade), "error.authorization.project.create", true);
             projectToCreate.setLeader(dalFacade.getUserById(internalUserId));
             Project createdProject = dalFacade.createProject(projectToCreate, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_5,
@@ -264,7 +258,7 @@ public class ProjectsResource {
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Modify_PROJECT, projectToUpdate.getId(), dalFacade), "error.authorization.project.modify");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Modify_PROJECT, projectToUpdate.getId(), dalFacade), "error.authorization.project.modify", true);
 
             Project updatedProject = dalFacade.modifyProject(projectToUpdate);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_6,
@@ -303,10 +297,7 @@ public class ProjectsResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
             Project projectToDelete = dalFacade.getProjectById(projectId, internalUserId);
-            boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Delete_PROJECT, projectId, dalFacade);
-            if (!authorized && !projectToDelete.isOwner(internalUserId)) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.project.delete"));
-            }
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Delete_PROJECT, projectId, dalFacade), "error.authorization.project.delete", !projectToDelete.isOwner(internalUserId));
             dalFacade.deleteProjectById(projectId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.DELETE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_28,
                     projectId, Activity.DataType.PROJECT, internalUserId);
@@ -342,7 +333,7 @@ public class ProjectsResource {
             String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_FOLLOW, dalFacade), "error.authorization.follow.create");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_FOLLOW, dalFacade), "error.authorization.follow.create", true);
             dalFacade.followProject(internalUserId, projectId);
             Project project = dalFacade.getProjectById(projectId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.FOLLOW, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_8,
@@ -379,7 +370,7 @@ public class ProjectsResource {
             String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_FOLLOW, dalFacade), "error.authorization.follow.delete");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_FOLLOW, dalFacade), "error.authorization.follow.delete", true);
             dalFacade.unFollowProject(internalUserId, projectId);
             Project project = dalFacade.getProjectById(projectId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UNFOLLOW, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_9,
@@ -491,9 +482,7 @@ public class ProjectsResource {
                                            @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) throws Exception {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            resourceHelper.checkRegistrarErrors();
+            String userId = resourceHelper.getUserId();
             PageInfo pageInfo = new PageInfo(page, perPage);
 
             resourceHelper.handleGenericError(bazaarService.validate(pageInfo));
@@ -681,7 +670,7 @@ public class ProjectsResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_CATEGORY, dalFacade), "error.authorization.category.create");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_CATEGORY, dalFacade), "error.authorization.category.create", true);
 
             // Ensure no cross-injection happens
             tag.setProjectId(projectId);
@@ -730,10 +719,8 @@ public class ProjectsResource {
             PrivilegeEnum privilege = PrivilegeEnum.Modify_MEMBERS;
             // Only Admins should be able to create new admins.
             // Differentiate here
-            if (projectMember.getRole() == ProjectRole.ProjectAdmin) {
-                privilege = PrivilegeEnum.Modify_ADMIN_MEMBERS;
-            }
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, privilege, projectId, dalFacade), "error.authorization.project.modify");
+            privilege = getPrivilege(projectMember, privilege);
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, privilege, projectId, dalFacade), "error.authorization.project.modify", true);
 
             // ensure the given user exists
             dalFacade.getUserById(projectMember.getUserId());
@@ -756,6 +743,13 @@ public class ProjectsResource {
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
+    }
+
+    private static PrivilegeEnum getPrivilege(ProjectMember projectMember, PrivilegeEnum privilege) {
+        if (projectMember.getRole() == ProjectRole.ProjectAdmin) {
+            privilege = PrivilegeEnum.Modify_ADMIN_MEMBERS;
+        }
+        return privilege;
     }
 
     /**
@@ -786,16 +780,9 @@ public class ProjectsResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
-            AtomicReference<PrivilegeEnum> privilege = new AtomicReference<>(PrivilegeEnum.Modify_MEMBERS);
-            projectMembers.forEach(projectMember -> {
-                // Only Admins should be able to create new admins.
-                // Differentiate here
-                if (projectMember.getRole() == ProjectRole.ProjectAdmin) {
-                    privilege.set(PrivilegeEnum.Modify_ADMIN_MEMBERS);
-                }
-            });
+            AtomicReference<PrivilegeEnum> privilege = setPrivileges(projectMembers);
 
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, privilege.get(), projectId, dalFacade), "error.authorization.project.modify");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, privilege.get(), projectId, dalFacade), "error.authorization.project.modify", true);
 
             for (ProjectMember projectMember : projectMembers) {
                 // ensure the given user exists
@@ -813,6 +800,19 @@ public class ProjectsResource {
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
+    }
+
+    @NotNull
+    private static AtomicReference<PrivilegeEnum> setPrivileges(List<ProjectMember> projectMembers) {
+        AtomicReference<PrivilegeEnum> privilege = new AtomicReference<>(PrivilegeEnum.Modify_MEMBERS);
+        projectMembers.forEach(projectMember -> {
+            // Only Admins should be able to create new admins.
+            // Differentiate here
+            if (projectMember.getRole() == ProjectRole.ProjectAdmin) {
+                privilege.set(PrivilegeEnum.Modify_ADMIN_MEMBERS);
+            }
+        });
+        return privilege;
     }
 
     /**
@@ -853,7 +853,7 @@ public class ProjectsResource {
                 privilege = PrivilegeEnum.Read_PROJECT;
             }
 
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, privilege, projectId, dalFacade), "error.authorization.project.modify");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, privilege, projectId, dalFacade), "error.authorization.project.modify", true);
 
             PaginationResult<ProjectMember> members = dalFacade.getProjectMembers(projectId, pageInfo);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_12,
@@ -902,7 +902,7 @@ public class ProjectsResource {
             if (modifiedMemberRoles.stream().anyMatch(role -> role.getName().equals(ProjectRole.ProjectAdmin.name()))) {
                 privilege = PrivilegeEnum.Modify_ADMIN_MEMBERS;
             }
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, privilege, projectId, dalFacade), "error.authorization.project.modify");
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, privilege, projectId, dalFacade), "error.authorization.project.modify", true);
             dalFacade.removeUserFromProject(memberUserId, projectId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_6, projectId, Activity.DataType.PROJECT, internalUserId);
 
