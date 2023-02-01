@@ -20,10 +20,6 @@
 
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,6 +27,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.SerializerViews;
 import de.rwth.dbis.acis.bazaar.service.gamification.GFNotification;
 import org.apache.commons.lang3.Validate;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @since 9/16/2014
@@ -56,7 +55,7 @@ public abstract class EntityBase implements IdentifiedById {
 
     public void setGamificationNotifications(List<GFNotification> gamificationNotifications) {
         Validate.notNull(gamificationNotifications);
-        gamificationNotifications = gamificationNotifications;
+        this.gamificationNotifications = gamificationNotifications;
     }
 
    public List<GFNotification> getGamificationNotifications() {
