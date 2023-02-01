@@ -1,10 +1,10 @@
 package de.rwth.dbis.acis.bazaar.service.gamification;
 
-import java.io.IOException;
-import java.util.*;
-
 import i5.las2peer.logging.L2pLogger;
 import org.apache.commons.lang3.StringUtils;
+
+import java.io.IOException;
+import java.util.*;
 
 public class GamificationManager {
 
@@ -31,13 +31,14 @@ public class GamificationManager {
         }
     }
 
-    public void initializeUser(Integer userId) {
+    public void initializeUser(Integer userId, String userEmail) {
         if (!isAvailable()) {
             logger.warning("Cannot add user to Gamification Framework. Gamification is not configured");
             return;
         }
 
         try {
+            gfClient.registerUser(gfGameId, userId.toString(), userEmail);
             gfClient.addMemberToGame(gfGameId, userId.toString());
         } catch (IOException e) {
             logger.warning("Failed to add user to gamification framework: " + e.getMessage());
@@ -66,7 +67,7 @@ public class GamificationManager {
 
     public List<GFNotification> getUserNotifications(Integer userId) {
         if (notificationCache.containsKey(userId)) {
-            return Collections.unmodifiableList(notificationCache.get(userId));
+            return Collections.unmodifiableList(notificationCache.remove(userId));
         }
         return Collections.emptyList();
     }

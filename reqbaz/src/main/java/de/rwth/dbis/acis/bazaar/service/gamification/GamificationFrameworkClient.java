@@ -1,15 +1,15 @@
 package de.rwth.dbis.acis.bazaar.service.gamification;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.MapType;
 import i5.las2peer.logging.L2pLogger;
 import okhttp3.*;
 import org.apache.commons.lang3.Validate;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class GamificationFrameworkClient {
 
@@ -49,13 +49,39 @@ public class GamificationFrameworkClient {
                         .addPathSegment(memberUsername)
                         .build()
                 )
-                .method("POST", null)
+                .method("POST", RequestBody.create("", null))
                 .build();
 
         try (Response response = httpClient.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
 
             logger.info("Added member " + memberUsername + " to game " + gameId + " (response: " + response.body().string() + ")");
+        }
+    }
+
+    public void registerUser(String gameId, String memberUsername, String email) throws IOException {
+        Validate.notBlank(gameId);
+        Validate.notBlank(memberUsername);
+        Validate.notBlank(email);
+
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("memberId", memberUsername)
+                .addFormDataPart("email", email)
+                .build();
+
+        Request request = new Request.Builder()
+                .url(gfGameServiceUrl.newBuilder()
+                        .addPathSegment("register")
+                        .build()
+                )
+                .post(requestBody)
+                .build();
+
+        try (Response response = httpClient.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+            logger.info("Added member " + memberUsername + " to gamification." + " (response: " + response.body().string() + ")");
         }
     }
 
@@ -72,7 +98,7 @@ public class GamificationFrameworkClient {
                         .addPathSegment(username)
                         .build()
                 )
-                .method("POST", null)
+                .method("POST", RequestBody.create("", null))
                 .build();
 
         try (Response response = httpClient.newCall(request).execute()) {

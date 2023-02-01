@@ -53,8 +53,6 @@ import i5.las2peer.logging.L2pLogger;
 import i5.las2peer.restMapper.RESTService;
 import i5.las2peer.restMapper.annotations.ServicePath;
 import io.swagger.annotations.*;
-import lombok.Getter;
-import okhttp3.HttpUrl;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.http.client.utils.URIBuilder;
 import org.jooq.SQLDialect;
@@ -289,7 +287,7 @@ public class BazaarService extends RESTService {
                 // this.getNotificationDispatcher().dispatchNotification(user.getCreationDate(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_55, userId, Activity.DataType.USER, userId);
                 dalFacade.addUserToRole(userId, "LoggedInUser", null);
 
-                gamificationManager.initializeUser(userId);
+                gamificationManager.initializeUser(userId, email);
             } else {
                 // update lastLoginDate
                 dalFacade.updateLastLoginDate(userIdByLAS2PeerId);
