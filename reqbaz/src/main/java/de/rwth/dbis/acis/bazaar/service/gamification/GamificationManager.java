@@ -15,10 +15,10 @@ public class GamificationManager {
 
     /**
      * Notifications returned by the framework during request processing.
-     *
+     * <p>
      * Can be returned to the client by querying
      */
-    private Map<Integer, List<GFNotification>> notificationCache = new HashMap<>();
+    private Map<Integer, List<Map<String, Object>>> notificationCache = new HashMap<>();
 
     public GamificationManager(String gfGameServiceUrl, String gfVisualizationServiceUrl, String gfUsername, String gfPassword, String gfGameId) {
         this.gfGameId = gfGameId;
@@ -57,7 +57,7 @@ public class GamificationManager {
         }
 
         try {
-            List<GFNotification> notifications = gfClient.triggerAction(gfGameId, actionId, userId.toString());
+            List<Map<String, Object>> notifications = gfClient.triggerAction(gfGameId, actionId, userId.toString());
             storeUserNotifications(userId, notifications);
         } catch (IOException e) {
             logger.warning("Failed to trigger action " + actionId + " for user " + userId);
@@ -65,14 +65,14 @@ public class GamificationManager {
         }
     }
 
-    public List<GFNotification> getUserNotifications(Integer userId) {
+    public List<Map<String, Object>> getUserNotifications(Integer userId) {
         if (notificationCache.containsKey(userId)) {
             return Collections.unmodifiableList(notificationCache.remove(userId));
         }
         return Collections.emptyList();
     }
 
-    private void storeUserNotifications(Integer userId, List<GFNotification> notifications) {
+    private void storeUserNotifications(Integer userId, List<Map<String, Object>> notifications) {
         if (notificationCache.containsKey(userId)) {
             notificationCache.get(userId).addAll(notifications);
         } else {

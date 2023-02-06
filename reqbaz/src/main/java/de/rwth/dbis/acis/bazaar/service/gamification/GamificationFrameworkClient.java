@@ -85,7 +85,7 @@ public class GamificationFrameworkClient {
         }
     }
 
-    public List<GFNotification> triggerAction(String gameId, String actionId, String username) throws IOException {
+    public List<Map<String, Object>> triggerAction(String gameId, String actionId, String username) throws IOException {
         Validate.notBlank(gameId);
         Validate.notBlank(actionId);
         Validate.notBlank(username);
@@ -112,15 +112,13 @@ public class GamificationFrameworkClient {
             Map<String, Object> responseJson = objectMapper.readValue(rawResponse, mapType);
 
             // process notifications
-            List<GFNotification> notifications = new ArrayList<>();
+            List<Map<String, Object>> notifications = new ArrayList<>();
             if (responseJson.containsKey("notification")) {
                 Object notificationRoot = responseJson.get("notification");
                 if (notificationRoot instanceof List) {
-                    ((List<?>) notificationRoot).forEach(notificationJson -> {
-                        notifications.add(new GFNotification((Map<String, Object>) notificationJson));
-                    });
+                    ((List<?>) notificationRoot).forEach(notificationJson -> notifications.add((Map<String, Object>) notificationJson));
                 } else if (notificationRoot instanceof Map) {
-                    notifications.add(new GFNotification((Map<String, Object>) notificationRoot));
+                    notifications.add((Map<String, Object>) notificationRoot);
                 } else {
                     logger.warning("Unexpected value of 'notification' object: " + notificationRoot);
                 }
