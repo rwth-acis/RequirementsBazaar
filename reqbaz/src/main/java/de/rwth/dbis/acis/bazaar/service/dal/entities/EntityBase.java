@@ -27,7 +27,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.SerializerViews;
 import org.apache.commons.lang3.Validate;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,7 +35,7 @@ import java.util.Map;
  */
 public abstract class EntityBase implements IdentifiedById {
 
-    private List<Map<String, Object>> gamificationNotifications = new ArrayList<>();
+    private List<Map<String, Object>> gamificationNotifications;
 
     public String toJSON() throws JsonProcessingException {
         return new ObjectMapper().registerModule(new JavaTimeModule())
@@ -55,7 +54,8 @@ public abstract class EntityBase implements IdentifiedById {
 
     public void setGamificationNotifications(List<Map<String, Object>> gamificationNotifications) {
         Validate.notNull(gamificationNotifications);
-        this.gamificationNotifications = gamificationNotifications;
+        // prevent field to be sent if its empty
+        this.gamificationNotifications = gamificationNotifications.size() == 0 ? null : gamificationNotifications;
     }
 
     public List<Map<String, Object>> getGamificationNotifications() {
