@@ -1,6 +1,7 @@
 package de.rwth.dbis.acis.bazaar.service.gamification;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.MapType;
 import i5.las2peer.logging.L2pLogger;
 import okhttp3.*;
@@ -124,6 +125,31 @@ public class GamificationFrameworkClient {
                 }
             }
             return notifications;
+        }
+    }
+
+    public List<Map<String, Object>> getEarnedBadges(String gameId, String userId) throws IOException {
+
+        Request request = new Request.Builder()
+                .url(gfVisualizationServiceUrl.newBuilder()
+                        .addPathSegment("badges")
+                        .addPathSegment(gameId)
+                        .addPathSegment(userId)
+                        .build()
+                )
+                .get()
+                .build();
+
+        try (Response response = httpClient.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+            String rawResponse = response.body().string();
+            logger.info("Triggered getBadges " + gameId + " for user " + userId + " (response: " + rawResponse + ")");
+
+            final CollectionType collectionType = objectMapper.getTypeFactory().constructCollectionType(List.class, Map.class);
+            List<Map<String, Object>> badges = objectMapper.readValue(rawResponse, collectionType);
+
+            return badges;
         }
     }
 }

@@ -80,7 +80,18 @@ public class GamificationManager {
         }
     }
 
-    private boolean isAvailable() {
+    public List<Map<String, Object>> getUserBadges(Integer userId) {
+        try {
+            List<Map<String, Object>> badges = gfClient.getEarnedBadges(gfGameId, userId.toString());
+            return badges;
+        } catch (IOException e) {
+            logger.warning("Failed to get badges for user " + userId);
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
+
+    public boolean isAvailable() {
         return gfClient != null;
     }
 
