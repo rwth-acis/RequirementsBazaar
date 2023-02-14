@@ -20,14 +20,14 @@ public class GamificationManager {
      */
     private Map<Integer, List<Map<String, Object>>> notificationCache = new HashMap<>();
 
-    public GamificationManager(String gfGameServiceUrl, String gfVisualizationServiceUrl, String gfUsername, String gfPassword, String gfGameId) {
+    public GamificationManager(String gfBaseUrl, String gfUsername, String gfPassword, String gfGameId) {
         this.gfGameId = gfGameId;
 
-        if (StringUtils.isAnyBlank(gfGameServiceUrl, gfVisualizationServiceUrl, gfUsername, gfPassword, gfGameId)) {
+        if (StringUtils.isAnyBlank(gfBaseUrl, gfUsername, gfPassword, gfGameId)) {
             logger.warning("Gamification functionality cannot be used without GamificationFramework credentials!");
             gfClient = null;
         } else {
-            gfClient = new GamificationFrameworkClient(gfGameServiceUrl, gfVisualizationServiceUrl, gfUsername, gfPassword);
+            gfClient = new GamificationFrameworkClient(gfBaseUrl, gfUsername, gfPassword);
         }
     }
 

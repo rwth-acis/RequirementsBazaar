@@ -16,15 +16,12 @@ public class GamificationFrameworkClient {
 
     private final L2pLogger logger = L2pLogger.getInstance(GamificationFrameworkClient.class.getName());
 
-    private final HttpUrl gfGameServiceUrl;
-    private final HttpUrl gfVisualizationServiceUrl;
-
+    private final HttpUrl gfBaseUrl;
     private final OkHttpClient httpClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public GamificationFrameworkClient(String gfGameServiceUrl, String gfVisualizationServiceUrl, String gfUsername, String gfPassword) {
-        this.gfGameServiceUrl = HttpUrl.parse(gfGameServiceUrl);
-        this.gfVisualizationServiceUrl = HttpUrl.parse(gfVisualizationServiceUrl);
+    public GamificationFrameworkClient(String gfBaseUrl, String gfUsername, String gfPassword) {
+        this.gfBaseUrl = HttpUrl.parse(gfBaseUrl);
 
         httpClient = new OkHttpClient.Builder()
                 .authenticator((route, response) -> {
@@ -44,7 +41,8 @@ public class GamificationFrameworkClient {
         Validate.notBlank(memberUsername);
 
         Request request = new Request.Builder()
-                .url(gfGameServiceUrl.newBuilder()
+                .url(gfBaseUrl.newBuilder()
+                        .addPathSegment("games")
                         .addPathSegment("data")
                         .addPathSegment(gameId)
                         .addPathSegment(memberUsername)
@@ -72,7 +70,8 @@ public class GamificationFrameworkClient {
                 .build();
 
         Request request = new Request.Builder()
-                .url(gfGameServiceUrl.newBuilder()
+                .url(gfBaseUrl.newBuilder()
+                        .addPathSegment("games")
                         .addPathSegment("register")
                         .build()
                 )
@@ -92,7 +91,8 @@ public class GamificationFrameworkClient {
         Validate.notBlank(username);
 
         Request request = new Request.Builder()
-                .url(gfVisualizationServiceUrl.newBuilder()
+                .url(gfBaseUrl.newBuilder()
+                        .addPathSegment("visualization")
                         .addPathSegment("actions")
                         .addPathSegment(gameId)
                         .addPathSegment(actionId)
@@ -131,7 +131,8 @@ public class GamificationFrameworkClient {
     public List<Map<String, Object>> getEarnedBadges(String gameId, String userId) throws IOException {
 
         Request request = new Request.Builder()
-                .url(gfVisualizationServiceUrl.newBuilder()
+                .url(gfBaseUrl.newBuilder()
+                        .addPathSegment("visualization")
                         .addPathSegment("badges")
                         .addPathSegment(gameId)
                         .addPathSegment(userId)
@@ -148,8 +149,37 @@ public class GamificationFrameworkClient {
 
             final CollectionType collectionType = objectMapper.getTypeFactory().constructCollectionType(List.class, Map.class);
             List<Map<String, Object>> badges = objectMapper.readValue(rawResponse, collectionType);
+            badges = getBadgeImgs(gameId, badges);
 
             return badges;
         }
     }
+
+    public List<Map<String, Object>> getBadgeImgs(String gameId, List<Map<String, Object>> badges) throws IOException {
+
+        for (Map<String, Object> badge : badges) {
+            if (badge.containsKey("id")) {
+                Request request = new Request.Builder()
+                        .url(gfBaseUrl.newBuilder()
+                                .addPathSegment("badges")
+                                .addPathSegment(gameId)
+                                .addPathSegment(badge.get("id").toString())
+                                .addPathSegment("img")
+                                .build()
+                        )
+                        .get()
+                        .build();
+
+                try (Response response = httpClient.newCall(request).execute()) {
+                    if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+                    byte[] img = response.body().bytes();
+                    logger.info("Triggered getBadgeImgs " + gameId);
+                    badge.put("img", img);
+                }
+            }
+
+        }
+        return badges;
+    }
+
 }
