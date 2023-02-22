@@ -182,4 +182,30 @@ public class GamificationFrameworkClient {
         return badges;
     }
 
+    public Map<String, Object> getMemberStatus(String gameId, String userId) throws IOException {
+
+        Request request = new Request.Builder()
+                .url(gfBaseUrl.newBuilder()
+                        .addPathSegment("visualization")
+                        .addPathSegment("status")
+                        .addPathSegment(gameId)
+                        .addPathSegment(userId)
+                        .build()
+                )
+                .get()
+                .build();
+
+        try (Response response = httpClient.newCall(request).execute()) {
+            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+
+            String rawResponse = response.body().string();
+            logger.info("Triggered get status " + gameId + " for user " + userId + " (response: " + rawResponse + ")");
+
+            final MapType mapType = objectMapper.getTypeFactory().constructMapType(
+                    Map.class, String.class, Object.class);
+
+            return objectMapper.readValue(rawResponse, mapType);
+        }
+    }
+
 }

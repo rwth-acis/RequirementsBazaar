@@ -27,6 +27,8 @@ public class Dashboard extends EntityBase {
 
     private List<Map<String, Object>> badges;
 
+    private Map<String, Object> status;
+
     @JsonIgnore
     @Override
     public int getId() {

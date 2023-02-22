@@ -217,6 +217,7 @@ public class UsersResource {
             Dashboard data = dalFacade.getDashboardData(internalUserId, 10);
             if (isGamified) {
                 data.setBadges(bazaarService.getGamificationManager().getUserBadges(internalUserId));
+                data.setStatus(bazaarService.getGamificationManager().getUserStatus(internalUserId));
             }
             String dashboardResponse = getDashboardResponse(isGamified, data);
 

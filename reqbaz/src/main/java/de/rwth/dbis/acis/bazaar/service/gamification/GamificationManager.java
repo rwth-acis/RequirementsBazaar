@@ -91,6 +91,17 @@ public class GamificationManager {
         }
     }
 
+    public Map<String, Object> getUserStatus(Integer userId) {
+        try {
+            Map<String, Object> status = gfClient.getMemberStatus(gfGameId, userId.toString());
+            return status;
+        } catch (IOException e) {
+            logger.warning("Failed to get status for user " + userId);
+            e.printStackTrace();
+            return Collections.emptyMap();
+        }
+    }
+
     public boolean isAvailable() {
         return gfClient != null;
     }
