@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class GamificationFrameworkClient {
 
@@ -52,8 +53,7 @@ public class GamificationFrameworkClient {
                 .build();
 
         try (Response response = httpClient.newCall(request).execute()) {
-            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-
+            checkSuccess(response);
             logger.info("Added member " + memberUsername + " to game " + gameId + " (response: " + response.body().string() + ")");
         }
     }
@@ -79,8 +79,7 @@ public class GamificationFrameworkClient {
                 .build();
 
         try (Response response = httpClient.newCall(request).execute()) {
-            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-
+            checkSuccess(response);
             logger.info("Added member " + memberUsername + " to gamification." + " (response: " + response.body().string() + ")");
         }
     }
@@ -103,7 +102,7 @@ public class GamificationFrameworkClient {
                 .build();
 
         try (Response response = httpClient.newCall(request).execute()) {
-            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+            checkSuccess(response);
 
             String rawResponse = response.body().string();
             logger.info("Triggered action " + actionId + " on game " + gameId + " for user " + username + " (response: " + rawResponse + ")");
@@ -112,23 +111,28 @@ public class GamificationFrameworkClient {
                     Map.class, String.class, Object.class);
             Map<String, Object> responseJson = objectMapper.readValue(rawResponse, mapType);
 
-            // process notifications
-            List<Map<String, Object>> notifications = new ArrayList<>();
-            if (responseJson.containsKey("notification")) {
-                Object notificationRoot = responseJson.get("notification");
-                if (notificationRoot instanceof List) {
-                    ((List<?>) notificationRoot).forEach(notificationJson -> notifications.add((Map<String, Object>) notificationJson));
-                } else if (notificationRoot instanceof Map) {
-                    notifications.add((Map<String, Object>) notificationRoot);
-                } else {
-                    logger.warning("Unexpected value of 'notification' object: " + notificationRoot);
-                }
-            }
-            return notifications;
+            return getNotifications(responseJson);
         }
     }
 
+    private List<Map<String, Object>> getNotifications(Map<String, Object> responseJson) {
+        List<Map<String, Object>> notifications = new ArrayList<>();
+        if (responseJson.containsKey("notification")) {
+            Object notificationRoot = responseJson.get("notification");
+            if (notificationRoot instanceof List) {
+                ((List<?>) notificationRoot).forEach(notificationJson -> notifications.add((Map<String, Object>) notificationJson));
+            } else if (notificationRoot instanceof Map) {
+                notifications.add((Map<String, Object>) notificationRoot);
+            } else {
+                logger.warning("Unexpected value of 'notification' object: " + notificationRoot);
+            }
+        }
+        return notifications;
+    }
+
     public List<Map<String, Object>> getEarnedBadges(String gameId, String userId) throws IOException {
+        Validate.notBlank(gameId);
+        Validate.notBlank(userId);
 
         Request request = new Request.Builder()
                 .url(gfBaseUrl.newBuilder()
@@ -142,9 +146,9 @@ public class GamificationFrameworkClient {
                 .build();
 
         try (Response response = httpClient.newCall(request).execute()) {
-            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+            checkSuccess(response);
 
-            String rawResponse = response.body().string();
+            String rawResponse = Objects.requireNonNull(response.body()).string();
             logger.info("Triggered getBadges " + gameId + " for user " + userId + " (response: " + rawResponse + ")");
 
             final CollectionType collectionType = objectMapper.getTypeFactory().constructCollectionType(List.class, Map.class);
@@ -158,28 +162,31 @@ public class GamificationFrameworkClient {
     public List<Map<String, Object>> getBadgeImgs(String gameId, List<Map<String, Object>> badges) throws IOException {
 
         for (Map<String, Object> badge : badges) {
-            if (badge.containsKey("id")) {
-                Request request = new Request.Builder()
-                        .url(gfBaseUrl.newBuilder()
-                                .addPathSegment("badges")
-                                .addPathSegment(gameId)
-                                .addPathSegment(badge.get("id").toString())
-                                .addPathSegment("img")
-                                .build()
-                        )
-                        .get()
-                        .build();
+            Request request = new Request.Builder()
+                    .url(gfBaseUrl.newBuilder()
+                            .addPathSegment("badges")
+                            .addPathSegment(gameId)
+                            .addPathSegment(badge.get("id").toString())
+                            .addPathSegment("img")
+                            .build()
+                    )
+                    .get()
+                    .build();
 
-                try (Response response = httpClient.newCall(request).execute()) {
-                    if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
-                    byte[] img = response.body().bytes();
-                    logger.info("Triggered getBadgeImgs " + gameId);
-                    badge.put("img", img);
-                }
+            try (Response response = httpClient.newCall(request).execute()) {
+                checkSuccess(response);
+                byte[] img = response.body().bytes();
+                logger.info("Triggered getBadgeImgs " + gameId);
+                badge.put("img", img);
             }
+
 
         }
         return badges;
+    }
+
+    private static void checkSuccess(Response response) throws IOException {
+        if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
     }
 
     public Map<String, Object> getMemberStatus(String gameId, String userId) throws IOException {

@@ -55,7 +55,6 @@ public class GamificationManager {
             logger.warning("Cannot trigger action " + actionId + ". Gamification is not configured");
             return;
         }
-
         try {
             List<Map<String, Object>> notifications = gfClient.triggerAction(gfGameId, actionId, userId.toString());
             storeUserNotifications(userId, notifications);
@@ -82,8 +81,7 @@ public class GamificationManager {
 
     public List<Map<String, Object>> getUserBadges(Integer userId) {
         try {
-            List<Map<String, Object>> badges = gfClient.getEarnedBadges(gfGameId, userId.toString());
-            return badges;
+            return gfClient.getEarnedBadges(gfGameId, userId.toString());
         } catch (IOException e) {
             logger.warning("Failed to get badges for user " + userId);
             e.printStackTrace();
