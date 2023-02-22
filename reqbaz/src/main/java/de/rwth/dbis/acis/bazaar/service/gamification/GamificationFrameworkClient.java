@@ -104,7 +104,7 @@ public class GamificationFrameworkClient {
         try (Response response = httpClient.newCall(request).execute()) {
             checkSuccess(response);
 
-            String rawResponse = response.body().string();
+            String rawResponse = Objects.requireNonNull(response.body()).string();
             logger.info("Triggered action " + actionId + " on game " + gameId + " for user " + username + " (response: " + rawResponse + ")");
 
             final MapType mapType = objectMapper.getTypeFactory().constructMapType(
@@ -175,7 +175,7 @@ public class GamificationFrameworkClient {
 
             try (Response response = httpClient.newCall(request).execute()) {
                 checkSuccess(response);
-                byte[] img = response.body().bytes();
+                byte[] img = Objects.requireNonNull(response.body()).bytes();
                 logger.info("Triggered getBadgeImgs " + gameId);
                 badge.put("img", img);
             }
@@ -203,9 +203,9 @@ public class GamificationFrameworkClient {
                 .build();
 
         try (Response response = httpClient.newCall(request).execute()) {
-            if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
+            checkSuccess(response);
 
-            String rawResponse = response.body().string();
+            String rawResponse = Objects.requireNonNull(response.body()).string();
             logger.info("Triggered get status " + gameId + " for user " + userId + " (response: " + rawResponse + ")");
 
             final MapType mapType = objectMapper.getTypeFactory().constructMapType(
