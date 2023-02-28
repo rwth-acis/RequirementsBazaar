@@ -223,6 +223,10 @@ public class ProjectsResource {
             Project createdProject = dalFacade.createProject(projectToCreate, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_5,
                     createdProject.getId(), Activity.DataType.PROJECT, internalUserId);
+            // trigger Gamification Framework
+            bazaarService.getGamificationManager().triggerCreateProjectAction(internalUserId);
+            // add notifications to response
+            createdProject.setGamificationNotifications(bazaarService.getGamificationManager().getUserNotifications(internalUserId));
             return Response.status(Response.Status.CREATED).entity(createdProject.toJSON()).build();
         } catch (BazaarException bex) {
             return resourceHelper.handleBazaarException(bex, "Create project", logger);

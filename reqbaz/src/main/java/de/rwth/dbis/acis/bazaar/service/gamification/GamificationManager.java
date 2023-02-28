@@ -50,6 +50,23 @@ public class GamificationManager {
         triggerActionIfGamificationAvailable(Actions.CREATE_REQUIREMENT, userId);
     }
 
+    public void triggerComplete_RequirementAction(Integer userId) {
+        triggerActionIfGamificationAvailable(Actions.COMPLETE_REQUIREMENT, userId);
+    }
+
+    public void triggerCreateProjectAction(Integer userId) {
+        triggerActionIfGamificationAvailable(Actions.CREATE_PROJECT, userId);
+    }
+
+    public void triggerCreateCommentAction(Integer userId) {
+        triggerActionIfGamificationAvailable(Actions.CREATE_COMMENT, userId);
+    }
+
+    public void triggerVoteAction(Integer userId) {
+        triggerActionIfGamificationAvailable(Actions.VOTE_REQUIREMENT, userId);
+    }
+
+
     private void triggerActionIfGamificationAvailable(String actionId, Integer userId) {
         if (!isAvailable()) {
             logger.warning("Cannot trigger action " + actionId + ". Gamification is not configured");
@@ -106,5 +123,10 @@ public class GamificationManager {
 
     private static class Actions {
         private static final String CREATE_REQUIREMENT = "create_req";
+        private static final String COMPLETE_REQUIREMENT = "complete_req";
+        private static final String VOTE_REQUIREMENT = "vote_req";
+        private static final String CREATE_PROJECT = "create_proj";
+        private static final String CREATE_COMMENT = "create_com";
+
     }
 }
