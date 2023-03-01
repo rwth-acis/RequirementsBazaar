@@ -27,7 +27,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.*;
 
@@ -783,7 +782,7 @@ public class RequirementsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method creates a vote for the given requirement in the name of the current user.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_SEE_OTHER, message = "Path to parent requirement"),
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Ok"),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -802,7 +801,7 @@ public class RequirementsResource {
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             // trigger Gamification Framework
             bazaarService.getGamificationManager().triggerVoteAction(internalUserId);
-            return Response.status(Response.Status.SEE_OTHER).location(URI.create(bazaarService.getBaseURL() + "requirements/" + requirementId)).build();
+            return Response.ok().build();
         } catch (BazaarException bex) {
             return resourceHelper.handleBazaarException(bex, "Unfollow requirement " + requirementId, logger);
         } catch (Exception ex) {
