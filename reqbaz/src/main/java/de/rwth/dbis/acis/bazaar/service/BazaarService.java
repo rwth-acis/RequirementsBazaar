@@ -286,7 +286,7 @@ public class BazaarService extends RESTService {
                 // this.getNotificationDispatcher().dispatchNotification(user.getCreationDate(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_55, userId, Activity.DataType.USER, userId);
                 dalFacade.addUserToRole(userId, "LoggedInUser", null);
 
-                gamificationManager.initializeUser(userId, email);
+                gamificationManager.initializeUser(userId, "NO.EMAIL@WARNING.COM");
             } else {
                 // update lastLoginDate
                 dalFacade.updateLastLoginDate(userIdByLAS2PeerId);
