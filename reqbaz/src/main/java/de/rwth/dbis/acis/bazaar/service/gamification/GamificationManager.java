@@ -50,7 +50,7 @@ public class GamificationManager {
         triggerActionIfGamificationAvailable(Actions.CREATE_REQUIREMENT, userId);
     }
 
-    public void triggerComplete_RequirementAction(Integer userId) {
+    public void triggerCompleteRequirementAction(Integer userId) {
         triggerActionIfGamificationAvailable(Actions.COMPLETE_REQUIREMENT, userId);
     }
 
@@ -66,6 +66,13 @@ public class GamificationManager {
         triggerActionIfGamificationAvailable(Actions.VOTE_REQUIREMENT, userId);
     }
 
+    public void triggerDevelopAction(Integer userId) {
+        triggerActionIfGamificationAvailable(Actions.DEVELOP_REQUIREMENT, userId);
+    }
+
+    public void triggerFollowAction(Integer userId) {
+        triggerActionIfGamificationAvailable(Actions.FOLLOW_REQUIREMENT, userId);
+    }
 
     private void triggerActionIfGamificationAvailable(String actionId, Integer userId) {
         if (!isAvailable()) {
@@ -125,6 +132,8 @@ public class GamificationManager {
         private static final String CREATE_REQUIREMENT = "create_req";
         private static final String COMPLETE_REQUIREMENT = "complete_req";
         private static final String VOTE_REQUIREMENT = "vote_req";
+        private static final String FOLLOW_REQUIREMENT = "follow_req";
+        private static final String DEVELOP_REQUIREMENT = "develop_req";
         private static final String CREATE_PROJECT = "create_proj";
         private static final String CREATE_COMMENT = "create_com";
 

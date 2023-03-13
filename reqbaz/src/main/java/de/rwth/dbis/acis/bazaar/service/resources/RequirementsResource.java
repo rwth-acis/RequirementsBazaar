@@ -579,6 +579,10 @@ public class RequirementsResource {
             requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.DEVELOP, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_31,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            // trigger Gamification Framework
+            bazaarService.getGamificationManager().triggerDevelopAction(internalUserId);
+            // add notifications to response
+            requirement.setGamificationNotifications(bazaarService.getGamificationManager().getUserNotifications(internalUserId));
             return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
             return resourceHelper.handleBazaarException(bex, "Develop requirement " + requirementId, logger);
@@ -723,6 +727,10 @@ public class RequirementsResource {
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.FOLLOW, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_33,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            // trigger Gamification Framework
+            bazaarService.getGamificationManager().triggerFollowAction(internalUserId);
+            // add notifications to response
+            requirement.setGamificationNotifications(bazaarService.getGamificationManager().getUserNotifications(internalUserId));
             return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
             return resourceHelper.handleBazaarException(bex, "Follow requirement " + requirementId, logger);
@@ -877,7 +885,7 @@ public class RequirementsResource {
             resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Realize_REQUIREMENT, requirement.getProjectId(), dalFacade), "error.authorization.requirement.realize", true);
             requirement = dalFacade.setRequirementToRealized(requirementId, internalUserId);
             // trigger Gamification Framework
-            bazaarService.getGamificationManager().triggerComplete_RequirementAction(internalUserId);
+            bazaarService.getGamificationManager().triggerCompleteRequirementAction(internalUserId);
             // add notifications to response
             requirement.setGamificationNotifications(bazaarService.getGamificationManager().getUserNotifications(internalUserId));
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.REALIZE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_37,
