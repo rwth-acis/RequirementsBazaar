@@ -40,6 +40,7 @@ public class GamificationManager {
         try {
             gfClient.registerUser(gfGameId, userId.toString(), userEmail);
             gfClient.addMemberToGame(gfGameId, userId.toString());
+            triggerFirstLoginAction((userId));
         } catch (IOException e) {
             logger.warning("Failed to add user to gamification framework: " + e.getMessage());
             e.printStackTrace();
@@ -72,6 +73,10 @@ public class GamificationManager {
 
     public void triggerFollowAction(Integer userId) {
         triggerActionIfGamificationAvailable(Actions.FOLLOW_REQUIREMENT, userId);
+    }
+
+    public void triggerFirstLoginAction(Integer userId) {
+        triggerActionIfGamificationAvailable(Actions.FIRST_LOGIN, userId);
     }
 
     private void triggerActionIfGamificationAvailable(String actionId, Integer userId) {
@@ -136,6 +141,7 @@ public class GamificationManager {
         private static final String DEVELOP_REQUIREMENT = "develop_req";
         private static final String CREATE_PROJECT = "create_proj";
         private static final String CREATE_COMMENT = "create_com";
+        private static final String FIRST_LOGIN = "first_login";
 
     }
 }

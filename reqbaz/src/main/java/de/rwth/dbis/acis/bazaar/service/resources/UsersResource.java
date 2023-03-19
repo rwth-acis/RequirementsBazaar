@@ -218,6 +218,7 @@ public class UsersResource {
             if (isGamified) {
                 data.setBadges(bazaarService.getGamificationManager().getUserBadges(internalUserId));
                 data.setStatus(bazaarService.getGamificationManager().getUserStatus(internalUserId));
+                data.setGamificationNotifications(bazaarService.getGamificationManager().getUserNotifications(internalUserId));
             }
             String dashboardResponse = getDashboardResponse(isGamified, data);
 
