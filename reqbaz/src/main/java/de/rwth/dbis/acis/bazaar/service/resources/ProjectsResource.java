@@ -60,6 +60,10 @@ public class ProjectsResource {
 
     private final ResourceHelper resourceHelper;
 
+    public static final String[] TAG_NAMES = {"Must", "Should", "Could"};
+
+    public static final String[] TAG_COLORS = {"#991629", "#FFD966", "#72a16f"};
+
     public ProjectsResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
         resourceHelper = new ResourceHelper(bazaarService);
@@ -221,6 +225,7 @@ public class ProjectsResource {
             resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_PROJECT, dalFacade), "error.authorization.project.create", true);
             projectToCreate.setLeader(dalFacade.getUserById(internalUserId));
             Project createdProject = dalFacade.createProject(projectToCreate, internalUserId);
+            createDefaultTags(createdProject, bazaarService, dalFacade, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_5,
                     createdProject.getId(), Activity.DataType.PROJECT, internalUserId);
             // trigger Gamification Framework
@@ -235,6 +240,20 @@ public class ProjectsResource {
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
+    }
+
+    private static void createDefaultTags(Project createdProject, BazaarService bazaarService, DALFacade dalFacade, Integer internalUserId) throws BazaarException {
+        for (int i = 0; i < TAG_NAMES.length; i++) {
+            Tag tag = Tag.builder().build();
+            tag.setColour(TAG_COLORS[i]);
+            tag.setName(TAG_NAMES[i]);
+            // Ensure no cross-injection happens
+            tag.setProjectId(createdProject.getId());
+            dalFacade.createTag(tag);
+        }
+        bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_8,
+                createdProject.getId(), Activity.DataType.TAG, internalUserId);
+
     }
 
     /**
