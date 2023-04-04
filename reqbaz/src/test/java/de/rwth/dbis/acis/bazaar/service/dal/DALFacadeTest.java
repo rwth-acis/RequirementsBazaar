@@ -114,7 +114,7 @@ public class DALFacadeTest extends SetupData {
         assertEquals(projectById.getVisibility(), proj.getVisibility());
 
 
-        jooq.delete(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Project.PROJECT).where(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Project.PROJECT.ID.equal(project.getId())).execute();
+        jooq.delete(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Project.PROJECT).where(de.rwth.dbis.acis.bazaar.dal.jooq.tables.Project.PROJECT.ID.equal(proj.getId())).execute();
     }
 
     @Test
