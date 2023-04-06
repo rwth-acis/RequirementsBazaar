@@ -1,6 +1,5 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,6 +21,5 @@ public class Tag extends EntityBase {
     @NotNull
     private String colour;
 
-    @JsonIgnore
     private Integer projectId;
 }
