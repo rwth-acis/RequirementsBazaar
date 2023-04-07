@@ -424,7 +424,7 @@ public class DALFacadeImpl implements DALFacade {
             checkTagChanges(modifiedRequirement);
 
             // Remove tags no longer present
-            oldRequirement.getTags().stream().filter(tag -> modifiedRequirement.getTags().contains(tag)).forEach(tag -> {
+            oldRequirement.getTags().stream().filter(tag -> !modifiedRequirement.getTags().contains(tag)).forEach(tag -> {
                 try {
                     untagRequirement(tag.getId(), oldRequirement.getId());
                 } catch (Exception e) {
