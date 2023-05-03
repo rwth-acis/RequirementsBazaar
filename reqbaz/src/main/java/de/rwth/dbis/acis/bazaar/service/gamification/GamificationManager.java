@@ -12,6 +12,8 @@ public class GamificationManager {
 
     private final GamificationFrameworkClient gfClient;
     private final String gfGameId;
+    private final String gfNamespace;
+
 
     /**
      * Notifications returned by the framework during request processing.
@@ -20,10 +22,11 @@ public class GamificationManager {
      */
     private Map<Integer, List<Map<String, Object>>> notificationCache = new HashMap<>();
 
-    public GamificationManager(String gfBaseUrl, String gfUsername, String gfPassword, String gfGameId) {
+    public GamificationManager(String gfBaseUrl, String gfUsername, String gfPassword, String gfGameId, String gfNamespace) {
         this.gfGameId = gfGameId;
+        this.gfNamespace = gfNamespace;
 
-        if (StringUtils.isAnyBlank(gfBaseUrl, gfUsername, gfPassword, gfGameId)) {
+        if (StringUtils.isAnyBlank(gfBaseUrl, gfUsername, gfPassword, gfGameId, gfNamespace)) {
             logger.warning("Gamification functionality cannot be used without GamificationFramework credentials!");
             gfClient = null;
         } else {
@@ -38,8 +41,8 @@ public class GamificationManager {
         }
 
         try {
-            gfClient.registerUser(gfGameId, "reqbaz_" + userId);
-            gfClient.addMemberToGame(gfGameId, "reqbaz_" + userId);
+            gfClient.registerUser(gfGameId, gfNamespace + userId);
+            gfClient.addMemberToGame(gfGameId, gfNamespace + userId);
             if (firstLogin) {
                 triggerFirstLoginAction((userId));
             }
@@ -50,35 +53,35 @@ public class GamificationManager {
     }
 
     public void triggerCreateRequirementAction(Integer userId) {
-        triggerActionIfGamificationAvailable(Actions.CREATE_REQUIREMENT, userId, "reqbaz_" + userId);
+        triggerActionIfGamificationAvailable(Actions.CREATE_REQUIREMENT, userId, gfNamespace + userId);
     }
 
     public void triggerCompleteRequirementAction(Integer userId) {
-        triggerActionIfGamificationAvailable(Actions.COMPLETE_REQUIREMENT, userId, "reqbaz_" + userId);
+        triggerActionIfGamificationAvailable(Actions.COMPLETE_REQUIREMENT, userId, gfNamespace + userId);
     }
 
     public void triggerCreateProjectAction(Integer userId) {
-        triggerActionIfGamificationAvailable(Actions.CREATE_PROJECT, userId, "reqbaz_" + userId);
+        triggerActionIfGamificationAvailable(Actions.CREATE_PROJECT, userId, gfNamespace + userId);
     }
 
     public void triggerCreateCommentAction(Integer userId) {
-        triggerActionIfGamificationAvailable(Actions.CREATE_COMMENT, userId, "reqbaz_" + userId);
+        triggerActionIfGamificationAvailable(Actions.CREATE_COMMENT, userId, gfNamespace + userId);
     }
 
     public void triggerVoteAction(Integer userId) {
-        triggerActionIfGamificationAvailable(Actions.VOTE_REQUIREMENT, userId, "reqbaz_" + userId);
+        triggerActionIfGamificationAvailable(Actions.VOTE_REQUIREMENT, userId, gfNamespace + userId);
     }
 
     public void triggerDevelopAction(Integer userId) {
-        triggerActionIfGamificationAvailable(Actions.DEVELOP_REQUIREMENT, userId, "reqbaz_" + userId);
+        triggerActionIfGamificationAvailable(Actions.DEVELOP_REQUIREMENT, userId, gfNamespace + userId);
     }
 
     public void triggerFollowAction(Integer userId) {
-        triggerActionIfGamificationAvailable(Actions.FOLLOW_REQUIREMENT, userId, "reqbaz_" + userId);
+        triggerActionIfGamificationAvailable(Actions.FOLLOW_REQUIREMENT, userId, gfNamespace + userId);
     }
 
     public void triggerFirstLoginAction(Integer userId) {
-        triggerActionIfGamificationAvailable(Actions.FIRST_LOGIN, userId, "reqbaz_" + userId);
+        triggerActionIfGamificationAvailable(Actions.FIRST_LOGIN, userId, gfNamespace + userId);
     }
 
     private void triggerActionIfGamificationAvailable(String actionId, Integer userId, String gamificationUser) {
@@ -112,9 +115,9 @@ public class GamificationManager {
 
     public List<Map<String, Object>> getUserBadges(Integer userId) {
         try {
-            return gfClient.getEarnedBadges(gfGameId, "reqbaz_" + userId);
+            return gfClient.getEarnedBadges(gfGameId, gfNamespace + userId);
         } catch (IOException e) {
-            logger.warning("Failed to get badges for user " + "reqbaz_" + userId);
+            logger.warning("Failed to get badges for user " + gfNamespace + userId);
             e.printStackTrace();
             return Collections.emptyList();
         }
@@ -122,10 +125,10 @@ public class GamificationManager {
 
     public Map<String, Object> getUserStatus(Integer userId) {
         try {
-            Map<String, Object> status = gfClient.getMemberStatus(gfGameId, "reqbaz_" + userId);
+            Map<String, Object> status = gfClient.getMemberStatus(gfGameId, gfNamespace + userId);
             return status;
         } catch (IOException e) {
-            logger.warning("Failed to get status for user " + "reqbaz_" + userId);
+            logger.warning("Failed to get status for user " + gfNamespace + userId);
             e.printStackTrace();
             return Collections.emptyMap();
         }

@@ -116,6 +116,7 @@ public class BazaarService extends RESTService {
     protected String gfUsername;
     protected String gfPassword;
     protected String gfGameId;
+    protected String gfNamespace;
 
     public BazaarService() throws Exception {
         setFieldValues();
@@ -174,7 +175,7 @@ public class BazaarService extends RESTService {
         tweetDispatcher = new TweetDispatcher(this, twitterApiKey, twitterApiKeySecret, twitterClientId, twitterClientSecret);
         new WeeklyNewProjectsTweetTask(this).schedule(timer);
 
-        gamificationManager = new GamificationManager(gfBaseUrl, gfUsername, gfPassword, gfGameId);
+        gamificationManager = new GamificationManager(gfBaseUrl, gfUsername, gfPassword, gfGameId, gfNamespace);
 
         notificationDispatcher.setBazaarService(this);
     }
