@@ -285,11 +285,14 @@ public class BazaarService extends RESTService {
                 int userId = user.getId();
                 // this.getNotificationDispatcher().dispatchNotification(user.getCreationDate(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_55, userId, Activity.DataType.USER, userId);
                 dalFacade.addUserToRole(userId, "LoggedInUser", null);
-
-                gamificationManager.initializeUser(userId, "NO.EMAIL@WARNING.COM");
+                gamificationManager.initializeUser(userId, true);
             } else {
                 // update lastLoginDate
                 dalFacade.updateLastLoginDate(userIdByLAS2PeerId);
+                // make sure logged-in user is added to gamification
+                if (!(agent instanceof AnonymousAgent)) {
+                    gamificationManager.initializeUser(userIdByLAS2PeerId, false);
+                }
             }
         } catch (Exception ex) {
             ExceptionHandler.getInstance().convertAndThrowException(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, Localization.getInstance().getResourceBundle().getString("error.first_login"));

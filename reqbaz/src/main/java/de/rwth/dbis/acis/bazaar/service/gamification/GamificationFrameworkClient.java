@@ -54,33 +54,27 @@ public class GamificationFrameworkClient {
 
         try (Response response = httpClient.newCall(request).execute()) {
             checkSuccess(response);
-            logger.info("Added member " + memberUsername + " to game " + gameId + " (response: " + response.body().string() + ")");
+            logger.info("Added member " + memberUsername + " to game " + gameId);
         }
     }
 
-    public void registerUser(String gameId, String memberUsername, String email) throws IOException {
+    public void registerUser(String gameId, String memberUsername) throws IOException {
         Validate.notBlank(gameId);
         Validate.notBlank(memberUsername);
-        Validate.notBlank(email);
-
-        RequestBody requestBody = new MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart("memberId", memberUsername)
-                .addFormDataPart("email", email)
-                .build();
 
         Request request = new Request.Builder()
                 .url(gfBaseUrl.newBuilder()
                         .addPathSegment("games")
-                        .addPathSegment("register")
+                        .addPathSegment("validation")
+                        .addPathSegment(memberUsername)
                         .build()
                 )
-                .post(requestBody)
+                .method("POST", RequestBody.create("", null))
                 .build();
 
         try (Response response = httpClient.newCall(request).execute()) {
             checkSuccess(response);
-            logger.info("Added member " + memberUsername + " to gamification." + " (response: " + response.body().string() + ")");
+            logger.info("Added member " + memberUsername + " to gamification.");
         }
     }
 
@@ -149,7 +143,7 @@ public class GamificationFrameworkClient {
             checkSuccess(response);
 
             String rawResponse = Objects.requireNonNull(response.body()).string();
-            logger.info("Triggered getBadges " + gameId + " for user " + userId + " (response: " + rawResponse + ")");
+            logger.info("Triggered getBadges " + gameId + " for user " + userId);
 
             final CollectionType collectionType = objectMapper.getTypeFactory().constructCollectionType(List.class, Map.class);
             List<Map<String, Object>> badges = objectMapper.readValue(rawResponse, collectionType);
@@ -206,7 +200,7 @@ public class GamificationFrameworkClient {
             checkSuccess(response);
 
             String rawResponse = Objects.requireNonNull(response.body()).string();
-            logger.info("Triggered get status " + gameId + " for user " + userId + " (response: " + rawResponse + ")");
+            logger.info("Triggered get status " + gameId + " for user " + userId);
 
             final MapType mapType = objectMapper.getTypeFactory().constructMapType(
                     Map.class, String.class, Object.class);
