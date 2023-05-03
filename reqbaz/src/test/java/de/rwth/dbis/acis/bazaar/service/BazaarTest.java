@@ -252,6 +252,14 @@ public class BazaarTest extends TestBase {
             assertTrue(isValidISO8601(createdRequirement.get("creationDate").toString().replace("\"", "")));
             assertTrue(isValidISO8601(createdRequirement.get("lastActivity").toString().replace("\"", "")));
 
+            // remove gamification notification fields
+            createdRequirement.remove("gamificationNotifications");
+            createdRequirement.getAsJsonObject("creator").remove("gamificationNotifications");
+            createdRequirement.getAsJsonObject("lastUpdatingUser").remove("gamificationNotifications");
+            createdRequirement.getAsJsonObject("lastActivityUser").remove("gamificationNotifications");
+            createdRequirement.getAsJsonObject("userContext").remove("gamificationNotifications");
+            createdRequirement.getAsJsonArray("tags").get(0).getAsJsonObject().remove("gamificationNotifications");
+
             // Test update
             createdRequirement.addProperty("description", "Updated Description");
             createdRequirement.add("attachments", JsonParser.parseString("[{ \"name\": \"wine.jpg\", \"mimeType\": \"image/jpeg\", \"identifier\": \"06e42de9-fc36-4d31-b341-09f01d012d9c\", \"fileUrl\": \"http://localhost/files/06e42de9-fc36-4d31-b341-09f01d012d9c\"}]"));
@@ -501,6 +509,9 @@ public class BazaarTest extends TestBase {
 
         // Test update
         response.addProperty("message", "Updated message");
+        // remove gamificationNotifications field for request
+        response.remove("gamificationNotifications");
+        response.getAsJsonObject("creator").remove("gamificationNotifications");
         result = client.sendRequest("PUT", mainPath + "comments", response.toString(),
                 MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());
         assertEquals(200, result.getHttpCode());
@@ -544,10 +555,16 @@ public class BazaarTest extends TestBase {
             JsonElement resp = JsonParser.parseString(result.getResponse());
             JsonObject requirement = resp.getAsJsonObject();
 
+            // remove gamification notification fields
+            requirement.remove("gamificationNotifications");
+            requirement.getAsJsonObject("creator").remove("gamificationNotifications");
+            requirement.getAsJsonObject("lastUpdatingUser").remove("gamificationNotifications");
+            requirement.getAsJsonObject("lastActivityUser").remove("gamificationNotifications");
+            requirement.getAsJsonObject("userContext").remove("gamificationNotifications");
+
             // Create Tag array and add it to the JsonObject
             JsonArray newTags = JsonParser.parseString(String.format("[{\"id\": %s, \"name\": \"Feature\",  \"colour\": \"#00FF00\"}, {\"name\": \"Test\", \"colour\": \"#0000FF\"}]", tagId)).getAsJsonArray();
             requirement.add("tags", newTags);
-
 
             result = adminClient.sendRequest("PUT", mainPath + "requirements", requirement.toString(),
                     MediaType.APPLICATION_JSON, MediaType.APPLICATION_JSON, new HashMap<>());

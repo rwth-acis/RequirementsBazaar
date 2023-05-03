@@ -254,6 +254,10 @@ public class CommentsResource {
             Comment createdComment = dalFacade.createComment(commentToCreate);
             bazaarService.getNotificationDispatcher().dispatchNotification(createdComment.getCreationDate(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_46,
                     createdComment.getId(), Activity.DataType.COMMENT, internalUserId);
+            // trigger Gamification Framework
+            bazaarService.getGamificationManager().triggerCreateCommentAction(internalUserId);
+            // add notifications to response
+            createdComment.setGamificationNotifications(bazaarService.getGamificationManager().getUserNotifications(internalUserId));
             return Response.status(Response.Status.CREATED).entity(createdComment.toJSON()).build();
         } catch (BazaarException bex) {
             return resourceHelper.handleBazaarException(bex, "Create comment", logger);

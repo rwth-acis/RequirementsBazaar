@@ -1,5 +1,7 @@
 package de.rwth.dbis.acis.bazaar.service.resources;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.*;
@@ -211,10 +213,16 @@ public class UsersResource {
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_54,
                     internalUserId, Activity.DataType.USER, internalUserId);
-
+            boolean isGamified = bazaarService.getGamificationManager().isAvailable();
             Dashboard data = dalFacade.getDashboardData(internalUserId, 10);
+            if (isGamified) {
+                data.setBadges(bazaarService.getGamificationManager().getUserBadges(internalUserId));
+                data.setStatus(bazaarService.getGamificationManager().getUserStatus(internalUserId));
+                data.setGamificationNotifications(bazaarService.getGamificationManager().getUserNotifications(internalUserId));
+            }
+            String dashboardResponse = getDashboardResponse(isGamified, data);
 
-            return Response.ok(data.toJSON()).build();
+            return Response.ok(dashboardResponse).build();
         } catch (BazaarException bex) {
             return resourceHelper.handleBazaarException(bex, "Get active user", logger);
         } catch (Exception ex) {
@@ -222,6 +230,16 @@ public class UsersResource {
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
+    }
+
+    private static String getDashboardResponse(boolean isGamified, Dashboard data) throws JsonProcessingException {
+        String dashboardResponse = data.toJSON();
+
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, String> map = (Map<String, String>) mapper.readValue(dashboardResponse, Map.class);
+        map.put("isGamified", String.valueOf(isGamified));
+        dashboardResponse = mapper.writeValueAsString(map);
+        return dashboardResponse;
     }
 
     /**
