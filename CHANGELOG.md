@@ -10,14 +10,23 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 
 ## [Unreleased]
 
+## [0.17.0] - 2023-05-10
+
+### Added
+
+- Added gamification
+  [d758be2b4a66bd943665c097eee963c65a7dc68e](https://github.com/rwth-acis/RequirementsBazaar/commit/d758be2b4a66bd943665c097eee963c65a7dc68e)
+- Added priority labels
+  [#179](https://github.com/rwth-acis/RequirementsBazaar/pull/179)
+
 ## [0.16.0] - 2022-10-05
 
 ### Changed
+
 - Upgraded to las2peer 1.2.3 and Java 17
   [#175](https://github.com/rwth-acis/RequirementsBazaar/pull/175)
 - Fixed bug which caused new users being unable to login
   [#173](https://github.com/rwth-acis/RequirementsBazaar/issues/173)
-
 
 ## [0.15.0] - 2022-08-07
 
