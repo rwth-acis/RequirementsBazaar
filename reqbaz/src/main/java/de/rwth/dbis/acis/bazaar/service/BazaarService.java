@@ -32,6 +32,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
 import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
+import de.rwth.dbis.acis.bazaar.service.gamification.GamificationManager;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
 import de.rwth.dbis.acis.bazaar.service.notification.ActivityDispatcher;
 import de.rwth.dbis.acis.bazaar.service.notification.EmailDispatcher;
@@ -52,7 +53,6 @@ import i5.las2peer.logging.L2pLogger;
 import i5.las2peer.restMapper.RESTService;
 import i5.las2peer.restMapper.annotations.ServicePath;
 import io.swagger.annotations.*;
-import lombok.Getter;
 import org.apache.commons.dbcp2.BasicDataSource;
 import org.apache.http.client.utils.URIBuilder;
 import org.jooq.SQLDialect;
@@ -91,6 +91,7 @@ public class BazaarService extends RESTService {
     private final List<BazaarFunctionRegistrar> functionRegistrar;
     private final NotificationDispatcher notificationDispatcher;
     private final TweetDispatcher tweetDispatcher;
+    private final GamificationManager gamificationManager;
     private final DataSource dataSource;
 
     //CONFIG PROPERTIES
@@ -110,6 +111,12 @@ public class BazaarService extends RESTService {
     protected String twitterApiKeySecret;
     protected String twitterClientId;
     protected String twitterClientSecret;
+
+    protected String gfBaseUrl;
+    protected String gfUsername;
+    protected String gfPassword;
+    protected String gfGameId;
+    protected String gfNamespace;
 
     public BazaarService() throws Exception {
         setFieldValues();
@@ -166,8 +173,9 @@ public class BazaarService extends RESTService {
         }
 
         tweetDispatcher = new TweetDispatcher(this, twitterApiKey, twitterApiKeySecret, twitterClientId, twitterClientSecret);
-
         new WeeklyNewProjectsTweetTask(this).schedule(timer);
+
+        gamificationManager = new GamificationManager(gfBaseUrl, gfUsername, gfPassword, gfGameId, gfNamespace);
 
         notificationDispatcher.setBazaarService(this);
     }
@@ -236,6 +244,10 @@ public class BazaarService extends RESTService {
         return tweetDispatcher;
     }
 
+    public GamificationManager getGamificationManager() {
+        return gamificationManager;
+    }
+
     private void registerUserAtFirstLogin() throws Exception {
         Agent agent = Context.getCurrent().getMainAgent();
 
@@ -274,6 +286,8 @@ public class BazaarService extends RESTService {
                 int userId = user.getId();
                 // this.getNotificationDispatcher().dispatchNotification(user.getCreationDate(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_55, userId, Activity.DataType.USER, userId);
                 dalFacade.addUserToRole(userId, "LoggedInUser", null);
+                // add new user to gamification and game
+                gamificationManager.initializeUser(userId);
             } else {
                 // update lastLoginDate
                 dalFacade.updateLastLoginDate(userIdByLAS2PeerId);

@@ -1,6 +1,5 @@
 package de.rwth.dbis.acis.bazaar.service.resources;
 
-import de.rwth.dbis.acis.bazaar.service.BazaarFunction;
 import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.Tag;
@@ -13,6 +12,7 @@ import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
 import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
 import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
+import de.rwth.dbis.acis.bazaar.service.resources.helpers.ResourceHelper;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Context;
 import i5.las2peer.api.logging.MonitoringEvent;
@@ -20,16 +20,13 @@ import i5.las2peer.api.security.Agent;
 import i5.las2peer.api.security.AnonymousAgent;
 import i5.las2peer.logging.L2pLogger;
 import io.swagger.annotations.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
-import javax.validation.ConstraintViolation;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.xml.bind.DatatypeConverter;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.time.OffsetDateTime;
 import java.util.*;
 
@@ -57,9 +54,11 @@ public class RequirementsResource {
 
     private final L2pLogger logger = L2pLogger.getInstance(RequirementsResource.class.getName());
     private final BazaarService bazaarService;
+    private final ResourceHelper resourceHelper;
 
     public RequirementsResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
+        resourceHelper = new ResourceHelper(bazaarService);
     }
 
 
@@ -91,32 +90,17 @@ public class RequirementsResource {
 
         DALFacade dalFacade = null;
         try {
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            String userId = resourceHelper.getUserId();
             Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            List<Pageable.SortField> sortList = new ArrayList<>();
-            for (String sortOption : sort) {
-                Pageable.SortField sortField = new Pageable.SortField(sortOption, sortDirection);
-                sortList.add(sortField);
-            }
+            List<Pageable.SortField> sortList = resourceHelper.getSortFieldList(sort, sortDirection);
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
-            HashMap<String, String> filterMap = new HashMap<>();
-            for (String filterOption : filters) {
-                filterMap.put(filterOption, internalUserId.toString());
-            }
+            HashMap<String, String> filterMap = resourceHelper.getFilterMap(filters, internalUserId);
             PageInfo pageInfo = new PageInfo(page, perPage, filterMap, sortList, search, null, embedParents);
 
-            // Take Object for generic error handling
-            Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
-            if (violations.size() > 0) {
-                ExceptionHandler.getInstance().handleViolations(violations);
-            }
+            resourceHelper.handleGenericError(bazaarService.validate(pageInfo));
 
             PaginationResult<Requirement> requirementsResult = null;
 
@@ -130,19 +114,7 @@ public class RequirementsResource {
             //bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_3,
             //       0, Activity.DataType.REQUIREMENT, internalUserId);
 
-            Map<String, List<String>> parameter = new HashMap<>();
-            parameter.put("page", new ArrayList() {{
-                add(String.valueOf(page));
-            }});
-            parameter.put("per_page", new ArrayList() {{
-                add(String.valueOf(perPage));
-            }});
-            if (search != null) {
-                parameter.put("search", new ArrayList() {{
-                    add(String.valueOf(search));
-                }});
-            }
-            parameter.put("sort", sort);
+            Map<String, List<String>> parameter = resourceHelper.getSortResponseMap(page, perPage, search, sort);
 
             Response.ResponseBuilder responseBuilder = Response.ok();
             responseBuilder = responseBuilder.entity(requirementsResult.toJSON());
@@ -151,25 +123,13 @@ public class RequirementsResource {
 
             return responseBuilder.build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get all requirements");
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Get all requirements", logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get all requirements");
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Get all requirements", logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
     }
-
 
     /**
      * This method returns the list of requirements for a specific project.
@@ -185,64 +145,21 @@ public class RequirementsResource {
     public Response getRequirementsForProject(int projectId, int page, int perPage, String search, String stateFilter, List<String> sort, String sortDirection) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
-            HashMap<String, String> filters = new HashMap<>();
-            if (!Objects.equals(stateFilter, "all")) {
-                filters.put("realized", stateFilter);
-            }
-            List<Pageable.SortField> sortList = new ArrayList<>();
-            for (String sortOption : sort) {
-                Pageable.SortField sortField = new Pageable.SortField(sortOption, sortDirection);
-                sortList.add(sortField);
-            }
+            String userId = resourceHelper.getUserId();
+            HashMap<String, String> filters = buildFilters(stateFilter);
+            List<Pageable.SortField> sortList = resourceHelper.getSortFieldList(sort, sortDirection);
             PageInfo pageInfo = new PageInfo(page, perPage, filters, sortList, search);
-            // Take Object for generic error handling
-            Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
-            if (violations.size() > 0) {
-                ExceptionHandler.getInstance().handleViolations(violations);
-            }
+            resourceHelper.handleGenericError(bazaarService.validate(pageInfo));
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            if (dalFacade.getProjectById(projectId, internalUserId) == null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.NOT_FOUND, String.format(Localization.getInstance().getResourceBundle().getString("error.resource.notfound"), "resource"));
-            }
-            if (dalFacade.isProjectPublic(projectId)) {
-                boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, projectId, dalFacade);
-                if (!authorized) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
-                }
-            } else {
-                boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_REQUIREMENT, projectId, dalFacade);
-                if (!authorized) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.read"));
-                }
-            }
+            ensureCatIsInProject(dalFacade.getProjectById(projectId, internalUserId) == null, ErrorCode.NOT_FOUND, String.format(Localization.getInstance().getResourceBundle().getString("error.resource.notfound"), "resource"));
+            isPublicCheck(dalFacade.isProjectPublic(projectId), internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, projectId, dalFacade, PrivilegeEnum.Read_REQUIREMENT, "error.authorization.category.read");
             PaginationResult<Requirement> requirementsResult = dalFacade.listRequirementsByProject(projectId, pageInfo, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_14,
                     projectId, Activity.DataType.PROJECT, internalUserId);
 
-            Map<String, List<String>> parameter = new HashMap<>();
-            parameter.put("page", new ArrayList() {{
-                add(String.valueOf(page));
-            }});
-            parameter.put("per_page", new ArrayList() {{
-                add(String.valueOf(perPage));
-            }});
-            if (search != null) {
-                parameter.put("search", new ArrayList() {{
-                    add(String.valueOf(search));
-                }});
-            }
-            parameter.put("state", new ArrayList() {{
-                add(String.valueOf(stateFilter));
-            }});
-            parameter.put("sort", sort);
+            Map<String, List<String>> parameter = getParameters(page, perPage, search, stateFilter, sort);
 
             Response.ResponseBuilder responseBuilder = Response.ok();
             responseBuilder = responseBuilder.entity(requirementsResult.toJSON());
@@ -251,20 +168,9 @@ public class RequirementsResource {
 
             return responseBuilder.build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get requirements for project " + projectId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Get requirements for project " + projectId, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get requirements for project " + projectId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Get requirements for project " + projectId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
@@ -285,66 +191,23 @@ public class RequirementsResource {
     public Response getRequirementsForCategory(int categoryId, int page, int perPage, String search, String stateFilter, List<String> sort, String sortDirection) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
-            HashMap<String, String> filters = new HashMap<>();
-            if (!Objects.equals(stateFilter, "all")) {
-                filters.put("realized", stateFilter);
-            }
-            List<Pageable.SortField> sortList = new ArrayList<>();
-            for (String sortOption : sort) {
-                Pageable.SortField sortField = new Pageable.SortField(sortOption, sortDirection);
-                sortList.add(sortField);
-            }
+            String userId = resourceHelper.getUserId();
+            HashMap<String, String> filters = buildFilters(stateFilter);
+            List<Pageable.SortField> sortList = resourceHelper.getSortFieldList(sort, sortDirection);
             PageInfo pageInfo = new PageInfo(page, perPage, filters, sortList, search);
-            // Take Object for generic error handling
-            Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
-            if (violations.size() > 0) {
-                ExceptionHandler.getInstance().handleViolations(violations);
-            }
+            resourceHelper.handleGenericError(bazaarService.validate(pageInfo));
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            if (dalFacade.getCategoryById(categoryId, internalUserId) == null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.NOT_FOUND, String.format(Localization.getInstance().getResourceBundle().getString("error.resource.notfound"), "category"));
-            }
+            ensureCatIsInProject(dalFacade.getCategoryById(categoryId, internalUserId) == null, ErrorCode.NOT_FOUND, String.format(Localization.getInstance().getResourceBundle().getString("error.resource.notfound"), "category"));
             Category category = dalFacade.getCategoryById(categoryId, internalUserId);
             Project project = dalFacade.getProjectById(category.getProjectId(), internalUserId);
-            if (dalFacade.isCategoryPublic(categoryId)) {
-                boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, project.getId(), dalFacade);
-                if (!authorized) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
-                }
-            } else {
-                boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_REQUIREMENT, project.getId(), dalFacade);
-                if (!authorized) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.read"));
-                }
-            }
+            isPublicCheck(dalFacade.isCategoryPublic(categoryId), internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, project.getId(), dalFacade, PrivilegeEnum.Read_REQUIREMENT, "error.authorization.category.read");
             PaginationResult<Requirement> requirementsResult = dalFacade.listRequirementsByCategory(categoryId, pageInfo, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_24,
                     categoryId, Activity.DataType.CATEGORY, internalUserId);
 
-            Map<String, List<String>> parameter = new HashMap<>();
-            parameter.put("page", new ArrayList() {{
-                add(String.valueOf(page));
-            }});
-            parameter.put("per_page", new ArrayList() {{
-                add(String.valueOf(perPage));
-            }});
-            if (search != null) {
-                parameter.put("search", new ArrayList() {{
-                    add(String.valueOf(search));
-                }});
-            }
-            parameter.put("state", new ArrayList() {{
-                add(String.valueOf(stateFilter));
-            }});
-            parameter.put("sort", sort);
+            Map<String, List<String>> parameter = getParameters(page, perPage, search, stateFilter, sort);
 
             Response.ResponseBuilder responseBuilder = Response.ok();
             responseBuilder = responseBuilder.entity(requirementsResult.toJSON());
@@ -353,23 +216,30 @@ public class RequirementsResource {
 
             return responseBuilder.build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get requirements for category " + categoryId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Get requirements for category " + categoryId, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get requirements for category " + categoryId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Get requirements for category " + categoryId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
+    }
+
+    @NotNull
+    private Map<String, List<String>> getParameters(int page, int perPage, String search, String stateFilter, List<String> sort) {
+        Map<String, List<String>> parameter = resourceHelper.getSortResponseMap(page, perPage, search, sort);
+        parameter.put("state", new ArrayList() {{
+            add(String.valueOf(stateFilter));
+        }});
+        return parameter;
+    }
+
+    @NotNull
+    private static HashMap<String, String> buildFilters(String stateFilter) {
+        HashMap<String, String> filters = new HashMap<>();
+        if (!Objects.equals(stateFilter, "all")) {
+            filters.put("realized", stateFilter);
+        }
+        return filters;
     }
 
 
@@ -392,44 +262,20 @@ public class RequirementsResource {
     public Response getRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_25,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
-            if (dalFacade.isRequirementPublic(requirementId)) {
-                boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, requirement.getProjectId(), dalFacade);
-                if (!authorized) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
-                }
-            } else {
-                boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_REQUIREMENT, requirement.getProjectId(), dalFacade);
-                if (!authorized) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.category.read"));
-                }
-            }
+            isPublicCheck(dalFacade.isRequirementPublic(requirementId), internalUserId, PrivilegeEnum.Read_PUBLIC_REQUIREMENT, requirement.getProjectId(), dalFacade, PrivilegeEnum.Read_REQUIREMENT, "error.authorization.category.read");
+            // add notifications to requirement
+            requirement.setGamificationNotifications(bazaarService.getGamificationManager().getUserNotifications(internalUserId));
             return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get requirement " + requirementId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Get requirement " + requirementId, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get requirement " + requirementId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Get requirement " + requirementId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
@@ -454,87 +300,75 @@ public class RequirementsResource {
     public Response createRequirement(@ApiParam(value = "Requirement entity", required = true) Requirement requirementToCreate) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
+            String userId = resourceHelper.getUserId();
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
-            boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Create_REQUIREMENT, requirementToCreate.getProjectId(), dalFacade);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.create"));
-            }
+            resourceHelper.checkRegistrarErrors();
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Create_REQUIREMENT, requirementToCreate.getProjectId(), dalFacade), "error.authorization.requirement.create", true);
 
             // TODO Refactor this! Such logic should be moved to the constructor
             requirementToCreate.setCreator(dalFacade.getUserById(internalUserId));
             requirementToCreate.setLastUpdatingUser(requirementToCreate.getCreator());
             requirementToCreate.setLastUpdatedDate(OffsetDateTime.now());
-            // Take Object for generic error handling
-            Set<ConstraintViolation<Object>> violations = bazaarService.validateCreate(requirementToCreate);
-            if (violations.size() > 0) {
-                ExceptionHandler.getInstance().handleViolations(violations);
-            }
+            resourceHelper.handleGenericError(bazaarService.validateCreate(requirementToCreate));
 
-            // check if all categories are in the same project
-            for (Integer catId : requirementToCreate.getCategories()) {
-                Category category = dalFacade.getCategoryById(catId, internalUserId);
-                if (requirementToCreate.getProjectId() != category.getProjectId()) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.VALIDATION, "Category does not fit with project");
-                }
-            }
+            isCategorySameProject(requirementToCreate, dalFacade, internalUserId);
 
-            List<Tag> validatedTags = new ArrayList<>();
-            for (Tag tag : requirementToCreate.getTags()) {
-                Tag internalTag = dalFacade.getTagById(tag.getId());
-                if (internalTag == null) {
-                    tag.setProjectId(requirementToCreate.getProjectId());
-                    internalTag = dalFacade.createTag(tag);
-                } else if (requirementToCreate.getProjectId() != tag.getProjectId()) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.VALIDATION, "Tag does not fit with project");
-                }
-                validatedTags.add(internalTag);
-            }
-            requirementToCreate.setTags(validatedTags);
+            setTagsForRequirement(requirementToCreate, dalFacade);
 
             Requirement createdRequirement = dalFacade.createRequirement(requirementToCreate, internalUserId);
 
-            // check if attachments are given
-            if (requirementToCreate.getAttachments() != null && !requirementToCreate.getAttachments().isEmpty()) {
-                for (Attachment attachment : requirementToCreate.getAttachments()) {
-                    attachment.setCreator(dalFacade.getUserById(internalUserId));
-                    attachment.setRequirementId(createdRequirement.getId());
-                    // Take Object for generic error handling
-                    violations = bazaarService.validate(attachment);
-                    if (violations.size() > 0) {
-                        ExceptionHandler.getInstance().handleViolations(violations);
-                    }
-
-                    dalFacade.createAttachment(attachment);
-                }
-            }
+            buildAttachments(requirementToCreate, dalFacade, internalUserId, createdRequirement);
             createdRequirement = dalFacade.getRequirementById(createdRequirement.getId(), internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.CREATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_26,
                     createdRequirement.getId(), Activity.DataType.REQUIREMENT, internalUserId);
+
+            // trigger Gamification Framework
+            bazaarService.getGamificationManager().triggerCreateRequirementAction(internalUserId);
+            // add notifications to response
+            createdRequirement.setGamificationNotifications(bazaarService.getGamificationManager().getUserNotifications(internalUserId));
+
             return Response.status(Response.Status.CREATED).entity(createdRequirement.toJSON()).build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Create requirement");
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Create requirement", logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Create requirement");
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Create requirement", logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
+        }
+    }
+
+    private void buildAttachments(Requirement requirementToCreate, DALFacade dalFacade, Integer internalUserId, Requirement createdRequirement) throws Exception {
+        if (requirementToCreate.getAttachments() != null && !requirementToCreate.getAttachments().isEmpty()) {
+            for (Attachment attachment : requirementToCreate.getAttachments()) {
+                attachment.setCreator(dalFacade.getUserById(internalUserId));
+                attachment.setRequirementId(createdRequirement.getId());
+                resourceHelper.handleGenericError(bazaarService.validate(attachment));
+                dalFacade.createAttachment(attachment);
+            }
+        }
+    }
+
+    private static void setTagsForRequirement(Requirement requirementToCreate, DALFacade dalFacade) throws Exception {
+        List<Tag> validatedTags = new ArrayList<>();
+        for (Tag tag : requirementToCreate.getTags()) {
+            Tag internalTag = dalFacade.getTagById(tag.getId());
+            if (internalTag == null) {
+                tag.setProjectId(requirementToCreate.getProjectId());
+                internalTag = dalFacade.createTag(tag);
+            } else
+                ensureCatIsInProject(requirementToCreate.getProjectId() != tag.getProjectId(), ErrorCode.VALIDATION, "Tag does not fit with project");
+            validatedTags.add(internalTag);
+        }
+        requirementToCreate.setTags(validatedTags);
+    }
+
+    private static void isCategorySameProject(Requirement requirementToCreate, DALFacade dalFacade, Integer internalUserId) throws Exception {
+        for (Integer catId : requirementToCreate.getCategories()) {
+            Category category = dalFacade.getCategoryById(catId, internalUserId);
+            ensureCatIsInProject(requirementToCreate.getProjectId() != category.getProjectId(), ErrorCode.VALIDATION, "Category does not fit with project");
         }
     }
 
@@ -557,17 +391,8 @@ public class RequirementsResource {
     public Response updateRequirement(@ApiParam(value = "Requirement entity", required = true) Requirement requirementToUpdate) {
         DALFacade dalFacade = null;
         try {
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            // Take Object for generic error handling
-            Set<ConstraintViolation<Object>> violations = bazaarService.validate(requirementToUpdate);
-            if (violations.size() > 0) {
-                ExceptionHandler.getInstance().handleViolations(violations);
-            }
+            String userId = resourceHelper.getUserId();
+            resourceHelper.handleGenericError(bazaarService.validate(requirementToUpdate));
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
@@ -575,10 +400,7 @@ public class RequirementsResource {
             // Get internal requirement, so a malicious actor can't provide another project id
             Requirement internalRequirement = dalFacade.getRequirementById(requirementToUpdate.getId(), internalUserId);
             boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, internalRequirement.getProjectId(), dalFacade);
-            if (!authorized && !internalRequirement.isOwner(internalUserId)) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.modify"));
-            }
-
+            ensureCatIsInProject(!authorized && !internalRequirement.isOwner(internalUserId), ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.modify"));
             dalFacade.followRequirement(internalUserId, requirementToUpdate.getId());
             Requirement updatedRequirement = dalFacade.modifyRequirement(requirementToUpdate, internalUserId);
 
@@ -586,20 +408,9 @@ public class RequirementsResource {
                     updatedRequirement.getId(), Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(updatedRequirement.toJSON()).build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Update requirement " + requirementToUpdate.getId());
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Update requirement " + requirementToUpdate.getId(), logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Update requirement " + requirementToUpdate.getId());
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Update requirement " + requirementToUpdate.getId(), logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
@@ -624,39 +435,20 @@ public class RequirementsResource {
     public Response deleteRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirementToDelete = dalFacade.getRequirementById(requirementId, internalUserId);
             Project project = dalFacade.getProjectById(requirementToDelete.getProjectId(), internalUserId);
-            boolean authorized = isUserAuthorizedToDeleteRequirement(dalFacade, internalUserId, project, requirementToDelete);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.delete"));
-            }
+            resourceHelper.checkAuthorization(isUserAuthorizedToDeleteRequirement(dalFacade, internalUserId, project, requirementToDelete), "error.authorization.requirement.delete", true);
             Requirement deletedRequirement = dalFacade.deleteRequirementById(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.DELETE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_28,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(deletedRequirement.toJSON()).build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Delete requirement " + requirementId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Delete requirement " + requirementId, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Delete requirement " + requirementId);
-            logger.warning(bex.getMessage());
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Delete requirement " + requirementId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
@@ -665,10 +457,10 @@ public class RequirementsResource {
     /**
      * Returns whether the given user is authorized to delete a certain requirement.
      *
-     * @param dalFacade facade for database access
-     * @param userId the user to test authorization for
+     * @param dalFacade            facade for database access
+     * @param userId               the user to test authorization for
      * @param projectOfRequirement the project of which the requirement is part of
-     * @param requirement the requirement to delete
+     * @param requirement          the requirement to delete
      * @return
      * @throws BazaarException
      */
@@ -701,37 +493,18 @@ public class RequirementsResource {
     public Response leaddevelopRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, dalFacade);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.create"));
-            }
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, dalFacade), "error.authorization.vote.create", true);
             Requirement requirement = dalFacade.setUserAsLeadDeveloper(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.LEADDEVELOP, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_29,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Leaddevelop requirement " + requirementId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Leaddevelop requirement " + requirementId, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Leaddevelop requirement " + requirementId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Leaddevelop requirement " + requirementId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
@@ -756,41 +529,20 @@ public class RequirementsResource {
     public Response unleaddevelopRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, dalFacade);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.delete"));
-            }
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, dalFacade), "error.authorization.vote.delete", true);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            if (requirement.getLeadDeveloper().getId() != internalUserId) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, "You are not lead developer.");
-            }
+            ensureCatIsInProject(requirement.getLeadDeveloper().getId() != internalUserId, ErrorCode.AUTHORIZATION, "You are not lead developer.");
             requirement = dalFacade.deleteUserAsLeadDeveloper(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UNLEADDEVELOP, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_30,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unleaddevelop requirement " + requirementId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Unleaddevelop requirement " + requirementId, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unleaddevelop requirement " + requirementId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Unleaddevelop requirement " + requirementId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
@@ -815,19 +567,11 @@ public class RequirementsResource {
     public Response developRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Create_DEVELOP, requirement.getProjectId(), dalFacade);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.develop.create"));
-            }
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Create_DEVELOP, requirement.getProjectId(), dalFacade), "error.authorization.develop.create", true);
             dalFacade.wantToDevelop(internalUserId, requirementId);
             dalFacade.followRequirement(internalUserId, requirementId);
 
@@ -835,22 +579,15 @@ public class RequirementsResource {
             requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.DEVELOP, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_31,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            // trigger Gamification Framework
+            bazaarService.getGamificationManager().triggerDevelopAction(internalUserId);
+            // add notifications to response
+            requirement.setGamificationNotifications(bazaarService.getGamificationManager().getUserNotifications(internalUserId));
             return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Develop requirement " + requirementId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Develop requirement " + requirementId, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Develop requirement " + requirementId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Develop requirement " + requirementId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
@@ -875,19 +612,11 @@ public class RequirementsResource {
     public Response undevelopRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Delete_DEVELOP, requirement.getProjectId(), dalFacade);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.develop.delete"));
-            }
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Delete_DEVELOP, requirement.getProjectId(), dalFacade), "error.authorization.develop.delete", true);
             dalFacade.notWantToDevelop(internalUserId, requirementId);
 
             // refresh requirement object
@@ -896,20 +625,9 @@ public class RequirementsResource {
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Undevelop requirement " + requirementId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Undevelop requirement " + requirementId, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Undevelop requirement " + requirementId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Undevelop requirement " + requirementId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
@@ -934,12 +652,7 @@ public class RequirementsResource {
     public Response moveRequirement(@PathParam("requirementId") int requirementId, NewRequirementLocation requirementLocation) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             // ensure requirement exists
@@ -948,15 +661,10 @@ public class RequirementsResource {
             Project targetProject = dalFacade.getProjectById(requirementLocation.getProjectId(), internalUserId);
             // ensure target category exists
             Category targetCategory = dalFacade.getCategoryById(requirementLocation.getCategoryId(), internalUserId);
-            // ensure target category is in target project
-            if (targetCategory.getProjectId() != targetProject.getId()) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.VALIDATION, Localization.getInstance().getResourceBundle().getString("error.validation.categoryNotInTargetProject"));
-            }
+            ensureCatIsInProject(targetCategory.getProjectId() != targetProject.getId(), ErrorCode.VALIDATION, Localization.getInstance().getResourceBundle().getString("error.validation.categoryNotInTargetProject"));
             boolean authorizedToModifyRequirement = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Modify_REQUIREMENT, requirement.getProjectId(), dalFacade);
             boolean authorizedToCreateRequirementInTargetProject = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Create_REQUIREMENT, targetProject.getId(), dalFacade);
-            if (!(authorizedToModifyRequirement && authorizedToCreateRequirementInTargetProject)) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.move"));
-            }
+            ensureCatIsInProject(isTargetCategory(authorizedToModifyRequirement, authorizedToCreateRequirementInTargetProject), ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.move"));
 
             requirement.setProjectId(targetProject.getId());
             requirement.setCategories(Arrays.asList(targetCategory.getId()));
@@ -968,22 +676,21 @@ public class RequirementsResource {
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Move requirement " + requirementId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Move requirement " + requirementId, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Move requirement " + requirementId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Move requirement " + requirementId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
+        }
+    }
+
+    private static boolean isTargetCategory(boolean authorizedToModifyRequirement, boolean authorizedToCreateRequirementInTargetProject) {
+        return !(authorizedToModifyRequirement && authorizedToCreateRequirementInTargetProject);
+    }
+
+    private static void ensureCatIsInProject(boolean targetCategory, ErrorCode validation, String String) throws BazaarException {
+        if (targetCategory) {
+            ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, validation, String);
         }
     }
 
@@ -1012,38 +719,23 @@ public class RequirementsResource {
     public Response followRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_FOLLOW, dalFacade);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.follow.create"));
-            }
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_FOLLOW, dalFacade), "error.authorization.follow.create", true);
             dalFacade.followRequirement(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.FOLLOW, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_33,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
+            // trigger Gamification Framework
+            bazaarService.getGamificationManager().triggerFollowAction(internalUserId);
+            // add notifications to response
+            requirement.setGamificationNotifications(bazaarService.getGamificationManager().getUserNotifications(internalUserId));
             return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Follow requirement " + requirementId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Follow requirement " + requirementId, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Follow requirement " + requirementId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Follow requirement " + requirementId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
@@ -1068,38 +760,19 @@ public class RequirementsResource {
     public Response unfollowRequirement(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_FOLLOW, dalFacade);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.follow.delete"));
-            }
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_FOLLOW, dalFacade), "error.authorization.follow.delete", true);
             dalFacade.unFollowRequirement(internalUserId, requirementId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UNFOLLOW, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_34,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unfollow requirement " + requirementId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Unfollow requirement " + requirementId, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unfollow requirement " + requirementId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Unfollow requirement " + requirementId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
@@ -1117,7 +790,7 @@ public class RequirementsResource {
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(value = "This method creates a vote for the given requirement in the name of the current user.")
     @ApiResponses(value = {
-            @ApiResponse(code = HttpURLConnection.HTTP_SEE_OTHER, message = "Path to parent requirement"),
+            @ApiResponse(code = HttpURLConnection.HTTP_OK, message = "Ok"),
             @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
@@ -1126,43 +799,29 @@ public class RequirementsResource {
                          @ApiParam(value = "Vote direction", required = true) Direction direction) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
-
+            String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_VOTE, dalFacade);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.create"));
-            }
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_VOTE, dalFacade), "error.authorization.vote.create", true);
             dalFacade.vote(internalUserId, requirementId, direction.isUpVote());
-            if (direction.isUpVote()) {
-                dalFacade.followRequirement(internalUserId, requirementId);
-            }
+            followUpvote(requirementId, direction, dalFacade, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.VOTE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_35,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
-            return Response.status(Response.Status.SEE_OTHER).location(URI.create(bazaarService.getBaseURL() + "requirements/" + requirementId)).build();
+            // trigger Gamification Framework
+            bazaarService.getGamificationManager().triggerVoteAction(internalUserId);
+            return Response.ok().build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unfollow requirement " + requirementId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Unfollow requirement " + requirementId, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unfollow requirement " + requirementId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Unfollow requirement " + requirementId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
+        }
+    }
+
+    private static void followUpvote(int requirementId, Direction direction, DALFacade dalFacade, Integer internalUserId) throws BazaarException {
+        if (direction.isUpVote()) {
+            dalFacade.followRequirement(internalUserId, requirementId);
         }
     }
 
@@ -1185,35 +844,16 @@ public class RequirementsResource {
     public Response unvote(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_VOTE, dalFacade);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.vote.delete"));
-            }
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Delete_VOTE, dalFacade), "error.authorization.vote.delete", true);
             dalFacade.unVote(internalUserId, requirementId);
             return Response.noContent().build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unvote requirement " + requirementId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Unvote requirement " + requirementId, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unvote requirement " + requirementId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Unvote requirement " + requirementId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
@@ -1238,38 +878,23 @@ public class RequirementsResource {
     public Response realize(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
-            boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Realize_REQUIREMENT, requirement.getProjectId(), dalFacade);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.realize"));
-            }
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Realize_REQUIREMENT, requirement.getProjectId(), dalFacade), "error.authorization.requirement.realize", true);
             requirement = dalFacade.setRequirementToRealized(requirementId, internalUserId);
+            // trigger Gamification Framework
+            bazaarService.getGamificationManager().triggerCompleteRequirementAction(internalUserId);
+            // add notifications to response
+            requirement.setGamificationNotifications(bazaarService.getGamificationManager().getUserNotifications(internalUserId));
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.REALIZE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_37,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.status(Response.Status.CREATED).entity(requirement.toJSON()).build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Realize requirement " + requirementId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Realize requirement " + requirementId, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Realize requirement " + requirementId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Realize requirement " + requirementId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
@@ -1294,41 +919,21 @@ public class RequirementsResource {
     public Response unrealize(@PathParam("requirementId") int requirementId) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-
             Requirement requirement = dalFacade.getRequirementById(requirementId, internalUserId);
 
-            boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Realize_REQUIREMENT, requirement.getProjectId(), dalFacade);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.requirement.realize"));
-            }
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Realize_REQUIREMENT, requirement.getProjectId(), dalFacade), "error.authorization.requirement.realize", true);
 
             requirement = dalFacade.setRequirementToUnRealized(requirementId, internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UNREALIZE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_38,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirement.toJSON()).build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unrealize requirement " + requirementId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Unrealize requirement " + requirementId, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Unrealize requirement " + requirementId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Unrealize requirement " + requirementId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
@@ -1356,34 +961,18 @@ public class RequirementsResource {
             @ApiParam(value = "Since timestamp, ISO-8601 e.g. 2017-12-30 or 2017-12-30T18:30:00Z", required = false) @QueryParam("since") String since) {
         DALFacade dalFacade = null;
         try {
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
+            String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-            Calendar sinceCal = since == null ? null : DatatypeConverter.parseDateTime(since);
+            Calendar sinceCal = resourceHelper.getSinceCal(since);
             Statistic requirementStatistics = dalFacade.getStatisticsForRequirement(internalUserId, requirementId, sinceCal);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_39,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirementStatistics.toJSON()).build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get statistics for requirement " + requirementId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Get statistics for requirement " + requirementId, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get statistics for requirement " + requirementId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Get statistics for requirement " + requirementId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
@@ -1412,32 +1001,15 @@ public class RequirementsResource {
                                                 @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) throws Exception {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            String userId = resourceHelper.getUserId();
             PageInfo pageInfo = new PageInfo(page, perPage);
-            // Take Object for generic error handling
-            Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
-            if (violations.size() > 0) {
-                ExceptionHandler.getInstance().handleViolations(violations);
-            }
-
+            resourceHelper.handleGenericError(bazaarService.validate(pageInfo));
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             PaginationResult<User> requirementDevelopers = dalFacade.listDevelopersForRequirement(requirementId, pageInfo);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_40,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
-
-            Map<String, List<String>> parameter = new HashMap<>();
-            parameter.put("page", new ArrayList() {{
-                add(String.valueOf(page));
-            }});
-            parameter.put("per_page", new ArrayList() {{
-                add(String.valueOf(perPage));
-            }});
+            Map<String, List<String>> parameter = resourceHelper.getSortResponseMap(page, perPage, null, null);
 
             Response.ResponseBuilder responseBuilder = Response.ok();
             responseBuilder = responseBuilder.entity(requirementDevelopers.toJSON());
@@ -1446,20 +1018,9 @@ public class RequirementsResource {
 
             return responseBuilder.build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get developers for requirement " + requirementId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Get developers for requirement " + requirementId, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get developers for requirement " + requirementId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Get developers for requirement " + requirementId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
@@ -1484,12 +1045,7 @@ public class RequirementsResource {
     public Response getContributorsForRequirement(@PathParam("requirementId") int requirementId) throws Exception {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
             RequirementContributors requirementContributors = dalFacade.listContributorsForRequirement(requirementId);
@@ -1497,20 +1053,9 @@ public class RequirementsResource {
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
             return Response.ok(requirementContributors.toJSON()).build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get contributors for requirement " + requirementId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Get contributors for requirement " + requirementId, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get contributors for requirement " + requirementId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Get contributors for requirement " + requirementId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
@@ -1539,18 +1084,9 @@ public class RequirementsResource {
                                                @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) throws Exception {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            String userId = resourceHelper.getUserId();
             PageInfo pageInfo = new PageInfo(page, perPage);
-            // Take Object for generic error handling
-            Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
-            if (violations.size() > 0) {
-                ExceptionHandler.getInstance().handleViolations(violations);
-            }
+            resourceHelper.handleGenericError(bazaarService.validate(pageInfo));
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
@@ -1558,13 +1094,7 @@ public class RequirementsResource {
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_42,
                     requirementId, Activity.DataType.REQUIREMENT, internalUserId);
 
-            Map<String, List<String>> parameter = new HashMap<>();
-            parameter.put("page", new ArrayList() {{
-                add(String.valueOf(page));
-            }});
-            parameter.put("per_page", new ArrayList() {{
-                add(String.valueOf(perPage));
-            }});
+            Map<String, List<String>> parameter = resourceHelper.getSortResponseMap(page, perPage, null, null);
 
             Response.ResponseBuilder responseBuilder = Response.ok();
             responseBuilder = responseBuilder.entity(requirementFollowers.toJSON());
@@ -1573,20 +1103,10 @@ public class RequirementsResource {
 
             return responseBuilder.build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get followers for requirement " + requirementId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Get followers for requirement " + requirementId, logger
+            );
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get followers for requirement " + requirementId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Get followers for requirement " + requirementId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
@@ -1636,17 +1156,9 @@ public class RequirementsResource {
                                                  @ApiParam(value = "Elements of comments by page", required = false) @DefaultValue("10") @QueryParam("per_page") int perPage) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            String userId = resourceHelper.getUserId();
             PageInfo pageInfo = new PageInfo(page, perPage);
-            Set<ConstraintViolation<Object>> violations = bazaarService.validate(pageInfo);
-            if (violations.size() > 0) {
-                ExceptionHandler.getInstance().handleViolations(violations);
-            }
+            resourceHelper.handleGenericError(bazaarService.validate(pageInfo));
 
             dalFacade = bazaarService.getDBConnection();
             //Todo use requirement's projectId for security context, not the one sent from client
@@ -1655,26 +1167,10 @@ public class RequirementsResource {
             Project project = dalFacade.getProjectById(requirement.getProjectId(), internalUserId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE_CHILD, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_44,
                     requirement.getId(), Activity.DataType.REQUIREMENT, internalUserId);
-            if (dalFacade.isRequirementPublic(requirementId)) {
-                boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT, project.getId(), dalFacade);
-                if (!authorized) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.anonymous"));
-                }
-            } else {
-                boolean authorized = new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Read_COMMENT, project.getId(), dalFacade);
-                if (!authorized) {
-                    ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.read"));
-                }
-            }
+            isPublicCheck(dalFacade.isRequirementPublic(requirementId), internalUserId, PrivilegeEnum.Read_PUBLIC_COMMENT, project.getId(), dalFacade, PrivilegeEnum.Read_COMMENT, "error.authorization.comment.read");
             PaginationResult<Attachment> attachmentsResult = dalFacade.listAttachmentsByRequirementId(requirementId, pageInfo);
 
-            Map<String, List<String>> parameter = new HashMap<>();
-            parameter.put("page", new ArrayList() {{
-                add(String.valueOf(page));
-            }});
-            parameter.put("per_page", new ArrayList() {{
-                add(String.valueOf(perPage));
-            }});
+            Map<String, List<String>> parameter = resourceHelper.getSortResponseMap(page, perPage, null, null);
 
             Response.ResponseBuilder responseBuilder = Response.ok();
             responseBuilder = responseBuilder.entity(attachmentsResult.toJSON());
@@ -1683,22 +1179,19 @@ public class RequirementsResource {
 
             return responseBuilder.build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NOT_FOUND).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get attachments for requirement " + requirementId);
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Get attachments for requirement " + requirementId, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get attachments for requirement " + requirementId);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Get attachments for requirement " + requirementId, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
+        }
+    }
+
+    private void isPublicCheck(boolean dalFacade, Integer internalUserId, PrivilegeEnum read_PUBLIC_COMMENT, int project, DALFacade dalFacade1, PrivilegeEnum read_COMMENT, String key) throws BazaarException {
+        if (dalFacade) {
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, read_PUBLIC_COMMENT, project, dalFacade1), ResourceHelper.ERROR_ANONYMUS, true);
+        } else {
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, read_COMMENT, project, dalFacade1), key, true);
         }
     }
 }

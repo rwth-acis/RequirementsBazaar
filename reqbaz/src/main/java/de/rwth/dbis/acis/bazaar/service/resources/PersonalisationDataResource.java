@@ -1,29 +1,20 @@
 package de.rwth.dbis.acis.bazaar.service.resources;
 
-import de.rwth.dbis.acis.bazaar.service.BazaarFunction;
 import de.rwth.dbis.acis.bazaar.service.BazaarService;
 import de.rwth.dbis.acis.bazaar.service.dal.DALFacade;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.PersonalisationData;
 import de.rwth.dbis.acis.bazaar.service.dal.entities.PrivilegeEnum;
 import de.rwth.dbis.acis.bazaar.service.exception.BazaarException;
-import de.rwth.dbis.acis.bazaar.service.exception.ErrorCode;
-import de.rwth.dbis.acis.bazaar.service.exception.ExceptionHandler;
-import de.rwth.dbis.acis.bazaar.service.exception.ExceptionLocation;
-import de.rwth.dbis.acis.bazaar.service.internalization.Localization;
+import de.rwth.dbis.acis.bazaar.service.resources.helpers.ResourceHelper;
 import de.rwth.dbis.acis.bazaar.service.security.AuthorizationManager;
 import i5.las2peer.api.Context;
-import i5.las2peer.api.logging.MonitoringEvent;
-import i5.las2peer.api.security.Agent;
 import i5.las2peer.logging.L2pLogger;
 import io.swagger.annotations.*;
 
-import javax.validation.ConstraintViolation;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.net.HttpURLConnection;
-import java.util.EnumSet;
-import java.util.Set;
 
 
 @Api(value = "personalisation", description = "Personalisation Data resource")
@@ -49,18 +40,20 @@ import java.util.Set;
 public class PersonalisationDataResource {
 
     private final L2pLogger logger = L2pLogger.getInstance(PersonalisationDataResource.class.getName());
-    private BazaarService bazaarService;
+    private final BazaarService bazaarService;
+
+    private final ResourceHelper resourceHelper;
 
     public PersonalisationDataResource() throws Exception {
         bazaarService = (BazaarService) Context.getCurrent().getService();
+        resourceHelper = new ResourceHelper(bazaarService);
     }
-
 
 
     /**
      * This method allows to retrieve a certain stored personalisationData value.
      *
-     * @param key The plugins identifier
+     * @param key     The plugins identifier
      * @param version The plugins identifier
      * @return Response with attachment as a JSON object.
      */
@@ -77,36 +70,17 @@ public class PersonalisationDataResource {
     public Response getPersonalisationData(@PathParam("key") String key, @PathParam("version") int version) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
+            String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PERSONALISATION_DATA, dalFacade);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.personalisationData.read"));
-            }
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Read_PERSONALISATION_DATA, dalFacade), "error.authorization.personalisationData.read", true);
             PersonalisationData data = dalFacade.getPersonalisationData(internalUserId, key, version);
             return Response.ok(data.toJSON()).build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else if (bex.getErrorCode() == ErrorCode.NOT_FOUND) {
-                return Response.status(Response.Status.NO_CONTENT).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get personalisationData " + key+" version:"+version );
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Get personalisationData " + key + " version:" + version, logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Get personalisationData " + key+" version:"+version );
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Get personalisationData " + key + " version:" + version, logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
@@ -132,45 +106,19 @@ public class PersonalisationDataResource {
     public Response setPersonalisationData(@PathParam("key") String key, @PathParam("version") int version, @ApiParam(value = "PersonalisationData as JSON", required = true) PersonalisationData data) {
         DALFacade dalFacade = null;
         try {
-            Agent agent = Context.getCurrent().getMainAgent();
-            String userId = agent.getIdentifier();
-
-            String registrarErrors = bazaarService.notifyRegistrars(EnumSet.of(BazaarFunction.VALIDATION, BazaarFunction.USER_FIRST_LOGIN_HANDLING));
-            if (registrarErrors != null) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, registrarErrors);
-            }
-
+            String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
-
-
-            boolean authorized = new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_PERSONALISATION_DATA, dalFacade);
-            if (!authorized) {
-                ExceptionHandler.getInstance().throwException(ExceptionLocation.BAZAARSERVICE, ErrorCode.AUTHORIZATION, Localization.getInstance().getResourceBundle().getString("error.authorization.comment.create"));
-            }
-
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_PERSONALISATION_DATA, dalFacade), "error.authorization.comment.create", true);
             PersonalisationData fullData = PersonalisationData.builder().key(key).userId(internalUserId).version(version).value(data.getValue()).build();
-
-            // Take Object for generic error handling
-            Set<ConstraintViolation<Object>> violations = bazaarService.validateCreate(fullData);
-            if (violations.size() > 0) ExceptionHandler.getInstance().handleViolations(violations);
-
+            resourceHelper.handleGenericError(bazaarService.validateCreate(fullData));
             dalFacade.setPersonalisationData(fullData);
 
             return Response.ok(fullData.toJSON()).build();
         } catch (BazaarException bex) {
-            if (bex.getErrorCode() == ErrorCode.AUTHORIZATION) {
-                return Response.status(Response.Status.UNAUTHORIZED).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            } else {
-                logger.warning(bex.getMessage());
-                Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Set personalisationData");
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
-            }
+            return resourceHelper.handleBazaarException(bex, "Set personalisationData", logger);
         } catch (Exception ex) {
-            BazaarException bex = ExceptionHandler.getInstance().convert(ex, ExceptionLocation.BAZAARSERVICE, ErrorCode.UNKNOWN, ex.getMessage());
-            logger.warning(bex.getMessage());
-            Context.get().monitorEvent(MonitoringEvent.SERVICE_ERROR, "Set personalisationData");
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ExceptionHandler.getInstance().toJSON(bex)).build();
+            return resourceHelper.handleException(ex, "Set personalisationData", logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }

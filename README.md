@@ -93,7 +93,7 @@ However you'll have to apply the migrations with liquibase manually to this data
 
 The build and test process is done with gradle. A simple `gradle build` should be sufficient to build the project and run the test cases.
 
-You may have to adjust either your global java environment or the one in your IDE to use Java 14 or the built asset won't start.
+You may have to adjust either your global java environment or the one in your IDE to use Java 17 or the built asset won't start.
 
 ### Debugging
 

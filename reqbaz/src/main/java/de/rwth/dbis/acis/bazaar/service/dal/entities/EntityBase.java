@@ -25,11 +25,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import de.rwth.dbis.acis.bazaar.service.dal.helpers.SerializerViews;
+import org.apache.commons.lang3.Validate;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @since 9/16/2014
  */
 public abstract class EntityBase implements IdentifiedById {
+
+    private List<Map<String, Object>> gamificationNotifications;
 
     public String toJSON() throws JsonProcessingException {
         return new ObjectMapper().registerModule(new JavaTimeModule())
@@ -44,5 +50,15 @@ public abstract class EntityBase implements IdentifiedById {
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL)
                 .writerWithView(SerializerViews.Private.class)
                 .writeValueAsString(this);
+    }
+
+    public void setGamificationNotifications(List<Map<String, Object>> gamificationNotifications) {
+        Validate.notNull(gamificationNotifications);
+        // prevent field to be sent if its empty
+        this.gamificationNotifications = gamificationNotifications.size() == 0 ? null : gamificationNotifications;
+    }
+
+    public List<Map<String, Object>> getGamificationNotifications() {
+        return gamificationNotifications;
     }
 }

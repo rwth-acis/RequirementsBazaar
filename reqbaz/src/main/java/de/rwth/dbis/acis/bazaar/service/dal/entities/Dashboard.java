@@ -1,8 +1,6 @@
 package de.rwth.dbis.acis.bazaar.service.dal.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.rwth.dbis.acis.bazaar.service.dal.helpers.UserVote;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -10,6 +8,7 @@ import lombok.extern.jackson.Jacksonized;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -25,6 +24,10 @@ public class Dashboard extends EntityBase {
 
     @NotNull
     private List<Requirement> requirements;
+
+    private List<Map<String, Object>> badges;
+
+    private Map<String, Object> status;
 
     @JsonIgnore
     @Override

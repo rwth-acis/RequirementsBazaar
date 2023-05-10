@@ -1738,3 +1738,13 @@ databaseChangeLog:
                   defaultValue: -1 # user is unknown (legacy data reasons)
                   constraints:
                     nullable: false
+  - changeSet:
+      id: 23-04-26-add-default-tags
+      author: tobasco99
+      changes:
+        - sql:
+            sql: insert into tag (name, colour, project_id) select 'Must', '#991629', id from project
+        - sql:
+            sql: insert into tag (name, colour, project_id) select 'Should', '#FFD966', id from project
+        - sql:
+            sql: insert into tag (name, colour, project_id) select 'Could', '#72a16f', id from project

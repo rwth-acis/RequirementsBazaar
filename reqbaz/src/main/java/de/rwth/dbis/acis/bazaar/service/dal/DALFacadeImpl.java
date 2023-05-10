@@ -232,7 +232,7 @@ public class DALFacadeImpl implements DALFacade {
         // TODO: concurrency transaction -> https://www.jooq.org/doc/3.9/manual/sql-execution/transaction-management/
         addUserToRole(userId, "ProjectAdmin", newProject.getId());
 
-        // This is stupid, but the return value of update is inclomplete (dependent objects won't be resolved, since only the top level get by id method is called.
+        // This is stupid, but the return value of update is incomplete (dependent objects won't be resolved, since only the top level get by id method is called).
         // Call repository get separately
         projectRepository.update(newProject);
         return projectRepository.findById(newProject.getId(), userId);
@@ -343,80 +343,49 @@ public class DALFacadeImpl implements DALFacade {
 
         if (modifiedRequirement.getCategories() != null) {
             List<Category> oldCategories = listCategoriesByRequirementId(modifiedRequirement.getId(), userId);
+            handleOldCategory(modifiedRequirement, oldCategories);
+            handleNewCategory(modifiedRequirement, oldCategories);
+        }
+        synchronizeTags(modifiedRequirement, oldRequirement);
+        synchronizeAttachments(modifiedRequirement, userId, oldRequirement);
+
+        return getRequirementById(modifiedRequirement.getId(), userId);
+    }
+
+    private void handleNewCategory(Requirement modifiedRequirement, List<Category> oldCategories) throws BazaarException {
+        for (Integer newCategory : modifiedRequirement.getCategories()) {
+            boolean containCategory = false;
             for (Category oldCategory : oldCategories) {
-                boolean containCategory = false;
-                for (Integer newCategory : modifiedRequirement.getCategories()) {
-                    if (oldCategory.getId() == newCategory) {
-                        containCategory = true;
-                        break;
-                    }
-                }
-                if (!containCategory) {
-                    deleteCategoryTag(modifiedRequirement.getId(), oldCategory.getId());
+                if (oldCategory.getId() == newCategory) {
+                    containCategory = true;
+                    break;
                 }
             }
+            if (!containCategory) {
+                addCategoryTag(modifiedRequirement.getId(), newCategory);
+            }
+        }
+    }
+
+    private void handleOldCategory(Requirement modifiedRequirement, List<Category> oldCategories) throws BazaarException {
+        for (Category oldCategory : oldCategories) {
+            boolean containCategory = false;
             for (Integer newCategory : modifiedRequirement.getCategories()) {
-                boolean containCategory = false;
-                for (Category oldCategory : oldCategories) {
-                    if (oldCategory.getId() == newCategory) {
-                        containCategory = true;
-                        break;
-                    }
-                }
-                if (!containCategory) {
-                    addCategoryTag(modifiedRequirement.getId(), newCategory);
+                if (oldCategory.getId() == newCategory) {
+                    containCategory = true;
+                    break;
                 }
             }
-        }
-
-        // Synchronize tags
-        if (modifiedRequirement.getTags() != null) {
-            // Check if tags have changed
-            for (Tag tag : modifiedRequirement.getTags()) {
-                try {
-                    Tag internalTag = getTagById(tag.getId());
-
-                    // Check if tag exists (in project)
-                    if (internalTag == null || modifiedRequirement.getProjectId() != internalTag.getProjectId()) {
-                        tag.setProjectId(modifiedRequirement.getProjectId());
-                        tag = createTag(tag);
-                    }
-                    tagRequirement(tag.getId(), modifiedRequirement.getId());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            if (!containCategory) {
+                deleteCategoryTag(modifiedRequirement.getId(), oldCategory.getId());
             }
-
-            // Remove tags no longer present
-            oldRequirement.getTags().stream().filter(tag -> modifiedRequirement.getTags().contains(tag)).forEach(tag -> {
-                try {
-                    untagRequirement(tag.getId(), oldRequirement.getId());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
         }
+    }
 
-        // Synchronize attachments
+    private void synchronizeAttachments(Requirement modifiedRequirement, int userId, Requirement oldRequirement) {
         if (modifiedRequirement.getAttachments() != null) {
             // Check if tags have changed
-            for (Attachment attachment : modifiedRequirement.getAttachments()) {
-                try {
-                    Attachment internalAttachment = null;
-                    if (attachment.getId() != 0) {
-                        internalAttachment = getAttachmentById(attachment.getId());
-                    }
-
-                    // Check if attachment exists, otherwise create
-                    if (internalAttachment == null) {
-                        attachment.setRequirementId(modifiedRequirement.getId());
-                        attachment.setCreator(getUserById(userId));
-                        createAttachment(attachment);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+            checkTagChangesAttachments(modifiedRequirement, userId);
 
             // Remove tags no longer present
             oldRequirement.getAttachments().stream().filter(attachment -> modifiedRequirement.getAttachments().contains(attachment)).forEach(attachment -> {
@@ -427,8 +396,59 @@ public class DALFacadeImpl implements DALFacade {
                 }
             });
         }
+    }
 
-        return getRequirementById(modifiedRequirement.getId(), userId);
+    private void checkTagChangesAttachments(Requirement modifiedRequirement, int userId) {
+        for (Attachment attachment : modifiedRequirement.getAttachments()) {
+            try {
+                Attachment internalAttachment = null;
+                if (attachment.getId() != 0) {
+                    internalAttachment = getAttachmentById(attachment.getId());
+                }
+
+                // Check if attachment exists, otherwise create
+                if (internalAttachment == null) {
+                    attachment.setRequirementId(modifiedRequirement.getId());
+                    attachment.setCreator(getUserById(userId));
+                    createAttachment(attachment);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private void synchronizeTags(Requirement modifiedRequirement, Requirement oldRequirement) {
+        if (modifiedRequirement.getTags() != null) {
+            // Check if tags have changed
+            checkTagChanges(modifiedRequirement);
+
+            // Remove tags no longer present
+            oldRequirement.getTags().stream().filter(tag -> !modifiedRequirement.getTags().contains(tag)).forEach(tag -> {
+                try {
+                    untagRequirement(tag.getId(), oldRequirement.getId());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+    }
+
+    private void checkTagChanges(Requirement modifiedRequirement) {
+        for (Tag tag : modifiedRequirement.getTags()) {
+            try {
+                Tag internalTag = getTagById(tag.getId());
+
+                // Check if tag exists (in project)
+                if (internalTag == null || modifiedRequirement.getProjectId() != internalTag.getProjectId()) {
+                    tag.setProjectId(modifiedRequirement.getProjectId());
+                    tag = createTag(tag);
+                }
+                tagRequirement(tag.getId(), modifiedRequirement.getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
