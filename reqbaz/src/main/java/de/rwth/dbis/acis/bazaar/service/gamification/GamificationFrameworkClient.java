@@ -20,6 +20,7 @@ public class GamificationFrameworkClient {
     private final HttpUrl gfBaseUrl;
     private final OkHttpClient httpClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final String FIRST_LOGIN = "first_login";
 
     public GamificationFrameworkClient(String gfBaseUrl, String gfUsername, String gfPassword) {
         this.gfBaseUrl = HttpUrl.parse(gfBaseUrl);
@@ -37,7 +38,7 @@ public class GamificationFrameworkClient {
                 .build();
     }
 
-    public void addMemberToGame(String gameId, String memberUsername) throws IOException {
+    public boolean addMemberToGame(String gameId, String memberUsername) throws IOException {
         Validate.notBlank(gameId);
         Validate.notBlank(memberUsername);
 
@@ -54,7 +55,10 @@ public class GamificationFrameworkClient {
 
         try (Response response = httpClient.newCall(request).execute()) {
             checkSuccess(response);
+            String rawResponse = Objects.requireNonNull(response.body()).string();
             logger.info("Added member " + memberUsername + " to game " + gameId);
+            // returns true if user is newly added to the game
+            return !rawResponse.equalsIgnoreCase("{}");
         }
     }
 

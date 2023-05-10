@@ -34,7 +34,7 @@ public class GamificationManager {
         }
     }
 
-    public void initializeUser(Integer userId, boolean firstLogin) {
+    public void initializeUser(Integer userId) {
         if (!isAvailable()) {
             logger.warning("Cannot add user to Gamification Framework. Gamification is not configured");
             return;
@@ -42,7 +42,7 @@ public class GamificationManager {
 
         try {
             gfClient.registerUser(gfGameId, gfNamespace + userId);
-            gfClient.addMemberToGame(gfGameId, gfNamespace + userId);
+            boolean firstLogin = gfClient.addMemberToGame(gfGameId, gfNamespace + userId);
             if (firstLogin) {
                 triggerFirstLoginAction((userId));
             }

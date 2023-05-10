@@ -205,15 +205,18 @@ public class UsersResource {
         DALFacade dalFacade = null;
         try {
             String userId = resourceHelper.getUserId();
+            dalFacade = bazaarService.getDBConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            boolean isGamified = bazaarService.getGamificationManager().isAvailable();
 
             // Block anonymous user
             resourceHelper.checkAuthorization(!userId.equals("anonymous"), "error.authorization.user.read", true);
-
-            dalFacade = bazaarService.getDBConnection();
-            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            // make sure logged-in user is added to gamification if not anonymous
+            if (!userId.equals("anonymous") && isGamified) {
+                bazaarService.getGamificationManager().initializeUser(internalUserId);
+            }
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.RETRIEVE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_54,
                     internalUserId, Activity.DataType.USER, internalUserId);
-            boolean isGamified = bazaarService.getGamificationManager().isAvailable();
             Dashboard data = dalFacade.getDashboardData(internalUserId, 10);
             if (isGamified) {
                 data.setBadges(bazaarService.getGamificationManager().getUserBadges(internalUserId));
