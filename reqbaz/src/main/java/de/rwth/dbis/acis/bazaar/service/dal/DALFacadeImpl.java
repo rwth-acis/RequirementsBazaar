@@ -975,6 +975,21 @@ public class DALFacadeImpl implements DALFacade {
     }
 
     @Override
+    public Tag updateTag(Tag tag) throws Exception {
+        tagRepository = (tagRepository != null) ? tagRepository : new TagRepositoryImpl(dslContext);
+        tagRepository.update(tag);
+        return tagRepository.findById(tag.getId());
+    }
+
+    @Override
+    public Tag deleteTagById(int tagId) throws Exception {
+        tagRepository = (tagRepository != null) ? tagRepository : new TagRepositoryImpl(dslContext);
+        Tag tag = tagRepository.findById(tagId);
+        tagRepository.delete(tagId);
+        return tag;
+    }
+
+    @Override
     public PaginationResult<ProjectMember> getProjectMembers(int projectId, Pageable pageable) throws
             BazaarException {
         roleRepository = (roleRepository != null) ? roleRepository : new RoleRepositoryImpl(dslContext);

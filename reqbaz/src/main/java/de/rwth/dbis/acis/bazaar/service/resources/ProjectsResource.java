@@ -712,6 +712,78 @@ public class ProjectsResource {
     }
 
     /**
+     * Allows to update a tag of a project.
+     *
+     * @param projectId id of the project to update
+     * @param tag       One modified project tag
+     * @return Response with empty body.
+     */
+    @PUT
+    @Path("/{projectId}/tags")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "This method allows to modify a project tag.")
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpURLConnection.HTTP_NO_CONTENT, message = "Member modified"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+    })
+    public Response updateTags(@PathParam("projectId") int projectId,
+                               @ApiParam(value = "New or updated tags", required = true) Tag tag) {
+        DALFacade dalFacade = null;
+        try {
+            String userId = resourceHelper.getUserId();
+            resourceHelper.handleGenericError(bazaarService.validate(tag));
+
+            dalFacade = bazaarService.getDBConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+
+            // ensure the given tag exists
+            dalFacade.getTagById(tag.getId());
+            dalFacade.updateTag(tag);
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_6, projectId, Activity.DataType.PROJECT, internalUserId);
+            return Response.noContent().build();
+        } catch (BazaarException bex) {
+            return resourceHelper.handleBazaarException(bex, "Update tag", logger);
+        } catch (Exception ex) {
+            return resourceHelper.handleException(ex, "Update tag", logger);
+        } finally {
+            bazaarService.closeDBConnection(dalFacade);
+        }
+    }
+
+    @DELETE
+    @Path("/{projectId}/tags/{tagId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "This method allows to remove a tag.")
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpURLConnection.HTTP_NO_CONTENT, message = "Tag removed"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+    })
+    public Response removeTag(
+            @ApiParam(value = "Project to remove the tag from") @PathParam("projectId") int projectId,
+            @ApiParam(value = "Tag ID of the Tag to remove") @PathParam("tagId") int tagId) {
+        DALFacade dalFacade = null;
+        try {
+            String userId = resourceHelper.getUserId();
+            dalFacade = bazaarService.getDBConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            dalFacade.deleteTagById(tagId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_6, projectId, Activity.DataType.PROJECT, internalUserId);
+            return Response.noContent().build();
+        } catch (BazaarException bex) {
+            return resourceHelper.handleBazaarException(bex, "Remove tag", logger);
+        } catch (Exception ex) {
+            return resourceHelper.handleException(ex, "Remove tag", logger);
+        } finally {
+            bazaarService.closeDBConnection(dalFacade);
+        }
+    }
+
+    /**
      * Add a member to the project
      *
      * @param projectId     id of the project to update
