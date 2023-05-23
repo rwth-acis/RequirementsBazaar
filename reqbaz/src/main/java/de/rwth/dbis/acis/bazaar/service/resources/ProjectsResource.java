@@ -668,7 +668,7 @@ public class ProjectsResource {
     }
 
     /**
-     * This method add the current user to the followers list of a given project.
+     * This method adds a tag to a given project.
      *
      * @param projectId id of the project
      * @param tag       Tag to be created
@@ -693,7 +693,8 @@ public class ProjectsResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_CATEGORY, dalFacade), "error.authorization.category.create", true);
+            // Only Admins should be able to create new tags.
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Modify_PROJECT, projectId, dalFacade), "error.authorization.project.modify", true);
 
             // Ensure no cross-injection happens
             tag.setProjectId(projectId);
@@ -738,6 +739,9 @@ public class ProjectsResource {
 
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            // Only Admins should be able to edit tags.
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Modify_PROJECT, projectId, dalFacade), "error.authorization.project.modify", true);
+
 
             // ensure the given tag exists
             dalFacade.getTagById(tag.getId());
@@ -771,6 +775,9 @@ public class ProjectsResource {
             String userId = resourceHelper.getUserId();
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            // Only Admins should be able to delete tags.
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Modify_PROJECT, projectId, dalFacade), "error.authorization.project.modify", true);
+
             dalFacade.deleteTagById(tagId);
             bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_6, projectId, Activity.DataType.PROJECT, internalUserId);
             return Response.noContent().build();
