@@ -10,6 +10,13 @@ the [GitHub Release Page](https://github.com/rwth-acis/RequirementsBazaar/releas
 
 ## [Unreleased]
 
+## [0.17.1] - 2023-06-13
+
+### Added
+
+- Added possibility to edit / delete labels
+  [#181](https://github.com/rwth-acis/RequirementsBazaar/pull/181)
+
 ## [0.17.0] - 2023-05-10
 
 ### Added
