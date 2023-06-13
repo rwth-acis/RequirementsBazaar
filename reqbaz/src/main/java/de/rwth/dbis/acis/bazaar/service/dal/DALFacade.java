@@ -830,6 +830,20 @@ public interface DALFacade {
      * @throws Exception
      */
     void untagRequirement(int tagId, int requirementId) throws Exception;
+
+    /**
+     * Updates a Tag
+     *
+     * @param tag comment to persist
+     * @return the updated comment
+     * @throws Exception
+     */
+    Tag updateTag(Tag tag) throws Exception;
+
+    /**
+     * @param tagId to identify the comment to be deleted
+     */
+    Tag deleteTagById(int tagId) throws Exception;
     // endregion tags
 
 

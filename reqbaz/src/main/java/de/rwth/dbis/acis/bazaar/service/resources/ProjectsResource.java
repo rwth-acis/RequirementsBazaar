@@ -668,7 +668,7 @@ public class ProjectsResource {
     }
 
     /**
-     * This method add the current user to the followers list of a given project.
+     * This method adds a tag to a given project.
      *
      * @param projectId id of the project
      * @param tag       Tag to be created
@@ -693,7 +693,8 @@ public class ProjectsResource {
             dalFacade = bazaarService.getDBConnection();
             Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
 
-            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorized(internalUserId, PrivilegeEnum.Create_CATEGORY, dalFacade), "error.authorization.category.create", true);
+            // Only Admins should be able to create new tags.
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Modify_PROJECT, projectId, dalFacade), "error.authorization.project.modify", true);
 
             // Ensure no cross-injection happens
             tag.setProjectId(projectId);
@@ -706,6 +707,84 @@ public class ProjectsResource {
             return resourceHelper.handleBazaarException(bex, "Follow project " + projectId, logger);
         } catch (Exception ex) {
             return resourceHelper.handleException(ex, "Follow project " + projectId, logger);
+        } finally {
+            bazaarService.closeDBConnection(dalFacade);
+        }
+    }
+
+    /**
+     * Allows to update a tag of a project.
+     *
+     * @param projectId id of the project to update
+     * @param tag       One modified project tag
+     * @return Response with empty body.
+     */
+    @PUT
+    @Path("/{projectId}/tags")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "This method allows to modify a project tag.")
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpURLConnection.HTTP_NO_CONTENT, message = "Member modified"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+    })
+    public Response updateTags(@PathParam("projectId") int projectId,
+                               @ApiParam(value = "New or updated tags", required = true) Tag tag) {
+        DALFacade dalFacade = null;
+        try {
+            String userId = resourceHelper.getUserId();
+            resourceHelper.handleGenericError(bazaarService.validate(tag));
+
+            dalFacade = bazaarService.getDBConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            // Only Admins should be able to edit tags.
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Modify_PROJECT, projectId, dalFacade), "error.authorization.project.modify", true);
+
+
+            // ensure the given tag exists
+            dalFacade.getTagById(tag.getId());
+            dalFacade.updateTag(tag);
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_6, projectId, Activity.DataType.PROJECT, internalUserId);
+            return Response.noContent().build();
+        } catch (BazaarException bex) {
+            return resourceHelper.handleBazaarException(bex, "Update tag", logger);
+        } catch (Exception ex) {
+            return resourceHelper.handleException(ex, "Update tag", logger);
+        } finally {
+            bazaarService.closeDBConnection(dalFacade);
+        }
+    }
+
+    @DELETE
+    @Path("/{projectId}/tags/{tagId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "This method allows to remove a tag.")
+    @ApiResponses(value = {
+            @ApiResponse(code = HttpURLConnection.HTTP_NO_CONTENT, message = "Tag removed"),
+            @ApiResponse(code = HttpURLConnection.HTTP_UNAUTHORIZED, message = "Unauthorized"),
+            @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = "Not found"),
+            @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = "Internal server problems")
+    })
+    public Response removeTag(
+            @ApiParam(value = "Project to remove the tag from") @PathParam("projectId") int projectId,
+            @ApiParam(value = "Tag ID of the Tag to remove") @PathParam("tagId") int tagId) {
+        DALFacade dalFacade = null;
+        try {
+            String userId = resourceHelper.getUserId();
+            dalFacade = bazaarService.getDBConnection();
+            Integer internalUserId = dalFacade.getUserIdByLAS2PeerId(userId);
+            // Only Admins should be able to delete tags.
+            resourceHelper.checkAuthorization(new AuthorizationManager().isAuthorizedInContext(internalUserId, PrivilegeEnum.Modify_PROJECT, projectId, dalFacade), "error.authorization.project.modify", true);
+
+            dalFacade.deleteTagById(tagId);
+            bazaarService.getNotificationDispatcher().dispatchNotification(OffsetDateTime.now(), Activity.ActivityAction.UPDATE, MonitoringEvent.SERVICE_CUSTOM_MESSAGE_6, projectId, Activity.DataType.PROJECT, internalUserId);
+            return Response.noContent().build();
+        } catch (BazaarException bex) {
+            return resourceHelper.handleBazaarException(bex, "Remove tag", logger);
+        } catch (Exception ex) {
+            return resourceHelper.handleException(ex, "Remove tag", logger);
         } finally {
             bazaarService.closeDBConnection(dalFacade);
         }
